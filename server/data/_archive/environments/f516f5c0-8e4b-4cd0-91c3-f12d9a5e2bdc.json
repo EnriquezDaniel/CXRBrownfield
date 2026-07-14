@@ -1,0 +1,19 @@
+{
+  "name": "SmokeB",
+  "version": 1,
+  "tags": [
+    "user"
+  ],
+  "site": {
+    "terrainSize": [
+      100,
+      100
+    ],
+    "terrainZones": [],
+    "paths": [],
+    "scaleNote": ""
+  },
+  "buildingInstances": [],
+  "objectInstances": [],
+  "id": "f516f5c0-8e4b-4cd0-91c3-f12d9a5e2bdc"
+}

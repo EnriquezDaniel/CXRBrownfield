@@ -1,0 +1,50 @@
+{
+  "site_scale": {
+    "site_width_ft": 1000,
+    "site_height_ft": 1000,
+    "normalized_canvas": [0, 0, 1000, 1000],
+    "lot_boundary": [[0, 0], [0, 1000], [1000, 0], [1000, 1000]],
+    "scale_note": "All placements must fall within lot_boundary. Bounding boxes define placement. Real-world dimensions define scale."
+  },
+  "terrain_zones": [],
+  "generated_buildings": [],
+  "generated_objects": [
+    {
+      "area_name": "House",
+      "semantic_tag": "residential_house",
+      "object_type": "building",
+      "bounding_box": [76, 248, 338, 404],
+      "center_point": [207, 326],
+      "rotation_y_deg": 0,
+      "approx_sq_ft": 40872,
+      "target_dimensions_ft": {
+        "width_ft": 200,
+        "depth_ft": 204,
+        "height_ft": 24
+      },
+      "unity_strategy": "box_primitive"
+    }
+  ],
+  "prefab_instances": [
+    {
+      "area_name": "Bench",
+      "semantic_tag": "site_furniture_bench",
+      "prefab_type": "bench",
+      "center_point": [286, 132],
+      "footprint_box": [166, 68, 407, 196],
+      "rotation_deg": 0,
+      "scale_multiplier": 1.0,
+      "unity_strategy": "place_prefab"
+    },
+    {
+      "area_name": "Tree",
+      "semantic_tag": "vegetation_tree",
+      "prefab_type": "tree",
+      "center_point": [210, 536],
+      "footprint_box": [48, 460, 372, 612],
+      "rotation_deg": 0,
+      "scale_multiplier": 1.0,
+      "unity_strategy": "place_prefab"
+    }
+  ]
+}

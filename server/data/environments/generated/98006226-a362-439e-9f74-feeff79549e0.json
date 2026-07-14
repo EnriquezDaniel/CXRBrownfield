@@ -1,0 +1,309 @@
+{
+  "id": "98006226-a362-439e-9f74-feeff79549e0",
+  "name": "sample_output",
+  "version": 1,
+  "tags": [
+    "generated"
+  ],
+  "site": {
+    "terrainSize": [
+      304.800018,
+      304.800018
+    ],
+    "terrainZones": [
+      {
+        "terrainType": "grass",
+        "rectMeters": [
+          146.304016,
+          0.0,
+          167.640015,
+          88.3920059
+        ]
+      },
+      {
+        "terrainType": "grass",
+        "rectMeters": [
+          146.304016,
+          88.3920059,
+          167.640015,
+          149.352
+        ]
+      },
+      {
+        "terrainType": "grass",
+        "rectMeters": [
+          146.304016,
+          158.496,
+          167.640015,
+          216.40802
+        ]
+      },
+      {
+        "terrainType": "grass",
+        "rectMeters": [
+          146.304016,
+          216.40802,
+          167.640015,
+          304.800018
+        ]
+      },
+      {
+        "terrainType": "plaza",
+        "rectMeters": [
+          167.640015,
+          88.3920059,
+          240.792,
+          149.352
+        ]
+      },
+      {
+        "terrainType": "plaza",
+        "rectMeters": [
+          167.640015,
+          158.496,
+          240.792,
+          216.40802
+        ]
+      },
+      {
+        "terrainType": "pavement",
+        "rectMeters": [
+          146.304016,
+          149.352,
+          240.792,
+          158.496
+        ]
+      },
+      {
+        "terrainType": "pavement",
+        "rectMeters": [
+          240.792,
+          0.0,
+          249.93602,
+          149.352
+        ]
+      },
+      {
+        "terrainType": "pavement",
+        "rectMeters": [
+          240.792,
+          158.496,
+          249.93602,
+          304.800018
+        ]
+      },
+      {
+        "terrainType": "asphalt",
+        "rectMeters": [
+          249.93602,
+          0.0,
+          304.800018,
+          304.800018
+        ]
+      }
+    ],
+    "paths": [],
+    "scaleNote": "All placements must fall within lot_boundary."
+  },
+  "buildingInstances": [
+    {
+      "instanceId": "b720cc4a-8b22-4dc2-9ad0-7af93c8ca51b",
+      "buildingId": "c59e44a2-aa75-4d23-85d2-e625d33b75b8",
+      "position": [
+        204.216019,
+        0.0,
+        44.196003
+      ],
+      "rotationX": 0.0,
+      "rotationY": 0.0,
+      "rotationZ": 0.0,
+      "scale": 1.0,
+      "included": true
+    },
+    {
+      "instanceId": "99a59703-439f-495f-8a25-a31cc03cf948",
+      "buildingId": "48faa9b8-cb19-4ce2-8cc9-05d8b1b00491",
+      "position": [
+        204.216019,
+        0.0,
+        260.604
+      ],
+      "rotationX": 0.0,
+      "rotationY": 0.0,
+      "rotationZ": 0.0,
+      "scale": 1.0,
+      "included": true
+    }
+  ],
+  "objectInstances": [
+    {
+      "instanceId": "9a2b7706-699b-44f3-ae7b-cae0d7b1929f",
+      "prefabType": "building",
+      "position": [
+        73.15201,
+        0.0,
+        149.352
+      ],
+      "rotationX": 0.0,
+      "rotationY": 0.0,
+      "rotationZ": 0.0,
+      "scale": 1.0,
+      "boxSizeMeters": [
+        298.704,
+        15.24,
+        146.304
+      ],
+      "included": true
+    },
+    {
+      "instanceId": "63897e76-a85f-4001-ab23-489f035473a6",
+      "prefabType": "bench",
+      "position": [
+        198.12001,
+        0.0,
+        94.48801
+      ],
+      "rotationX": 0.0,
+      "rotationY": 90.0,
+      "rotationZ": 0.0,
+      "scale": 1.0,
+      "boxSizeMeters": null,
+      "included": true
+    },
+    {
+      "instanceId": "c9e1e822-00cc-45a8-8f98-36f71e14f7d2",
+      "prefabType": "bench",
+      "position": [
+        202.692017,
+        0.0,
+        94.48801
+      ],
+      "rotationX": 0.0,
+      "rotationY": 90.0,
+      "rotationZ": 0.0,
+      "scale": 1.0,
+      "boxSizeMeters": null,
+      "included": true
+    },
+    {
+      "instanceId": "bddd44aa-2213-4c74-90dc-2a507a694a33",
+      "prefabType": "bench",
+      "position": [
+        207.264,
+        0.0,
+        94.48801
+      ],
+      "rotationX": 0.0,
+      "rotationY": 90.0,
+      "rotationZ": 0.0,
+      "scale": 1.0,
+      "boxSizeMeters": null,
+      "included": true
+    },
+    {
+      "instanceId": "23e7593f-a87f-404e-ad77-b957a6ae1b28",
+      "prefabType": "bench",
+      "position": [
+        211.836014,
+        0.0,
+        94.48801
+      ],
+      "rotationX": 0.0,
+      "rotationY": 90.0,
+      "rotationZ": 0.0,
+      "scale": 1.0,
+      "boxSizeMeters": null,
+      "included": true
+    },
+    {
+      "instanceId": "38192ad8-a728-470b-9797-b5af7b110ec4",
+      "prefabType": "tree",
+      "position": [
+        182.88,
+        0.0,
+        118.872009
+      ],
+      "rotationX": 0.0,
+      "rotationY": 0.0,
+      "rotationZ": 0.0,
+      "scale": 1.0,
+      "boxSizeMeters": null,
+      "included": true
+    },
+    {
+      "instanceId": "c31bfb75-6f09-4d45-b174-4cc85179c00a",
+      "prefabType": "tree",
+      "position": [
+        192.024017,
+        0.0,
+        124.96801
+      ],
+      "rotationX": 0.0,
+      "rotationY": 0.0,
+      "rotationZ": 0.0,
+      "scale": 1.0,
+      "boxSizeMeters": null,
+      "included": true
+    },
+    {
+      "instanceId": "e5a62059-e9ab-4a97-81ab-9a31f060a300",
+      "prefabType": "tree",
+      "position": [
+        201.168015,
+        0.0,
+        131.064011
+      ],
+      "rotationX": 0.0,
+      "rotationY": 0.0,
+      "rotationZ": 0.0,
+      "scale": 1.0,
+      "boxSizeMeters": null,
+      "included": true
+    },
+    {
+      "instanceId": "c1aea616-6536-4ef7-bdfe-51f23ca07e83",
+      "prefabType": "tree",
+      "position": [
+        182.88,
+        0.0,
+        188.976013
+      ],
+      "rotationX": 0.0,
+      "rotationY": 0.0,
+      "rotationZ": 0.0,
+      "scale": 1.0,
+      "boxSizeMeters": null,
+      "included": true
+    },
+    {
+      "instanceId": "66481319-2719-44d4-aadc-e68af8c7153e",
+      "prefabType": "tree",
+      "position": [
+        192.024017,
+        0.0,
+        195.072
+      ],
+      "rotationX": 0.0,
+      "rotationY": 0.0,
+      "rotationZ": 0.0,
+      "scale": 1.0,
+      "boxSizeMeters": null,
+      "included": true
+    },
+    {
+      "instanceId": "486de1ab-7395-468e-8825-701bf9466306",
+      "prefabType": "tree",
+      "position": [
+        201.168015,
+        0.0,
+        201.168015
+      ],
+      "rotationX": 0.0,
+      "rotationY": 0.0,
+      "rotationZ": 0.0,
+      "scale": 1.0,
+      "boxSizeMeters": null,
+      "included": true
+    }
+  ]
+}

@@ -1,0 +1,372 @@
+{
+  "site_scale": {
+    "site_width_ft": 1000,
+    "site_height_ft": 1000,
+    "normalized_canvas": [0, 0, 1000, 1000],
+    "lot_boundary": [[0, 0], [0, 1000], [1000, 1000], [1000, 0]],
+    "scale_note": "All placements must fall within lot_boundary. Bounding boxes define placement. Real-world dimensions define scale."
+  },
+  "terrain_zones": [
+    {
+      "area_name": "Central Plaza",
+      "semantic_tag": "open_plaza",
+      "terrain_type": "plaza",
+      "bounding_box": [167, 174, 720, 744],
+      "approx_sq_ft": 314307,
+      "unity_strategy": "paint_terrain"
+    },
+    {
+      "area_name": "Perimeter Walkway",
+      "semantic_tag": "pavement_ring",
+      "terrain_type": "pavement",
+      "bounding_box": [40, 50, 950, 870],
+      "approx_sq_ft": 745200,
+      "unity_strategy": "paint_terrain"
+    }
+  ],
+  "generated_buildings": [
+    {
+      "area_name": "Shop 1",
+      "semantic_tag": "retail_shop",
+      "bounding_box": [49, 54, 174, 179],
+      "center_point": [111, 116],
+      "rotation_y_deg": 0,
+      "floors": 1,
+      "approx_sq_ft": 15625,
+      "unity_strategy": "modular_prefab"
+    },
+    {
+      "area_name": "Shop 2",
+      "semantic_tag": "retail_shop",
+      "bounding_box": [49, 185, 167, 375],
+      "center_point": [108, 280],
+      "rotation_y_deg": 0,
+      "floors": 1,
+      "approx_sq_ft": 22420,
+      "unity_strategy": "modular_prefab"
+    },
+    {
+      "area_name": "Shop 2B",
+      "semantic_tag": "retail_shop",
+      "bounding_box": [56, 386, 153, 511],
+      "center_point": [104, 448],
+      "rotation_y_deg": 0,
+      "floors": 1,
+      "approx_sq_ft": 12125,
+      "unity_strategy": "modular_prefab"
+    },
+    {
+      "area_name": "Shop 3",
+      "semantic_tag": "retail_shop",
+      "bounding_box": [56, 522, 153, 674],
+      "center_point": [104, 598],
+      "rotation_y_deg": 0,
+      "floors": 1,
+      "approx_sq_ft": 14744,
+      "unity_strategy": "modular_prefab"
+    },
+    {
+      "area_name": "Shop 4",
+      "semantic_tag": "retail_shop",
+      "bounding_box": [63, 690, 160, 837],
+      "center_point": [111, 763],
+      "rotation_y_deg": 0,
+      "floors": 1,
+      "approx_sq_ft": 14259,
+      "unity_strategy": "modular_prefab"
+    },
+    {
+      "area_name": "Shop 9",
+      "semantic_tag": "retail_shop",
+      "bounding_box": [222, 60, 431, 174],
+      "center_point": [326, 117],
+      "rotation_y_deg": 90,
+      "floors": 1,
+      "approx_sq_ft": 23826,
+      "unity_strategy": "modular_prefab"
+    },
+    {
+      "area_name": "Shop 10",
+      "semantic_tag": "retail_shop",
+      "bounding_box": [444, 60, 611, 174],
+      "center_point": [527, 117],
+      "rotation_y_deg": 90,
+      "floors": 1,
+      "approx_sq_ft": 19038,
+      "unity_strategy": "modular_prefab"
+    },
+    {
+      "area_name": "Shop 11",
+      "semantic_tag": "retail_shop",
+      "bounding_box": [618, 60, 708, 163],
+      "center_point": [663, 111],
+      "rotation_y_deg": 90,
+      "floors": 1,
+      "approx_sq_ft": 9270,
+      "unity_strategy": "modular_prefab"
+    },
+    {
+      "area_name": "Shop 5",
+      "semantic_tag": "retail_shop",
+      "bounding_box": [292, 744, 431, 859],
+      "center_point": [361, 801],
+      "rotation_y_deg": 90,
+      "floors": 1,
+      "approx_sq_ft": 15985,
+      "unity_strategy": "modular_prefab"
+    },
+    {
+      "area_name": "Shop 6",
+      "semantic_tag": "retail_shop",
+      "bounding_box": [438, 744, 583, 859],
+      "center_point": [510, 801],
+      "rotation_y_deg": 90,
+      "floors": 1,
+      "approx_sq_ft": 16675,
+      "unity_strategy": "modular_prefab"
+    },
+    {
+      "area_name": "Shop 7",
+      "semantic_tag": "retail_shop",
+      "bounding_box": [590, 744, 708, 864],
+      "center_point": [649, 804],
+      "rotation_y_deg": 90,
+      "floors": 1,
+      "approx_sq_ft": 14160,
+      "unity_strategy": "modular_prefab"
+    },
+    {
+      "area_name": "Shop 8",
+      "semantic_tag": "retail_shop",
+      "bounding_box": [715, 744, 847, 864],
+      "center_point": [781, 804],
+      "rotation_y_deg": 90,
+      "floors": 1,
+      "approx_sq_ft": 15840,
+      "unity_strategy": "modular_prefab"
+    },
+    {
+      "area_name": "Shop 13",
+      "semantic_tag": "retail_shop",
+      "bounding_box": [701, 484, 813, 614],
+      "center_point": [757, 549],
+      "rotation_y_deg": 0,
+      "floors": 1,
+      "approx_sq_ft": 14560,
+      "unity_strategy": "modular_prefab"
+    },
+    {
+      "area_name": "Shop 12",
+      "semantic_tag": "retail_shop",
+      "bounding_box": [708, 614, 819, 744],
+      "center_point": [763, 679],
+      "rotation_y_deg": 0,
+      "floors": 1,
+      "approx_sq_ft": 14430,
+      "unity_strategy": "modular_prefab"
+    },
+    {
+      "area_name": "Shop 14",
+      "semantic_tag": "retail_shop",
+      "bounding_box": [813, 484, 924, 614],
+      "center_point": [868, 549],
+      "rotation_y_deg": 0,
+      "floors": 1,
+      "approx_sq_ft": 14430,
+      "unity_strategy": "modular_prefab"
+    },
+    {
+      "area_name": "Museum of History",
+      "semantic_tag": "civic_museum",
+      "bounding_box": [722, 196, 944, 348],
+      "center_point": [833, 272],
+      "rotation_y_deg": 90,
+      "floors": 2,
+      "approx_sq_ft": 33744,
+      "unity_strategy": "modular_prefab"
+    }
+  ],
+  "generated_objects": [],
+  "prefab_instances": [
+    {
+      "area_name": "Bench Row 1A",
+      "semantic_tag": "seating",
+      "prefab_type": "bench",
+      "center_point": [267, 253],
+      "footprint_box": [250, 196, 285, 310],
+      "rotation_deg": 0,
+      "scale_multiplier": 1.0,
+      "unity_strategy": "place_prefab"
+    },
+    {
+      "area_name": "Bench Row 1B",
+      "semantic_tag": "seating",
+      "prefab_type": "bench",
+      "center_point": [288, 451],
+      "footprint_box": [271, 397, 306, 505],
+      "rotation_deg": 0,
+      "scale_multiplier": 1.0,
+      "unity_strategy": "place_prefab"
+    },
+    {
+      "area_name": "Bench Row 1C",
+      "semantic_tag": "seating",
+      "prefab_type": "bench",
+      "center_point": [288, 660],
+      "footprint_box": [271, 614, 306, 707],
+      "rotation_deg": 0,
+      "scale_multiplier": 1.0,
+      "unity_strategy": "place_prefab"
+    },
+    {
+      "area_name": "Bench Row 2A",
+      "semantic_tag": "seating",
+      "prefab_type": "bench",
+      "center_point": [364, 245],
+      "footprint_box": [340, 190, 389, 299],
+      "rotation_deg": 0,
+      "scale_multiplier": 1.0,
+      "unity_strategy": "place_prefab"
+    },
+    {
+      "area_name": "Bench Row 2B",
+      "semantic_tag": "seating",
+      "prefab_type": "bench",
+      "center_point": [375, 446],
+      "footprint_box": [354, 386, 396, 505],
+      "rotation_deg": 0,
+      "scale_multiplier": 1.0,
+      "unity_strategy": "place_prefab"
+    },
+    {
+      "area_name": "Bench Row 2C",
+      "semantic_tag": "seating",
+      "prefab_type": "bench",
+      "center_point": [375, 657],
+      "footprint_box": [354, 614, 396, 701],
+      "rotation_deg": 0,
+      "scale_multiplier": 1.0,
+      "unity_strategy": "place_prefab"
+    },
+    {
+      "area_name": "Bench Row 3A",
+      "semantic_tag": "seating",
+      "prefab_type": "bench",
+      "center_point": [500, 275],
+      "footprint_box": [479, 223, 521, 326],
+      "rotation_deg": 0,
+      "scale_multiplier": 1.0,
+      "unity_strategy": "place_prefab"
+    },
+    {
+      "area_name": "Bench Row 3B",
+      "semantic_tag": "seating",
+      "prefab_type": "bench",
+      "center_point": [490, 437],
+      "footprint_box": [465, 386, 514, 489],
+      "rotation_deg": 0,
+      "scale_multiplier": 1.0,
+      "unity_strategy": "place_prefab"
+    },
+    {
+      "area_name": "Bench Row 3C",
+      "semantic_tag": "seating",
+      "prefab_type": "bench",
+      "center_point": [525, 620],
+      "footprint_box": [500, 576, 549, 663],
+      "rotation_deg": 0,
+      "scale_multiplier": 1.0,
+      "unity_strategy": "place_prefab"
+    },
+    {
+      "area_name": "Bench Row 4B",
+      "semantic_tag": "seating",
+      "prefab_type": "bench",
+      "center_point": [587, 432],
+      "footprint_box": [563, 386, 611, 478],
+      "rotation_deg": 0,
+      "scale_multiplier": 1.0,
+      "unity_strategy": "place_prefab"
+    },
+    {
+      "area_name": "Bench South 1",
+      "semantic_tag": "seating",
+      "prefab_type": "bench",
+      "center_point": [857, 674],
+      "footprint_box": [840, 630, 875, 718],
+      "rotation_deg": 0,
+      "scale_multiplier": 1.0,
+      "unity_strategy": "place_prefab"
+    },
+    {
+      "area_name": "Bench South 2",
+      "semantic_tag": "seating",
+      "prefab_type": "bench",
+      "center_point": [900, 674],
+      "footprint_box": [882, 630, 917, 718],
+      "rotation_deg": 0,
+      "scale_multiplier": 1.0,
+      "unity_strategy": "place_prefab"
+    },
+    {
+      "area_name": "Tree NW",
+      "semantic_tag": "vegetation",
+      "prefab_type": "tree",
+      "center_point": [211, 103],
+      "footprint_box": [194, 60, 229, 147],
+      "rotation_deg": 0,
+      "scale_multiplier": 1.2,
+      "unity_strategy": "place_prefab"
+    },
+    {
+      "area_name": "Tree NE",
+      "semantic_tag": "vegetation",
+      "prefab_type": "tree",
+      "center_point": [225, 801],
+      "footprint_box": [208, 750, 243, 853],
+      "rotation_deg": 0,
+      "scale_multiplier": 1.2,
+      "unity_strategy": "place_prefab"
+    },
+    {
+      "area_name": "Tree SW",
+      "semantic_tag": "vegetation",
+      "prefab_type": "tree",
+      "center_point": [823, 138],
+      "footprint_box": [729, 98, 917, 179],
+      "rotation_deg": 0,
+      "scale_multiplier": 1.4,
+      "unity_strategy": "place_prefab"
+    },
+    {
+      "area_name": "Tree SE",
+      "semantic_tag": "vegetation",
+      "prefab_type": "tree",
+      "center_point": [888, 810],
+      "footprint_box": [833, 761, 944, 859],
+      "rotation_deg": 0,
+      "scale_multiplier": 1.4,
+      "unity_strategy": "place_prefab"
+    },
+    {
+      "area_name": "Planter Grate West",
+      "semantic_tag": "ground_feature",
+      "prefab_type": "planter",
+      "center_point": [642, 204],
+      "footprint_box": [618, 185, 667, 223],
+      "rotation_deg": 0,
+      "scale_multiplier": 1.0,
+      "unity_strategy": "place_prefab"
+    },
+    {
+      "area_name": "Planter Grate East",
+      "semantic_tag": "ground_feature",
+      "prefab_type": "planter",
+      "center_point": [635, 698],
+      "footprint_box": [611, 679, 660, 718],
+      "rotation_deg": 0,
+      "scale_multiplier": 1.0,
+      "unity_strategy": "place_prefab"
+    }
+  ]
+}

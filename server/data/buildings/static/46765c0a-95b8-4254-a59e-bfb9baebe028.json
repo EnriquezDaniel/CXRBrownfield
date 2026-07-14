@@ -1,0 +1,3409 @@
+{
+  "id": "46765c0a-95b8-4254-a59e-bfb9baebe028",
+  "name": "1064 Home",
+  "version": 42,
+  "tags": [
+    "static"
+  ],
+  "gridCellSize": 4.0,
+  "floors": 2,
+  "floorHeight": 3.5,
+  "tiles": [
+    {
+      "gridX": -8,
+      "gridZ": 2,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "DarkWood",
+        "top": "Ceiling"
+      },
+      "deform": {
+        "dx": [
+          0.0,
+          0.0,
+          0.177130476,
+          0.212556571
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -7,
+      "gridZ": 2,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "DarkWood",
+        "top": "Ceiling"
+      },
+      "deform": {
+        "dx": [
+          0.0,
+          0.0,
+          0.141704381,
+          0.177130476
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -6,
+      "gridZ": 2,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "Ceiling"
+      },
+      "deform": {
+        "dx": [
+          0.0,
+          0.0,
+          0.106278285,
+          0.141704381
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -5,
+      "gridZ": 2,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "Ceiling"
+      },
+      "deform": {
+        "dx": [
+          0.0,
+          0.0,
+          0.07085219,
+          0.106278285
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -4,
+      "gridZ": 2,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "DarkStoneBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.0,
+          0.0,
+          0.0354260951,
+          0.07085219
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -3,
+      "gridZ": 2,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "east": "ConcreteBrickWall",
+        "top": "DarkStoneBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.0,
+          0.0,
+          0.0,
+          0.0354260951
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -8,
+      "gridZ": 3,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "Ceiling"
+      },
+      "deform": {
+        "dx": [
+          0.212556571,
+          0.177130476,
+          0.354260951,
+          0.425113142
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -8,
+      "gridZ": 4,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "Ceiling"
+      },
+      "deform": {
+        "dx": [
+          0.425113142,
+          0.354260951,
+          0.531391442,
+          0.6376697
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -8,
+      "gridZ": 5,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "Ceiling"
+      },
+      "deform": {
+        "dx": [
+          0.6376697,
+          0.531391442,
+          0.7085219,
+          0.8502263
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -8,
+      "gridZ": 6,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "Ceiling"
+      },
+      "deform": {
+        "dx": [
+          0.8502263,
+          0.7085219,
+          0.885652363,
+          1.06278288
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -8,
+      "gridZ": 7,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "Ceiling"
+      },
+      "deform": {
+        "dx": [
+          1.06278288,
+          0.885652363,
+          1.06278288,
+          1.27533937
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -8,
+      "gridZ": 8,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "Ceiling"
+      },
+      "deform": {
+        "dx": [
+          1.27533937,
+          1.06278288,
+          1.23991334,
+          1.487896
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -8,
+      "gridZ": 9,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "Ceiling"
+      },
+      "deform": {
+        "dx": [
+          1.487896,
+          1.23991334,
+          1.41704381,
+          1.70045257
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -8,
+      "gridZ": 10,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "SteelWall",
+        "top": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          1.70045257,
+          1.41704381,
+          1.59417427,
+          1.91300917
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -3,
+      "gridZ": 3,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "east": "ConcreteBrickWall",
+        "top": "DarkStoneBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.0354260951,
+          0.0,
+          0.0,
+          0.07085219
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -3,
+      "gridZ": 4,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "east": "ConcreteBrickWall",
+        "top": "DarkStoneBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.07085219,
+          0.0,
+          0.0,
+          0.106278285
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -3,
+      "gridZ": 5,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "east": "RedBricks",
+        "top": "DarkStoneBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.106278285,
+          0.0,
+          0.0,
+          0.141704381
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -3,
+      "gridZ": 6,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "east": "RedBricks",
+        "top": "DarkStoneBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.141704381,
+          0.0,
+          0.0,
+          0.177130476
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -3,
+      "gridZ": 7,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "east": "MossyCobbleBrickWall",
+        "top": "DarkStoneBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.177130476,
+          0.0,
+          0.0,
+          0.212556571
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -3,
+      "gridZ": 8,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "east": "MossyCobbleBrickWall",
+        "top": "DarkStoneBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.212556571,
+          0.0,
+          0.0,
+          0.247982666
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -3,
+      "gridZ": 9,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "east": "DirtBrickWall",
+        "top": "DarkStoneBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.247982666,
+          0.0,
+          0.0,
+          0.283408761
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -3,
+      "gridZ": 10,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "east": "DirtBrickWall",
+        "north": "SteelWall",
+        "top": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.283408761,
+          0.0,
+          0.0,
+          0.318834871
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -4,
+      "gridZ": 10,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "SteelWall",
+        "top": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.5668175,
+          0.283408761,
+          0.318834871,
+          0.637669742
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -5,
+      "gridZ": 10,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "SteelWall",
+        "top": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.8502263,
+          0.5668175,
+          0.637669742,
+          0.9565046
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -6,
+      "gridZ": 10,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "SteelWall",
+        "top": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          1.133635,
+          0.8502263,
+          0.9565046,
+          1.27533948
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -7,
+      "gridZ": 10,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "SteelWall",
+        "top": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          1.41704381,
+          1.133635,
+          1.27533948,
+          1.59417427
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -7,
+      "gridZ": 9,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "Ceiling"
+      },
+      "deform": {
+        "dx": [
+          1.23991334,
+          0.991930664,
+          1.133635,
+          1.41704381
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -7,
+      "gridZ": 8,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "Ceiling"
+      },
+      "deform": {
+        "dx": [
+          1.06278288,
+          0.8502263,
+          0.991930664,
+          1.23991334
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -7,
+      "gridZ": 7,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "Ceiling"
+      },
+      "deform": {
+        "dx": [
+          0.885652363,
+          0.7085219,
+          0.8502263,
+          1.06278288
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -7,
+      "gridZ": 6,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "Ceiling"
+      },
+      "deform": {
+        "dx": [
+          0.7085219,
+          0.5668175,
+          0.7085219,
+          0.885652363
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -7,
+      "gridZ": 5,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "Ceiling"
+      },
+      "deform": {
+        "dx": [
+          0.531391442,
+          0.425113142,
+          0.5668175,
+          0.7085219
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -7,
+      "gridZ": 4,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "Ceiling"
+      },
+      "deform": {
+        "dx": [
+          0.354260951,
+          0.283408761,
+          0.425113142,
+          0.531391442
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -6,
+      "gridZ": 4,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "Ceiling"
+      },
+      "deform": {
+        "dx": [
+          0.283408761,
+          0.212556571,
+          0.318834841,
+          0.425113142
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -6,
+      "gridZ": 3,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "Ceiling"
+      },
+      "deform": {
+        "dx": [
+          0.141704381,
+          0.106278285,
+          0.212556571,
+          0.283408761
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -5,
+      "gridZ": 3,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "Ceiling"
+      },
+      "deform": {
+        "dx": [
+          0.106278285,
+          0.07085219,
+          0.141704381,
+          0.212556571
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -4,
+      "gridZ": 3,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "DarkStoneBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.07085219,
+          0.0354260951,
+          0.07085219,
+          0.141704381
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -4,
+      "gridZ": 4,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "DarkStoneBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.141704381,
+          0.07085219,
+          0.106278285,
+          0.212556571
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -4,
+      "gridZ": 5,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "DarkStoneBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.212556571,
+          0.106278285,
+          0.141704381,
+          0.283408761
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -4,
+      "gridZ": 6,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "DarkStoneBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.283408761,
+          0.141704381,
+          0.177130476,
+          0.354260951
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -5,
+      "gridZ": 6,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "Ceiling"
+      },
+      "deform": {
+        "dx": [
+          0.425113142,
+          0.283408761,
+          0.354260951,
+          0.531391442
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -4,
+      "gridZ": 7,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "DarkStoneBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.354260951,
+          0.177130476,
+          0.212556571,
+          0.425113142
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -5,
+      "gridZ": 7,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "Ceiling"
+      },
+      "deform": {
+        "dx": [
+          0.531391442,
+          0.354260951,
+          0.425113142,
+          0.6376697
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -6,
+      "gridZ": 7,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "Ceiling"
+      },
+      "deform": {
+        "dx": [
+          0.7085219,
+          0.531391442,
+          0.6376697,
+          0.8502263
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -6,
+      "gridZ": 6,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "Ceiling"
+      },
+      "deform": {
+        "dx": [
+          0.5668175,
+          0.425113142,
+          0.531391442,
+          0.7085219
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -6,
+      "gridZ": 5,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "Ceiling"
+      },
+      "deform": {
+        "dx": [
+          0.425113142,
+          0.318834841,
+          0.425113142,
+          0.5668175
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -5,
+      "gridZ": 4,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "Ceiling"
+      },
+      "deform": {
+        "dx": [
+          0.212556571,
+          0.141704381,
+          0.212556571,
+          0.318834841
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -5,
+      "gridZ": 5,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "Ceiling"
+      },
+      "deform": {
+        "dx": [
+          0.318834841,
+          0.212556571,
+          0.283408761,
+          0.425113142
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -5,
+      "gridZ": 8,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "Ceiling"
+      },
+      "deform": {
+        "dx": [
+          0.6376697,
+          0.425113142,
+          0.495965332,
+          0.743948
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -4,
+      "gridZ": 9,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "DarkStoneBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.495965332,
+          0.247982666,
+          0.283408761,
+          0.5668175
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -5,
+      "gridZ": 9,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "Ceiling"
+      },
+      "deform": {
+        "dx": [
+          0.743948,
+          0.495965332,
+          0.5668175,
+          0.8502263
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -4,
+      "gridZ": 8,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "DarkStoneBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.425113142,
+          0.212556571,
+          0.247982666,
+          0.495965332
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -6,
+      "gridZ": 8,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "Ceiling"
+      },
+      "deform": {
+        "dx": [
+          0.8502263,
+          0.6376697,
+          0.743948,
+          0.991930664
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -6,
+      "gridZ": 9,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "Ceiling"
+      },
+      "deform": {
+        "dx": [
+          0.991930664,
+          0.743948,
+          0.8502263,
+          1.133635
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -7,
+      "gridZ": 3,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "Ceiling"
+      },
+      "deform": {
+        "dx": [
+          0.177130476,
+          0.141704381,
+          0.283408761,
+          0.354260951
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -3,
+      "gridZ": 10,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "east": "DirtBrickWall",
+        "north": "SteelWall"
+      },
+      "deform": {
+        "dx": [
+          0.283408761,
+          0.0,
+          0.0,
+          0.318834871
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -4,
+      "gridZ": 10,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "SteelWall"
+      },
+      "deform": {
+        "dx": [
+          0.5668175,
+          0.283408761,
+          0.318834871,
+          0.637669742
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -5,
+      "gridZ": 10,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "SteelWall"
+      },
+      "deform": {
+        "dx": [
+          0.8502263,
+          0.5668175,
+          0.637669742,
+          0.9565046
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -6,
+      "gridZ": 10,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "SteelWall"
+      },
+      "deform": {
+        "dx": [
+          1.133635,
+          0.8502263,
+          0.9565046,
+          1.27533948
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -7,
+      "gridZ": 10,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "SteelWall"
+      },
+      "deform": {
+        "dx": [
+          1.41704381,
+          1.133635,
+          1.27533948,
+          1.59417427
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -7,
+      "gridZ": 9,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": {
+        "dx": [
+          1.23991334,
+          0.991930664,
+          1.133635,
+          1.41704381
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -8,
+      "gridZ": 9,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": {
+        "dx": [
+          1.487896,
+          1.23991334,
+          1.41704381,
+          1.70045257
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -8,
+      "gridZ": 8,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": {
+        "dx": [
+          1.27533937,
+          1.06278288,
+          1.23991334,
+          1.487896
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -7,
+      "gridZ": 8,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": {
+        "dx": [
+          1.06278288,
+          0.8502263,
+          0.991930664,
+          1.23991334
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -7,
+      "gridZ": 7,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": {
+        "dx": [
+          0.885652363,
+          0.7085219,
+          0.8502263,
+          1.06278288
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -7,
+      "gridZ": 6,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": {
+        "dx": [
+          0.7085219,
+          0.5668175,
+          0.7085219,
+          0.885652363
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -7,
+      "gridZ": 5,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": {
+        "dx": [
+          0.531391442,
+          0.425113142,
+          0.5668175,
+          0.7085219
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -7,
+      "gridZ": 4,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": {
+        "dx": [
+          0.354260951,
+          0.283408761,
+          0.425113142,
+          0.531391442
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -6,
+      "gridZ": 4,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": {
+        "dx": [
+          0.283408761,
+          0.212556571,
+          0.318834841,
+          0.425113142
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -6,
+      "gridZ": 3,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": {
+        "dx": [
+          0.141704381,
+          0.106278285,
+          0.212556571,
+          0.283408761
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -7,
+      "gridZ": 3,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": {
+        "dx": [
+          0.177130476,
+          0.141704381,
+          0.283408761,
+          0.354260951
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -7,
+      "gridZ": 2,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": {
+        "dx": [
+          0.0,
+          0.0,
+          0.141704381,
+          0.177130476
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -6,
+      "gridZ": 2,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": {
+        "dx": [
+          0.0,
+          0.0,
+          0.106278285,
+          0.141704381
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -5,
+      "gridZ": 3,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": {
+        "dx": [
+          0.106278285,
+          0.07085219,
+          0.141704381,
+          0.212556571
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -5,
+      "gridZ": 4,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": {
+        "dx": [
+          0.212556571,
+          0.141704381,
+          0.212556571,
+          0.318834841
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -5,
+      "gridZ": 5,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": {
+        "dx": [
+          0.318834841,
+          0.212556571,
+          0.283408761,
+          0.425113142
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -6,
+      "gridZ": 5,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": {
+        "dx": [
+          0.425113142,
+          0.318834841,
+          0.425113142,
+          0.5668175
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -6,
+      "gridZ": 6,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": {
+        "dx": [
+          0.5668175,
+          0.425113142,
+          0.531391442,
+          0.7085219
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -6,
+      "gridZ": 7,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": {
+        "dx": [
+          0.7085219,
+          0.531391442,
+          0.6376697,
+          0.8502263
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -6,
+      "gridZ": 8,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": {
+        "dx": [
+          0.8502263,
+          0.6376697,
+          0.743948,
+          0.991930664
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -6,
+      "gridZ": 9,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": {
+        "dx": [
+          0.991930664,
+          0.743948,
+          0.8502263,
+          1.133635
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -5,
+      "gridZ": 9,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": {
+        "dx": [
+          0.743948,
+          0.495965332,
+          0.5668175,
+          0.8502263
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -5,
+      "gridZ": 8,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": {
+        "dx": [
+          0.6376697,
+          0.425113142,
+          0.495965332,
+          0.743948
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -5,
+      "gridZ": 7,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": {
+        "dx": [
+          0.531391442,
+          0.354260951,
+          0.425113142,
+          0.6376697
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -5,
+      "gridZ": 6,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": {
+        "dx": [
+          0.425113142,
+          0.283408761,
+          0.354260951,
+          0.531391442
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -5,
+      "gridZ": 2,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": {
+        "dx": [
+          0.0,
+          0.0,
+          0.07085219,
+          0.106278285
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -4,
+      "gridZ": 2,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": {
+        "dx": [
+          0.0,
+          0.0,
+          0.0354260951,
+          0.07085219
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -4,
+      "gridZ": 3,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": {
+        "dx": [
+          0.07085219,
+          0.0354260951,
+          0.07085219,
+          0.141704381
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -4,
+      "gridZ": 4,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": {
+        "dx": [
+          0.141704381,
+          0.07085219,
+          0.106278285,
+          0.212556571
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -4,
+      "gridZ": 5,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": {
+        "dx": [
+          0.212556571,
+          0.106278285,
+          0.141704381,
+          0.283408761
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -4,
+      "gridZ": 6,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": {
+        "dx": [
+          0.283408761,
+          0.141704381,
+          0.177130476,
+          0.354260951
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -4,
+      "gridZ": 7,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": {
+        "dx": [
+          0.354260951,
+          0.177130476,
+          0.212556571,
+          0.425113142
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -4,
+      "gridZ": 8,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": {
+        "dx": [
+          0.425113142,
+          0.212556571,
+          0.247982666,
+          0.495965332
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -4,
+      "gridZ": 9,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": {
+        "dx": [
+          0.495965332,
+          0.247982666,
+          0.283408761,
+          0.5668175
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -3,
+      "gridZ": 9,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "east": "DirtBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.247982666,
+          0.0,
+          0.0,
+          0.283408761
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -3,
+      "gridZ": 8,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "east": "MossyCobbleBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.212556571,
+          0.0,
+          0.0,
+          0.247982666
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -3,
+      "gridZ": 7,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "east": "SteelWall"
+      },
+      "deform": {
+        "dx": [
+          0.177130476,
+          0.0,
+          0.0,
+          0.212556571
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -3,
+      "gridZ": 6,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "east": "DarkStoneBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.141704381,
+          0.0,
+          0.0,
+          0.177130476
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -3,
+      "gridZ": 5,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "east": "RedBricks"
+      },
+      "deform": {
+        "dx": [
+          0.106278285,
+          0.0,
+          0.0,
+          0.141704381
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -3,
+      "gridZ": 4,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "east": "SteelWall"
+      },
+      "deform": {
+        "dx": [
+          0.07085219,
+          0.0,
+          0.0,
+          0.106278285
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -3,
+      "gridZ": 3,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "east": "DarkStoneBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.0354260951,
+          0.0,
+          0.0,
+          0.07085219
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -3,
+      "gridZ": 2,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "east": "ConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.0,
+          0.0,
+          0.0,
+          0.0354260951
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -8,
+      "gridZ": 2,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": {
+        "dx": [
+          0.0,
+          0.0,
+          0.177130476,
+          0.212556571
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -8,
+      "gridZ": 3,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": {
+        "dx": [
+          0.212556571,
+          0.177130476,
+          0.354260951,
+          0.425113142
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -8,
+      "gridZ": 4,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": {
+        "dx": [
+          0.425113142,
+          0.354260951,
+          0.531391442,
+          0.6376697
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -8,
+      "gridZ": 5,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": {
+        "dx": [
+          0.6376697,
+          0.531391442,
+          0.7085219,
+          0.8502263
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -8,
+      "gridZ": 6,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": {
+        "dx": [
+          0.8502263,
+          0.7085219,
+          0.885652363,
+          1.06278288
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -8,
+      "gridZ": 7,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": {
+        "dx": [
+          1.06278288,
+          0.885652363,
+          1.06278288,
+          1.27533937
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -8,
+      "gridZ": 10,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "SteelWall"
+      },
+      "deform": {
+        "dx": [
+          1.70045257,
+          1.41704381,
+          1.59417427,
+          1.91300917
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    }
+  ],
+  "embeddedObjects": [],
+  "favorite": false
+}

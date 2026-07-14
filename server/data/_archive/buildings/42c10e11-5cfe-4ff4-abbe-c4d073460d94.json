@@ -1,0 +1,13 @@
+{
+  "id": "42c10e11-5cfe-4ff4-abbe-c4d073460d94",
+  "name": "1085 Home",
+  "version": 1,
+  "tags": [
+    "static"
+  ],
+  "gridCellSize": 4.0,
+  "floors": 1,
+  "floorHeight": 3.5,
+  "tiles": [],
+  "embeddedObjects": []
+}

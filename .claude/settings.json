@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(../.venv/Scripts/python.exe -)",
+      "Bash(unity-mcp-cli run-system-tool *)",
+      "Bash(npx --yes unity-mcp-cli run-system-tool ping --input '{\"message\":\"compilecheck\"}')",
+      "Bash(cd /c/Users/enriq/Documents/Unity/sketch2unity/unity/model2unity/Assets/Scripts && grep -n \"class ConversionResult\\\\|public static ConversionResult Convert\\\\|public EnvironmentDef Environment\\\\|public List<BuildingDef> Buildings\\\\|public .* Environment\\\\|public .* Buildings\" LayoutConverter.cs | head -20)",
+      "Read(//c/c/Users/enriq/Documents/Unity/sketch2unity/unity/model2unity/Assets/Scripts/**)",
+      "Bash(grep -A3 \"simplefilebrowser\" Packages/packages-lock.json)",
+      "Bash(ls -d Library/PackageCache/*simplefilebrowser*)",
+      "Bash(python -c \"import layout_prompt as lp; print\\('PROMPT_PATH:', lp.PROMPT_PATH\\); print\\('exists:', lp.PROMPT_PATH.exists\\(\\)\\); print\\('claude_client set:', lp.claude_client is not None\\)\")",
+      "Bash(python -c \"import sys; sys.path.insert\\(0, '..'\\); import layout_prompt as lp; print\\('PROMPT_PATH:', lp.PROMPT_PATH\\); print\\('exists:', lp.PROMPT_PATH.exists\\(\\)\\); print\\('claude_client set:', lp.claude_client is not None\\); print\\('provider:', lp.CURRENT_PROVIDER\\)\")",
+      "Bash(python -c \"import sys; print\\(sys.executable\\)\")",
+      "Bash(pip show *)",
+      "Bash(pip list *)"
+    ]
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "name": "SmokeA",
+  "tags": [
+    "user"
+  ],
+  "locked": true,
+  "site": {
+    "terrainSize": [
+      100,
+      100
+    ],
+    "terrainZones": [],
+    "paths": [],
+    "scaleNote": ""
+  },
+  "buildingInstances": [],
+  "objectInstances": [],
+  "id": "b4085e80-f18a-4e19-a97b-fbc00b71ac3b",
+  "version": 2,
+  "favorite": false
+}

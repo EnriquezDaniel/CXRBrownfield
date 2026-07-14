@@ -1,0 +1,344 @@
+{
+  "id": "54840c0b-78e2-4c88-923c-573e9ff9a205",
+  "name": "sample_output2",
+  "version": 1,
+  "tags": [
+    "generated"
+  ],
+  "locked": false,
+  "site": {
+    "terrainSize": [
+      306.800018,
+      306.800018
+    ],
+    "terrainZones": [
+      {
+        "terrainType": "grass",
+        "rectMeters": [
+          146.304016,
+          0.0,
+          167.640015,
+          88.3920059
+        ]
+      },
+      {
+        "terrainType": "grass",
+        "rectMeters": [
+          146.304016,
+          88.3920059,
+          167.640015,
+          149.352
+        ]
+      },
+      {
+        "terrainType": "grass",
+        "rectMeters": [
+          146.304016,
+          158.496,
+          167.640015,
+          216.40802
+        ]
+      },
+      {
+        "terrainType": "grass",
+        "rectMeters": [
+          146.304016,
+          216.40802,
+          167.640015,
+          304.800018
+        ]
+      },
+      {
+        "terrainType": "plaza",
+        "rectMeters": [
+          167.640015,
+          88.3920059,
+          240.792,
+          149.352
+        ]
+      },
+      {
+        "terrainType": "plaza",
+        "rectMeters": [
+          167.640015,
+          158.496,
+          240.792,
+          216.40802
+        ]
+      },
+      {
+        "terrainType": "pavement",
+        "rectMeters": [
+          146.304016,
+          149.352,
+          240.792,
+          158.496
+        ]
+      },
+      {
+        "terrainType": "pavement",
+        "rectMeters": [
+          240.792,
+          0.0,
+          249.93602,
+          149.352
+        ]
+      },
+      {
+        "terrainType": "pavement",
+        "rectMeters": [
+          240.792,
+          158.496,
+          249.93602,
+          304.800018
+        ]
+      },
+      {
+        "terrainType": "asphalt",
+        "rectMeters": [
+          249.93602,
+          0.0,
+          304.800018,
+          304.800018
+        ]
+      }
+    ],
+    "paths": [],
+    "fences": [],
+    "surfaceStrokes": [],
+    "scaleNote": "All placements must fall within lot_boundary.",
+    "gradePoints": null,
+    "maxGradeHeight": 30.0,
+    "lotBoundary": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        304.800018
+      ],
+      [
+        304.800018,
+        0.0
+      ],
+      [
+        304.800018,
+        304.800018
+      ]
+    ],
+    "outsideTerrainType": "water"
+  },
+  "buildingInstances": [
+    {
+      "instanceId": "c03be515-575a-4536-b248-27f2ea2a4bb2",
+      "buildingId": "c59e44a2-aa75-4d23-85d2-e625d33b75b8",
+      "position": [
+        204.216019,
+        0.0,
+        44.196003
+      ],
+      "rotationX": 0.0,
+      "rotationY": 0.0,
+      "rotationZ": 0.0,
+      "scale": 1.0,
+      "included": true
+    },
+    {
+      "instanceId": "2f4b93c3-42c8-495d-b63b-a82d334c28c3",
+      "buildingId": "c59e44a2-aa75-4d23-85d2-e625d33b75b8",
+      "position": [
+        204.216019,
+        0.0,
+        260.604
+      ],
+      "rotationX": 0.0,
+      "rotationY": 0.0,
+      "rotationZ": 0.0,
+      "scale": 1.0,
+      "included": true
+    }
+  ],
+  "objectInstances": [
+    {
+      "instanceId": "99d20ae6-4368-4b5f-b96c-cc49c5be517f",
+      "prefabType": "building",
+      "position": [
+        73.15201,
+        0.0,
+        149.352
+      ],
+      "rotationX": 0.0,
+      "rotationY": 0.0,
+      "rotationZ": 0.0,
+      "scale": 1.0,
+      "boxSizeMeters": [
+        298.704,
+        15.24,
+        146.304
+      ],
+      "included": true,
+      "brushPainted": false
+    },
+    {
+      "instanceId": "506df1ba-0bcd-4b6f-b840-e091eaf989d6",
+      "prefabType": "bench",
+      "position": [
+        198.12001,
+        0.0,
+        94.48801
+      ],
+      "rotationX": 0.0,
+      "rotationY": 270.0,
+      "rotationZ": 0.0,
+      "scale": 1.0,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": false
+    },
+    {
+      "instanceId": "f5365165-888f-4b9e-b3c0-fbcb5e7a7aaf",
+      "prefabType": "bench",
+      "position": [
+        202.692017,
+        0.0,
+        94.48801
+      ],
+      "rotationX": 0.0,
+      "rotationY": 270.0,
+      "rotationZ": 0.0,
+      "scale": 1.0,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": false
+    },
+    {
+      "instanceId": "3ca41d17-785c-4669-8b3c-3bebfd888e3f",
+      "prefabType": "bench",
+      "position": [
+        207.264,
+        0.0,
+        94.48801
+      ],
+      "rotationX": 0.0,
+      "rotationY": 270.0,
+      "rotationZ": 0.0,
+      "scale": 1.0,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": false
+    },
+    {
+      "instanceId": "ac7eced3-c5de-4f7b-8f65-3d4220b59641",
+      "prefabType": "bench",
+      "position": [
+        211.836014,
+        0.0,
+        94.48801
+      ],
+      "rotationX": 0.0,
+      "rotationY": 270.0,
+      "rotationZ": 0.0,
+      "scale": 1.0,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": false
+    },
+    {
+      "instanceId": "ebcf1821-e377-4b50-8050-cda3e64b10c8",
+      "prefabType": "tree",
+      "position": [
+        182.88,
+        0.0,
+        118.872009
+      ],
+      "rotationX": 0.0,
+      "rotationY": 0.0,
+      "rotationZ": 0.0,
+      "scale": 1.0,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": false
+    },
+    {
+      "instanceId": "f8002f01-109c-446a-b5f9-5108b77705d3",
+      "prefabType": "tree",
+      "position": [
+        192.024017,
+        0.0,
+        124.96801
+      ],
+      "rotationX": 0.0,
+      "rotationY": 0.0,
+      "rotationZ": 0.0,
+      "scale": 1.0,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": false
+    },
+    {
+      "instanceId": "fc72f9aa-c943-48a2-b37c-69c402baf7cf",
+      "prefabType": "tree",
+      "position": [
+        201.168015,
+        0.0,
+        131.064011
+      ],
+      "rotationX": 0.0,
+      "rotationY": 0.0,
+      "rotationZ": 0.0,
+      "scale": 1.0,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": false
+    },
+    {
+      "instanceId": "6ca55b89-f48e-4e9a-90a2-1112c477bbb8",
+      "prefabType": "tree",
+      "position": [
+        182.88,
+        0.0,
+        188.976013
+      ],
+      "rotationX": 0.0,
+      "rotationY": 0.0,
+      "rotationZ": 0.0,
+      "scale": 1.0,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": false
+    },
+    {
+      "instanceId": "bca6f127-d11d-4b4a-9924-1d815879899f",
+      "prefabType": "tree",
+      "position": [
+        192.024017,
+        0.0,
+        195.072
+      ],
+      "rotationX": 0.0,
+      "rotationY": 0.0,
+      "rotationZ": 0.0,
+      "scale": 1.0,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": false
+    },
+    {
+      "instanceId": "959870ff-c416-4ef6-8e49-91c3db38d41f",
+      "prefabType": "tree",
+      "position": [
+        201.168015,
+        0.0,
+        201.168015
+      ],
+      "rotationX": 0.0,
+      "rotationY": 0.0,
+      "rotationZ": 0.0,
+      "scale": 1.0,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": false
+    }
+  ]
+}

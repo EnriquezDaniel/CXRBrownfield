@@ -1,0 +1,138 @@
+{
+  "id": "4f3a2811-7eda-4a72-86a7-708becac087e",
+  "name": "Test_environment",
+  "version": 2,
+  "tags": [],
+  "site": {
+    "terrainSize": [
+      100.0,
+      100.0
+    ],
+    "terrainZones": [],
+    "paths": [],
+    "scaleNote": ""
+  },
+  "buildingInstances": [],
+  "objectInstances": [
+    {
+      "instanceId": "2b85d910-42b9-46e7-b062-18a688e77a1b",
+      "prefabType": "bench",
+      "position": [
+        42.3490028,
+        8.212355e-07,
+        36.5295448
+      ],
+      "rotationY": 0.0,
+      "scale": 1.0,
+      "included": true
+    },
+    {
+      "instanceId": "f0ebba79-fd83-455e-b5af-4a1d42427afe",
+      "prefabType": "bench",
+      "position": [
+        50.0100746,
+        1.81700534e-06,
+        28.8684673
+      ],
+      "rotationY": 0.0,
+      "scale": 1.0,
+      "included": true
+    },
+    {
+      "instanceId": "a3c5e3a4-0098-4e2f-9ab4-2f449ac3c828",
+      "prefabType": "bench",
+      "position": [
+        48.666935,
+        1.933025e-06,
+        18.6945915
+      ],
+      "rotationY": 0.0,
+      "scale": 1.0,
+      "included": true
+    },
+    {
+      "instanceId": "11f1c672-13ae-4716-bc78-dc32b7de2c57",
+      "prefabType": "tree",
+      "position": [
+        62.866188,
+        2.125475e-06,
+        35.7392235
+      ],
+      "rotationY": 0.0,
+      "scale": 1.0,
+      "included": true
+    },
+    {
+      "instanceId": "e48d44db-d9bf-4dad-8f05-f5f4d26d936c",
+      "prefabType": "tree",
+      "position": [
+        62.690197,
+        -7.094295e-07,
+        22.7146282
+      ],
+      "rotationY": 0.0,
+      "scale": 1.0,
+      "included": true
+    },
+    {
+      "instanceId": "270c055a-0c52-4b63-a10c-bff63d033c5d",
+      "prefabType": "pine_tree",
+      "position": [
+        43.2807846,
+        -1.44743262e-06,
+        52.27982
+      ],
+      "rotationY": 0.0,
+      "scale": 1.0,
+      "included": true
+    },
+    {
+      "instanceId": "9baaf481-7923-46dc-90ea-8ab1595306bc",
+      "prefabType": "pine_tree",
+      "position": [
+        62.3335457,
+        -1.95135362e-06,
+        52.3778763
+      ],
+      "rotationY": 0.0,
+      "scale": 1.0,
+      "included": true
+    },
+    {
+      "instanceId": "c3c323a1-6b53-4e9e-ab13-b7b2371a9ef2",
+      "prefabType": "pine_tree",
+      "position": [
+        24.4168987,
+        -4.053618e-09,
+        55.76841
+      ],
+      "rotationY": 0.0,
+      "scale": 1.0,
+      "included": true
+    },
+    {
+      "instanceId": "f637cf4d-4a36-45bc-a099-b4fde6ce854f",
+      "prefabType": "bush",
+      "position": [
+        55.7661,
+        1.609018e-06,
+        23.6318951
+      ],
+      "rotationY": 0.0,
+      "scale": 1.0,
+      "included": true
+    },
+    {
+      "instanceId": "ad889bca-7f6b-4326-92a5-1a349d990ece",
+      "prefabType": "bush",
+      "position": [
+        32.6231766,
+        -6.75856e-07,
+        48.6264343
+      ],
+      "rotationY": 0.0,
+      "scale": 1.0,
+      "included": true
+    }
+  ]
+}

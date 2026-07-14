@@ -1,0 +1,268 @@
+{
+  "id": "70d9d0e3-8666-4b26-90dc-98499ad8e231",
+  "name": "sample_output",
+  "version": 1,
+  "tags": [
+    "generated"
+  ],
+  "site": {
+    "terrainSize": [
+      304.800018,
+      304.800018
+    ],
+    "terrainZones": [
+      {
+        "terrainType": "grass",
+        "rectMeters": [
+          146.304016,
+          0.0,
+          167.640015,
+          88.3920059
+        ]
+      },
+      {
+        "terrainType": "grass",
+        "rectMeters": [
+          146.304016,
+          88.3920059,
+          167.640015,
+          149.352
+        ]
+      },
+      {
+        "terrainType": "grass",
+        "rectMeters": [
+          146.304016,
+          158.496,
+          167.640015,
+          216.40802
+        ]
+      },
+      {
+        "terrainType": "grass",
+        "rectMeters": [
+          146.304016,
+          216.40802,
+          167.640015,
+          304.800018
+        ]
+      },
+      {
+        "terrainType": "plaza",
+        "rectMeters": [
+          167.640015,
+          88.3920059,
+          240.792,
+          149.352
+        ]
+      },
+      {
+        "terrainType": "plaza",
+        "rectMeters": [
+          167.640015,
+          158.496,
+          240.792,
+          216.40802
+        ]
+      },
+      {
+        "terrainType": "pavement",
+        "rectMeters": [
+          146.304016,
+          149.352,
+          240.792,
+          158.496
+        ]
+      },
+      {
+        "terrainType": "pavement",
+        "rectMeters": [
+          240.792,
+          0.0,
+          249.93602,
+          149.352
+        ]
+      },
+      {
+        "terrainType": "pavement",
+        "rectMeters": [
+          240.792,
+          158.496,
+          249.93602,
+          304.800018
+        ]
+      },
+      {
+        "terrainType": "asphalt",
+        "rectMeters": [
+          249.93602,
+          0.0,
+          304.800018,
+          304.800018
+        ]
+      }
+    ],
+    "paths": [],
+    "scaleNote": "All placements must fall within lot_boundary."
+  },
+  "buildingInstances": [
+    {
+      "instanceId": "0ea9fb7a-c5c1-4d09-a97e-402acb042c81",
+      "buildingId": "640d1479-c807-430a-9053-a5c0a791fb69",
+      "position": [
+        204.216019,
+        0.0,
+        44.196003
+      ],
+      "rotationY": 0.0,
+      "scale": 1.0,
+      "included": true
+    },
+    {
+      "instanceId": "7c72034d-23a9-454f-b2e0-a90b6137eeb1",
+      "buildingId": "6bd38ad4-96f0-4fa6-af98-7941160bca2c",
+      "position": [
+        204.216019,
+        0.0,
+        260.604
+      ],
+      "rotationY": 0.0,
+      "scale": 1.0,
+      "included": true
+    }
+  ],
+  "objectInstances": [
+    {
+      "instanceId": "bdc38234-0423-451d-ade8-a79551b41f1c",
+      "prefabType": "building",
+      "position": [
+        73.15201,
+        0.0,
+        149.352
+      ],
+      "rotationY": 0.0,
+      "scale": 1.0,
+      "included": true
+    },
+    {
+      "instanceId": "2273cf9d-de0c-47e1-bec1-c7a2d513798d",
+      "prefabType": "bench",
+      "position": [
+        198.12001,
+        0.0,
+        94.48801
+      ],
+      "rotationY": 90.0,
+      "scale": 1.0,
+      "included": true
+    },
+    {
+      "instanceId": "30125743-ce22-4b3e-89b3-f9432617800e",
+      "prefabType": "bench",
+      "position": [
+        202.692017,
+        0.0,
+        94.48801
+      ],
+      "rotationY": 90.0,
+      "scale": 1.0,
+      "included": true
+    },
+    {
+      "instanceId": "82a42a28-a236-447b-b51d-18260d6d8aca",
+      "prefabType": "bench",
+      "position": [
+        207.264,
+        0.0,
+        94.48801
+      ],
+      "rotationY": 90.0,
+      "scale": 1.0,
+      "included": true
+    },
+    {
+      "instanceId": "63bb7685-0543-4ca9-96e9-b9aec4aed151",
+      "prefabType": "bench",
+      "position": [
+        211.836014,
+        0.0,
+        94.48801
+      ],
+      "rotationY": 90.0,
+      "scale": 1.0,
+      "included": true
+    },
+    {
+      "instanceId": "8a0173ee-0c71-4853-a4ea-e26b36b37215",
+      "prefabType": "tree",
+      "position": [
+        182.88,
+        0.0,
+        118.872009
+      ],
+      "rotationY": 0.0,
+      "scale": 1.0,
+      "included": true
+    },
+    {
+      "instanceId": "3a6d8056-870c-464c-8382-7472f6a02cc2",
+      "prefabType": "tree",
+      "position": [
+        192.024017,
+        0.0,
+        124.96801
+      ],
+      "rotationY": 0.0,
+      "scale": 1.0,
+      "included": true
+    },
+    {
+      "instanceId": "f24b6192-de30-463c-9406-7022c5a32d19",
+      "prefabType": "tree",
+      "position": [
+        201.168015,
+        0.0,
+        131.064011
+      ],
+      "rotationY": 0.0,
+      "scale": 1.0,
+      "included": true
+    },
+    {
+      "instanceId": "04097cec-46a9-412a-b617-935cc6bb9d31",
+      "prefabType": "tree",
+      "position": [
+        182.88,
+        0.0,
+        188.976013
+      ],
+      "rotationY": 0.0,
+      "scale": 1.0,
+      "included": true
+    },
+    {
+      "instanceId": "e2b0f10d-20a7-4f3e-b2db-105d93d7ea0c",
+      "prefabType": "tree",
+      "position": [
+        192.024017,
+        0.0,
+        195.072
+      ],
+      "rotationY": 0.0,
+      "scale": 1.0,
+      "included": true
+    },
+    {
+      "instanceId": "f103efd3-f613-4617-ab58-816a7b97045f",
+      "prefabType": "tree",
+      "position": [
+        201.168015,
+        0.0,
+        201.168015
+      ],
+      "rotationY": 0.0,
+      "scale": 1.0,
+      "included": true
+    }
+  ]
+}

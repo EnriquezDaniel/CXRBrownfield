@@ -1,0 +1,47 @@
+{
+  "id": "681ebc0e-8fff-4237-837e-92c85ec1e5fb",
+  "name": "Mockup Environment",
+  "version": 1,
+  "tags": [],
+  "site": {
+    "terrainSize": [
+      100.0,
+      100.0
+    ],
+    "terrainZones": [],
+    "paths": [],
+    "scaleNote": ""
+  },
+  "buildingInstances": [
+    {
+      "instanceId": "6d6603cd-775d-45e3-96b5-e5f24770214f",
+      "buildingId": "640d1479-c807-430a-9053-a5c0a791fb69",
+      "position": [
+        36.0,
+        1.90766468e-06,
+        52.0
+      ],
+      "rotationX": 0.0,
+      "rotationY": 0.0,
+      "rotationZ": 0.0,
+      "scale": 1.0,
+      "included": true
+    },
+    {
+      "instanceId": "2bc9f046-44c5-40df-a09d-c94876f3236a",
+      "buildingId": "2fcae1e7-55b5-4c05-8598-ecbb5e160315",
+      "position": [
+        36.0,
+        -1.26219675e-08,
+        12.0
+      ],
+      "rotationX": 0.0,
+      "rotationY": 0.0,
+      "rotationZ": 0.0,
+      "scale": 1.0,
+      "included": true
+    }
+  ],
+  "objectInstances": [],
+  "favorite": false
+}

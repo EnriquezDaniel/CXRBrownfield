@@ -1,0 +1,20 @@
+{
+  "name": "VRSyncTest",
+  "version": 2,
+  "tags": [
+    "user"
+  ],
+  "site": {
+    "terrainSize": [
+      120,
+      120
+    ],
+    "terrainZones": [],
+    "paths": [],
+    "scaleNote": ""
+  },
+  "buildingInstances": [],
+  "objectInstances": [],
+  "id": "0c92663f-33b0-4530-babe-401b1ac6a634",
+  "favorite": false
+}

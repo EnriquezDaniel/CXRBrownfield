@@ -1,0 +1,152 @@
+{
+  "id": "8cb593af-2277-4f83-8f42-3db672ff322d",
+  "name": "Test",
+  "version": 2,
+  "tags": [],
+  "gridCellSize": 4.0,
+  "floors": 2,
+  "floorHeight": 3.5,
+  "tiles": [
+    {
+      "gridX": 3,
+      "gridZ": 17,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null
+    },
+    {
+      "gridX": 4,
+      "gridZ": 17,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null
+    },
+    {
+      "gridX": 4,
+      "gridZ": 16,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null
+    },
+    {
+      "gridX": 2,
+      "gridZ": 16,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null
+    },
+    {
+      "gridX": 3,
+      "gridZ": 16,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null
+    },
+    {
+      "gridX": 2,
+      "gridZ": 14,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null
+    },
+    {
+      "gridX": 4,
+      "gridZ": 15,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null
+    },
+    {
+      "gridX": 3,
+      "gridZ": 15,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null
+    },
+    {
+      "gridX": 2,
+      "gridZ": 15,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null
+    },
+    {
+      "gridX": 3,
+      "gridZ": 14,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null
+    },
+    {
+      "gridX": 4,
+      "gridZ": 14,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null
+    },
+    {
+      "gridX": 2,
+      "gridZ": 17,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null
+    },
+    {
+      "gridX": 3,
+      "gridZ": 15,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null
+    },
+    {
+      "gridX": 3,
+      "gridZ": 16,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null
+    }
+  ],
+  "embeddedObjects": []
+}

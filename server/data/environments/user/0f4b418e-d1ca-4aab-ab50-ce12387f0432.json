@@ -1,0 +1,327 @@
+{
+  "id": "0f4b418e-d1ca-4aab-ab50-ce12387f0432",
+  "name": "Test_environment",
+  "version": 10,
+  "tags": [
+    "user"
+  ],
+  "site": {
+    "terrainSize": [
+      159.797821,
+      118.31665
+    ],
+    "terrainZones": [],
+    "paths": [],
+    "surfaceStrokes": null,
+    "scaleNote": "",
+    "gradePoints": null,
+    "maxGradeHeight": 30.0,
+    "lotBoundary": null,
+    "outsideTerrainType": "water"
+  },
+  "buildingInstances": [
+    {
+      "instanceId": "4298b22d-e56d-4a93-9868-36c9a56b17a7",
+      "buildingId": "2fcae1e7-55b5-4c05-8598-ecbb5e160315",
+      "position": [
+        47.3352776,
+        -1.91354047e-07,
+        31.2172775
+      ],
+      "rotationX": 0.0,
+      "rotationY": 90.0,
+      "rotationZ": 0.0,
+      "scale": 0.99,
+      "included": true
+    },
+    {
+      "instanceId": "0b5e9f4d-3e85-4c54-9ac4-a0df161d889d",
+      "buildingId": "640d1479-c807-430a-9053-a5c0a791fb69",
+      "position": [
+        47.33529,
+        1.46438856e-06,
+        106.457245
+      ],
+      "rotationX": 0.0,
+      "rotationY": 90.0,
+      "rotationZ": 0.0,
+      "scale": 0.99,
+      "included": true
+    }
+  ],
+  "objectInstances": [
+    {
+      "instanceId": "2b85d910-42b9-46e7-b062-18a688e77a1b",
+      "prefabType": "bench",
+      "position": [
+        28.0595322,
+        8.212355e-07,
+        52.65177
+      ],
+      "rotationX": 0.0,
+      "rotationY": 90.0,
+      "rotationZ": 0.0,
+      "scale": 0.99,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": false
+    },
+    {
+      "instanceId": "f0ebba79-fd83-455e-b5af-4a1d42427afe",
+      "prefabType": "bench",
+      "position": [
+        20.4750576,
+        1.81700534e-06,
+        45.06729
+      ],
+      "rotationX": 0.0,
+      "rotationY": 450.0,
+      "rotationZ": 0.0,
+      "scale": 0.99,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": false
+    },
+    {
+      "instanceId": "a3c5e3a4-0098-4e2f-9ab4-2f449ac3c828",
+      "prefabType": "bench",
+      "position": [
+        17.9313927,
+        1.933025e-06,
+        56.5804749
+      ],
+      "rotationX": 0.0,
+      "rotationY": 90.0,
+      "rotationZ": 0.0,
+      "scale": 0.99,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": false
+    },
+    {
+      "instanceId": "11f1c672-13ae-4716-bc78-dc32b7de2c57",
+      "prefabType": "tree",
+      "position": [
+        28.7281189,
+        2.125475e-06,
+        32.65069
+      ],
+      "rotationX": 0.0,
+      "rotationY": 90.0,
+      "rotationZ": 0.0,
+      "scale": 0.99,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": false
+    },
+    {
+      "instanceId": "e48d44db-d9bf-4dad-8f05-f5f4d26d936c",
+      "prefabType": "tree",
+      "position": [
+        15.8337688,
+        -7.094295e-07,
+        32.82491
+      ],
+      "rotationX": 0.0,
+      "rotationY": 90.0,
+      "rotationZ": 0.0,
+      "scale": 0.99,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": false
+    },
+    {
+      "instanceId": "270c055a-0c52-4b63-a10c-bff63d033c5d",
+      "prefabType": "pine_tree",
+      "position": [
+        45.1033134,
+        -1.44743262e-06,
+        52.0402451
+      ],
+      "rotationX": 0.0,
+      "rotationY": 90.0,
+      "rotationZ": 0.0,
+      "scale": 0.99,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": false
+    },
+    {
+      "instanceId": "9baaf481-7923-46dc-90ea-8ab1595306bc",
+      "prefabType": "pine_tree",
+      "position": [
+        45.200386,
+        -1.95135362e-06,
+        33.1780128
+      ],
+      "rotationX": 0.0,
+      "rotationY": 90.0,
+      "rotationZ": 0.0,
+      "scale": 0.99,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": false
+    },
+    {
+      "instanceId": "c3c323a1-6b53-4e9e-ab13-b7b2371a9ef2",
+      "prefabType": "pine_tree",
+      "position": [
+        46.4592552,
+        -4.053618e-09,
+        70.20761
+      ],
+      "rotationX": 0.0,
+      "rotationY": 90.0,
+      "rotationZ": 0.0,
+      "scale": 0.7276504,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": false
+    },
+    {
+      "instanceId": "f637cf4d-4a36-45bc-a099-b4fde6ce854f",
+      "prefabType": "bush",
+      "position": [
+        11.4216042,
+        1.609018e-06,
+        42.0067139
+      ],
+      "rotationX": 0.0,
+      "rotationY": 90.0,
+      "rotationZ": 0.0,
+      "scale": 0.99,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": false
+    },
+    {
+      "instanceId": "ad889bca-7f6b-4326-92a5-1a349d990ece",
+      "prefabType": "bush",
+      "position": [
+        41.4864655,
+        -6.75856e-07,
+        62.5912323
+      ],
+      "rotationX": 0.0,
+      "rotationY": 90.0,
+      "rotationZ": 0.0,
+      "scale": 0.99,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": false
+    },
+    {
+      "instanceId": "dee1ef9f-4685-4a2a-a47f-116b787383ee",
+      "prefabType": "outdoor_sausage_booth",
+      "position": [
+        33.37271,
+        2.06759069e-07,
+        71.28119
+      ],
+      "rotationX": 0.0,
+      "rotationY": 90.0,
+      "rotationZ": 0.0,
+      "scale": 0.99,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": false
+    },
+    {
+      "instanceId": "e5d46e8e-1610-4be5-ad01-7ec4a0e6647c",
+      "prefabType": "outdoor_pretzel_booth",
+      "position": [
+        22.67102,
+        -9.272353e-07,
+        72.53961
+      ],
+      "rotationX": 0.0,
+      "rotationY": 90.0,
+      "rotationZ": 0.0,
+      "scale": 0.99,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": false
+    },
+    {
+      "instanceId": "e0bc4ec3-b2be-484c-b118-789578e95b5d",
+      "prefabType": "outdoor_beer_booth",
+      "position": [
+        20.2415581,
+        8.50941433e-07,
+        62.5699768
+      ],
+      "rotationX": 0.0,
+      "rotationY": 90.0,
+      "rotationZ": 0.0,
+      "scale": 0.99,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": false
+    },
+    {
+      "instanceId": "378ddee5-5f0f-4e34-9325-717f2c5394eb",
+      "prefabType": "outdoor_sausage_booth",
+      "position": [
+        32.9513474,
+        -2.37174436e-06,
+        62.7842865
+      ],
+      "rotationX": 0.0,
+      "rotationY": 90.0,
+      "rotationZ": 0.0,
+      "scale": 0.99,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": false
+    },
+    {
+      "instanceId": "c13bcb9f-1643-4992-b147-ecfcb0488321",
+      "prefabType": "circle_fountain",
+      "position": [
+        37.4125,
+        1.17624222e-06,
+        79.55443
+      ],
+      "rotationX": 0.0,
+      "rotationY": 90.0,
+      "rotationZ": 0.0,
+      "scale": 0.99,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": false
+    },
+    {
+      "instanceId": "2fd9cc74-38c8-4c70-b8d0-48ac4e7ff996",
+      "prefabType": "outdoor_pretzel_booth",
+      "position": [
+        36.80042,
+        -7.54088433e-07,
+        50.7737732
+      ],
+      "rotationX": 0.0,
+      "rotationY": 90.0,
+      "rotationZ": 0.0,
+      "scale": 0.99,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": false
+    },
+    {
+      "instanceId": "f486aa90-40b6-40a1-a30e-aa4ab22d3e14",
+      "prefabType": "bush",
+      "position": [
+        31.7034035,
+        2.80262725e-07,
+        41.5077667
+      ],
+      "rotationX": 0.0,
+      "rotationY": 90.0,
+      "rotationZ": 0.0,
+      "scale": 0.99,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": false
+    }
+  ],
+  "favorite": true
+}

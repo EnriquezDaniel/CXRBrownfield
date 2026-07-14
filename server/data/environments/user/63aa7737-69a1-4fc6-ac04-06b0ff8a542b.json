@@ -1,0 +1,42 @@
+{
+  "id": "63aa7737-69a1-4fc6-ac04-06b0ff8a542b",
+  "name": "DemoSite1",
+  "version": 3,
+  "tags": [
+    "user"
+  ],
+  "locked": false,
+  "site": {
+    "terrainSize": [
+      100.0,
+      100.0
+    ],
+    "terrainZones": [],
+    "paths": [],
+    "fences": null,
+    "surfaceStrokes": [],
+    "scaleNote": "",
+    "gradePoints": null,
+    "maxGradeHeight": 30.0,
+    "lotBoundary": null,
+    "outsideTerrainType": "water"
+  },
+  "buildingInstances": [
+    {
+      "instanceId": "264eac63-b5c0-4a05-af0d-f4bb8af4b57f",
+      "buildingId": "200445b0-02d4-4548-a6a4-aae4209303c1",
+      "position": [
+        176.975037,
+        0.0,
+        85.11209
+      ],
+      "rotationX": 0.0,
+      "rotationY": 0.0,
+      "rotationZ": 0.0,
+      "scale": 1.0,
+      "included": true
+    }
+  ],
+  "objectInstances": [],
+  "favorite": false
+}
