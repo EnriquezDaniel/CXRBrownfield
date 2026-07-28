@@ -305,6 +305,24 @@ public static class UITheme
     public static void Num(string text, params GUILayoutOption[] opts) { Ensure(); GUILayout.Label(text, _num, opts); }
     public static void NumSmall(string text, params GUILayoutOption[] opts) { Ensure(); GUILayout.Label(text, _numSmall, opts); }
 
+    // Flat clickable foldout row (▸ / ▾ + label) — reads like a section header, not a button.
+    static GUIStyle _foldout;
+    public static bool Foldout(bool open, string label)
+    {
+        Ensure();
+        if (_foldout == null)
+        {
+            _foldout = new GUIStyle(_header) { alignment = TextAnchor.MiddleLeft };
+            _foldout.normal.background = null;
+            _foldout.hover.textColor = Accent;
+            _foldout.padding = new RectOffset(2, 2, 4, 4);
+            _foldout.margin  = new RectOffset(2, 2, 8, 2);
+        }
+        string text = $"{(open ? "▾  " : "▸  ")}{(label ?? "").ToUpperInvariant()}";
+        if (GUILayout.Button(text, _foldout, GUILayout.ExpandWidth(true))) open = !open;
+        return open;
+    }
+
     // Thin horizontal divider that fills the current layout width.
     public static void Divider()
     {

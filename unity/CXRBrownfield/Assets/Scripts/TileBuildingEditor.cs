@@ -89,8 +89,8 @@ public class TileBuildingEditor : MonoBehaviour
     // Decorate = "smart paint" decorative prefabs (windows/doors/vents/greenery) onto tile faces.
     // (Whole-building Skew — acute/obtuse corners, sloped roof — now lives on the building selection
     // panel in EditController, next to Move/Rotate/Scale.)
-    private enum SubTool { Add, Select, Paint, Decorate }
-    private SubTool _subTool = SubTool.Add;
+    private enum SubTool { Select, Add, Paint, Decorate }   // order = tab order (Select is leftmost + default)
+    private SubTool _subTool = SubTool.Select;
     private bool _confirmClearFloor;            // floor-clear confirmation (destructive, asks first)
 
     // Decorate tool state — paints EmbeddedObjectDef entries onto tile faces from a DecorPalette.
@@ -139,7 +139,7 @@ public class TileBuildingEditor : MonoBehaviour
         _activeFloor        = 0;
         _activeTileRotation = 0;
         _activeMaterialId   = null;
-        _subTool            = SubTool.Add;
+        _subTool            = SubTool.Select;
         _selectedKeys.Clear();
         _primaryKey         = null;
         _highlightedGOs.Clear();
@@ -831,7 +831,25 @@ public class TileBuildingEditor : MonoBehaviour
         // (TileSpawner uses gridX/gridZ directly) and the grid overlay tracks the full min/max extent.
         int gx = Mathf.FloorToInt(local.x / cs);
         int gz = Mathf.FloorToInt(local.z / cs);
+        if (!WithinGrowRange(gx, gz)) return;   // near-horizon ray — refuse rather than hover a far cell
         _hoveredKey = MakeKey(gx, gz, _activeFloor);
+    }
+
+    // Farthest a NEW cell may sit from the existing footprint, in cells (Chebyshev). The floor-plane
+    // intersection above is unbounded, so a near-horizon ray can land thousands of meters out and one
+    // Add-click silently plants a tile there — which then blows up everything derived from tile
+    // min/max (camera framing, grid overlay, selection bounds). Any-direction growth stays allowed;
+    // only cells nowhere near the building are rejected (no hover, so nothing can be placed).
+    private const int MAX_GROW_CELLS = 4;
+
+    private bool WithinGrowRange(int gx, int gz)
+    {
+        if (_bdef?.tiles == null || _bdef.tiles.Count == 0)   // empty building: anchor to the origin
+            return Mathf.Abs(gx) <= MAX_GROW_CELLS && Mathf.Abs(gz) <= MAX_GROW_CELLS;
+        foreach (var t in _bdef.tiles)
+            if (Mathf.Abs(t.gridX - gx) <= MAX_GROW_CELLS && Mathf.Abs(t.gridZ - gz) <= MAX_GROW_CELLS)
+                return true;
+        return false;
     }
 
     // -----------------------------------------------------------------------
@@ -944,10 +962,9 @@ public class TileBuildingEditor : MonoBehaviour
 
         UITheme.Title("Building editor");
         UITheme.Note($"{_bdef?.name}   •   {_bdef?.tiles?.Count ?? 0} tiles");
-        UITheme.Note("Shape the building, then paint it.");
 
-        // Tool selector — one active sub-tool at a time (segmented per the spec: Add/Select/Paint/Decor)
-        int ts = UITheme.Segmented((int)_subTool, new[] { "Add", "Select", "Paint", "Decor" });
+        // Tool selector — one active sub-tool at a time; labels must stay aligned with SubTool order.
+        int ts = UITheme.Segmented((int)_subTool, new[] { "Select", "Add", "Paint", "Extras" });
         if (ts != (int)_subTool) SetSubTool((SubTool)ts);
 
         UITheme.Divider();
@@ -1435,40 +1452,38 @@ public class TileBuildingEditor : MonoBehaviour
 
     private void DrawDecoratePanel()
     {
-        UITheme.Note("Place props (doors, windows, vents) onto tile faces — one per face, centered & fit.");
+        UITheme.Note("Place objects onto tiles");
 
         if (prefabRegistry == null)        { UITheme.Note("PrefabRegistry is not wired."); return; }
         if (decorPalette == null || decorPalette.entries == null || decorPalette.entries.Count == 0)
         { UITheme.Note("DecorPalette is empty / not wired."); return; }
 
-        // Paint / Erase
+        // Place / Erase
         GUILayout.BeginHorizontal();
-        if (GUILayout.Toggle(!_decorErase, "Paint", GUI.skin.button, GUILayout.Height(UITheme.RowH)) && _decorErase) _decorErase = false;
+        if (GUILayout.Toggle(!_decorErase, "Place", GUI.skin.button, GUILayout.Height(UITheme.RowH)) && _decorErase) _decorErase = false;
         if (GUILayout.Toggle(_decorErase,  "Erase", GUI.skin.button, GUILayout.Height(UITheme.RowH)) && !_decorErase) _decorErase = true;
         GUILayout.EndHorizontal();
 
         if (!_decorErase)
             // Whole-face: one click places the active decor on every exposed face of the clicked
             // building side (e.g. windows across a whole wall).
-            _wholeFace = GUILayout.Toggle(_wholeFace, "Whole face (fill the entire side)", GUI.skin.button, GUILayout.Height(UITheme.RowH));
+            _wholeFace = GUILayout.Toggle(_wholeFace, "Whole face", GUI.skin.button, GUILayout.Height(UITheme.RowH));
 
         // Decor picker
-        UITheme.Header("Decor");
+        UITheme.Header("Extras");
         var active = ActiveDecor();
         foreach (var e in decorPalette.entries)
         {
             if (e == null || string.IsNullOrEmpty(e.decorId)) continue;
             bool on = active != null && e.decorId == active.decorId;
-            if (GUILayout.Toggle(on, $"{e.decorId}  ({e.surface})", GUI.skin.button) && !on)
+            if (GUILayout.Toggle(on, $"{e.decorId}", GUI.skin.button) && !on)
                 _activeDecorId = e.decorId;
         }
 
         if (active != null)
             UITheme.Note($"{active.widthFraction:0.##}×{active.heightFraction:0.##} of cell • anchor {active.anchor}");
 
-        if (!_decorErase)
-            UITheme.Note(_wholeFace ? "Click to fill the whole building side." : "Click or drag across faces to place one decor per face.");
-        else
+        if (_decorErase)
             UITheme.Note("Click or drag across props to remove them.");
     }
 
@@ -1650,13 +1665,17 @@ public class TileBuildingEditor : MonoBehaviour
     private float CellSize() => (_bdef != null && _bdef.gridCellSize > 0f) ? _bdef.gridCellSize : AuthoringConventions.DEFAULT_GRID_CELL_SIZE;
 
     // True when the pointer is over either GUI panel: the tile editor's own right-side panel
-    // or the LibraryBrowser's left panel (≈320px + margin). Without the left guard, clicking
-    // a library button while editing also drops a tile on the ground plane behind it.
+    // or the LibraryBrowser's left panel (≈320px + margin), or the top command bar. Without these
+    // guards, clicking a library button or a mode button while editing also drops a tile on the
+    // ground plane behind it.
     private bool IsMouseOverUI()
     {
         if (Mouse.current == null) return false;
-        float x = Mouse.current.position.ReadValue().x;
-        return x < LEFT_PANEL_W || x > Screen.width - PANEL_W - 10;
+        Vector2 m = Mouse.current.position.ReadValue();
+        if (m.x < LEFT_PANEL_W || m.x > Screen.width - PANEL_W - 10) return true;
+        // Both panel guards are x-bands; the top command bar is centered between them, so without
+        // its own rect test clicking a mode button also drops a tile on the plane behind it.
+        return UIShell.BlocksScreenPoint(m);
     }
 
     private const int LEFT_PANEL_W = 340;

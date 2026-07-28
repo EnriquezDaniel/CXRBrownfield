@@ -27,7 +27,10 @@ public static class FenceBuilder
         if (ctrl == null || ctrl.Count < 2) return outList;
         if (panelLength <= 0f) panelLength = 2f;
 
-        var dense = PathGeometry.Smooth(ctrl, smoothing, panelLength);
+        // roundFit: pick the panel count nearest to segLen/panelLength (min 1) so panels stretch or
+        // shrink toward their natural length instead of only compressing — 10 m of 3 m panels gives
+        // 3 x 3.33 m, not 4 x 2.5 m. Endpoints/corners still land exactly on the control points.
+        var dense = PathGeometry.Smooth(ctrl, smoothing, panelLength, roundFit: true);
         if (dense.Count < 2) return outList;
 
         for (int i = 0; i < dense.Count - 1; i++)

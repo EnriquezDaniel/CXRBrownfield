@@ -1,7 +1,7 @@
 {
   "id": "8eab5441-c054-4fa3-9dd4-2afc99131b95",
   "name": "1061 Home",
-  "version": 6,
+  "version": 9,
   "tags": [
     "static"
   ],
@@ -18,7 +18,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "north": "LaminatedWood"
+        "north": "Ceiling"
       },
       "deform": {
         "dx": [
@@ -50,7 +50,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "north": "LaminatedWood"
+        "north": "DarkUniform"
       },
       "deform": {
         "dx": [
@@ -82,7 +82,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "north": "DarkUniform"
+        "north": "Ceiling"
       },
       "deform": {
         "dx": [
@@ -114,7 +114,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "north": "LaminatedWood"
+        "north": "DarkUniform"
       },
       "deform": {
         "dx": [
@@ -146,7 +146,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "north": "LaminatedWood"
+        "north": "Ceiling"
       },
       "deform": {
         "dx": [
@@ -178,7 +178,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "north": "LaminatedWood"
+        "north": "Ceiling"
       },
       "deform": {
         "dx": [
@@ -210,108 +210,12 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "north": "LaminatedWood"
+        "north": "Ceiling"
       },
       "deform": {
         "dx": [
           0.0101821208,
           0.0116367107,
-          0.0,
-          0.0
-        ],
-        "dz": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "dyTop": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ]
-      }
-    },
-    {
-      "gridX": 8,
-      "gridZ": -2,
-      "floor": 0,
-      "shapeId": "square",
-      "rotation": 0,
-      "rotationX": 0.0,
-      "rotationZ": 0.0,
-      "faceMaterials": {
-        "north": "LaminatedWood"
-      },
-      "deform": {
-        "dx": [
-          0.0130913,
-          0.0145458877,
-          0.0,
-          0.0
-        ],
-        "dz": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "dyTop": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ]
-      }
-    },
-    {
-      "gridX": 7,
-      "gridZ": -2,
-      "floor": 0,
-      "shapeId": "square",
-      "rotation": 0,
-      "rotationX": 0.0,
-      "rotationZ": 0.0,
-      "faceMaterials": {
-        "north": "DarkUniform"
-      },
-      "deform": {
-        "dx": [
-          0.0116367107,
-          0.0130913,
-          0.0,
-          0.0
-        ],
-        "dz": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "dyTop": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ]
-      }
-    },
-    {
-      "gridX": 9,
-      "gridZ": -2,
-      "floor": 0,
-      "shapeId": "square",
-      "rotation": 0,
-      "rotationX": 0.0,
-      "rotationZ": 0.0,
-      "faceMaterials": {
-        "north": "LaminatedWood"
-      },
-      "deform": {
-        "dx": [
-          0.0145458877,
-          0.0160004776,
           0.0,
           0.0
         ],
@@ -338,7 +242,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "north": "LaminatedWood"
+        "north": "Ceiling"
       },
       "deform": {
         "dx": [
@@ -346,158 +250,6 @@
           0.00145458884,
           0.0,
           0.0
-        ],
-        "dz": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "dyTop": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ]
-      }
-    },
-    {
-      "gridX": 10,
-      "gridZ": -2,
-      "floor": 0,
-      "shapeId": "square",
-      "rotation": 0,
-      "rotationX": 0.0,
-      "rotationZ": 0.0,
-      "faceMaterials": {
-        "north": "LaminatedWood"
-      },
-      "deform": {
-        "dx": [
-          0.0160004776,
-          0.0174550656,
-          0.0,
-          0.0
-        ],
-        "dz": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "dyTop": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ]
-      }
-    },
-    {
-      "gridX": 10,
-      "gridZ": -3,
-      "floor": 0,
-      "shapeId": "square",
-      "rotation": 0,
-      "rotationX": 0.0,
-      "rotationZ": 0.0,
-      "faceMaterials": null,
-      "deform": {
-        "dx": [
-          0.0320009552,
-          0.03491013,
-          0.0174550656,
-          0.0160004776
-        ],
-        "dz": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "dyTop": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ]
-      }
-    },
-    {
-      "gridX": 9,
-      "gridZ": -3,
-      "floor": 0,
-      "shapeId": "square",
-      "rotation": 0,
-      "rotationX": 0.0,
-      "rotationZ": 0.0,
-      "faceMaterials": null,
-      "deform": {
-        "dx": [
-          0.0290917754,
-          0.0320009552,
-          0.0160004776,
-          0.0145458877
-        ],
-        "dz": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "dyTop": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ]
-      }
-    },
-    {
-      "gridX": 8,
-      "gridZ": -3,
-      "floor": 0,
-      "shapeId": "square",
-      "rotation": 0,
-      "rotationX": 0.0,
-      "rotationZ": 0.0,
-      "faceMaterials": null,
-      "deform": {
-        "dx": [
-          0.0261826,
-          0.0290917754,
-          0.0145458877,
-          0.0130913
-        ],
-        "dz": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "dyTop": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ]
-      }
-    },
-    {
-      "gridX": 7,
-      "gridZ": -3,
-      "floor": 0,
-      "shapeId": "square",
-      "rotation": 0,
-      "rotationX": 0.0,
-      "rotationZ": 0.0,
-      "faceMaterials": null,
-      "deform": {
-        "dx": [
-          0.0232734215,
-          0.0261826,
-          0.0130913,
-          0.0116367107
         ],
         "dz": [
           0.0,
@@ -994,336 +746,6 @@
       }
     },
     {
-      "gridX": 7,
-      "gridZ": -4,
-      "floor": 0,
-      "shapeId": "square",
-      "rotation": 0,
-      "rotationX": 0.0,
-      "rotationZ": 0.0,
-      "faceMaterials": null,
-      "deform": {
-        "dx": [
-          0.03491013,
-          0.0392739,
-          0.0261826,
-          0.0232734215
-        ],
-        "dz": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "dyTop": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ]
-      }
-    },
-    {
-      "gridX": 8,
-      "gridZ": -4,
-      "floor": 0,
-      "shapeId": "square",
-      "rotation": 0,
-      "rotationX": 0.0,
-      "rotationZ": 0.0,
-      "faceMaterials": null,
-      "deform": {
-        "dx": [
-          0.0392739,
-          0.0436376631,
-          0.0290917754,
-          0.0261826
-        ],
-        "dz": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "dyTop": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ]
-      }
-    },
-    {
-      "gridX": 9,
-      "gridZ": -4,
-      "floor": 0,
-      "shapeId": "square",
-      "rotation": 0,
-      "rotationX": 0.0,
-      "rotationZ": 0.0,
-      "faceMaterials": null,
-      "deform": {
-        "dx": [
-          0.0436376631,
-          0.04800143,
-          0.0320009552,
-          0.0290917754
-        ],
-        "dz": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "dyTop": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ]
-      }
-    },
-    {
-      "gridX": 10,
-      "gridZ": -4,
-      "floor": 0,
-      "shapeId": "square",
-      "rotation": 0,
-      "rotationX": 0.0,
-      "rotationZ": 0.0,
-      "faceMaterials": null,
-      "deform": {
-        "dx": [
-          0.04800143,
-          0.0523652,
-          0.03491013,
-          0.0320009552
-        ],
-        "dz": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "dyTop": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ]
-      }
-    },
-    {
-      "gridX": 10,
-      "gridZ": -5,
-      "floor": 0,
-      "shapeId": "square",
-      "rotation": 0,
-      "rotationX": 0.0,
-      "rotationZ": 0.0,
-      "faceMaterials": null,
-      "deform": {
-        "dx": [
-          0.06400191,
-          0.06982026,
-          0.0523652,
-          0.04800143
-        ],
-        "dz": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "dyTop": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ]
-      }
-    },
-    {
-      "gridX": 9,
-      "gridZ": -5,
-      "floor": 0,
-      "shapeId": "square",
-      "rotation": 0,
-      "rotationX": 0.0,
-      "rotationZ": 0.0,
-      "faceMaterials": null,
-      "deform": {
-        "dx": [
-          0.05818355,
-          0.06400191,
-          0.04800143,
-          0.0436376631
-        ],
-        "dz": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "dyTop": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ]
-      }
-    },
-    {
-      "gridX": 10,
-      "gridZ": -6,
-      "floor": 0,
-      "shapeId": "square",
-      "rotation": 0,
-      "rotationX": 0.0,
-      "rotationZ": 0.0,
-      "faceMaterials": null,
-      "deform": {
-        "dx": [
-          0.08000238,
-          0.0872753263,
-          0.06982026,
-          0.06400191
-        ],
-        "dz": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "dyTop": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ]
-      }
-    },
-    {
-      "gridX": 9,
-      "gridZ": -6,
-      "floor": 0,
-      "shapeId": "square",
-      "rotation": 0,
-      "rotationX": 0.0,
-      "rotationZ": 0.0,
-      "faceMaterials": null,
-      "deform": {
-        "dx": [
-          0.07272944,
-          0.08000238,
-          0.06400191,
-          0.05818355
-        ],
-        "dz": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "dyTop": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ]
-      }
-    },
-    {
-      "gridX": 8,
-      "gridZ": -6,
-      "floor": 0,
-      "shapeId": "square",
-      "rotation": 0,
-      "rotationX": 0.0,
-      "rotationZ": 0.0,
-      "faceMaterials": null,
-      "deform": {
-        "dx": [
-          0.0654564947,
-          0.07272944,
-          0.05818355,
-          0.0523652
-        ],
-        "dz": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "dyTop": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ]
-      }
-    },
-    {
-      "gridX": 7,
-      "gridZ": -5,
-      "floor": 0,
-      "shapeId": "square",
-      "rotation": 0,
-      "rotationX": 0.0,
-      "rotationZ": 0.0,
-      "faceMaterials": null,
-      "deform": {
-        "dx": [
-          0.0465468429,
-          0.0523652,
-          0.0392739,
-          0.03491013
-        ],
-        "dz": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "dyTop": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ]
-      }
-    },
-    {
-      "gridX": 7,
-      "gridZ": -6,
-      "floor": 0,
-      "shapeId": "square",
-      "rotation": 0,
-      "rotationX": 0.0,
-      "rotationZ": 0.0,
-      "faceMaterials": null,
-      "deform": {
-        "dx": [
-          0.0581835546,
-          0.0654564947,
-          0.0523652,
-          0.0465468429
-        ],
-        "dz": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "dyTop": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ]
-      }
-    },
-    {
       "gridX": 6,
       "gridZ": -5,
       "floor": 0,
@@ -1804,516 +1226,6 @@
       }
     },
     {
-      "gridX": 8,
-      "gridZ": -5,
-      "floor": 0,
-      "shapeId": "square",
-      "rotation": 0,
-      "rotationX": 0.0,
-      "rotationZ": 0.0,
-      "faceMaterials": null,
-      "deform": {
-        "dx": [
-          0.0523652,
-          0.05818355,
-          0.0436376631,
-          0.0392739
-        ],
-        "dz": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "dyTop": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ]
-      }
-    },
-    {
-      "gridX": 9,
-      "gridZ": -7,
-      "floor": 0,
-      "shapeId": "square",
-      "rotation": 0,
-      "rotationX": 0.0,
-      "rotationZ": 0.0,
-      "faceMaterials": null,
-      "deform": {
-        "dx": [
-          0.0872753263,
-          0.09600286,
-          0.08000238,
-          0.07272944
-        ],
-        "dz": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "dyTop": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ]
-      }
-    },
-    {
-      "gridX": 10,
-      "gridZ": -7,
-      "floor": 0,
-      "shapeId": "square",
-      "rotation": 0,
-      "rotationX": 0.0,
-      "rotationZ": 0.0,
-      "faceMaterials": null,
-      "deform": {
-        "dx": [
-          0.09600286,
-          0.1047304,
-          0.0872753263,
-          0.08000238
-        ],
-        "dz": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "dyTop": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ]
-      }
-    },
-    {
-      "gridX": 10,
-      "gridZ": -8,
-      "floor": 0,
-      "shapeId": "square",
-      "rotation": 0,
-      "rotationX": 0.0,
-      "rotationZ": 0.0,
-      "faceMaterials": null,
-      "deform": {
-        "dx": [
-          0.112003341,
-          0.122185461,
-          0.1047304,
-          0.09600286
-        ],
-        "dz": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "dyTop": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ]
-      }
-    },
-    {
-      "gridX": 9,
-      "gridZ": -8,
-      "floor": 0,
-      "shapeId": "square",
-      "rotation": 0,
-      "rotationX": 0.0,
-      "rotationZ": 0.0,
-      "faceMaterials": null,
-      "deform": {
-        "dx": [
-          0.101821214,
-          0.112003341,
-          0.09600286,
-          0.0872753263
-        ],
-        "dz": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "dyTop": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ]
-      }
-    },
-    {
-      "gridX": 10,
-      "gridZ": -9,
-      "floor": 0,
-      "shapeId": "square",
-      "rotation": 0,
-      "rotationX": 0.0,
-      "rotationZ": 0.0,
-      "faceMaterials": null,
-      "deform": {
-        "dx": [
-          0.128003821,
-          0.139640525,
-          0.122185461,
-          0.112003341
-        ],
-        "dz": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "dyTop": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ]
-      }
-    },
-    {
-      "gridX": 9,
-      "gridZ": -9,
-      "floor": 0,
-      "shapeId": "square",
-      "rotation": 0,
-      "rotationX": 0.0,
-      "rotationZ": 0.0,
-      "faceMaterials": null,
-      "deform": {
-        "dx": [
-          0.1163671,
-          0.128003821,
-          0.112003341,
-          0.101821214
-        ],
-        "dz": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "dyTop": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ]
-      }
-    },
-    {
-      "gridX": 10,
-      "gridZ": -10,
-      "floor": 0,
-      "shapeId": "square",
-      "rotation": 0,
-      "rotationX": 0.0,
-      "rotationZ": 0.0,
-      "faceMaterials": null,
-      "deform": {
-        "dx": [
-          0.1440043,
-          0.1570956,
-          0.139640525,
-          0.128003821
-        ],
-        "dz": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "dyTop": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ]
-      }
-    },
-    {
-      "gridX": 9,
-      "gridZ": -10,
-      "floor": 0,
-      "shapeId": "square",
-      "rotation": 0,
-      "rotationX": 0.0,
-      "rotationZ": 0.0,
-      "faceMaterials": null,
-      "deform": {
-        "dx": [
-          0.130912989,
-          0.1440043,
-          0.128003821,
-          0.1163671
-        ],
-        "dz": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "dyTop": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ]
-      }
-    },
-    {
-      "gridX": 10,
-      "gridZ": -11,
-      "floor": 0,
-      "shapeId": "square",
-      "rotation": 0,
-      "rotationX": 0.0,
-      "rotationZ": 0.0,
-      "faceMaterials": null,
-      "deform": {
-        "dx": [
-          0.160004765,
-          0.174550653,
-          0.1570956,
-          0.1440043
-        ],
-        "dz": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "dyTop": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ]
-      }
-    },
-    {
-      "gridX": 9,
-      "gridZ": -11,
-      "floor": 0,
-      "shapeId": "square",
-      "rotation": 0,
-      "rotationX": 0.0,
-      "rotationZ": 0.0,
-      "faceMaterials": null,
-      "deform": {
-        "dx": [
-          0.145458877,
-          0.160004765,
-          0.1440043,
-          0.130912989
-        ],
-        "dz": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "dyTop": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ]
-      }
-    },
-    {
-      "gridX": 8,
-      "gridZ": -11,
-      "floor": 0,
-      "shapeId": "square",
-      "rotation": 0,
-      "rotationX": 0.0,
-      "rotationZ": 0.0,
-      "faceMaterials": null,
-      "deform": {
-        "dx": [
-          0.130912989,
-          0.145458877,
-          0.130912989,
-          0.117821693
-        ],
-        "dz": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "dyTop": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ]
-      }
-    },
-    {
-      "gridX": 8,
-      "gridZ": -10,
-      "floor": 0,
-      "shapeId": "square",
-      "rotation": 0,
-      "rotationX": 0.0,
-      "rotationZ": 0.0,
-      "faceMaterials": null,
-      "deform": {
-        "dx": [
-          0.117821693,
-          0.130912989,
-          0.1163671,
-          0.1047304
-        ],
-        "dz": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "dyTop": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ]
-      }
-    },
-    {
-      "gridX": 8,
-      "gridZ": -9,
-      "floor": 0,
-      "shapeId": "square",
-      "rotation": 0,
-      "rotationX": 0.0,
-      "rotationZ": 0.0,
-      "faceMaterials": null,
-      "deform": {
-        "dx": [
-          0.1047304,
-          0.1163671,
-          0.101821214,
-          0.0916390941
-        ],
-        "dz": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "dyTop": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ]
-      }
-    },
-    {
-      "gridX": 8,
-      "gridZ": -8,
-      "floor": 0,
-      "shapeId": "square",
-      "rotation": 0,
-      "rotationX": 0.0,
-      "rotationZ": 0.0,
-      "faceMaterials": null,
-      "deform": {
-        "dx": [
-          0.0916390941,
-          0.101821214,
-          0.0872753263,
-          0.0785478
-        ],
-        "dz": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "dyTop": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ]
-      }
-    },
-    {
-      "gridX": 8,
-      "gridZ": -7,
-      "floor": 0,
-      "shapeId": "square",
-      "rotation": 0,
-      "rotationX": 0.0,
-      "rotationZ": 0.0,
-      "faceMaterials": null,
-      "deform": {
-        "dx": [
-          0.0785478,
-          0.0872753263,
-          0.07272944,
-          0.0654564947
-        ],
-        "dz": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "dyTop": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ]
-      }
-    },
-    {
-      "gridX": 7,
-      "gridZ": -7,
-      "floor": 0,
-      "shapeId": "square",
-      "rotation": 0,
-      "rotationX": 0.0,
-      "rotationZ": 0.0,
-      "faceMaterials": null,
-      "deform": {
-        "dx": [
-          0.06982026,
-          0.0785478,
-          0.0654564947,
-          0.0581835546
-        ],
-        "dz": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "dyTop": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ]
-      }
-    },
-    {
       "gridX": 6,
       "gridZ": -7,
       "floor": 0,
@@ -2404,96 +1316,6 @@
       }
     },
     {
-      "gridX": 7,
-      "gridZ": -9,
-      "floor": 0,
-      "shapeId": "square",
-      "rotation": 0,
-      "rotationX": 0.0,
-      "rotationZ": 0.0,
-      "faceMaterials": null,
-      "deform": {
-        "dx": [
-          0.0930936858,
-          0.1047304,
-          0.0916390941,
-          0.0814569741
-        ],
-        "dz": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "dyTop": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ]
-      }
-    },
-    {
-      "gridX": 7,
-      "gridZ": -10,
-      "floor": 0,
-      "shapeId": "square",
-      "rotation": 0,
-      "rotationX": 0.0,
-      "rotationZ": 0.0,
-      "faceMaterials": null,
-      "deform": {
-        "dx": [
-          0.1047304,
-          0.117821693,
-          0.1047304,
-          0.0930936858
-        ],
-        "dz": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "dyTop": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ]
-      }
-    },
-    {
-      "gridX": 7,
-      "gridZ": -11,
-      "floor": 0,
-      "shapeId": "square",
-      "rotation": 0,
-      "rotationX": 0.0,
-      "rotationZ": 0.0,
-      "faceMaterials": null,
-      "deform": {
-        "dx": [
-          0.116367109,
-          0.130912989,
-          0.117821693,
-          0.1047304
-        ],
-        "dz": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "dyTop": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ]
-      }
-    },
-    {
       "gridX": 6,
       "gridZ": -11,
       "floor": 0,
@@ -2538,36 +1360,6 @@
           0.1047304,
           0.0930936858,
           0.08145697
-        ],
-        "dz": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "dyTop": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ]
-      }
-    },
-    {
-      "gridX": 7,
-      "gridZ": -8,
-      "floor": 0,
-      "shapeId": "square",
-      "rotation": 0,
-      "rotationX": 0.0,
-      "rotationZ": 0.0,
-      "faceMaterials": null,
-      "deform": {
-        "dx": [
-          0.0814569741,
-          0.0916390941,
-          0.0785478,
-          0.06982026
         ],
         "dz": [
           0.0,
@@ -3642,7 +2434,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "north": "LaminatedWood",
+        "north": "Ceiling",
         "top": "Ceiling"
       },
       "deform": {
@@ -3675,7 +2467,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "north": "LaminatedWood",
+        "north": "DarkStoneBrickWall",
         "top": "Ceiling"
       },
       "deform": {
@@ -3708,7 +2500,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "north": "DarkUniform",
+        "north": "Ceiling",
         "top": "Ceiling"
       },
       "deform": {
@@ -3741,7 +2533,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "north": "LaminatedWood",
+        "north": "DarkStoneBrickWall",
         "top": "Ceiling"
       },
       "deform": {
@@ -3774,7 +2566,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "north": "LaminatedWood",
+        "north": "Ceiling",
         "top": "Ceiling"
       },
       "deform": {
@@ -3807,7 +2599,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "north": "LaminatedWood",
+        "north": "Ceiling",
         "top": "Ceiling"
       },
       "deform": {
@@ -3840,112 +2632,13 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "north": "LaminatedWood",
+        "north": "Ceiling",
         "top": "Ceiling"
       },
       "deform": {
         "dx": [
           0.0101821208,
           0.0116367107,
-          0.0,
-          0.0
-        ],
-        "dz": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "dyTop": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ]
-      }
-    },
-    {
-      "gridX": 8,
-      "gridZ": -2,
-      "floor": 1,
-      "shapeId": "square",
-      "rotation": 0,
-      "rotationX": 0.0,
-      "rotationZ": 0.0,
-      "faceMaterials": {
-        "north": "LaminatedWood",
-        "top": "Ceiling"
-      },
-      "deform": {
-        "dx": [
-          0.0130913,
-          0.0145458877,
-          0.0,
-          0.0
-        ],
-        "dz": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "dyTop": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ]
-      }
-    },
-    {
-      "gridX": 7,
-      "gridZ": -2,
-      "floor": 1,
-      "shapeId": "square",
-      "rotation": 0,
-      "rotationX": 0.0,
-      "rotationZ": 0.0,
-      "faceMaterials": {
-        "north": "DarkUniform",
-        "top": "Ceiling"
-      },
-      "deform": {
-        "dx": [
-          0.0116367107,
-          0.0130913,
-          0.0,
-          0.0
-        ],
-        "dz": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "dyTop": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ]
-      }
-    },
-    {
-      "gridX": 9,
-      "gridZ": -2,
-      "floor": 1,
-      "shapeId": "square",
-      "rotation": 0,
-      "rotationX": 0.0,
-      "rotationZ": 0.0,
-      "faceMaterials": {
-        "north": "LaminatedWood",
-        "top": "Ceiling"
-      },
-      "deform": {
-        "dx": [
-          0.0145458877,
-          0.0160004776,
           0.0,
           0.0
         ],
@@ -3972,7 +2665,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "north": "LaminatedWood",
+        "north": "Ceiling",
         "top": "Ceiling"
       },
       "deform": {
@@ -3981,167 +2674,6 @@
           0.00145458884,
           0.0,
           0.0
-        ],
-        "dz": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "dyTop": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ]
-      }
-    },
-    {
-      "gridX": 10,
-      "gridZ": -2,
-      "floor": 1,
-      "shapeId": "square",
-      "rotation": 0,
-      "rotationX": 0.0,
-      "rotationZ": 0.0,
-      "faceMaterials": {
-        "north": "LaminatedWood",
-        "top": "Ceiling"
-      },
-      "deform": {
-        "dx": [
-          0.0160004776,
-          0.0174550656,
-          0.0,
-          0.0
-        ],
-        "dz": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "dyTop": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ]
-      }
-    },
-    {
-      "gridX": 10,
-      "gridZ": -3,
-      "floor": 1,
-      "shapeId": "square",
-      "rotation": 0,
-      "rotationX": 0.0,
-      "rotationZ": 0.0,
-      "faceMaterials": {
-        "top": "Ceiling"
-      },
-      "deform": {
-        "dx": [
-          0.0320009552,
-          0.03491013,
-          0.0174550656,
-          0.0160004776
-        ],
-        "dz": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "dyTop": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ]
-      }
-    },
-    {
-      "gridX": 9,
-      "gridZ": -3,
-      "floor": 1,
-      "shapeId": "square",
-      "rotation": 0,
-      "rotationX": 0.0,
-      "rotationZ": 0.0,
-      "faceMaterials": {
-        "top": "Ceiling"
-      },
-      "deform": {
-        "dx": [
-          0.0290917754,
-          0.0320009552,
-          0.0160004776,
-          0.0145458877
-        ],
-        "dz": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "dyTop": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ]
-      }
-    },
-    {
-      "gridX": 8,
-      "gridZ": -3,
-      "floor": 1,
-      "shapeId": "square",
-      "rotation": 0,
-      "rotationX": 0.0,
-      "rotationZ": 0.0,
-      "faceMaterials": {
-        "top": "Ceiling"
-      },
-      "deform": {
-        "dx": [
-          0.0261826,
-          0.0290917754,
-          0.0145458877,
-          0.0130913
-        ],
-        "dz": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "dyTop": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ]
-      }
-    },
-    {
-      "gridX": 7,
-      "gridZ": -3,
-      "floor": 1,
-      "shapeId": "square",
-      "rotation": 0,
-      "rotationX": 0.0,
-      "rotationZ": 0.0,
-      "faceMaterials": {
-        "top": "Ceiling"
-      },
-      "deform": {
-        "dx": [
-          0.0232734215,
-          0.0261826,
-          0.0130913,
-          0.0116367107
         ],
         "dz": [
           0.0,
@@ -4670,358 +3202,6 @@
       }
     },
     {
-      "gridX": 7,
-      "gridZ": -4,
-      "floor": 1,
-      "shapeId": "square",
-      "rotation": 0,
-      "rotationX": 0.0,
-      "rotationZ": 0.0,
-      "faceMaterials": {
-        "top": "Ceiling"
-      },
-      "deform": {
-        "dx": [
-          0.03491013,
-          0.0392739,
-          0.0261826,
-          0.0232734215
-        ],
-        "dz": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "dyTop": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ]
-      }
-    },
-    {
-      "gridX": 8,
-      "gridZ": -4,
-      "floor": 1,
-      "shapeId": "square",
-      "rotation": 0,
-      "rotationX": 0.0,
-      "rotationZ": 0.0,
-      "faceMaterials": {
-        "top": "Ceiling"
-      },
-      "deform": {
-        "dx": [
-          0.0392739,
-          0.0436376631,
-          0.0290917754,
-          0.0261826
-        ],
-        "dz": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "dyTop": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ]
-      }
-    },
-    {
-      "gridX": 9,
-      "gridZ": -4,
-      "floor": 1,
-      "shapeId": "square",
-      "rotation": 0,
-      "rotationX": 0.0,
-      "rotationZ": 0.0,
-      "faceMaterials": {
-        "top": "Ceiling"
-      },
-      "deform": {
-        "dx": [
-          0.0436376631,
-          0.04800143,
-          0.0320009552,
-          0.0290917754
-        ],
-        "dz": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "dyTop": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ]
-      }
-    },
-    {
-      "gridX": 10,
-      "gridZ": -4,
-      "floor": 1,
-      "shapeId": "square",
-      "rotation": 0,
-      "rotationX": 0.0,
-      "rotationZ": 0.0,
-      "faceMaterials": {
-        "top": "Ceiling"
-      },
-      "deform": {
-        "dx": [
-          0.04800143,
-          0.0523652,
-          0.03491013,
-          0.0320009552
-        ],
-        "dz": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "dyTop": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ]
-      }
-    },
-    {
-      "gridX": 10,
-      "gridZ": -5,
-      "floor": 1,
-      "shapeId": "square",
-      "rotation": 0,
-      "rotationX": 0.0,
-      "rotationZ": 0.0,
-      "faceMaterials": {
-        "top": "Ceiling"
-      },
-      "deform": {
-        "dx": [
-          0.06400191,
-          0.06982026,
-          0.0523652,
-          0.04800143
-        ],
-        "dz": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "dyTop": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ]
-      }
-    },
-    {
-      "gridX": 9,
-      "gridZ": -5,
-      "floor": 1,
-      "shapeId": "square",
-      "rotation": 0,
-      "rotationX": 0.0,
-      "rotationZ": 0.0,
-      "faceMaterials": {
-        "top": "Ceiling"
-      },
-      "deform": {
-        "dx": [
-          0.05818355,
-          0.06400191,
-          0.04800143,
-          0.0436376631
-        ],
-        "dz": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "dyTop": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ]
-      }
-    },
-    {
-      "gridX": 10,
-      "gridZ": -6,
-      "floor": 1,
-      "shapeId": "square",
-      "rotation": 0,
-      "rotationX": 0.0,
-      "rotationZ": 0.0,
-      "faceMaterials": {
-        "top": "Ceiling"
-      },
-      "deform": {
-        "dx": [
-          0.08000238,
-          0.0872753263,
-          0.06982026,
-          0.06400191
-        ],
-        "dz": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "dyTop": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ]
-      }
-    },
-    {
-      "gridX": 9,
-      "gridZ": -6,
-      "floor": 1,
-      "shapeId": "square",
-      "rotation": 0,
-      "rotationX": 0.0,
-      "rotationZ": 0.0,
-      "faceMaterials": {
-        "top": "Ceiling"
-      },
-      "deform": {
-        "dx": [
-          0.07272944,
-          0.08000238,
-          0.06400191,
-          0.05818355
-        ],
-        "dz": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "dyTop": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ]
-      }
-    },
-    {
-      "gridX": 8,
-      "gridZ": -6,
-      "floor": 1,
-      "shapeId": "square",
-      "rotation": 0,
-      "rotationX": 0.0,
-      "rotationZ": 0.0,
-      "faceMaterials": {
-        "top": "Ceiling"
-      },
-      "deform": {
-        "dx": [
-          0.0654564947,
-          0.07272944,
-          0.05818355,
-          0.0523652
-        ],
-        "dz": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "dyTop": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ]
-      }
-    },
-    {
-      "gridX": 7,
-      "gridZ": -5,
-      "floor": 1,
-      "shapeId": "square",
-      "rotation": 0,
-      "rotationX": 0.0,
-      "rotationZ": 0.0,
-      "faceMaterials": {
-        "top": "Ceiling"
-      },
-      "deform": {
-        "dx": [
-          0.0465468429,
-          0.0523652,
-          0.0392739,
-          0.03491013
-        ],
-        "dz": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "dyTop": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ]
-      }
-    },
-    {
-      "gridX": 7,
-      "gridZ": -6,
-      "floor": 1,
-      "shapeId": "square",
-      "rotation": 0,
-      "rotationX": 0.0,
-      "rotationZ": 0.0,
-      "faceMaterials": {
-        "top": "Ceiling"
-      },
-      "deform": {
-        "dx": [
-          0.0581835546,
-          0.0654564947,
-          0.0523652,
-          0.0465468429
-        ],
-        "dz": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "dyTop": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ]
-      }
-    },
-    {
       "gridX": 6,
       "gridZ": -5,
       "floor": 1,
@@ -5534,550 +3714,6 @@
       }
     },
     {
-      "gridX": 8,
-      "gridZ": -5,
-      "floor": 1,
-      "shapeId": "square",
-      "rotation": 0,
-      "rotationX": 0.0,
-      "rotationZ": 0.0,
-      "faceMaterials": {
-        "top": "Ceiling"
-      },
-      "deform": {
-        "dx": [
-          0.0523652,
-          0.05818355,
-          0.0436376631,
-          0.0392739
-        ],
-        "dz": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "dyTop": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ]
-      }
-    },
-    {
-      "gridX": 9,
-      "gridZ": -7,
-      "floor": 1,
-      "shapeId": "square",
-      "rotation": 0,
-      "rotationX": 0.0,
-      "rotationZ": 0.0,
-      "faceMaterials": {
-        "top": "RoofTiles"
-      },
-      "deform": {
-        "dx": [
-          0.0872753263,
-          0.09600286,
-          0.08000238,
-          0.07272944
-        ],
-        "dz": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "dyTop": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ]
-      }
-    },
-    {
-      "gridX": 10,
-      "gridZ": -7,
-      "floor": 1,
-      "shapeId": "square",
-      "rotation": 0,
-      "rotationX": 0.0,
-      "rotationZ": 0.0,
-      "faceMaterials": {
-        "top": "RoofTiles"
-      },
-      "deform": {
-        "dx": [
-          0.09600286,
-          0.1047304,
-          0.0872753263,
-          0.08000238
-        ],
-        "dz": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "dyTop": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ]
-      }
-    },
-    {
-      "gridX": 10,
-      "gridZ": -8,
-      "floor": 1,
-      "shapeId": "square",
-      "rotation": 0,
-      "rotationX": 0.0,
-      "rotationZ": 0.0,
-      "faceMaterials": {
-        "top": "RoofTiles"
-      },
-      "deform": {
-        "dx": [
-          0.112003341,
-          0.122185461,
-          0.1047304,
-          0.09600286
-        ],
-        "dz": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "dyTop": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ]
-      }
-    },
-    {
-      "gridX": 9,
-      "gridZ": -8,
-      "floor": 1,
-      "shapeId": "square",
-      "rotation": 0,
-      "rotationX": 0.0,
-      "rotationZ": 0.0,
-      "faceMaterials": {
-        "top": "RoofTiles"
-      },
-      "deform": {
-        "dx": [
-          0.101821214,
-          0.112003341,
-          0.09600286,
-          0.0872753263
-        ],
-        "dz": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "dyTop": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ]
-      }
-    },
-    {
-      "gridX": 10,
-      "gridZ": -9,
-      "floor": 1,
-      "shapeId": "square",
-      "rotation": 0,
-      "rotationX": 0.0,
-      "rotationZ": 0.0,
-      "faceMaterials": {
-        "top": "RoofTiles"
-      },
-      "deform": {
-        "dx": [
-          0.128003821,
-          0.139640525,
-          0.122185461,
-          0.112003341
-        ],
-        "dz": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "dyTop": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ]
-      }
-    },
-    {
-      "gridX": 9,
-      "gridZ": -9,
-      "floor": 1,
-      "shapeId": "square",
-      "rotation": 0,
-      "rotationX": 0.0,
-      "rotationZ": 0.0,
-      "faceMaterials": {
-        "top": "RoofTiles"
-      },
-      "deform": {
-        "dx": [
-          0.1163671,
-          0.128003821,
-          0.112003341,
-          0.101821214
-        ],
-        "dz": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "dyTop": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ]
-      }
-    },
-    {
-      "gridX": 10,
-      "gridZ": -10,
-      "floor": 1,
-      "shapeId": "square",
-      "rotation": 0,
-      "rotationX": 0.0,
-      "rotationZ": 0.0,
-      "faceMaterials": {
-        "top": "RoofTiles"
-      },
-      "deform": {
-        "dx": [
-          0.1440043,
-          0.1570956,
-          0.139640525,
-          0.128003821
-        ],
-        "dz": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "dyTop": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ]
-      }
-    },
-    {
-      "gridX": 9,
-      "gridZ": -10,
-      "floor": 1,
-      "shapeId": "square",
-      "rotation": 0,
-      "rotationX": 0.0,
-      "rotationZ": 0.0,
-      "faceMaterials": {
-        "top": "RoofTiles"
-      },
-      "deform": {
-        "dx": [
-          0.130912989,
-          0.1440043,
-          0.128003821,
-          0.1163671
-        ],
-        "dz": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "dyTop": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ]
-      }
-    },
-    {
-      "gridX": 10,
-      "gridZ": -11,
-      "floor": 1,
-      "shapeId": "square",
-      "rotation": 0,
-      "rotationX": 0.0,
-      "rotationZ": 0.0,
-      "faceMaterials": {
-        "top": "RoofTiles"
-      },
-      "deform": {
-        "dx": [
-          0.160004765,
-          0.174550653,
-          0.1570956,
-          0.1440043
-        ],
-        "dz": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "dyTop": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ]
-      }
-    },
-    {
-      "gridX": 9,
-      "gridZ": -11,
-      "floor": 1,
-      "shapeId": "square",
-      "rotation": 0,
-      "rotationX": 0.0,
-      "rotationZ": 0.0,
-      "faceMaterials": {
-        "top": "RoofTiles"
-      },
-      "deform": {
-        "dx": [
-          0.145458877,
-          0.160004765,
-          0.1440043,
-          0.130912989
-        ],
-        "dz": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "dyTop": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ]
-      }
-    },
-    {
-      "gridX": 8,
-      "gridZ": -11,
-      "floor": 1,
-      "shapeId": "square",
-      "rotation": 0,
-      "rotationX": 0.0,
-      "rotationZ": 0.0,
-      "faceMaterials": {
-        "top": "RoofTiles"
-      },
-      "deform": {
-        "dx": [
-          0.130912989,
-          0.145458877,
-          0.130912989,
-          0.117821693
-        ],
-        "dz": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "dyTop": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ]
-      }
-    },
-    {
-      "gridX": 8,
-      "gridZ": -10,
-      "floor": 1,
-      "shapeId": "square",
-      "rotation": 0,
-      "rotationX": 0.0,
-      "rotationZ": 0.0,
-      "faceMaterials": {
-        "top": "RoofTiles"
-      },
-      "deform": {
-        "dx": [
-          0.117821693,
-          0.130912989,
-          0.1163671,
-          0.1047304
-        ],
-        "dz": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "dyTop": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ]
-      }
-    },
-    {
-      "gridX": 8,
-      "gridZ": -9,
-      "floor": 1,
-      "shapeId": "square",
-      "rotation": 0,
-      "rotationX": 0.0,
-      "rotationZ": 0.0,
-      "faceMaterials": {
-        "top": "RoofTiles"
-      },
-      "deform": {
-        "dx": [
-          0.1047304,
-          0.1163671,
-          0.101821214,
-          0.0916390941
-        ],
-        "dz": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "dyTop": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ]
-      }
-    },
-    {
-      "gridX": 8,
-      "gridZ": -8,
-      "floor": 1,
-      "shapeId": "square",
-      "rotation": 0,
-      "rotationX": 0.0,
-      "rotationZ": 0.0,
-      "faceMaterials": {
-        "top": "RoofTiles"
-      },
-      "deform": {
-        "dx": [
-          0.0916390941,
-          0.101821214,
-          0.0872753263,
-          0.0785478
-        ],
-        "dz": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "dyTop": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ]
-      }
-    },
-    {
-      "gridX": 8,
-      "gridZ": -7,
-      "floor": 1,
-      "shapeId": "square",
-      "rotation": 0,
-      "rotationX": 0.0,
-      "rotationZ": 0.0,
-      "faceMaterials": {
-        "top": "RoofTiles"
-      },
-      "deform": {
-        "dx": [
-          0.0785478,
-          0.0872753263,
-          0.07272944,
-          0.0654564947
-        ],
-        "dz": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "dyTop": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ]
-      }
-    },
-    {
-      "gridX": 7,
-      "gridZ": -7,
-      "floor": 1,
-      "shapeId": "square",
-      "rotation": 0,
-      "rotationX": 0.0,
-      "rotationZ": 0.0,
-      "faceMaterials": {
-        "top": "RoofTiles"
-      },
-      "deform": {
-        "dx": [
-          0.06982026,
-          0.0785478,
-          0.0654564947,
-          0.0581835546
-        ],
-        "dz": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "dyTop": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ]
-      }
-    },
-    {
       "gridX": 6,
       "gridZ": -7,
       "floor": 1,
@@ -6174,102 +3810,6 @@
       }
     },
     {
-      "gridX": 7,
-      "gridZ": -9,
-      "floor": 1,
-      "shapeId": "square",
-      "rotation": 0,
-      "rotationX": 0.0,
-      "rotationZ": 0.0,
-      "faceMaterials": {
-        "top": "RoofTiles"
-      },
-      "deform": {
-        "dx": [
-          0.0930936858,
-          0.1047304,
-          0.0916390941,
-          0.0814569741
-        ],
-        "dz": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "dyTop": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ]
-      }
-    },
-    {
-      "gridX": 7,
-      "gridZ": -10,
-      "floor": 1,
-      "shapeId": "square",
-      "rotation": 0,
-      "rotationX": 0.0,
-      "rotationZ": 0.0,
-      "faceMaterials": {
-        "top": "RoofTiles"
-      },
-      "deform": {
-        "dx": [
-          0.1047304,
-          0.117821693,
-          0.1047304,
-          0.0930936858
-        ],
-        "dz": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "dyTop": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ]
-      }
-    },
-    {
-      "gridX": 7,
-      "gridZ": -11,
-      "floor": 1,
-      "shapeId": "square",
-      "rotation": 0,
-      "rotationX": 0.0,
-      "rotationZ": 0.0,
-      "faceMaterials": {
-        "top": "RoofTiles"
-      },
-      "deform": {
-        "dx": [
-          0.116367109,
-          0.130912989,
-          0.117821693,
-          0.1047304
-        ],
-        "dz": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "dyTop": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ]
-      }
-    },
-    {
       "gridX": 6,
       "gridZ": -11,
       "floor": 1,
@@ -6318,38 +3858,6 @@
           0.1047304,
           0.0930936858,
           0.08145697
-        ],
-        "dz": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "dyTop": [
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ]
-      }
-    },
-    {
-      "gridX": 7,
-      "gridZ": -8,
-      "floor": 1,
-      "shapeId": "square",
-      "rotation": 0,
-      "rotationX": 0.0,
-      "rotationZ": 0.0,
-      "faceMaterials": {
-        "top": "RoofTiles"
-      },
-      "deform": {
-        "dx": [
-          0.0814569741,
-          0.0916390941,
-          0.0785478,
-          0.06982026
         ],
         "dz": [
           0.0,
@@ -7484,6 +4992,182 @@
           0.0
         ]
       }
+    },
+    {
+      "gridX": 7,
+      "gridZ": -7,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": 8,
+      "gridZ": -7,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": 9,
+      "gridZ": -7,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": 10,
+      "gridZ": -7,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": 10,
+      "gridZ": -8,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": 9,
+      "gridZ": -8,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": 8,
+      "gridZ": -8,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": 7,
+      "gridZ": -8,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": 7,
+      "gridZ": -8,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": 8,
+      "gridZ": -8,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": 9,
+      "gridZ": -8,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": 10,
+      "gridZ": -8,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": 10,
+      "gridZ": -7,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": 9,
+      "gridZ": -7,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": 8,
+      "gridZ": -7,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": 7,
+      "gridZ": -7,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
     }
   ],
   "embeddedObjects": [],

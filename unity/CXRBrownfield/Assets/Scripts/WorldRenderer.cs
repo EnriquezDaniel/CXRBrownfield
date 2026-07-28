@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -399,23 +400,11 @@ public class WorldRenderer : MonoBehaviour
                 }
 
                 float radius = Mathf.Max(0.1f, stroke.radius);
-                Vector3? prev = null;
-                foreach (var p in stroke.points)
-                {
-                    if (p == null || p.Length < 2) continue;
-                    var cur = new Vector3(p[0], 0f, p[1]);
-                    StampDiscIntoMap(map, res, layerCount, terrainSize, cur, radius, idx);
-                    // Fill gaps between sampled points so a fast drag stays continuous.
-                    if (prev.HasValue)
-                    {
-                        float segLen = Vector3.Distance(prev.Value, cur);
-                        int steps = Mathf.CeilToInt(segLen / (radius * 0.5f));
-                        for (int s = 1; s < steps; s++)
-                            StampDiscIntoMap(map, res, layerCount, terrainSize,
-                                Vector3.Lerp(prev.Value, cur, s / (float)steps), radius, idx);
-                    }
-                    prev = cur;
-                }
+                bool square = IsSquareShape(stroke.shape);
+                float angleDeg = stroke.angleDeg;
+                WalkStroke(stroke.points, radius * 0.5f, (center, dirRad) =>
+                    StampIntoMap(map, res, layerCount, terrainSize, center, radius, idx, square,
+                                 BrushGeometry.ResolveStampAngleRad(angleDeg, dirRad)));
             }
 
         // Parcel mask LAST so the lot edge wins over zones/strokes: every cell whose center falls
@@ -448,32 +437,120 @@ public class WorldRenderer : MonoBehaviour
         tData.SetAlphamaps(0, 0, map);
     }
 
-    // Sets a filled disc of `idx`'s layer (others zeroed) into the in-memory alphamap. Center is in
-    // world meters; radius in meters. Shared by the zone/stroke rasterizer in PaintTerrain.
-    private static void StampDiscIntoMap(float[,,] map, int res, int layerCount, Vector3 terrainSize,
-                                         Vector3 centerMeters, float radius, int idx)
+    // A square footprint's corners reach radius*√2, so its scan box must be that much wider than
+    // a disc's. Kept as one constant so both stamp paths size their bounds identically.
+    private const float SQUARE_REACH = 1.4143f;
+
+    public static bool IsSquareShape(string shape) =>
+        string.Equals(shape, "square", StringComparison.OrdinalIgnoreCase);
+
+    // True when alphamap cell (x, y) falls inside the brush footprint centered at `centerMeters`
+    // (whatever space the caller stamps in — world meters offline, terrain-local meters live).
+    // Circles keep the normalized-index ellipse test so existing strokes rasterize bit-identically;
+    // squares test an axis-box in meters, rotated by `dirRad`, giving a run clean parallel edges.
+    private static bool InBrush(int x, int y, int cx, int cy, int rx, int ry, int res,
+                                Vector3 terrainSize, Vector3 centerMeters,
+                                float radius, bool square, float dirRad)
     {
+        if (!square)
+        {
+            // Normalized ellipse test (cells are square in index space but the terrain may not be).
+            float nx = rx > 0 ? (x - cx) / (float)rx : 0f;
+            float ny = ry > 0 ? (y - cy) / (float)ry : 0f;
+            return nx * nx + ny * ny <= 1f;
+        }
+
+        // Rotation is only meaningful in meters, so leave index space for the box test.
+        float mx = ((x + 0.5f) / res) * terrainSize.x - centerMeters.x;
+        float mz = ((y + 0.5f) / res) * terrainSize.z - centerMeters.z;
+        float c = Mathf.Cos(dirRad), s = Mathf.Sin(dirRad);
+        float lx =  mx * c + mz * s;   // rotate by -dirRad into the stamp's own frame
+        float lz = -mx * s + mz * c;
+        return Mathf.Abs(lx) <= radius && Mathf.Abs(lz) <= radius;
+    }
+
+    // Sets one filled brush footprint of `idx`'s layer (others zeroed) into a whole in-memory
+    // alphamap. Center is in world meters; radius in meters. Used by the rasterizer in PaintTerrain.
+    private static void StampIntoMap(float[,,] map, int res, int layerCount, Vector3 terrainSize,
+                                     Vector3 centerMeters, float radius, int idx,
+                                     bool square = false, float dirRad = 0f) =>
+        StampIntoBlock(map, 0, 0, res, res, res, layerCount, terrainSize,
+                       centerMeters, radius, idx, square, dirRad);
+
+    // Sets one filled brush footprint into a *sub-block* of the alphamap: `bx0/by0` locate the
+    // block's origin in alphamap cells and `bw/bh` are its dims, so the partial-update paths can
+    // rasterize into a small window and push it with one SetAlphamaps. `centerMeters` must be in the
+    // same space the block's indices were derived from (world meters offline, terrain-local live).
+    private static void StampIntoBlock(float[,,] block, int bx0, int by0, int bw, int bh,
+                                       int res, int layerCount, Vector3 terrainSize,
+                                       Vector3 centerMeters, float radius, int idx,
+                                       bool square, float dirRad)
+    {
+        float reach = square ? radius * SQUARE_REACH : radius;
         int cx = Mathf.RoundToInt((centerMeters.x / terrainSize.x) * res);
         int cy = Mathf.RoundToInt((centerMeters.z / terrainSize.z) * res);
-        int rx = Mathf.CeilToInt((radius / terrainSize.x) * res);
-        int ry = Mathf.CeilToInt((radius / terrainSize.z) * res);
+        int rx = Mathf.CeilToInt((reach / terrainSize.x) * res);
+        int ry = Mathf.CeilToInt((reach / terrainSize.z) * res);
 
-        for (int y = Mathf.Max(0, cy - ry); y < Mathf.Min(res, cy + ry + 1); y++)
-            for (int x = Mathf.Max(0, cx - rx); x < Mathf.Min(res, cx + rx + 1); x++)
+        // The ellipse test is normalized against the scan box, so it must see disc-sized bounds.
+        int erx = square ? rx : Mathf.CeilToInt((radius / terrainSize.x) * res);
+        int ery = square ? ry : Mathf.CeilToInt((radius / terrainSize.z) * res);
+
+        int yEnd = Mathf.Min(Mathf.Min(res, by0 + bh), cy + ry + 1);
+        int xEnd = Mathf.Min(Mathf.Min(res, bx0 + bw), cx + rx + 1);
+        for (int y = Mathf.Max(by0, cy - ry); y < yEnd; y++)
+            for (int x = Mathf.Max(bx0, cx - rx); x < xEnd; x++)
             {
-                // Normalized ellipse test (cells are square in index space but the terrain may not be).
-                float nx = rx > 0 ? (x - cx) / (float)rx : 0f;
-                float ny = ry > 0 ? (y - cy) / (float)ry : 0f;
-                if (nx * nx + ny * ny > 1f) continue;
-                for (int l = 0; l < layerCount; l++) map[y, x, l] = 0f;
-                map[y, x, idx] = 1f;
+                if (!InBrush(x, y, cx, cy, erx, ery, res, terrainSize, centerMeters, radius, square, dirRad)) continue;
+                for (int l = 0; l < layerCount; l++) block[y - by0, x - bx0, l] = 0f;
+                block[y - by0, x - bx0, idx] = 1f;
             }
     }
 
-    // Stamps a single surface disc directly into the LIVE terrain alphamap for immediate brush
-    // feedback during a drag. The stroke is also recorded in the data model, so PaintTerrain
-    // reproduces it authoritatively on reload / active-env switch.
-    public void StampSurfaceDiscLive(Vector3 worldPos, float radius, string terrainType)
+    // Walks a stroke centerline and invokes `stamp(center, dirRad)` at every sample, inserting
+    // intermediate samples no further apart than `step` so a fast drag — or a long straight run —
+    // rasterizes as one continuous band. `dirRad` is the heading (atan2(dz, dx)) of the segment the
+    // sample belongs to; square stamps rotate to it. A single-point stroke stamps once, axis-aligned.
+    private static void WalkStroke(float[][] points, float step, Action<Vector3, float> stamp)
+    {
+        if (points == null || stamp == null) return;
+        step = Mathf.Max(0.05f, step);
+
+        var pts = new List<Vector3>(points.Length);
+        foreach (var p in points)
+            if (p != null && p.Length >= 2) pts.Add(new Vector3(p[0], 0f, p[1]));
+
+        if (pts.Count == 0) return;
+        if (pts.Count == 1) { stamp(pts[0], 0f); return; }
+
+        for (int i = 0; i + 1 < pts.Count; i++)
+        {
+            Vector3 a = pts[i], b = pts[i + 1];
+            float dirRad = Mathf.Atan2(b.z - a.z, b.x - a.x);
+            int steps = Mathf.Max(1, Mathf.CeilToInt(Vector3.Distance(a, b) / step));
+            // Endpoints are inclusive, so a shared joint is stamped twice — harmless, the write is
+            // idempotent, and it keeps every segment's own heading at its ends.
+            for (int s = 0; s <= steps; s++) stamp(Vector3.Lerp(a, b, s / (float)steps), dirRad);
+        }
+    }
+
+    // Index of `terrainType` in the live terrain's layer list, or -1 (logged) when unknown.
+    private int ResolveLiveLayerIndex(string terrainType)
+    {
+        if (targetTerrain == null || terrainRegistry == null) return -1;
+        int layerCount = targetTerrain.terrainData.terrainLayers?.Length ?? 0;
+        for (int i = 0; i < terrainRegistry.entries.Count && i < layerCount; i++)
+            if (string.Equals(terrainRegistry.entries[i].key, terrainType, StringComparison.OrdinalIgnoreCase))
+                return i;
+        Debug.LogError($"[WorldRenderer] Terrain type '{terrainType}' not found in TerrainRegistry.");
+        return -1;
+    }
+
+    // Stamps a single brush footprint directly into the LIVE terrain alphamap for immediate feedback
+    // during a drag. The stroke is also recorded in the data model, so PaintTerrain reproduces it
+    // authoritatively on reload / active-env switch.
+    public void StampSurfaceLive(Vector3 worldPos, float radius, string terrainType,
+                                 bool square = false, float dirRad = 0f)
     {
         if (targetTerrain == null || terrainRegistry == null) return;
 
@@ -482,20 +559,25 @@ public class WorldRenderer : MonoBehaviour
         int layerCount = tData.terrainLayers != null ? tData.terrainLayers.Length : 0;
         if (layerCount == 0) return;
 
-        int idx = -1;
-        for (int i = 0; i < terrainRegistry.entries.Count && i < layerCount; i++)
-            if (string.Equals(terrainRegistry.entries[i].key, terrainType, System.StringComparison.OrdinalIgnoreCase))
-            { idx = i; break; }
-        if (idx < 0) { Debug.LogError($"[WorldRenderer] Terrain type '{terrainType}' not found in TerrainRegistry."); return; }
+        int idx = ResolveLiveLayerIndex(terrainType);
+        if (idx < 0) return;
 
         Vector3 terrainPos  = targetTerrain.transform.position;
         Vector3 terrainSize = tData.size;
         radius = Mathf.Max(0.1f, radius);
+        float reach = square ? radius * SQUARE_REACH : radius;
 
-        int cx = Mathf.RoundToInt(((worldPos.x - terrainPos.x) / terrainSize.x) * res);
-        int cy = Mathf.RoundToInt(((worldPos.z - terrainPos.z) / terrainSize.z) * res);
-        int rx = Mathf.CeilToInt((radius / terrainSize.x) * res);
-        int ry = Mathf.CeilToInt((radius / terrainSize.z) * res);
+        // Terrain-local meters: the footprint test must match the space the indices are built from.
+        var centerLocal = new Vector3(worldPos.x - terrainPos.x, 0f, worldPos.z - terrainPos.z);
+
+        int cx = Mathf.RoundToInt((centerLocal.x / terrainSize.x) * res);
+        int cy = Mathf.RoundToInt((centerLocal.z / terrainSize.z) * res);
+        int rx = Mathf.CeilToInt((reach / terrainSize.x) * res);
+        int ry = Mathf.CeilToInt((reach / terrainSize.z) * res);
+
+        // The ellipse test is normalized against the scan box, so it must see disc-sized bounds.
+        int erx = square ? rx : Mathf.CeilToInt((radius / terrainSize.x) * res);
+        int ery = square ? ry : Mathf.CeilToInt((radius / terrainSize.z) * res);
 
         int x0 = Mathf.Clamp(cx - rx, 0, res - 1);
         int y0 = Mathf.Clamp(cy - ry, 0, res - 1);
@@ -504,16 +586,121 @@ public class WorldRenderer : MonoBehaviour
         if (w <= 0 || h <= 0) return;
 
         float[,,] block = tData.GetAlphamaps(x0, y0, w, h);
-        for (int y = 0; y < h; y++)
-            for (int x = 0; x < w; x++)
-            {
-                float nx = rx > 0 ? (x0 + x - cx) / (float)rx : 0f;
-                float ny = ry > 0 ? (y0 + y - cy) / (float)ry : 0f;
-                if (nx * nx + ny * ny > 1f) continue;
-                for (int l = 0; l < layerCount; l++) block[y, x, l] = 0f;
-                block[y, x, idx] = 1f;
-            }
+        StampIntoBlock(block, x0, y0, w, h, res, layerCount, terrainSize,
+                       centerLocal, radius, idx, square, dirRad);
         tData.SetAlphamaps(x0, y0, block);
+    }
+
+    // -----------------------------------------------------------------------
+    // Live straight-run painting
+    //
+    // A straight run's geometry is *replaced* on every mouse move, not appended to — swing the
+    // direction around mid-drag and an append-only stamp would leave a smeared fan behind. So the
+    // pristine alphamap under the run is snapshotted once, and every update repaints that snapshot
+    // and re-stamps the run's current shape into it: ground the run has moved off reverts, and the
+    // whole window goes down in a single SetAlphamaps.
+    // -----------------------------------------------------------------------
+
+    private float[,,] _liveBase;                             // pristine snapshot, [y, x, layer]
+    private float[,,] _liveWork;                             // scratch the run is stamped into
+    private int  _liveX0, _liveY0, _liveW, _liveH;           // snapshot window, in alphamap cells
+    private bool _liveRunActive;
+
+    // Starts a live run. Pair with EndLiveSurfaceRun — without it the snapshot leaks and a later
+    // run would restore stale ground.
+    public void BeginLiveSurfaceRun()
+    {
+        _liveRunActive = true;
+        _liveBase = _liveWork = null;
+        _liveW = _liveH = 0;
+    }
+
+    // Repaints the run at its current shape. Cheap enough for every frame of a drag: one array copy
+    // plus one SetAlphamaps over the run's bounding window (not the whole terrain).
+    public void UpdateLiveSurfaceRun(SurfaceStrokeDef stroke)
+    {
+        if (!_liveRunActive || targetTerrain == null || stroke?.points == null) return;
+        int idx = ResolveLiveLayerIndex(stroke.terrainType);
+        if (idx < 0) return;
+
+        TerrainData tData = targetTerrain.terrainData;
+        int res = tData.alphamapResolution;
+        int layerCount = tData.terrainLayers != null ? tData.terrainLayers.Length : 0;
+        if (layerCount == 0) return;
+        if (!StrokeCellRect(stroke, res, out int nx0, out int ny0, out int nw, out int nh)) return;
+
+        // Grow the snapshot when the run leaves it. Put back what we painted first, so the enlarged
+        // snapshot captures clean ground rather than our own band.
+        bool contained = _liveBase != null && nx0 >= _liveX0 && ny0 >= _liveY0 &&
+                         nx0 + nw <= _liveX0 + _liveW && ny0 + nh <= _liveY0 + _liveH;
+        if (!contained)
+        {
+            RestoreLiveSurfaceRun();
+            int ux0 = _liveBase == null ? nx0 : Mathf.Min(nx0, _liveX0);
+            int uy0 = _liveBase == null ? ny0 : Mathf.Min(ny0, _liveY0);
+            int ux1 = _liveBase == null ? nx0 + nw : Mathf.Max(nx0 + nw, _liveX0 + _liveW);
+            int uy1 = _liveBase == null ? ny0 + nh : Mathf.Max(ny0 + nh, _liveY0 + _liveH);
+            _liveX0 = ux0; _liveY0 = uy0; _liveW = ux1 - ux0; _liveH = uy1 - uy0;
+            _liveBase = tData.GetAlphamaps(_liveX0, _liveY0, _liveW, _liveH);
+            _liveWork = new float[_liveH, _liveW, layerCount];
+        }
+
+        Array.Copy(_liveBase, _liveWork, _liveBase.Length);   // start from clean ground every update
+
+        Vector3 tPos = targetTerrain.transform.position, tSize = tData.size;
+        float radius = Mathf.Max(0.1f, stroke.radius);
+        bool square = IsSquareShape(stroke.shape);
+        float angleDeg = stroke.angleDeg;
+        WalkStroke(stroke.points, radius * 0.5f, (center, dirRad) =>
+            StampIntoBlock(_liveWork, _liveX0, _liveY0, _liveW, _liveH, res, layerCount, tSize,
+                           new Vector3(center.x - tPos.x, 0f, center.z - tPos.z), radius, idx,
+                           square, BrushGeometry.ResolveStampAngleRad(angleDeg, dirRad)));
+
+        tData.SetAlphamaps(_liveX0, _liveY0, _liveWork);
+    }
+
+    // Ends the run. `keepPaint` false wipes it back to the snapshot (cancelled drag); true leaves
+    // the paint standing, which is what the committed stroke rasterizes to anyway.
+    public void EndLiveSurfaceRun(bool keepPaint)
+    {
+        if (!keepPaint) RestoreLiveSurfaceRun();
+        _liveRunActive = false;
+        _liveBase = _liveWork = null;
+        _liveW = _liveH = 0;
+    }
+
+    private void RestoreLiveSurfaceRun()
+    {
+        if (_liveBase == null || targetTerrain == null || _liveW <= 0 || _liveH <= 0) return;
+        targetTerrain.terrainData.SetAlphamaps(_liveX0, _liveY0, _liveBase);
+    }
+
+    // Alphamap cell window a stroke can touch, clamped to the map. Terrain-local, matching the
+    // indices the live stampers build.
+    private bool StrokeCellRect(SurfaceStrokeDef stroke, int res, out int x0, out int y0, out int w, out int h)
+    {
+        x0 = y0 = w = h = 0;
+        if (targetTerrain == null || stroke?.points == null) return false;
+
+        Vector3 tPos = targetTerrain.transform.position, tSize = targetTerrain.terrainData.size;
+        float reach = Mathf.Max(0.1f, stroke.radius) * (IsSquareShape(stroke.shape) ? SQUARE_REACH : 1f);
+
+        float minX = float.MaxValue, maxX = float.MinValue, minZ = float.MaxValue, maxZ = float.MinValue;
+        foreach (var p in stroke.points)
+        {
+            if (p == null || p.Length < 2) continue;
+            minX = Mathf.Min(minX, p[0]); maxX = Mathf.Max(maxX, p[0]);
+            minZ = Mathf.Min(minZ, p[1]); maxZ = Mathf.Max(maxZ, p[1]);
+        }
+        if (minX > maxX) return false;
+
+        // One cell of slack on each side so rounding in the stamper can't fall outside the window.
+        int x1 = Mathf.Clamp(Mathf.CeilToInt (((maxX + reach - tPos.x) / tSize.x) * res) + 1, 0, res);
+        int y1 = Mathf.Clamp(Mathf.CeilToInt (((maxZ + reach - tPos.z) / tSize.z) * res) + 1, 0, res);
+        x0     = Mathf.Clamp(Mathf.FloorToInt(((minX - reach - tPos.x) / tSize.x) * res) - 1, 0, res);
+        y0     = Mathf.Clamp(Mathf.FloorToInt(((minZ - reach - tPos.z) / tSize.z) * res) - 1, 0, res);
+        w = x1 - x0; h = y1 - y0;
+        return w > 0 && h > 0;
     }
 
     // -----------------------------------------------------------------------
@@ -801,25 +988,93 @@ public class WorldRenderer : MonoBehaviour
                 if (prefab == null) continue;   // posts are optional
 
                 var go = Instantiate(prefab, er.root);
-                // Prefabs are modeled along +X (run direction) with their base at y=0; set the run yaw
-                // directly (FenceBuilder computed it for the +X convention).
-                go.transform.rotation = Quaternion.Euler(0f, pl.yawDeg, 0f);
-
-                // Stretch the panel to span its gap (X = run) and reach the fence height (Y); posts
-                // only take the height scale. Thickness (Z) is preserved.
-                float baseLen    = panelLen;
-                float baseHeight = entry.height > 0f ? entry.height : height;
-                float sx = (!pl.isPost && entry.scalePanelToFit && baseLen > 1e-4f) ? pl.span / baseLen : 1f;
-                float sy = baseHeight > 1e-4f ? height / baseHeight : 1f;
-                Vector3 ls = go.transform.localScale;
-                go.transform.localScale = new Vector3(ls.x * sx, ls.y * sy, ls.z);
-
-                // Drape onto the terrain: base sits at the surface under this piece's XZ.
-                go.transform.position = new Vector3(pl.pos.x, SamplePathSurfaceY(pl.pos.x, pl.pos.y), pl.pos.y);
-
+                ApplyFencePlacement(go, prefab.transform.localScale, pl, entry, height);
                 go.AddComponent<FenceMarker>().fenceId = fence.id;
             }
         }
+    }
+
+    // Position/rotate/scale one fence piece (panel or post) for a FenceBuilder placement. Shared with
+    // the edit-mode ghost preview so the preview and the committed render can never drift. `baseScale`
+    // is the prefab's authored localScale, passed explicitly so pooled preview instances don't
+    // compound scale across frames.
+    public void ApplyFencePlacement(GameObject go, Vector3 baseScale, in FenceBuilder.Placement pl,
+                                    FencePalette.Entry entry, float height)
+    {
+        // Prefabs are modeled along +X (run direction) with their base at y=0; set the run yaw
+        // directly (FenceBuilder computed it for the +X convention).
+        var rot = Quaternion.Euler(0f, pl.yawDeg, 0f);
+        go.transform.rotation = rot;
+
+        // Stretch the panel to span its gap (X = run) and reach the fence height (Y); posts
+        // only take the height scale. Thickness (Z) is preserved. The panel's modeled length and
+        // X-center come from its measured mesh extent, not the pivot or entry.panelLength — art-pack
+        // panels often pivot at one end, which would otherwise shift the whole run by half a panel.
+        float baseLen  = entry.panelLength > 1e-4f ? entry.panelLength : 2f;
+        float centerX  = 0f;
+        if (!pl.isPost && entry.panelPrefab != null && TryGetPanelXExtent(entry.panelPrefab, out Vector2 ext))
+        {
+            baseLen = (ext.y - ext.x) * Mathf.Max(Mathf.Abs(baseScale.x), 1e-4f);
+            centerX = (ext.x + ext.y) * 0.5f;
+        }
+        float baseHeight = entry.height > 0f ? entry.height : height;
+        float sx = (!pl.isPost && entry.scalePanelToFit && baseLen > 1e-4f) ? pl.span / baseLen : 1f;
+        float sy = baseHeight > 1e-4f ? height / baseHeight : 1f;
+        go.transform.localScale = new Vector3(baseScale.x * sx, baseScale.y * sy, baseScale.z);
+
+        // Drape onto the terrain: base sits at the surface under this piece. Panels sample both end
+        // joints and sit at the lower one so their ends never float off a downhill slope (sinking
+        // slightly into the uphill side reads far better than a gap); posts sample their own XZ.
+        float y;
+        if (!pl.isPost && pl.span > 1e-4f)
+        {
+            float th = pl.yawDeg * Mathf.Deg2Rad;
+            var half = new Vector2(Mathf.Cos(th), -Mathf.Sin(th)) * (pl.span * 0.5f);
+            y = Mathf.Min(SamplePathSurfaceY(pl.pos.x - half.x, pl.pos.y - half.y),
+                          SamplePathSurfaceY(pl.pos.x + half.x, pl.pos.y + half.y));
+        }
+        else
+        {
+            y = SamplePathSurfaceY(pl.pos.x, pl.pos.y);
+        }
+        // Place by the mesh's X-center, not the pivot: shift the instance so the panel geometry is
+        // centered on the segment midpoint — this is what makes a run start and end exactly at the
+        // drawn points regardless of where the prefab's pivot sits.
+        go.transform.position = new Vector3(pl.pos.x, y, pl.pos.y)
+                              - rot * new Vector3(centerX * baseScale.x * sx, 0f, 0f);
+    }
+
+    // Cached local X extent (min, max) of a panel prefab's combined meshes, measured in the prefab
+    // root's space (root scale excluded — the caller multiplies by baseScale). Lets fence placement
+    // work from the actual geometry instead of assuming the pivot sits at the panel's X-center.
+    private static readonly Dictionary<GameObject, Vector2> _panelXExtents = new();
+
+    private static bool TryGetPanelXExtent(GameObject prefab, out Vector2 ext)
+    {
+        if (_panelXExtents.TryGetValue(prefab, out ext)) return ext.y > ext.x;
+
+        float min = float.PositiveInfinity, max = float.NegativeInfinity;
+        var root = prefab.transform;
+        foreach (var mf in prefab.GetComponentsInChildren<MeshFilter>(true))
+        {
+            var mesh = mf.sharedMesh;
+            if (mesh == null) continue;
+            Bounds b = mesh.bounds;
+            Matrix4x4 toRoot = root.worldToLocalMatrix * mf.transform.localToWorldMatrix;
+            for (int c = 0; c < 8; c++)
+            {
+                var corner = new Vector3(
+                    (c & 1) == 0 ? b.min.x : b.max.x,
+                    (c & 2) == 0 ? b.min.y : b.max.y,
+                    (c & 4) == 0 ? b.min.z : b.max.z);
+                float x = toRoot.MultiplyPoint3x4(corner).x;
+                if (x < min) min = x;
+                if (x > max) max = x;
+            }
+        }
+        ext = max > min ? new Vector2(min, max) : Vector2.zero;
+        _panelXExtents[prefab] = ext;
+        return ext.y > ext.x;
     }
 
     // -----------------------------------------------------------------------
@@ -1039,8 +1294,24 @@ public class WorldRenderer : MonoBehaviour
 
         float cs = bdef.gridCellSize > 0f ? bdef.gridCellSize : AuthoringConventions.DEFAULT_GRID_CELL_SIZE;
 
+        // Sanity check: a single stray tile (e.g. from the old unclamped floor-plane hover) makes the
+        // whole building read as enormous — every bounds-derived size (framing, selection, massing
+        // span) tracks tile min/max. Warn loudly so corrupted defs get noticed and repaired instead
+        // of silently rendering kilometers wide.
+        int minX = int.MaxValue, maxX = int.MinValue, minZ = int.MaxValue, maxZ = int.MinValue;
         foreach (var tile in bdef.tiles)
+        {
             TileSpawner.Spawn(tile, rootGO.transform, tileShapePalette, materialPalette, cs);
+            if (tile.gridX < minX) minX = tile.gridX;
+            if (tile.gridX > maxX) maxX = tile.gridX;
+            if (tile.gridZ < minZ) minZ = tile.gridZ;
+            if (tile.gridZ > maxZ) maxZ = tile.gridZ;
+        }
+        const int SANE_SPAN_CELLS = 200;
+        if (maxX - minX > SANE_SPAN_CELLS || maxZ - minZ > SANE_SPAN_CELLS)
+            Debug.LogWarning($"[WorldRenderer] Building '{bdef.name}' ({bdef.id}) spans " +
+                             $"{maxX - minX + 1}×{maxZ - minZ + 1} cells — it likely contains a stray " +
+                             $"tile far from the footprint (tile extent X {minX}..{maxX}, Z {minZ}..{maxZ}).");
 
         return rootGO;
     }

@@ -14,16 +14,18 @@ using UnityEngine;
 //   Terrain  → EditController (paths / scatter / ground)
 //   Build    → TileBuildingEditor (tile editor)   — EditController shows an empty-state until a
 //                                                    building is opened
-//   Manage   → EditController (admin: re-render / duplicate / archive / delete)
 //   Generate → ModelRequesterUI (Sketch → 3D)
+//
+// (Admin re-render / duplicate / archive / delete moved to the Library rail's Loaded rows,
+// revealed by the Admin toggle — the old Manage command is gone.)
 
-public enum AppMode { Browse, Place, Terrain, Build, Manage, Generate }
+public enum AppMode { Browse, Place, Terrain, Build, Generate }
 
 // Single source of truth for the active command. Panels read UIMode.Current in OnGUI; the command
 // bar (and a few flows like double-click-to-edit) write it through Set().
 public static class UIMode
 {
-    public static readonly string[] Labels = { "Browse", "Place", "Terrain", "Build", "Manage", "Generate" };
+    public static readonly string[] Labels = { "Browse", "Place", "Terrain", "Build", "Generate" };
 
     static AppMode _current = AppMode.Browse;
     public static AppMode Current => _current;
@@ -60,8 +62,27 @@ public class UIShell : MonoBehaviour
         if (libraryBrowser      == null) libraryBrowser      = FindObjectOfType<LibraryBrowser>();
     }
 
-    private void OnEnable()  { UIMode.Changed += OnModeChanged; }
-    private void OnDisable() { UIMode.Changed -= OnModeChanged; }
+    // The active shell, so the scene-picking code can ask where the bar is. Null when no shell is
+    // in the scene (VRViewer) or it's disabled — then nothing is blocked.
+    private static UIShell _active;
+
+    private void OnEnable()  { _active = this; UIMode.Changed += OnModeChanged; }
+    private void OnDisable() { if (_active == this) _active = null; UIMode.Changed -= OnModeChanged; }
+
+    // Screen rect of the command bar in GUI space (origin top-left), or an empty rect when no shell
+    // is active. Single definition — OnGUI draws to it and the hit test below reads it, so the two
+    // can't drift as barWidth or the window size changes.
+    public static Rect BarRect => _active == null
+        ? Rect.zero
+        : new Rect((Screen.width - _active.barWidth) * 0.5f, UITheme.Margin,
+                   _active.barWidth, UITheme.PrimaryH + UITheme.Pad * 2f);
+
+    // True when `screenPos` — Input System screen coords, origin BOTTOM-left — lands on the command
+    // bar. Every tool's "is the pointer over UI?" test only checks x against the left/right rails,
+    // but the bar is centered, so it falls in the gap between them: without this a click on the bar
+    // also reaches the scene and selects (or paints) whatever sits behind it.
+    public static bool BlocksScreenPoint(Vector2 screenPos) =>
+        BarRect.Contains(new Vector2(screenPos.x, Screen.height - screenPos.y));
 
     // When the operator leaves a mode, drop any in-progress placement / terrain tool / tile edit so
     // nothing leaks across modes. EditController.ExitForModeSwitch() centralises that teardown.
@@ -72,9 +93,7 @@ public class UIShell : MonoBehaviour
 
     private void OnGUI()
     {
-        float w = barWidth;
-        float x = (Screen.width - w) * 0.5f;
-        var rect = new Rect(x, UITheme.Margin, w, UITheme.PrimaryH + UITheme.Pad * 2);
+        var rect = BarRect;
         UITheme.PanelBackground(rect);
         GUILayout.BeginArea(UITheme.Inset(rect));
         int sel = UITheme.CommandBar((int)UIMode.Current, UIMode.Labels);

@@ -563,7 +563,9 @@ public class AuthoringTypesSerializationTests
             id          = "stroke-guid",
             terrainType = "concrete",
             radius      = 4.5f,
-            points      = new float[][] { new[] { 0f, 0f }, new[] { 5f, 5f }, new[] { 10f, 2f } }
+            points      = new float[][] { new[] { 0f, 0f }, new[] { 5f, 5f }, new[] { 10f, 2f } },
+            shape       = "square",
+            angleDeg    = 30f
         };
 
         string json = JsonConvert.SerializeObject(stroke);
@@ -574,6 +576,25 @@ public class AuthoringTypesSerializationTests
         Assert.AreEqual(4.5f, deserialized.radius, 0.001f);
         Assert.AreEqual(3, deserialized.points.Length);
         Assert.AreEqual(5f, deserialized.points[1][1], 0.001f);
+        Assert.AreEqual("square", deserialized.shape);
+        Assert.AreEqual(30f, deserialized.angleDeg, 0.001f);
+    }
+
+    // Environments saved before the square brush existed have no `shape` or `angleDeg` key; they must
+    // keep rasterizing as round auto-angled discs rather than deserializing to null/0.
+    [Test]
+    public void SurfaceStrokeDef_LegacyJsonWithoutShape_DefaultsToCircle()
+    {
+        const string legacy = "{\"id\":\"s\",\"terrainType\":\"grass\",\"radius\":3.0," +
+                              "\"points\":[[0.0,0.0],[4.0,0.0]]}";
+
+        var deserialized = JsonConvert.DeserializeObject<SurfaceStrokeDef>(legacy);
+
+        Assert.AreEqual("circle", deserialized.shape);
+        Assert.AreEqual("grass", deserialized.terrainType);
+        Assert.AreEqual(2, deserialized.points.Length);
+        // Negative = auto (follow the run). 0 would wrongly mean "pinned axis-aligned".
+        Assert.Less(deserialized.angleDeg, 0f);
     }
 
     [Test]

@@ -70,6 +70,31 @@ public class PathGeometryTests
     }
 
     [Test]
+    public void Smooth_RoundFit_StretchesSpacingToNearestCount()
+    {
+        // 10m at step 3: round(10/3)=3 subdivisions of 3.333m — spacing stretches past the step.
+        var pts = new List<Vector2> { new(0, 0), new(10, 0) };
+        var outPts = PathGeometry.Smooth(pts, 0f, step: 3f, roundFit: true);
+
+        Assert.AreEqual(4, outPts.Count);
+        for (int i = 0; i < outPts.Count; i++)
+            Assert.That(Vector2.Distance(outPts[i], new Vector2(10f / 3f * i, 0)), Is.LessThan(1e-3f));
+    }
+
+    [Test]
+    public void Smooth_DefaultCeilFit_NeverExceedsStep()
+    {
+        // Guard: without roundFit the ceil behavior is unchanged — 10m at step 3 gives 4 subdivisions
+        // of 2.5m (this locks in the path-ribbon resample the fences no longer share).
+        var pts = new List<Vector2> { new(0, 0), new(10, 0) };
+        var outPts = PathGeometry.Smooth(pts, 0f, step: 3f);
+
+        Assert.AreEqual(5, outPts.Count);
+        for (int i = 1; i < outPts.Count; i++)
+            Assert.That(Vector2.Distance(outPts[i - 1], outPts[i]), Is.LessThanOrEqualTo(3f + 1e-3f));
+    }
+
+    [Test]
     public void Simplify_DropsCollinearMidpoints()
     {
         var pts = new List<Vector2> { new(0, 0), new(1, 0), new(2, 0), new(3, 0), new(3, 5) };

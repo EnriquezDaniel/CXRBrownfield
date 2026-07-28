@@ -170,18 +170,34 @@ public class EditController : MonoBehaviour, EditHistory.IHost
     private Material _pathHandleMat, _pathHandleSelMat;
     private const float PATH_HANDLE_PICK_PX = 18f;        // screen-space pick radius for handles
 
-    // DrawFence — mirrors DrawPath: the same point-collection input (straight/freehand, snap, finish),
-    // but commits a FenceDef and previews the centerline as a draped LineRenderer (panels appear on
-    // finish). Reuses PathGeometry/PATH_* constants + the path handle materials.
+    // DrawFence — mirrors DrawPath's freehand input, but straight mode is press-drag-release (one
+    // run per gesture; chain corners by starting the next drag on the previous endpoint — the snap
+    // grabs it). Commits a FenceDef; a pooled ghost of real tinted panel/post prefabs previews the
+    // exact fence while drawing/editing (the amber LineRenderer remains as the no-prefab fallback).
+    // Reuses PathGeometry/PATH_* constants + the path handle materials.
     private string _fenceType = "picket";
     private float  _fenceHeight = 0f;                     // fence height (m); 0 ⇒ FencePalette default for the type
     private float  _fenceSmoothing = 0f;                  // 0 = crisp corners (typical), 1 = flowing curves
     private bool   _fenceFreehand;
     private readonly List<Vector3> _fencePts = new();     // world-space centerline being drawn (y≈0)
     private bool   _fenceStroking;
-    private float  _fenceLastClickTime;
-    private LineRenderer _fencePreviewLine;               // draped centerline guide while drawing/editing
+    private bool    _fenceDragging;                       // straight mode: LMB held since the press point
+    private Vector3 _fenceDragStart;                      // snapped once at press; never re-snaps mid-drag
+    private const float FENCE_MIN_DRAG  = 0.5f;           // m; a shorter release is a cancel, not a fence
+    private const float FENCE_SNAP_DIST = 1.5f;           // snap radius (m) to an existing fence endpoint
+    private const float FENCE_PICK_PX   = 24f;            // screen-space slop for click-to-edit (TryPickFenceScreen)
+    private LineRenderer _fencePreviewLine;               // draped centerline guide (fallback when the type has no panel prefab)
     private Material     _fencePreviewMat;
+    // Ghost preview: pooled tinted instances of the palette prefabs, transformed by the same
+    // WorldRenderer.ApplyFencePlacement the committed render uses, so the preview is WYSIWYG.
+    private GameObject _fenceGhostRoot;
+    private readonly List<GameObject> _fenceGhostPanels = new();
+    private readonly List<GameObject> _fenceGhostPosts  = new();
+    private string   _fenceGhostType;                     // palette type the pools were built from
+    private float    _fenceGhostLength;                   // summed panel spans (m), for the floating readout
+    private int      _fenceGhostPanelCount;
+    private GUIStyle _fenceLabelStyle;                    // lazily-built floating-readout style
+    private GameObject _fenceSnapMarker;                  // highlight sphere shown while the cursor snaps to a fence end
     // EditFence: reshape an existing fence's control points in place.
     private string _fenceEditId;
     private readonly List<Vector3> _fenceEditPts = new();
@@ -215,11 +231,31 @@ public class EditController : MonoBehaviour, EditHistory.IHost
     private Vector3 _brushLastApply;
     private bool    _brushApplied;                      // has an application happened this stroke
 
-    // PaintSurface (freehand ground-type brush)
+    // PaintSurface (ground-type brush)
     private string _surfType   = "grass";
     private float  _surfRadius  = 5f;
     private readonly List<Vector3> _surfPts = new();    // current stroke centerline (committed on LMB up)
     private Vector3 _surfLastStamp;
+    private bool   _surfSquare;                         // false = round footprint, true = square (auto-aligns to the run)
+    private bool   _surfStraight;                       // false = freehand drag, true = straight drag start → end
+    private Vector3 _surfDragStart;                     // straight mode: press point (snapshotted at LMB down)
+    private bool   _surfDragging;                       // straight mode: a drag is in flight
+    private LineRenderer _surfLinePreview;              // straight mode: amber centerline while dragging
+    private const float SURF_MIN_DRAG = 0.5f;           // a shorter straight drag is a click, not a stroke
+    // Brush angle: Auto follows the run (edges stay parallel to it); Fixed pins every stamp to one
+    // orientation so a whole site can share a grid. The fixed angle also phases the run snapping, so
+    // the run and the stamps line up on the same rotated grid.
+    private bool  _surfFixedAngle = true;               // false = auto, true = use _surfAngleDeg (default)
+    private float _surfAngleDeg;                        // 0–90 (a square is 90°-symmetric)
+    private bool  _surfSnapAngle = true;                // snap the drawn run's heading (Shift bypasses)
+    private float _surfSnapIncrementDeg = 45f;
+    private LineRenderer _surfStartGhost;               // brush outline parked at the drag's start
+    private GameObject   _surfSnapMarker;               // start snapped onto an existing stroke's end
+    private GUIStyle     _surfLabelStyle;               // lazily-built floating-readout style
+    private float _surfDragLen, _surfDragAngleDeg;      // live readout values (filled during a drag)
+    private bool  _surfDragSnapped;
+    private Vector3 _surfLiveEnd;                       // endpoint the live paint was last rasterized at
+    private bool    _surfLivePainted;                   // has the in-flight run been painted at least once
 
     // Measure — non-destructive ruler: click ground points for live distance / polyline length /
     // polygon area at true scale. Writes nothing to the environment. The same two points feed Scale
@@ -234,7 +270,7 @@ public class EditController : MonoBehaviour, EditHistory.IHost
     // Site Settings — editable real-world terrain dimensions + scale note. The text buffers re-sync
     // from the active environment whenever it changes (tracked by _siteFieldsEnvId) so the fields
     // always show the live values until the user edits + Applies.
-    private string _siteWidthStr = "", _siteLenStr = "", _scaleNoteStr = "";
+    private string _siteWidthStr = "", _siteLenStr = "";
     private string _siteFieldsEnvId;
 
     // Dimension entry — exact W×D×H (meters) for a selected massing-box object. Buffers re-sync when
@@ -252,6 +288,7 @@ public class EditController : MonoBehaviour, EditHistory.IHost
     private int     _placeFilter;            // 0 = All, 1 = Objects, 2 = Buildings (Place chips)
     private Vector2 _pathMatScroll, _brushPrefabScroll, _surfTypeScroll, _pathListScroll;
     private Vector2 _fenceTypeScroll, _fenceListScroll;
+    private bool _showPathList, _showFenceList;   // existing-paths/fences lists are collapsed by default
     private Vector2 _panelScroll;
 
     // Undo/redo history (data edits only; in-memory). Created in Start, shared with the tile editor.
@@ -497,15 +534,41 @@ public class EditController : MonoBehaviour, EditHistory.IHost
 
         _overlapHits.Clear();
         var seen = new HashSet<string>();
+        float  nearestInst  = float.MaxValue;
+        float  nearestFence = float.MaxValue;
+        string fenceId      = null;
         foreach (var h in Physics.RaycastAll(ray, 1000f))
         {
             var m = h.collider.GetComponentInParent<InstanceMarker>();
-            if (m != null && seen.Add(m.instanceId))
-                _overlapHits.Add((m, m.gameObject));
+            if (m != null)
+            {
+                if (seen.Add(m.instanceId)) _overlapHits.Add((m, m.gameObject));
+                if (h.distance < nearestInst) nearestInst = h.distance;
+                continue;
+            }
+            // A fence is many panel/post GOs sharing one id, so it can't join the instance overlap
+            // list — keep only the nearest hit, which makes one fence exactly one candidate.
+            var fm = h.collider.GetComponentInParent<FenceMarker>();
+            if (fm != null && h.distance < nearestFence && IsEditableFence(fm.fenceId))
+            { nearestFence = h.distance; fenceId = fm.fenceId; }
+        }
+
+        // A fence in front of everything else opens its editor directly (rail + control handles).
+        // Additive clicks stay instance-only, so Shift/Ctrl+click still reaches an object behind it.
+        if (fenceId != null && nearestFence < nearestInst && !AdditiveHeld() &&
+            (UIMode.Current == AppMode.Browse || UIMode.Current == AppMode.Terrain))
+        {
+            EnterEditFenceFromClick(fenceId);
+            return;
         }
 
         if (_overlapHits.Count == 0)
         {
+            // A panel's MeshCollider is the exact art mesh, so a click can slip between pickets —
+            // fall back to a screen-space test against the run's centerline. Only reached when the
+            // ray resolved nothing, so it can never steal a click from an instance.
+            if (!AdditiveHeld() && TryPickFenceScreen(out string nearFence))
+            { EnterEditFenceFromClick(nearFence); return; }
             if (!AdditiveHeld()) Deselect();   // additive click on empty keeps the selection
             return;
         }
@@ -532,7 +595,8 @@ public class EditController : MonoBehaviour, EditHistory.IHost
         var (marker, go) = _overlapHits[_overlapIdx];
         SetSelection(marker.instanceId, marker.isBuilding, go);
 
-        if (isDouble && _selIsBuilding && tileBuildingEditor != null)
+        // On the Build tab a single click opens the tile editor; elsewhere double-click does.
+        if ((isDouble || UIMode.Current == AppMode.Build) && _selIsBuilding && tileBuildingEditor != null)
             EnterEditBuilding();
     }
 
@@ -1575,9 +1639,11 @@ public class EditController : MonoBehaviour, EditHistory.IHost
     }
 
     // -----------------------------------------------------------------------
-    // DrawFence / EditFence — mirror the path tools: collect a centerline (straight clicks or freehand
-    // drag), commit a FenceDef, and let WorldRenderer.RenderFences repeat panel/post prefabs along it.
-    // The live preview is a draped LineRenderer of the centerline (panels appear once committed).
+    // DrawFence / EditFence — collect a centerline (straight: one press-drag-release per run;
+    // freehand: sampled stroke), commit a FenceDef, and let WorldRenderer.RenderFences repeat
+    // panel/post prefabs along it. The live preview is a pooled ghost of the real tinted prefabs
+    // posed by the same ApplyFencePlacement as the committed render (WYSIWYG); the draped
+    // LineRenderer remains as the fallback when the selected type has no panel prefab.
     // -----------------------------------------------------------------------
 
     // Quiet palette lookup (no error log) for per-frame preview / metrics use.
@@ -1597,6 +1663,7 @@ public class EditController : MonoBehaviour, EditHistory.IHost
         _mode = EditMode.DrawFence;
         _fencePts.Clear();
         _fenceStroking = false;
+        _fenceDragging = false;
         // Default the selected type to a real palette entry rather than a hard-coded id that may not
         // exist in the user's FencePalette (which would render nothing).
         if (fencePalette?.entries != null && fencePalette.entries.Count > 0 && FindFenceEntry(_fenceType) == null)
@@ -1609,37 +1676,91 @@ public class EditController : MonoBehaviour, EditHistory.IHost
 
     private void UpdateDrawFence()
     {
-        if (KB != null && !TypingInUI && KB.escapeKey.wasPressedThisFrame) { CancelFence(); return; }
+        if (KB != null && !TypingInUI && KB.escapeKey.wasPressedThisFrame)
+        {
+            // Esc mid-gesture abandons just that run and stays in the tool; otherwise it exits.
+            if (_fenceDragging || _fenceStroking)
+            {
+                _fenceDragging = false; _fenceStroking = false;
+                _fencePts.Clear();
+                HideFenceGhost(); HideFencePreview();
+                return;
+            }
+            CancelFence(); return;
+        }
 
-        Vector3 cursor = SnapToFenceEndpoint(GroundPoint());
+        Vector3 raw = GroundPoint();
+        Vector3 cursor = SnapToFence(raw, out bool snapped);
+        UpdateFenceSnapMarker(cursor, snapped);
 
         if (_fenceFreehand)
         {
+            // Only the stroke's first and last points snap — intermediate samples stay raw so the
+            // stroke never glues itself along an existing fence it merely passes near.
             if (LMBDown && !IsMouseOverUI()) { _fenceStroking = true; _fencePts.Clear(); _fencePts.Add(cursor); }
             if (_fenceStroking && LMBHeld &&
-                (_fencePts.Count == 0 || Vector3.Distance(cursor, _fencePts[_fencePts.Count - 1]) > PATH_FREEHAND_STEP))
-                _fencePts.Add(cursor);
-            if (_fenceStroking && LMBUp) { _fenceStroking = false; FinishFence(); return; }
+                (_fencePts.Count == 0 || Vector3.Distance(raw, _fencePts[_fencePts.Count - 1]) > PATH_FREEHAND_STEP))
+                _fencePts.Add(raw);
+            if (_fenceStroking && LMBUp)
+            {
+                _fenceStroking = false;
+                _fencePts.Add(cursor);   // Simplify keeps first/last, so both junction points survive
+                FinishFence();
+                return;
+            }
         }
         else
         {
+            // Straight mode: press-drag-release places one run exactly from the press point to the
+            // release point. Chain corners by starting the next drag on the previous endpoint.
             if (LMBDown && !IsMouseOverUI())
             {
-                float now = Time.time;
-                if (_fencePts.Count >= 2 && now - _fenceLastClickTime < DOUBLE_CLICK_INTERVAL) { FinishFence(); return; }
-                _fenceLastClickTime = now;
-                _fencePts.Add(cursor);
+                _fenceDragStart = cursor;   // snapped once at press; never re-snaps mid-drag
+                _fenceDragging  = true;
             }
-            if (KB != null && !TypingInUI && KB.backspaceKey.wasPressedThisFrame && _fencePts.Count > 0)
-                _fencePts.RemoveAt(_fencePts.Count - 1);
-            if (KB != null && !TypingInUI && (KB.enterKey.wasPressedThisFrame || KB.numpadEnterKey.wasPressedThisFrame)) { FinishFence(); return; }
+            if (_fenceDragging && LMBUp)
+            {
+                _fenceDragging = false;
+                float dx = cursor.x - _fenceDragStart.x, dz = cursor.z - _fenceDragStart.z;
+                _fencePts.Clear();
+                if (dx * dx + dz * dz >= FENCE_MIN_DRAG * FENCE_MIN_DRAG)
+                {
+                    _fencePts.Add(_fenceDragStart);
+                    _fencePts.Add(cursor);
+                    FinishFence();
+                }
+                else HideFenceGhost();      // a bare click is a cancel, not a sliver fence
+                return;
+            }
         }
 
-        var ctrl = new List<Vector2>(_fencePts.Count + 1);
-        foreach (var p in _fencePts) ctrl.Add(new Vector2(p.x, p.z));
-        bool rubberBand = (!_fenceFreehand && _fencePts.Count >= 1) || (_fenceFreehand && _fenceStroking);
-        if (rubberBand) ctrl.Add(new Vector2(cursor.x, cursor.z));
-        ShowFencePreview(ctrl);
+        // Live ghost while a gesture is in flight; nothing otherwise.
+        if (_fenceFreehand && _fenceStroking)
+        {
+            var ctrl = new List<Vector2>(_fencePts.Count + 1);
+            foreach (var p in _fencePts) ctrl.Add(new Vector2(p.x, p.z));
+            ctrl.Add(new Vector2(cursor.x, cursor.z));
+            // Preview the post-simplify control points — exactly what FinishFence will commit.
+            UpdateFenceGhost(PathGeometry.Simplify(ctrl, PATH_SIMPLIFY_TOL));
+        }
+        else if (!_fenceFreehand && _fenceDragging)
+        {
+            var ctrl = new List<Vector2>
+            {
+                new(_fenceDragStart.x, _fenceDragStart.z),
+                new(cursor.x, cursor.z),
+            };
+            // Preview the pending auto-split: each junction becomes a control point, so the ghost
+            // shows a post there and per-run panel refit — exactly what the commit will create.
+            var fences = libraryBrowser?.CurrentEnvironment?.site?.fences;
+            if (!ShiftHeld && fences != null)
+            {
+                var cuts = FenceLinker.FindCuts(fences, ctrl);
+                for (int i = 0; i < cuts.Count; i++) ctrl.Insert(1 + i, cuts[i]);
+            }
+            UpdateFenceGhost(ctrl);
+        }
+        else { HideFenceGhost(); HideFencePreview(); }
     }
 
     // Draped centerline guide. Cheap (a single LineRenderer), unlike instantiating the whole fence
@@ -1677,25 +1798,184 @@ public class EditController : MonoBehaviour, EditHistory.IHost
 
     private void HideFencePreview() { if (_fencePreviewLine != null) _fencePreviewLine.gameObject.SetActive(false); }
 
-    // Snap to the nearest first/last control point of an existing fence when within PATH_SNAP_DIST.
-    private Vector3 SnapToFenceEndpoint(Vector3 cursor)
+    // ---- Ghost preview: real tinted panel/post prefabs, pooled and re-posed every frame ----
+
+    // Rebuild the ghost for the given sparse control points. Uses the identical FenceBuilder +
+    // ApplyFencePlacement pipeline as the committed render (round-fit included) so the preview is
+    // WYSIWYG. Falls back to the amber centerline when the type has no panel prefab.
+    private void UpdateFenceGhost(List<Vector2> ctrl)
     {
+        var entry = FindFenceEntry(_fenceType);
+        if (entry == null || entry.panelPrefab == null || worldRenderer == null)
+        {
+            HideFenceGhost();
+            ShowFencePreview(ctrl);
+            return;
+        }
+        HideFencePreview();
+        if (ctrl == null || ctrl.Count < 2) { HideFenceGhost(); return; }
+
+        // A palette-type switch invalidates the pooled instances (different prefabs).
+        if (_fenceGhostRoot != null && !string.Equals(_fenceGhostType, entry.fenceType, StringComparison.OrdinalIgnoreCase))
+            DestroyFenceGhost();
+        if (_fenceGhostRoot == null)
+        {
+            _fenceGhostRoot = new GameObject("FenceGhost");
+            _fenceGhostType = entry.fenceType;
+        }
+        _fenceGhostRoot.SetActive(true);
+
+        float height = _fenceHeight > 0f ? _fenceHeight : (entry.height > 0f ? entry.height : 1.2f);
+        var placements = FenceBuilder.Build(ctrl, _fenceSmoothing, FencePanelLength());
+
+        int panelI = 0, postI = 0;
+        float length = 0f;
+        foreach (var pl in placements)
+        {
+            GameObject prefab = pl.isPost ? entry.postPrefab : entry.panelPrefab;
+            if (prefab == null) continue;   // posts are optional
+            GameObject go = pl.isPost ? GhostPoolGet(_fenceGhostPosts,  prefab, postI++)
+                                      : GhostPoolGet(_fenceGhostPanels, prefab, panelI++);
+            worldRenderer.ApplyFencePlacement(go, prefab.transform.localScale, pl, entry, height);
+            if (!pl.isPost) length += pl.span;
+        }
+        for (int i = panelI; i < _fenceGhostPanels.Count; i++) if (_fenceGhostPanels[i] != null) _fenceGhostPanels[i].SetActive(false);
+        for (int i = postI;  i < _fenceGhostPosts.Count;  i++) if (_fenceGhostPosts[i]  != null) _fenceGhostPosts[i].SetActive(false);
+
+        _fenceGhostLength     = length;
+        _fenceGhostPanelCount = panelI;
+    }
+
+    // Fetch the pooled ghost instance at `index`, growing the pool as needed. New instances are
+    // collider-stripped (so the ghost never intercepts the GroundPoint raycast) and ghost-tinted.
+    private GameObject GhostPoolGet(List<GameObject> pool, GameObject prefab, int index)
+    {
+        while (pool.Count <= index) pool.Add(null);
+        if (pool[index] == null)
+        {
+            var go = Instantiate(prefab, _fenceGhostRoot.transform);
+            foreach (var c in go.GetComponentsInChildren<Collider>(includeInactive: true)) Destroy(c);
+            TintGhost(go);
+            pool[index] = go;
+        }
+        pool[index].SetActive(true);
+        return pool[index];
+    }
+
+    private void HideFenceGhost()
+    {
+        if (_fenceGhostRoot != null) _fenceGhostRoot.SetActive(false);
+        _fenceGhostLength = 0f;
+        _fenceGhostPanelCount = 0;
+    }
+
+    private void DestroyFenceGhost()
+    {
+        if (_fenceGhostRoot != null) Destroy(_fenceGhostRoot);
+        _fenceGhostRoot = null;
+        _fenceGhostType = null;
+        _fenceGhostPanels.Clear();
+        _fenceGhostPosts.Clear();
+        _fenceGhostLength = 0f;
+        _fenceGhostPanelCount = 0;
+    }
+
+    // Floating "length · panel count" readout near the cursor while a ghost is live (called from OnGUI).
+    private void DrawFenceGhostLabel()
+    {
+        if (_fenceGhostPanelCount <= 0 || mainCamera == null) return;
+        if (_fenceGhostRoot == null || !_fenceGhostRoot.activeSelf) return;
+
+        if (_fenceLabelStyle == null)
+            _fenceLabelStyle = new GUIStyle(GUI.skin.label)
+            {
+                alignment = TextAnchor.MiddleCenter,
+                fontStyle = FontStyle.Bold,
+                normal = { textColor = new Color(1f, 0.95f, 0.6f, 1f) },
+            };
+
+        var r = new Rect(MousePos.x - 80f, Screen.height - MousePos.y - 34f, 160f, 20f);
+        GUI.Label(r, $"{_fenceGhostLength:0.0} m · {_fenceGhostPanelCount} panel{(_fenceGhostPanelCount == 1 ? "" : "s")}", _fenceLabelStyle);
+    }
+
+    // Highlight sphere at the snapped endpoint so the snap is visible instead of silent.
+    private void UpdateFenceSnapMarker(Vector3 pos, bool snapped) =>
+        ShowSnapMarker(ref _fenceSnapMarker, "FenceSnapMarker", pos, snapped);
+
+    // Shared snap highlight for the terrain draw/paint tools: a small sphere parked on the ground at
+    // `pos`, hidden when `on` is false. Takes the marker by ref so each tool owns its own instance.
+    private void ShowSnapMarker(ref GameObject marker, string name, Vector3 pos, bool on)
+    {
+        if (!on) { if (marker != null) marker.SetActive(false); return; }
+        if (marker == null)
+        {
+            marker = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            marker.name = name;
+            var col = marker.GetComponent<Collider>(); if (col != null) Destroy(col);
+            marker.transform.localScale = Vector3.one * 0.5f;
+            EnsureHandleMaterials();
+            var r = marker.GetComponent<MeshRenderer>();
+            if (r != null) r.sharedMaterial = _pathHandleSelMat;
+        }
+        marker.transform.position = new Vector3(pos.x, PreviewY(pos.x, pos.z) + 0.15f, pos.z);
+        marker.SetActive(true);
+    }
+
+    private void HideFenceSnapMarker() { if (_fenceSnapMarker != null) _fenceSnapMarker.SetActive(false); }
+
+    private void DestroyFenceSnapMarker()
+    {
+        if (_fenceSnapMarker != null) { Destroy(_fenceSnapMarker); _fenceSnapMarker = null; }
+    }
+
+    // Held Shift suppresses fence snapping frame-by-frame and, at commit, auto-linking/splitting.
+    private static bool ShiftHeld => KB != null && (KB.leftShiftKey.isPressed || KB.rightShiftKey.isPressed);
+
+    // Snap to existing fences: endpoints first (they keep priority so chaining corners stays easy),
+    // then the nearest projected point anywhere along a fence's control polyline — both within
+    // FENCE_SNAP_DIST. `excludeFenceId` skips the fence being edited so its own dragged endpoint
+    // can't grab itself. Holding Shift disables snapping entirely.
+    private Vector3 SnapToFence(Vector3 cursor, out bool snapped, string excludeFenceId = null)
+    {
+        snapped = false;
+        if (ShiftHeld) return cursor;
         var fences = libraryBrowser?.CurrentEnvironment?.site?.fences;
         if (fences == null) return cursor;
-        float best = PATH_SNAP_DIST * PATH_SNAP_DIST; Vector3 snap = cursor; bool found = false;
+        Vector2 c = new(cursor.x, cursor.z);
+
+        // Pass 1: endpoints (priority — a nearby end wins even if a mid-segment point is closer).
+        float best = FENCE_SNAP_DIST * FENCE_SNAP_DIST; Vector2 snap = c;
         foreach (var f in fences)
         {
             if (f?.points == null || f.points.Length < 1) continue;
+            if (excludeFenceId != null && f.id == excludeFenceId) continue;
             foreach (int idx in new[] { 0, f.points.Length - 1 })
             {
                 var e = f.points[idx];
                 if (e == null || e.Length < 2) continue;
-                float dx = e[0] - cursor.x, dz = e[1] - cursor.z;
-                float d2 = dx * dx + dz * dz;
-                if (d2 < best) { best = d2; snap = new Vector3(e[0], cursor.y, e[1]); found = true; }
+                float d2 = (new Vector2(e[0], e[1]) - c).sqrMagnitude;
+                if (d2 < best) { best = d2; snap = new Vector2(e[0], e[1]); snapped = true; }
             }
         }
-        return found ? snap : cursor;
+
+        // Pass 2: anywhere along a control segment (same idiom as SnapToPath).
+        if (!snapped)
+        {
+            foreach (var f in fences)
+            {
+                if (f?.points == null || f.points.Length < 2) continue;
+                if (excludeFenceId != null && f.id == excludeFenceId) continue;
+                for (int i = 0; i < f.points.Length - 1; i++)
+                {
+                    var a = f.points[i]; var b = f.points[i + 1];
+                    if (a == null || a.Length < 2 || b == null || b.Length < 2) continue;
+                    Vector2 proj = ClosestPointOnSegment(c, new Vector2(a[0], a[1]), new Vector2(b[0], b[1]));
+                    float d2 = (proj - c).sqrMagnitude;
+                    if (d2 < best) { best = d2; snap = proj; snapped = true; }
+                }
+            }
+        }
+        return snapped ? new Vector3(snap.x, cursor.y, snap.y) : cursor;
     }
 
     private void FinishFence()
@@ -1711,22 +1991,34 @@ public class EditController : MonoBehaviour, EditHistory.IHost
             {
                 _history?.RecordBefore(EditHistory.Scope.Environment, "Draw fence");
                 env.site.fences ??= new List<FenceDef>();
-                var pts = new float[ctrl.Count][];
-                for (int i = 0; i < ctrl.Count; i++) pts[i] = new[] { ctrl[i].x, ctrl[i].y };
-                env.site.fences.Add(new FenceDef
+                if (ShiftHeld)
                 {
-                    id        = Guid.NewGuid().ToString("D"),
-                    fenceType = _fenceType,
-                    points    = pts,
-                    smoothing = _fenceSmoothing,
-                    height    = _fenceHeight,
-                });
+                    // Shift at release = draw free: no linking, the run lands verbatim.
+                    var pts = new float[ctrl.Count][];
+                    for (int i = 0; i < ctrl.Count; i++) pts[i] = new[] { ctrl[i].x, ctrl[i].y };
+                    env.site.fences.Add(new FenceDef
+                    {
+                        id        = Guid.NewGuid().ToString("D"),
+                        fenceType = _fenceType,
+                        points    = pts,
+                        smoothing = _fenceSmoothing,
+                        height    = _fenceHeight,
+                    });
+                }
+                else
+                {
+                    // Link into the fence network: split existing fences at T-junctions/crossings
+                    // and the new run at each crossing. The single RecordBefore above makes the
+                    // whole mutation one undo step.
+                    FenceLinker.Link(env.site.fences, ctrl, _fenceType, _fenceSmoothing, _fenceHeight);
+                }
                 libraryBrowser?.MarkDirty();
                 worldRenderer?.RenderEnvironment(env, libraryBrowser?.CurrentBuildingDefs);
             }
         }
         _fencePts.Clear();
         HideFencePreview();
+        HideFenceGhost();
     }
 
     private void CancelFence() { _fencePts.Clear(); StopDrawFence(); }
@@ -1734,7 +2026,11 @@ public class EditController : MonoBehaviour, EditHistory.IHost
     private void StopDrawFence()
     {
         if (_fencePreviewLine != null) { Destroy(_fencePreviewLine.gameObject); _fencePreviewLine = null; }
+        DestroyFenceGhost();
+        DestroyFenceSnapMarker();
         _fencePts.Clear();
+        _fenceDragging = false;
+        _fenceStroking = false;
         _mode = EditMode.Browse;
     }
 
@@ -1781,20 +2077,57 @@ public class EditController : MonoBehaviour, EditHistory.IHost
         SetCommittedFenceVisible(id, false);
     }
 
+    // True when `id` names a fence in the ACTIVE, editable environment. Backdrop envs already have
+    // their colliders disabled (WorldRenderer.ApplyLockState) so their panels can't be hit, but fence
+    // ids are only unique within an env — resolve a scene hit against the active env's data before
+    // acting on it. Also the guard that keeps a stray id out of StartEditFence, which tears down the
+    // current tool (ExitCurrentMode) before it discovers the fence doesn't exist.
+    private bool IsEditableFence(string id) =>
+        !ActiveLocked && !string.IsNullOrEmpty(id) &&
+        libraryBrowser?.CurrentEnvironment?.site?.fences != null &&
+        libraryBrowser.CurrentEnvironment.site.fences.Exists(f => f != null && f.id == id);
+
+    // Scene click on a rendered fence → straight into its editor. The rail switches FIRST: UIMode.Set
+    // fires UIShell.OnModeChanged → ExitForModeSwitch, which would otherwise tear down the session
+    // we're starting (same ordering rule as EnterEditBuilding). No-op when already on Terrain.
+    private void EnterEditFenceFromClick(string fenceId)
+    {
+        Deselect();                    // no stale instance highlight sitting behind the fence handles
+        _showFenceList = true;         // the fence's row reads "(editing)" so the target is obvious
+        UIMode.Set(AppMode.Terrain);
+        StartEditFence(fenceId);
+    }
+
     private void UpdateEditFence()
     {
         if (KB != null && !TypingInUI && KB.escapeKey.wasPressedThisFrame) { StopEditFence(); return; }
         var fence = CurrentEditFence();
         if (fence == null) { StopEditFence(); return; }
 
-        if (KB != null && !TypingInUI && KB.deleteKey.wasPressedThisFrame &&
-            _fenceEditSel >= 0 && _fenceEditSel < _fenceEditPts.Count && _fenceEditPts.Count > 2)
+        // Delete/Backspace: with a control point picked, drop that point; otherwise the key means the
+        // whole fence — which is the state right after clicking a fence in the scene (no point picked
+        // yet), so click-then-Delete removes the run. A 2-point fence can't lose a point (that would
+        // leave less than a line), so there the key deletes the fence either way rather than no-op.
+        bool delPressed = KB != null && !TypingInUI &&
+                          (KB.deleteKey.wasPressedThisFrame || KB.backspaceKey.wasPressedThisFrame);
+        if (delPressed && !ActiveLocked)
         {
-            _history?.RecordBefore(EditHistory.Scope.Environment, "Edit fence");
-            _fenceEditPts.RemoveAt(_fenceEditSel);
-            _fenceEditSel = -1;
-            CommitEditFence(reRender: false);
-            RebuildFenceHandles();
+            bool pointPicked = _fenceEditSel >= 0 && _fenceEditSel < _fenceEditPts.Count;
+            if (pointPicked && _fenceEditPts.Count > 2)
+            {
+                _history?.RecordBefore(EditHistory.Scope.Environment, "Edit fence");
+                _fenceEditPts.RemoveAt(_fenceEditSel);
+                _fenceEditSel = -1;
+                CommitEditFence(reRender: false);
+                RebuildFenceHandles();
+            }
+            else
+            {
+                // DeleteFence tears this mode down (StopEditFence) and re-renders, so nothing below
+                // may touch the cleared state.
+                DeleteFence(_fenceEditId);
+                return;
+            }
         }
 
         if (LMBDown && !IsMouseOverUI())
@@ -1812,12 +2145,22 @@ public class EditController : MonoBehaviour, EditHistory.IHost
                 CommitEditFence(reRender: false);
                 RebuildFenceHandles();
             }
+            // Clicked another fence's geometry (handles and insert-point already had first refusal) →
+            // switch the editor to it. The return is load-bearing: EnterEditFenceFromClick runs
+            // StopEditFence + a re-render, so the rest of this method must not touch the torn-down state.
+            else if (TryPickFence(out string otherFence) && otherFence != _fenceEditId)
+            {
+                EnterEditFenceFromClick(otherFence);
+                return;
+            }
         }
         if (_fenceEditDragging && LMBHeld && _fenceEditSel >= 0 && _fenceEditSel < _fenceEditPts.Count)
         {
-            Vector3 g = SnapToFenceEndpoint(GroundPoint());
+            Vector3 g = SnapToFence(GroundPoint(), out bool snapped, _fenceEditId);
+            UpdateFenceSnapMarker(g, snapped);
             _fenceEditPts[_fenceEditSel] = new Vector3(g.x, 0f, g.z);
         }
+        else HideFenceSnapMarker();
         if (LMBUp && _fenceEditDragging)
         {
             _fenceEditDragging = false;
@@ -1826,7 +2169,7 @@ public class EditController : MonoBehaviour, EditHistory.IHost
 
         var ctrl = new List<Vector2>(_fenceEditPts.Count);
         foreach (var p in _fenceEditPts) ctrl.Add(new Vector2(p.x, p.z));
-        ShowFencePreview(ctrl);
+        UpdateFenceGhost(ctrl);
         UpdateFenceHandlePositions();
     }
 
@@ -1842,7 +2185,13 @@ public class EditController : MonoBehaviour, EditHistory.IHost
         fence.smoothing = _fenceSmoothing;
         fence.height    = _fenceHeight;
         libraryBrowser?.MarkDirty();
-        if (reRender) worldRenderer?.RenderEnvironment(env, libraryBrowser?.CurrentBuildingDefs);
+        if (reRender)
+        {
+            worldRenderer?.RenderEnvironment(env, libraryBrowser?.CurrentBuildingDefs);
+            // A re-render recreates the committed segments active; keep them hidden while the ghost
+            // is still the visible truth of the fence being edited.
+            if (_mode == EditMode.EditFence) SetCommittedFenceVisible(_fenceEditId, false);
+        }
     }
 
     private bool TryInsertPointOnFence(Vector3 ground)
@@ -1946,6 +2295,8 @@ public class EditController : MonoBehaviour, EditHistory.IHost
         foreach (var h in _fenceHandles) if (h != null) Destroy(h);
         _fenceHandles.Clear();
         HideFencePreview();
+        DestroyFenceGhost();
+        DestroyFenceSnapMarker();
         _fenceEditId = null;
         _fenceEditSel = -1;
         _fenceEditDragging = false;
@@ -2439,7 +2790,10 @@ public class EditController : MonoBehaviour, EditHistory.IHost
         _mode = EditMode.Browse;
     }
 
-    // ---- PaintSurface: freehand ground-type brush stamped into the splatmap + stored as a stroke ----
+    // ---- PaintSurface: ground-type brush stamped into the splatmap + stored as a stroke ----
+    // Two footprints (round / square) × two input modes (freehand drag / straight drag start→end).
+    // Square stamps rotate to the run's heading at rasterize time, so a straight run at any angle
+    // keeps clean parallel edges — see WorldRenderer.WalkStroke.
 
     private void StartPaintSurface(string terrainType)
     {
@@ -2450,16 +2804,70 @@ public class EditController : MonoBehaviour, EditHistory.IHost
             !terrainRegistry.entries.Exists(e => string.Equals(e.key, _surfType, StringComparison.OrdinalIgnoreCase)))
             _surfType = terrainRegistry.entries[0].key;
         _surfPts.Clear();
+        _surfDragging = false;
+        HideSurfaceLinePreview();
+        HideGhostOutline(_surfStartGhost);
         _mode = EditMode.PaintSurface;
     }
 
     private void UpdatePaintSurface()
     {
-        if (KB != null && !TypingInUI && KB.escapeKey.wasPressedThisFrame) { StopPaintSurface(); return; }
+        if (KB != null && !TypingInUI && KB.escapeKey.wasPressedThisFrame)
+        {
+            // Esc mid-drag abandons just that run and stays in the tool; otherwise it exits.
+            if (_surfDragging) { CancelSurfaceRun(); return; }
+            StopPaintSurface(); return;
+        }
 
         Vector3 center = GroundPoint();
-        UpdateBrushRing(center, _surfRadius, new Color(0.95f, 0.85f, 0.35f, 0.9f));
 
+        // In straight mode the run's endpoint is the snapped one, so the ghost must sit there rather
+        // than under the raw cursor — otherwise the preview lies about where the band will land.
+        if (_surfStraight && _surfDragging) center = SnapRunEnd(_surfDragStart, center);
+
+        // The ghost previews the heading the stamp will actually use: the fixed angle when set,
+        // otherwise the direction being travelled.
+        float travelDir = _surfStraight && _surfDragging ? Heading(_surfDragStart, center)
+                        : !_surfStraight && _surfPts.Count > 0 ? Heading(_surfLastStamp, center)
+                        : 0f;
+        float ghostDir = BrushGeometry.ResolveStampAngleRad(StrokeAngleDeg, travelDir);
+        UpdateBrushGhost(center, _surfRadius, _surfSquare, ghostDir, new Color(0.95f, 0.85f, 0.35f, 0.9f));
+
+        if (_surfStraight) UpdatePaintSurfaceStraight(center);
+        else               UpdatePaintSurfaceFreehand(center);
+    }
+
+    // The angle written onto a stroke: the fixed angle, or the auto sentinel. Auto for a round brush
+    // either way — a disc has no orientation, so pinning one would only confuse the saved data.
+    private float StrokeAngleDeg => _surfSquare && _surfFixedAngle ? _surfAngleDeg : -1f;
+
+    // Snaps the run's heading (keeping the drag's length) so runs come out on deliberate angles.
+    // The snap is phased by the fixed brush angle, so run and stamps share one rotated grid. Shift
+    // bypasses it, matching the fence tool's "Shift = no snap" convention in this same rail.
+    private Vector3 SnapRunEnd(Vector3 start, Vector3 end)
+    {
+        _surfDragLen = Vector2.Distance(new Vector2(start.x, start.z), new Vector2(end.x, end.z));
+        float raw = Heading(start, end);
+        _surfDragSnapped = false;
+
+        float snapped = raw;
+        if (_surfSnapAngle && !ShiftHeld && _surfDragLen > 1e-4f)
+        {
+            float phase = _surfFixedAngle ? _surfAngleDeg * Mathf.Deg2Rad : 0f;
+            snapped = BrushGeometry.SnapHeadingRad(raw, phase, _surfSnapIncrementDeg);
+            _surfDragSnapped = Mathf.Abs(Mathf.DeltaAngle(raw * Mathf.Rad2Deg, snapped * Mathf.Rad2Deg)) > 0.01f;
+        }
+
+        _surfDragAngleDeg = snapped * Mathf.Rad2Deg;
+        if (!_surfDragSnapped) return end;
+        return new Vector3(start.x + Mathf.Cos(snapped) * _surfDragLen, end.y,
+                           start.z + Mathf.Sin(snapped) * _surfDragLen);
+    }
+
+    // Freehand: hold and drag, sampling the cursor every half-radius of travel; the stroke commits
+    // on release. Each stamp is echoed live so the ground fills in under the cursor.
+    private void UpdatePaintSurfaceFreehand(Vector3 center)
+    {
         if (IsMouseOverUI()) return;
 
         if (LMBDown)
@@ -2472,15 +2880,20 @@ public class EditController : MonoBehaviour, EditHistory.IHost
             _surfPts.Clear();
             _surfPts.Add(center);
             _surfLastStamp = center;
-            worldRenderer?.StampSurfaceDiscLive(center, _surfRadius, _surfType);
+            // With a fixed angle the first stamp is already correct; on auto there's no travel yet,
+            // so it goes down axis-aligned and the authoritative re-render gives it the first
+            // segment's heading once the drag has a direction.
+            worldRenderer?.StampSurfaceLive(center, _surfRadius, _surfType, _surfSquare,
+                                            BrushGeometry.ResolveStampAngleRad(StrokeAngleDeg, 0f));
         }
         else if (LMBHeld && _surfPts.Count > 0)
         {
             if (Vector3.Distance(center, _surfLastStamp) >= _surfRadius * 0.5f)
             {
+                float dir = BrushGeometry.ResolveStampAngleRad(StrokeAngleDeg, Heading(_surfLastStamp, center));
                 _surfPts.Add(center);
                 _surfLastStamp = center;
-                worldRenderer?.StampSurfaceDiscLive(center, _surfRadius, _surfType);
+                worldRenderer?.StampSurfaceLive(center, _surfRadius, _surfType, _surfSquare, dir);
             }
         }
         else if (LMBUp && _surfPts.Count > 0)
@@ -2489,31 +2902,247 @@ public class EditController : MonoBehaviour, EditHistory.IHost
         }
     }
 
-    private void CommitSurfaceStroke()
+    // Straight: press-drag-release paints one run exactly from the press point to the release point
+    // (same gesture as the fence tool's straight mode). Nothing is stamped until release, so the drag
+    // previews the centerline plus a brush outline at each end, with a length/angle readout.
+    private void UpdatePaintSurfaceStraight(Vector3 center)
     {
+        if (!_surfDragging)
+        {
+            // Idle: highlight the stroke end the press would land on, so chaining runs is visible
+            // before you commit to it. The same snapped point becomes the drag's start. Shift turns
+            // the snap off — same modifier that bypasses the angle snap, so holding it means "no
+            // snapping at all" (the fence tool's convention).
+            Vector3 start = center;
+            bool willSnap = false;
+            if (!ShiftHeld) start = SnapToSurfaceStrokeEnd(center, out willSnap);
+            ShowSnapMarker(ref _surfSnapMarker, "SurfaceSnapMarker", start, willSnap && !IsMouseOverUI());
+
+            if (LMBDown && !IsMouseOverUI())
+            {
+                _surfDragStart = start;   // snapped once at press; never re-snapped mid-drag
+                _surfDragging  = true;
+                _surfLiveEnd   = start;
+                _surfLivePainted = false;
+                worldRenderer?.BeginLiveSurfaceRun();
+            }
+        }
+
+        if (_surfDragging && LMBUp)
+        {
+            _surfDragging = false;
+            HideSurfaceLinePreview();
+            HideGhostOutline(_surfStartGhost);
+            ShowSnapMarker(ref _surfSnapMarker, "SurfaceSnapMarker", center, false);
+            float dx = center.x - _surfDragStart.x, dz = center.z - _surfDragStart.z;
+            if (dx * dx + dz * dz < SURF_MIN_DRAG * SURF_MIN_DRAG)
+            {
+                // A bare click paints nothing — wipe whatever the live run had put down.
+                worldRenderer?.EndLiveSurfaceRun(keepPaint: false);
+                return;
+            }
+
+            libraryBrowser?.EnsureWorkingEnvironment();
+            _history?.RecordBefore(EditHistory.Scope.Environment, "Paint ground");
+            _surfPts.Clear();
+            _surfPts.Add(_surfDragStart);
+            _surfPts.Add(center);
+            var stroke = CommitSurfaceStroke();
+            // Rasterize the committed stroke one last time so the ground matches the stored data
+            // exactly (the last live update may have been throttled a few centimetres short), then
+            // keep the paint instead of re-rendering the whole environment.
+            if (stroke != null)
+            {
+                worldRenderer?.UpdateLiveSurfaceRun(stroke);
+                worldRenderer?.EndLiveSurfaceRun(keepPaint: true);
+            }
+            else worldRenderer?.EndLiveSurfaceRun(keepPaint: false);
+            return;
+        }
+
+        if (_surfDragging)
+        {
+            ShowSurfaceLinePreview(_surfDragStart, center);
+            // Second outline at the start: with both ends drawn you can read the band the run sweeps
+            // and the orientation the stamps will take before releasing.
+            float dir = BrushGeometry.ResolveStampAngleRad(StrokeAngleDeg, Heading(_surfDragStart, center));
+            UpdateGhostOutline(ref _surfStartGhost, "SurfaceStartGhost", _surfDragStart, _surfRadius,
+                               _surfSquare, dir, new Color(0.95f, 0.85f, 0.35f, 0.6f));
+
+            // Paint the run into the terrain as it grows, so the surface fills in under the cursor
+            // instead of only appearing on release. Throttled by cursor travel — re-rasterizing on
+            // every frame of a slow drag is pure waste, and a fraction of the brush reads as smooth.
+            float step = Mathf.Max(0.1f, _surfRadius * 0.15f);
+            if (!_surfLivePainted || Vector3.Distance(center, _surfLiveEnd) >= step)
+            {
+                _surfLiveEnd = center;
+                _surfLivePainted = true;
+                worldRenderer?.UpdateLiveSurfaceRun(BuildSurfaceStroke(_surfDragStart, center));
+            }
+        }
+        else HideGhostOutline(_surfStartGhost);
+    }
+
+    // Abandons an in-flight straight run: the ground it had painted reverts to what was under it.
+    private void CancelSurfaceRun()
+    {
+        _surfDragging = false;
+        _surfLivePainted = false;
+        worldRenderer?.EndLiveSurfaceRun(keepPaint: false);
+        HideSurfaceLinePreview();
+        HideGhostOutline(_surfStartGhost);
+    }
+
+    // A throwaway stroke describing the run as it currently stands — same fields CommitSurfaceStroke
+    // would store, so what you see while dragging is what gets saved.
+    private SurfaceStrokeDef BuildSurfaceStroke(Vector3 a, Vector3 b) => new SurfaceStrokeDef
+    {
+        terrainType = _surfType,
+        radius      = _surfRadius,
+        points      = new[] { new[] { a.x, a.z }, new[] { b.x, b.z } },
+        shape       = _surfSquare ? "square" : "circle",
+        angleDeg    = StrokeAngleDeg,
+    };
+
+    // Snap onto the nearest endpoint of an existing surface stroke, so a new run can start exactly
+    // where an earlier one stopped. Endpoint-only (unlike SnapToPath, which also projects onto a
+    // span) — chaining runs is the useful case for a painted band.
+    private Vector3 SnapToSurfaceStrokeEnd(Vector3 cursor, out bool snapped)
+    {
+        snapped = false;
+        var strokes = libraryBrowser?.CurrentEnvironment?.site?.surfaceStrokes;
+        if (strokes == null) return cursor;
+
+        Vector2 c = new Vector2(cursor.x, cursor.z);
+        float best = PATH_SNAP_DIST * PATH_SNAP_DIST;
+        Vector2 snap = c;
+        foreach (var s in strokes)
+        {
+            if (s?.points == null || s.points.Length < 1) continue;
+            foreach (int i in new[] { 0, s.points.Length - 1 })
+            {
+                var e = s.points[i];
+                if (e == null || e.Length < 2) continue;
+                float d2 = (new Vector2(e[0], e[1]) - c).sqrMagnitude;
+                if (d2 < best) { best = d2; snap = new Vector2(e[0], e[1]); snapped = true; }
+            }
+        }
+        return snapped ? new Vector3(snap.x, cursor.y, snap.y) : cursor;
+    }
+
+    // ---- brush-angle sampling: read an angle off something already in the scene instead of
+    // eyeballing a number, so painted ground lines up with what it sits next to ----
+
+    // Yaw of the current selection (building or object — _selGO is set for either).
+    private bool TrySampleAngleFromSelection(out float deg)
+    {
+        deg = 0f;
+        if (_selGO == null) return false;
+        deg = BrushGeometry.NormalizeSquareAngleDeg(_selGO.transform.eulerAngles.y);
+        return true;
+    }
+
+    // Heading of the parcel edge nearest the cursor, using the same polygon the terrain mask and the
+    // lot tool use (EnvironmentScale.EffectiveLotPolygon), so "aligned to the lot" means one thing.
+    private bool TrySampleAngleFromLotEdge(out float deg)
+    {
+        deg = 0f;
+        var poly = EnvironmentScale.EffectiveLotPolygon(libraryBrowser?.CurrentEnvironment?.site);
+        if (poly == null || poly.Length < 2) return false;
+
+        Vector3 g = GroundPoint();
+        Vector2 c = new Vector2(g.x, g.z);
+        float best = float.MaxValue; bool found = false; Vector2 bestA = default, bestB = default;
+        for (int i = 0; i < poly.Length; i++)
+        {
+            var a = poly[i]; var b = poly[(i + 1) % poly.Length];   // closed ring
+            if (a == null || a.Length < 2 || b == null || b.Length < 2) continue;
+            Vector2 va = new Vector2(a[0], a[1]), vb = new Vector2(b[0], b[1]);
+            float d2 = (ClosestPointOnSegment(c, va, vb) - c).sqrMagnitude;
+            if (d2 < best) { best = d2; bestA = va; bestB = vb; found = true; }
+        }
+        if (!found) return false;
+
+        deg = BrushGeometry.NormalizeSquareAngleDeg(
+            Mathf.Atan2(bestB.y - bestA.y, bestB.x - bestA.x) * Mathf.Rad2Deg);
+        return true;
+    }
+
+    // Floating "length · angle" readout near the cursor while a straight run is being dragged
+    // (called from OnGUI, same pattern as DrawFenceGhostLabel).
+    private void DrawSurfaceDragLabel()
+    {
+        if (_mode != EditMode.PaintSurface || !_surfDragging || _surfDragLen < SURF_MIN_DRAG) return;
+
+        if (_surfLabelStyle == null)
+            _surfLabelStyle = new GUIStyle(GUI.skin.label)
+            {
+                alignment = TextAnchor.MiddleCenter,
+                fontStyle = FontStyle.Bold,
+                normal = { textColor = new Color(1f, 0.95f, 0.6f, 1f) },
+            };
+
+        string text = $"{_surfDragLen:0.0} m · {Mathf.Repeat(_surfDragAngleDeg, 360f):0}°" +
+                      (_surfDragSnapped ? "  · snapped" : "");
+        var r = new Rect(MousePos.x - 90f, Screen.height - MousePos.y - 34f, 180f, 20f);
+        GUI.Label(r, text, _surfLabelStyle);
+    }
+
+    // Appends the buffered centerline as a stroke and returns it (null when there was nothing to
+    // commit) so a caller can rasterize exactly what was stored.
+    private SurfaceStrokeDef CommitSurfaceStroke()
+    {
+        SurfaceStrokeDef stroke = null;
         var env = libraryBrowser?.EnsureWorkingEnvironment();
         if (env?.site != null && _surfPts.Count > 0)
         {
             env.site.surfaceStrokes ??= new List<SurfaceStrokeDef>();
             var pts = new float[_surfPts.Count][];
             for (int i = 0; i < _surfPts.Count; i++) pts[i] = new[] { _surfPts[i].x, _surfPts[i].z };
-            env.site.surfaceStrokes.Add(new SurfaceStrokeDef
+            stroke = new SurfaceStrokeDef
             {
                 id          = Guid.NewGuid().ToString("D"),
                 terrainType = _surfType,
                 radius      = _surfRadius,
                 points      = pts,
-            });
+                shape       = _surfSquare ? "square" : "circle",
+                angleDeg    = StrokeAngleDeg,
+            };
+            env.site.surfaceStrokes.Add(stroke);
             libraryBrowser?.MarkDirty();
         }
         _surfPts.Clear();
+        return stroke;
     }
 
     private void StopPaintSurface()
     {
+        if (_surfDragging) CancelSurfaceRun();   // leaving mid-drag discards the run, like Esc
         if (_surfPts.Count > 0) CommitSurfaceStroke();
+        if (_surfLinePreview) { Destroy(_surfLinePreview.gameObject); _surfLinePreview = null; }
+        if (_surfStartGhost)  { Destroy(_surfStartGhost.gameObject);  _surfStartGhost = null; }
+        if (_surfSnapMarker)  { Destroy(_surfSnapMarker);             _surfSnapMarker = null; }
         if (_brushRing) { Destroy(_brushRing.gameObject); _brushRing = null; }
         _mode = EditMode.Browse;
+    }
+
+    // Heading of b-a in the XZ plane (atan2(dz, dx)) — the same convention WorldRenderer stamps at.
+    private static float Heading(Vector3 a, Vector3 b) => Mathf.Atan2(b.z - a.z, b.x - a.x);
+
+    private void ShowSurfaceLinePreview(Vector3 a, Vector3 b)
+    {
+        if (_surfLinePreview == null)
+            _surfLinePreview = MakeLine("SurfaceLinePreview", new Color(0.95f, 0.75f, 0.25f, 0.95f), 0.25f);
+        _surfLinePreview.gameObject.SetActive(true);
+        _surfLinePreview.loop = false;
+        _surfLinePreview.positionCount = 2;
+        _surfLinePreview.SetPosition(0, new Vector3(a.x, 0.06f, a.z));
+        _surfLinePreview.SetPosition(1, new Vector3(b.x, 0.06f, b.z));
+    }
+
+    private void HideSurfaceLinePreview()
+    {
+        if (_surfLinePreview != null) _surfLinePreview.gameObject.SetActive(false);
     }
 
     // -----------------------------------------------------------------------
@@ -2630,18 +3259,50 @@ public class EditController : MonoBehaviour, EditHistory.IHost
         return lr;
     }
 
-    private void UpdateBrushRing(Vector3 center, float radius, Color color)
+    private void UpdateBrushRing(Vector3 center, float radius, Color color) =>
+        UpdateBrushGhost(center, radius, false, 0f, color);
+
+    // The brush footprint outline under the cursor.
+    private void UpdateBrushGhost(Vector3 center, float radius, bool square, float dirRad, Color color) =>
+        UpdateGhostOutline(ref _brushRing, "BrushRing", center, radius, square, dirRad, color);
+
+    // Draws one brush footprint outline: a ring for a round brush, four corners for a square one
+    // (rotated by `dirRad` so it previews the orientation it will be stamped at). Takes the renderer
+    // by ref so the cursor ghost and the straight run's start ghost can share the code.
+    private void UpdateGhostOutline(ref LineRenderer lr, string name, Vector3 center, float radius,
+                                    bool square, float dirRad, Color color)
     {
-        if (_brushRing == null) _brushRing = MakeLine("BrushRing", color, 0.15f);
-        _brushRing.startColor = _brushRing.endColor = color;
-        _brushRing.loop = true;
+        if (lr == null) lr = MakeLine(name, color, 0.15f);
+        lr.gameObject.SetActive(true);
+        lr.startColor = lr.endColor = color;
+        lr.loop = true;
+
+        if (square)
+        {
+            float c = Mathf.Cos(dirRad), s = Mathf.Sin(dirRad);
+            lr.positionCount = 4;
+            // Corners in the stamp's own frame, rotated back out to world (matches WorldRenderer.InBrush).
+            var corners = new[] { (-1f, -1f), (1f, -1f), (1f, 1f), (-1f, 1f) };
+            for (int i = 0; i < 4; i++)
+            {
+                float lx = corners[i].Item1 * radius, lz = corners[i].Item2 * radius;
+                lr.SetPosition(i, center + new Vector3(lx * c - lz * s, 0.05f, lx * s + lz * c));
+            }
+            return;
+        }
+
         const int seg = 48;
-        _brushRing.positionCount = seg;
+        lr.positionCount = seg;
         for (int i = 0; i < seg; i++)
         {
             float a = (i / (float)seg) * Mathf.PI * 2f;
-            _brushRing.SetPosition(i, center + new Vector3(Mathf.Cos(a) * radius, 0.05f, Mathf.Sin(a) * radius));
+            lr.SetPosition(i, center + new Vector3(Mathf.Cos(a) * radius, 0.05f, Mathf.Sin(a) * radius));
         }
+    }
+
+    private static void HideGhostOutline(LineRenderer lr)
+    {
+        if (lr != null) lr.gameObject.SetActive(false);
     }
 
     // Ghost sized from the BuildingDef's tile footprint, with `center` returning the ghost's
@@ -2745,6 +3406,21 @@ public class EditController : MonoBehaviour, EditHistory.IHost
             ()  => { Debug.Log($"[EditController] Building '{bdef.name}' saved."); },
             err => Debug.LogError($"[EditController] Save building failed: {err}"));
         libraryBrowser?.AddBuildingDef(bdef);
+
+        // Reflect the save in the scene while staying in the editor: re-render so other placed
+        // instances of this def refresh. Standalone (library-opened) edits have no placed instance
+        // yet — ExitEditBuilding handles their placement fallback on exit.
+        if (!_standaloneEdit)
+        {
+            libraryBrowser?.MarkDirty();
+            var env = libraryBrowser?.CurrentEnvironment;
+            worldRenderer?.RenderEnvironment(env, libraryBrowser?.CurrentBuildingDefs);
+
+            // The re-render replaced the instance we hid on entry with a fresh visible GO —
+            // re-hide it so the tile editor's live copy isn't duplicated underneath.
+            var go = worldRenderer?.GetInstanceGO(_selId);
+            if (go != null) { _editingHiddenGO = go; go.SetActive(false); _selGO = go; }
+        }
     }
 
     private void UpdateEditBuilding()
@@ -3112,16 +3788,62 @@ public class EditController : MonoBehaviour, EditHistory.IHost
         // snapshot taken before locking can't restore locked=false (or vice versa).
         env.locked = libraryBrowser.CurrentEnvironment.locked;
 
+        // Preserve a brush/draw tool across undo/redo so the user isn't kicked back to Browse mid-work
+        // (the tool's brush params + standalone preview GOs survive the re-render). Selection-dependent
+        // modes (Transform, edit-path/fence) still return to Browse — their live GOs die in the render.
+        var prevMode  = _mode;
+        bool keepTool = IsPreservedToolMode(prevMode);
+
         // Return to Browse before re-rendering: a live transform drag held stale origins, and an open
         // tile editor would otherwise duplicate the rebuilt building geometry. Selection GOs are about
         // to be destroyed by the re-render, so drop them too.
         if (tileBuildingEditor != null && tileBuildingEditor.IsActive) ExitEditBuilding(save: false);
-        if (_mode != EditMode.Browse) _mode = EditMode.Browse;
-        Deselect();
+        if (!keepTool && _mode != EditMode.Browse) _mode = EditMode.Browse;
+        Deselect();     // safe: Deselect() only forces Transform->Browse, never a preserved tool mode
         DeselectEnv();
 
         libraryBrowser.ReplaceActiveEnvironment(env);
         worldRenderer?.RenderEnvironment(env, libraryBrowser.CurrentBuildingDefs);
+
+        if (keepTool) RefreshToolAfterRestore(prevMode, env);
+    }
+
+    // Brush/draw tools whose transient state (brush params, standalone preview GOs) survives a
+    // re-render, so an undo/redo can revert the data without kicking the user back to Browse.
+    private static bool IsPreservedToolMode(EditMode m) =>
+        m == EditMode.PaintObjects || m == EditMode.PaintSurface ||
+        m == EditMode.DrawPath     || m == EditMode.DrawFence     ||
+        m == EditMode.Measure      || m == EditMode.EditLot;
+
+    // Re-sync a preserved tool's transient view to the just-restored env. Most tools only need their
+    // in-progress point buffer cleared so no stale rubber-band references a pre-undo point; EditLot
+    // holds a working copy of the lot geometry and must be re-seeded so its handles snap to the
+    // restored shape (mirrors StartEditLot's tail, minus ExitCurrentMode).
+    private void RefreshToolAfterRestore(EditMode mode, EnvironmentDef env)
+    {
+        switch (mode)
+        {
+            case EditMode.PaintObjects: _brushApplied = false; break;
+            case EditMode.PaintSurface:
+                // The re-render already repainted the terrain from the restored data, so the live
+                // run's snapshot is stale — drop it without restoring.
+                if (_surfDragging) { _surfDragging = false; worldRenderer?.EndLiveSurfaceRun(keepPaint: true); }
+                _surfPts.Clear(); _surfLivePainted = false;
+                HideSurfaceLinePreview(); HideGhostOutline(_surfStartGhost);
+                if (_surfSnapMarker) _surfSnapMarker.SetActive(false);
+                break;
+            case EditMode.DrawPath:     _pathPts.Clear();  break;   // preview goes inactive next Update
+            case EditMode.DrawFence:    _fencePts.Clear(); break;
+            case EditMode.Measure:      _measurePts.Clear(); UpdateMeasureOverlay(); break;
+            case EditMode.EditLot:
+                _lotSel = -1; _lotDragging = false; _lotMoved = false;
+                _lotPolygonMode = env.site?.lotBoundary != null && env.site.lotBoundary.Length >= 3;
+                SeedLotWorking(env);
+                EnsureLotPreview();
+                SetLotFrameVisible(false);
+                RebuildLotHandles();
+                break;
+        }
     }
 
     private void RestoreBuilding(string buildingId, string json)
@@ -3366,6 +4088,12 @@ public class EditController : MonoBehaviour, EditHistory.IHost
         // independent of which rail is showing (the tool is only reachable from the Terrain rail).
         if (_mode == EditMode.Measure) DrawMeasureLabels();
 
+        // Floating fence readout (length · panel count) while a ghost preview is live.
+        if (_mode == EditMode.DrawFence || _mode == EditMode.EditFence) DrawFenceGhostLabel();
+
+        // Floating ground-run readout (length · angle) while a straight surface drag is in flight.
+        if (_mode == EditMode.PaintSurface) DrawSurfaceDragLabel();
+
         // Build (with a building open) and Generate are drawn by the other panels.
         if (cmd == AppMode.Generate) return;
         if (cmd == AppMode.Build && tileBuildingEditor != null && tileBuildingEditor.IsActive) return;
@@ -3379,7 +4107,6 @@ public class EditController : MonoBehaviour, EditHistory.IHost
             case AppMode.Browse:  DrawBrowseRail();  break;
             case AppMode.Place:   DrawPlaceRail();   break;
             case AppMode.Terrain: DrawTerrainRail(); break;
-            case AppMode.Manage:  DrawManageRail();  break;
             case AppMode.Build:   DrawBuildEmptyRail(); break;
         }
 
@@ -3403,10 +4130,9 @@ public class EditController : MonoBehaviour, EditHistory.IHost
         UITheme.Title(string.IsNullOrEmpty(_selId) ? "Inspector" : (_selIsBuilding ? "Selected building" : "Selected object"));
         if (ActiveLocked) { DrawLockedNotice(); return; }
         if (string.IsNullOrEmpty(_selId))
-            UITheme.Note("Click an object in the scene to select it.");
+            UITheme.Note("Click an object in the scene to select it · click a fence to edit its shape.");
 
-        _panelScroll = GUILayout.BeginScrollView(_panelScroll);
-        DrawEnvSelectSection();
+        _panelScroll = GUILayout.BeginScrollView(_panelScroll, false, false, GUIStyle.none, GUI.skin.verticalScrollbar);
         if (!string.IsNullOrEmpty(_selId)) DrawSelectionSection();
         GUILayout.EndScrollView();
     }
@@ -3416,7 +4142,7 @@ public class EditController : MonoBehaviour, EditHistory.IHost
         UITheme.Title("Place things");
         if (ActiveLocked) { DrawLockedNotice(); return; }
         UITheme.Note("See it before you place it. Pick one, then click the ground.");
-        _panelScroll = GUILayout.BeginScrollView(_panelScroll);
+        _panelScroll = GUILayout.BeginScrollView(_panelScroll, false, false, GUIStyle.none, GUI.skin.verticalScrollbar);
         DrawPlaceSection();
         GUILayout.EndScrollView();
     }
@@ -3425,7 +4151,7 @@ public class EditController : MonoBehaviour, EditHistory.IHost
     {
         UITheme.Title("Terrain");
         if (ActiveLocked) { DrawLockedNotice(); return; }
-        _panelScroll = GUILayout.BeginScrollView(_panelScroll);
+        _panelScroll = GUILayout.BeginScrollView(_panelScroll, false, false, GUIStyle.none, GUI.skin.verticalScrollbar);
         DrawTerrainSection();
         GUILayout.EndScrollView();
     }
@@ -3434,16 +4160,7 @@ public class EditController : MonoBehaviour, EditHistory.IHost
     {
         UITheme.Title("Building editor");
         if (ActiveLocked) { DrawLockedNotice(); return; }
-        UITheme.Note("Double-click a building in the scene, or open one from the library, to shape and paint it.");
-    }
-
-    private void DrawManageRail()
-    {
-        UITheme.Title("Manage");
-        _panelScroll = GUILayout.BeginScrollView(_panelScroll);
-        if (libraryBrowser != null) libraryBrowser.DrawManageContent();
-        else UITheme.Note("Library unavailable.");
-        GUILayout.EndScrollView();
+        UITheme.Note("Click a building in the scene, or open one from the library, to shape and paint it.");
     }
 
     // Site Settings: the active environment's real-world terrain dimensions (meters) and scale note.
@@ -3466,43 +4183,22 @@ public class EditController : MonoBehaviour, EditHistory.IHost
             var ts = env.site.terrainSize;
             _siteWidthStr = ts != null && ts.Length > 0 ? ts[0].ToString("0.##") : "";
             _siteLenStr   = ts != null && ts.Length > 1 ? ts[1].ToString("0.##") : "";
-            _scaleNoteStr = env.site.scaleNote ?? "";
         }
 
         GUILayout.BeginHorizontal();
-        GUILayout.Label("Size (m):", GUILayout.Width(70f));
-        _siteWidthStr = GUILayout.TextField(_siteWidthStr ?? "", GUILayout.Width(70f));
-        GUILayout.Label("×", GUILayout.Width(14f));
-        _siteLenStr   = GUILayout.TextField(_siteLenStr ?? "", GUILayout.Width(70f));
-        GUILayout.EndHorizontal();
-
-        GUILayout.Label("Scale note:");
-        _scaleNoteStr = GUILayout.TextField(_scaleNoteStr ?? "");
-
+        GUILayout.Label("Size (m)", GUILayout.ExpandWidth(false));
+        _siteWidthStr = GUILayout.TextField(_siteWidthStr ?? "", GUILayout.Width(46f));
+        GUILayout.Label("×", GUILayout.ExpandWidth(false));
+        _siteLenStr   = GUILayout.TextField(_siteLenStr ?? "", GUILayout.Width(46f));
         bool okW = float.TryParse(_siteWidthStr, out float w) && w > 0f;
         bool okL = float.TryParse(_siteLenStr,   out float l) && l > 0f;
-        if (GUILayout.Button("Apply size & note", GUILayout.Height(UITheme.RowH)))
-        {
-            if (okW && okL) ApplySiteSettings(env, w, l, _scaleNoteStr);
-            else UITheme.Note("Enter positive width and length in meters.");
-        }
-
-        // On-resize behavior: shared by the numeric Apply above and the Lot tool's rectangle drag.
-        GUILayout.BeginHorizontal();
-        GUILayout.Label("On resize:", GUILayout.Width(70f));
-        if (GUILayout.Toggle(!_resizeScaleContent, "Keep in place", GUI.skin.button)) _resizeScaleContent = false;
-        if (GUILayout.Toggle(_resizeScaleContent, "Scale content", GUI.skin.button))  _resizeScaleContent = true;
+        GUI.enabled = okW && okL;
+        if (GUILayout.Button("Apply", GUILayout.Height(UITheme.RowH)))
+            ApplySiteSettings(env, w, l, env.site.scaleNote);
+        GUI.enabled = true;
         GUILayout.EndHorizontal();
-        UITheme.Note("1 unit = 1 m. Keep-in-place just resizes the ground; Scale-content rescales the layout to fill it.");
 
         DrawLotToolSection(env);
-
-        var grid = GridOverlay();
-        if (grid != null)
-        {
-            bool on = GUILayout.Toggle(grid.OverlayEnabled, "  Real-scale grid (1 / 5 / 10 m)");
-            if (on != grid.OverlayEnabled) grid.OverlayEnabled = on;
-        }
 
         DrawElevationSection(env);
     }
@@ -3511,12 +4207,9 @@ public class EditController : MonoBehaviour, EditHistory.IHost
     // auto-fit shortcuts and an out-of-lot containment check.
     private void DrawLotToolSection(EnvironmentDef env)
     {
-        UITheme.Divider();
-        UITheme.Header("Lot shape");
-
         GUILayout.BeginHorizontal();
         bool editing = _mode == EditMode.EditLot;
-        if (GUILayout.Toggle(editing, "Edit lot (handles)", GUI.skin.button, GUILayout.Height(UITheme.RowH)) && !editing)
+        if (GUILayout.Toggle(editing, "Edit lot handles", GUI.skin.button, GUILayout.Height(UITheme.RowH)) && !editing)
             StartEditLot();
         if (editing && GUILayout.Button("Done", GUILayout.Width(54f))) StopEditLot();
         GUILayout.EndHorizontal();
@@ -3539,13 +4232,6 @@ public class EditController : MonoBehaviour, EditHistory.IHost
         if (GUILayout.Button("Fit terrain to lot")) FitTerrainToLot(env);
         if (GUILayout.Button("Fit lot to content")) FitLotToContent(env);
         GUILayout.EndHorizontal();
-
-        int outside = CountOutsideLot(env);
-        if (outside > 0)
-        {
-            UITheme.Note($"⚠ {outside} item(s) outside the lot.");
-            if (GUILayout.Button("Clamp items to lot")) ClampItemsToLot(env);
-        }
     }
 
     // Shrinks/grows the terrain rectangle so it hugs the parcel polygon's extent (+ small margin).
@@ -3736,7 +4422,8 @@ public class EditController : MonoBehaviour, EditHistory.IHost
             if (pathMaterialPalette?.entries != null && pathMaterialPalette.entries.Count > 0)
             {
                 float h = Mathf.Clamp(8 + pathMaterialPalette.entries.Count * 26, 26, 130);
-                _pathMatScroll = GUILayout.BeginScrollView(_pathMatScroll, GUILayout.Height(h));
+                _pathMatScroll = GUILayout.BeginScrollView(_pathMatScroll, false, false, GUIStyle.none,
+                    GUI.skin.verticalScrollbar, GUILayout.Height(h));
                 foreach (var e in pathMaterialPalette.entries)
                 {
                     bool sel = string.Equals(e.id, _pathMaterial, StringComparison.OrdinalIgnoreCase);
@@ -3764,13 +4451,15 @@ public class EditController : MonoBehaviour, EditHistory.IHost
             }
         }
 
-        // List of existing paths with edit + delete (visible whenever the active env has any).
+        // List of existing paths with edit + delete — collapsed behind a foldout by default.
         var env = libraryBrowser?.CurrentEnvironment;
         int pathCount = env?.site?.paths?.Count ?? 0;
         if (pathCount > 0)
+            _showPathList = UITheme.Foldout(_showPathList, $"Paths ({pathCount})");
+        if (pathCount > 0 && _showPathList)
         {
-            UITheme.Note($"Paths ({pathCount}):");
-            _pathListScroll = GUILayout.BeginScrollView(_pathListScroll, GUILayout.Height(Mathf.Min(120, 4 + pathCount * 24)));
+            _pathListScroll = GUILayout.BeginScrollView(_pathListScroll, false, false, GUIStyle.none,
+                GUI.skin.verticalScrollbar, GUILayout.Height(Mathf.Min(120, 4 + pathCount * 24)));
             for (int i = 0; i < env.site.paths.Count; i++)
             {
                 var p = env.site.paths[i];
@@ -3799,7 +4488,7 @@ public class EditController : MonoBehaviour, EditHistory.IHost
         {
             if (drawingFence)
                 _fenceFreehand = GUILayout.Toggle(_fenceFreehand,
-                    _fenceFreehand ? "  Freehand (drag)" : "  Straight (click; Enter/dbl-click ends)");
+                    _fenceFreehand ? "  Freehand (drag)" : "  Straight (drag start → end)");
             else if (GUILayout.Button("Done editing fence")) StopEditFence();
 
             string heightLabel = _fenceHeight > 0f ? $"{_fenceHeight:0.0} m" : "palette default";
@@ -3811,7 +4500,8 @@ public class EditController : MonoBehaviour, EditHistory.IHost
             if (fencePalette?.entries != null && fencePalette.entries.Count > 0)
             {
                 float h = Mathf.Clamp(8 + fencePalette.entries.Count * 26, 26, 130);
-                _fenceTypeScroll = GUILayout.BeginScrollView(_fenceTypeScroll, GUILayout.Height(h));
+                _fenceTypeScroll = GUILayout.BeginScrollView(_fenceTypeScroll, false, false, GUIStyle.none,
+                    GUI.skin.verticalScrollbar, GUILayout.Height(h));
                 foreach (var e in fencePalette.entries)
                 {
                     if (e == null) continue;
@@ -3823,11 +4513,11 @@ public class EditController : MonoBehaviour, EditHistory.IHost
             else UITheme.Note("Add entries to FencePalette and assign it in the inspector.");
 
             if (drawingFence)
-                UITheme.Note("Backspace undoes the last point · cursor snaps to nearby fence ends · Esc cancels.");
+                UITheme.Note("Drag to place a run · snaps to fences, crossings auto-split · Shift = no snap/link · Esc cancels.");
             else
             {
                 if (GUILayout.Button("Insert point (split longest segment)")) InsertPointLongestSegmentFence();
-                UITheme.Note("Drag the dots to reshape · click the line to insert · Delete removes the selected dot · Esc finishes.");
+                UITheme.Note("Drag the dots to reshape · click the line to insert · Delete removes the selected dot, or the whole fence when no dot is selected · Esc finishes.");
                 // Type / height / smoothing edits commit live to the fence being edited.
                 var ef = CurrentEditFence();
                 if (ef != null && (Mathf.Abs(ef.height - _fenceHeight) > 0.001f ||
@@ -3840,12 +4530,14 @@ public class EditController : MonoBehaviour, EditHistory.IHost
             }
         }
 
-        // List of existing fences with edit + delete (visible whenever the active env has any).
+        // List of existing fences with edit + delete — collapsed behind a foldout by default.
         int fenceCount = env?.site?.fences?.Count ?? 0;
         if (fenceCount > 0)
+            _showFenceList = UITheme.Foldout(_showFenceList, $"Fences ({fenceCount})");
+        if (fenceCount > 0 && _showFenceList)
         {
-            UITheme.Note($"Fences ({fenceCount}):");
-            _fenceListScroll = GUILayout.BeginScrollView(_fenceListScroll, GUILayout.Height(Mathf.Min(120, 4 + fenceCount * 24)));
+            _fenceListScroll = GUILayout.BeginScrollView(_fenceListScroll, false, false, GUIStyle.none,
+                GUI.skin.verticalScrollbar, GUILayout.Height(Mathf.Min(120, 4 + fenceCount * 24)));
             for (int i = 0; i < env.site.fences.Count; i++)
             {
                 var f = env.site.fences[i];
@@ -3878,7 +4570,8 @@ public class EditController : MonoBehaviour, EditHistory.IHost
             if (prefabRegistry?.entries != null && prefabRegistry.entries.Count > 0)
             {
                 float h = Mathf.Clamp(8 + prefabRegistry.entries.Count * 26, 26, 130);
-                _brushPrefabScroll = GUILayout.BeginScrollView(_brushPrefabScroll, GUILayout.Height(h));
+                _brushPrefabScroll = GUILayout.BeginScrollView(_brushPrefabScroll, false, false, GUIStyle.none,
+                    GUI.skin.verticalScrollbar, GUILayout.Height(h));
                 foreach (var e in prefabRegistry.entries)
                 {
                     bool sel = string.Equals(e.key, _brushPrefab, StringComparison.OrdinalIgnoreCase);
@@ -3914,7 +4607,8 @@ public class EditController : MonoBehaviour, EditHistory.IHost
             if (terrainRegistry?.entries != null && terrainRegistry.entries.Count > 0)
             {
                 float h = Mathf.Clamp(8 + terrainRegistry.entries.Count * 26, 26, 130);
-                _surfTypeScroll = GUILayout.BeginScrollView(_surfTypeScroll, GUILayout.Height(h));
+                _surfTypeScroll = GUILayout.BeginScrollView(_surfTypeScroll, false, false, GUIStyle.none,
+                    GUI.skin.verticalScrollbar, GUILayout.Height(h));
                 foreach (var e in terrainRegistry.entries)
                 {
                     bool sel = string.Equals(e.key, _surfType, StringComparison.OrdinalIgnoreCase);
@@ -3923,9 +4617,64 @@ public class EditController : MonoBehaviour, EditHistory.IHost
                 GUILayout.EndScrollView();
             }
             else UITheme.Note("Add entries to TerrainRegistry and assign it in the inspector.");
-            GUILayout.Label($"Radius: {_surfRadius:0.0} m");
+
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Toggle(!_surfSquare, "Round",  GUI.skin.button)) _surfSquare = false;
+            if (GUILayout.Toggle(_surfSquare,  "Square", GUI.skin.button)) _surfSquare = true;
+            GUILayout.EndHorizontal();
+
+            _surfStraight = GUILayout.Toggle(_surfStraight,
+                _surfStraight ? "  Straight (drag start → end)" : "  Freehand (drag)");
+
+            // The slider drives the half-extent either way; a square reads more naturally as its side.
+            GUILayout.Label(_surfSquare ? $"Size: {_surfRadius * 2f:0.0} m" : $"Radius: {_surfRadius:0.0} m");
             _surfRadius = GUILayout.HorizontalSlider(_surfRadius, 0.5f, 30f);
-            UITheme.Note("Hold left-mouse and drag to paint. Esc exits.");
+
+            // Brush angle — square only: a disc has no orientation, so showing these would be noise.
+            if (_surfSquare)
+            {
+                GUILayout.Label("Brush angle");
+                GUILayout.BeginHorizontal();
+                if (GUILayout.Toggle(!_surfFixedAngle, "Auto (follows run)", GUI.skin.button)) _surfFixedAngle = false;
+                if (GUILayout.Toggle(_surfFixedAngle,  "Fixed",              GUI.skin.button)) _surfFixedAngle = true;
+                GUILayout.EndHorizontal();
+
+                if (_surfFixedAngle)
+                {
+                    GUILayout.Label($"Angle: {_surfAngleDeg:0}°");
+                    _surfAngleDeg = GUILayout.HorizontalSlider(_surfAngleDeg, 0f, 90f);
+
+                    // Sampling buttons write into the slider, so you can nudge the result afterwards.
+                    GUILayout.BeginHorizontal();
+                    GUI.enabled = _selGO != null;
+                    if (GUILayout.Button("From selection") && TrySampleAngleFromSelection(out float selDeg))
+                        _surfAngleDeg = selDeg;
+                    GUI.enabled = true;
+                    if (GUILayout.Button("From lot edge") && TrySampleAngleFromLotEdge(out float lotDeg))
+                        _surfAngleDeg = lotDeg;
+                    GUILayout.EndHorizontal();
+                    UITheme.Note("Every stamp uses this angle · a square is 90°-symmetric, so 0–90 covers it.");
+                }
+            }
+
+            if (_surfStraight)
+            {
+                GUILayout.BeginHorizontal();
+                _surfSnapAngle = GUILayout.Toggle(_surfSnapAngle, "  Snap run angle");
+                GUILayout.FlexibleSpace();
+                foreach (float inc in new[] { 15f, 30f, 45f, 90f })
+                {
+                    bool sel = Mathf.Approximately(_surfSnapIncrementDeg, inc);
+                    if (GUILayout.Toggle(sel, $"{inc:0}°", GUI.skin.button, GUILayout.Width(38f)) && !sel)
+                        _surfSnapIncrementDeg = inc;
+                }
+                GUILayout.EndHorizontal();
+            }
+
+            UITheme.Note(_surfStraight
+                ? "Drag start → end · the run snaps to the brush angle's grid and its start snaps to " +
+                  "existing run ends · hold Shift for no snapping · Esc cancels the drag."
+                : "Hold left-mouse and drag to paint. Esc exits.");
         }
 
         // ---- Measure & calibrate ----
@@ -3937,7 +4686,6 @@ public class EditController : MonoBehaviour, EditHistory.IHost
     private void DrawMeasureSection()
     {
         UITheme.Divider();
-        UITheme.Header("Measure & scale");
 
         GUILayout.BeginHorizontal();
         if (GUILayout.Toggle(_mode == EditMode.Measure, "Measure", GUI.skin.button, GUILayout.Height(UITheme.RowH))
@@ -3945,11 +4693,7 @@ public class EditController : MonoBehaviour, EditHistory.IHost
         if (_mode == EditMode.Measure && GUILayout.Button("Done", GUILayout.Width(54f))) StopMeasure();
         GUILayout.EndHorizontal();
 
-        if (_mode != EditMode.Measure)
-        {
-            UITheme.Note("Click ground points to read distance, path length, and area at true scale (1 unit = 1 m).");
-            return;
-        }
+        if (_mode != EditMode.Measure) return;
 
         var pts = MeasurePointsXZ(includeCursor: false);
         float length = EnvironmentScale.PolylineLength(pts);
@@ -4110,68 +4854,6 @@ public class EditController : MonoBehaviour, EditHistory.IHost
 
     // "Select environment" entry point + group transform controls. Mirrors the per-instance
     // selection section but transforms every instance at once, about the environment center.
-    private void DrawEnvSelectSection()
-    {
-        var env = libraryBrowser?.CurrentEnvironment;
-        if (env == null) return;
-
-        UITheme.Divider();
-        UITheme.Header("Environment");
-
-        if (!_envSelected)
-        {
-            if (GUILayout.Button("Select environment", GUILayout.Height(UITheme.RowH)))
-                SelectEnvironment();
-            return;
-        }
-
-        UITheme.Note("Whole environment selected • move/rotate/scale all (terrain stays put)");
-
-        DrawToolSegmented();
-
-        DrawEnvTransformControls(env);
-
-        GUILayout.Space(2);
-        if (GUILayout.Button("Deselect environment", GUILayout.Height(UITheme.RowH))) DeselectEnv();
-    }
-
-    private void DrawEnvTransformControls(EnvironmentDef env)
-    {
-        GUILayout.Space(4);
-        switch (_tool)
-        {
-            case Tool.Move:
-                GUILayout.Label($"Move all (step {MOVE_STEP:0.#})");
-                DrawEnvMoveRow(env, "X", Vector3.right);
-                DrawEnvMoveRow(env, "Z", Vector3.forward);
-                DrawEnvMoveRow(env, "Y", Vector3.up);
-                break;
-            case Tool.Rotate:
-                GUILayout.Label("Rotate all about center (Y, 15°)");
-                GUILayout.BeginHorizontal();
-                if (GUILayout.Button("⟲ −15°")) { EnvRotateYaw(env, -15f); AfterEnvEdit(env); }
-                if (GUILayout.Button("⟳ +15°")) { EnvRotateYaw(env,  15f); AfterEnvEdit(env); }
-                GUILayout.EndHorizontal();
-                break;
-            case Tool.Scale:
-                GUILayout.Label("Scale all about center");
-                GUILayout.BeginHorizontal();
-                if (GUILayout.Button("− 10%")) { EnvScale(env, 0.9f); AfterEnvEdit(env); }
-                if (GUILayout.Button("+ 10%")) { EnvScale(env, 1.1f); AfterEnvEdit(env); }
-                GUILayout.EndHorizontal();
-                break;
-        }
-    }
-
-    private void DrawEnvMoveRow(EnvironmentDef env, string label, Vector3 axis)
-    {
-        GUILayout.BeginHorizontal();
-        GUILayout.Label(label, GUILayout.Width(60f));
-        if (GUILayout.Button("−", GUILayout.Width(40f))) { EnvMove(env, -axis * MOVE_STEP); AfterEnvEdit(env); }
-        if (GUILayout.Button("+", GUILayout.Width(40f))) { EnvMove(env,  axis * MOVE_STEP); AfterEnvEdit(env); }
-        GUILayout.EndHorizontal();
-    }
-
     private void DrawSelectionSection()
     {
         var env = libraryBrowser?.CurrentEnvironment;
@@ -4551,7 +5233,10 @@ public class EditController : MonoBehaviour, EditHistory.IHost
         // Left = LibraryBrowser panel; right = this panel (both include their outer margin).
         float leftEdge  = UITheme.LeftPanelWidth + UITheme.Margin * 2f;
         float rightEdge = Screen.width - PANEL_W - UITheme.Margin * 2f;
-        return mx < leftEdge || mx > rightEdge;
+        if (mx < leftEdge || mx > rightEdge) return true;
+        // The docked rails are pure x-bands, but the top command bar is centered — it sits in the
+        // gap between them, so it needs its own rect test or clicks on it reach the scene behind.
+        return UIShell.BlocksScreenPoint(MousePos);
     }
 
     // Top-most instance under the cursor (nearest hit), or false when none. Lets the
@@ -4568,6 +5253,89 @@ public class EditController : MonoBehaviour, EditHistory.IHost
         }
         return marker != null;
     }
+
+    // Nearest active-env fence under the cursor, or false when none. The FenceMarker twin of
+    // TryPickInstance — dedupes to one id because a fence renders as many panel/post GOs.
+    private bool TryPickFence(out string fenceId)
+    {
+        fenceId = null;
+        if (mainCamera == null) return false;
+        Ray ray = mainCamera.ScreenPointToRay(MousePos);
+        float best = float.MaxValue;
+        foreach (var h in Physics.RaycastAll(ray, 1000f))
+        {
+            var fm = h.collider.GetComponentInParent<FenceMarker>();
+            if (fm != null && h.distance < best && IsEditableFence(fm.fenceId))
+            { best = h.distance; fenceId = fm.fenceId; }
+        }
+        return fenceId != null;
+    }
+
+    // Fallback pick for TryPickFence. A panel's MeshCollider is the exact art mesh, so a raycast
+    // only lands on solid picket — measured at ~59% of a stretched panel's face, the rest being the
+    // air between pickets (and a palette entry may ship no collider at all). So instead test the
+    // click against each panel's *projected face*: the screen-space quad from the run's base to its
+    // top. Reuses FenceBuilder's resampler (Smooth + roundFit) so the quads tested are the spans the
+    // panels were actually built along. Inside the quad is a hit; outside, FENCE_PICK_PX of slop.
+    private bool TryPickFenceScreen(out string fenceId)
+    {
+        fenceId = null;
+        var fences = libraryBrowser?.CurrentEnvironment?.site?.fences;
+        if (mainCamera == null || fences == null || ActiveLocked) return false;
+        Vector2 mouse = new(MousePos.x, MousePos.y);
+        float best = FENCE_PICK_PX * FENCE_PICK_PX;
+        foreach (var f in fences)
+        {
+            if (f?.points == null || f.points.Length < 2) continue;
+            var   entry = FindFenceEntry(f.fenceType);
+            float step  = entry != null && entry.panelLength > 0f ? entry.panelLength : 2f;
+            float hgt   = f.height > 0f ? f.height : (entry != null && entry.height > 0f ? entry.height : 1.2f);
+            var ctrl = new List<Vector2>(f.points.Length);
+            foreach (var p in f.points)
+                if (p != null && p.Length >= 2) ctrl.Add(new Vector2(p[0], p[1]));
+            if (ctrl.Count < 2) continue;
+
+            var dense = PathGeometry.Smooth(ctrl, f.smoothing, step, roundFit: true);
+            Vector2 b0 = default, t0 = default; bool havePrev = false;
+            foreach (var d in dense)
+            {
+                float baseY = PreviewY(d.x, d.y);
+                Vector3 spB = mainCamera.WorldToScreenPoint(new Vector3(d.x, baseY,        d.y));
+                Vector3 spT = mainCamera.WorldToScreenPoint(new Vector3(d.x, baseY + hgt,  d.y));
+                if (spB.z < 0f || spT.z < 0f) { havePrev = false; continue; }   // behind the camera
+                Vector2 b1 = new(spB.x, spB.y), t1 = new(spT.x, spT.y);
+                if (havePrev)
+                {
+                    float d2 = PointToQuadDistSq(mouse, b0, b1, t1, t0);
+                    if (d2 < best) { best = d2; fenceId = f.id; }
+                }
+                b0 = b1; t0 = t1; havePrev = true;
+            }
+        }
+        return fenceId != null;
+    }
+
+    // Squared screen-space distance from `p` to the quad a→b→c→d (0 when inside). Split into two
+    // triangles so a perspective-skewed panel face is still tested correctly.
+    private static float PointToQuadDistSq(Vector2 p, Vector2 a, Vector2 b, Vector2 c, Vector2 d)
+    {
+        if (PointInTriangle(p, a, b, c) || PointInTriangle(p, a, c, d)) return 0f;
+        float best = (ClosestPointOnSegment(p, a, b) - p).sqrMagnitude;
+        best = Mathf.Min(best, (ClosestPointOnSegment(p, b, c) - p).sqrMagnitude);
+        best = Mathf.Min(best, (ClosestPointOnSegment(p, c, d) - p).sqrMagnitude);
+        best = Mathf.Min(best, (ClosestPointOnSegment(p, d, a) - p).sqrMagnitude);
+        return best;
+    }
+
+    private static bool PointInTriangle(Vector2 p, Vector2 a, Vector2 b, Vector2 c)
+    {
+        float d1 = Cross(b - a, p - a), d2 = Cross(c - b, p - b), d3 = Cross(a - c, p - c);
+        bool neg = d1 <= 0f && d2 <= 0f && d3 <= 0f;
+        bool pos = d1 >= 0f && d2 >= 0f && d3 >= 0f;
+        return neg || pos;   // consistent winding ⇒ inside (handles either triangle orientation)
+    }
+
+    private static float Cross(Vector2 u, Vector2 v) => u.x * v.y - u.y * v.x;
 
     private Vector3 GetInstancePos(EnvironmentDef env)
     {

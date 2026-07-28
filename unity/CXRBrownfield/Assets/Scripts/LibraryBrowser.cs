@@ -47,9 +47,9 @@ public class LibraryBrowser : MonoBehaviour
     private bool    _showSaveAs;
     private string  _envSearch   = "";       // left-rail search filter (Places list)
     private bool    _showNewEnv;             // inline new-scene name field toggled from the header
-    private bool    _confirmDelete;          // Manage rail: delete-confirmation dialog open
+    private LoadedEnv _confirmDelete;        // Loaded row whose admin delete-confirmation is open
     private LoadedEnv _confirmUnlock;        // Loaded list: row awaiting unlock confirmation
-    private bool    _adminEnabled;           // Manage command + admin actions are gated by this
+    private bool    _adminEnabled;           // per-env admin actions (archive / DrawAdminRow) are gated by this
     public  bool    AdminEnabled => _adminEnabled;
     private Vector2 _manageScroll;
 
@@ -399,6 +399,8 @@ public class LibraryBrowser : MonoBehaviour
                 if (UITheme.GhostButton("Cancel", GUILayout.Width(56))) _confirmUnlock = null;
                 GUILayout.EndHorizontal();
             }
+
+            if (_adminEnabled) DrawAdminRow(le);
         }
 
         if (toActivate != null)
@@ -418,7 +420,7 @@ public class LibraryBrowser : MonoBehaviour
             UITheme.Note("🔒 Locked (digital twin) — read-only. Save As to make an editable copy.");
 
         // Save (primary) / Save as (secondary) footer. Re-render / duplicate / archive / delete
-        // live in the Manage command panel (DrawManageContent).
+        // live on each Loaded row's admin actions (DrawAdminRow, Admin toggle).
         GUILayout.BeginHorizontal();
         GUI.enabled = _active.dirty && !_envBusy && !env.locked;
         if (UITheme.PrimaryButton("Save", GUILayout.Height(UITheme.RowH), GUILayout.ExpandWidth(true))) SaveEnvironment();
@@ -459,53 +461,37 @@ public class LibraryBrowser : MonoBehaviour
         GUI.enabled = true;
     }
 
-    // Manage rail (spec panel 7) — admin-only re-render / duplicate / archive / delete for the
-    // active environment, hosted in the right rail by EditController under the Manage command.
+    // Admin actions for one loaded environment — re-render / duplicate / archive / delete, drawn
+    // under its Loaded row when the Admin toggle is on (replaces the old right-rail Manage command).
     // Delete asks first; with no hard-delete endpoint it removes via archive (recoverable).
-    public void DrawManageContent()
+    private void DrawAdminRow(LoadedEnv le)
     {
-        var le = _active;
-        if (le == null) { UITheme.Note("No active environment. Load one in the library first."); return; }
         var env = le.env;
 
-        UITheme.Header((env.locked ? "🔒 " : "") + (env.name ?? env.id));
-        UITheme.Note($"{env.buildingInstances?.Count ?? 0} buildings · {env.objectInstances?.Count ?? 0} objects");
-        UITheme.Divider();
-
+        GUILayout.BeginHorizontal();
+        GUILayout.FlexibleSpace();
         GUI.enabled = !_envBusy;
-        if (UITheme.SecondaryButton("Re-render", GUILayout.Height(UITheme.RowH)))
+        if (UITheme.SecondaryButton("Re-render", GUILayout.Width(74)))
             worldRenderer?.RenderEnvironment(env, le.buildings);
-        UITheme.Note("Rebuild the scene from its layout.");
-
-        if (UITheme.SecondaryButton("Duplicate", GUILayout.Height(UITheme.RowH)))
-            DuplicateEnvironment();
-        UITheme.Note("Make an editable copy.");
-
-        GUI.enabled = !_envBusy && !env.locked;
-        if (UITheme.SecondaryButton("Archive", GUILayout.Height(UITheme.RowH)))
+        GUI.enabled = !_envBusy && le.persisted;
+        if (UITheme.SecondaryButton("Duplicate", GUILayout.Width(74)))
+            DuplicateEnvironment(le);
+        GUI.enabled = !_envBusy && le.persisted && !env.locked;
+        if (UITheme.SecondaryButton("Archive", GUILayout.Width(62)))
             StartCoroutine(CoArchiveEnv(env.id));
-        UITheme.Note(env.locked ? "Locked twin — unlock first." : "Hide it — recoverable later.");
+        if (UITheme.DangerButton("Delete…", GUILayout.Width(62)))
+            _confirmDelete = le;
         GUI.enabled = true;
+        GUILayout.EndHorizontal();
 
-        UITheme.Divider();
-        if (env.locked)
+        if (_confirmDelete == le)
         {
-            UITheme.Note("Delete is disabled for a locked twin — unlock first.");
-        }
-        else if (!_confirmDelete)
-        {
-            if (UITheme.DangerButton("Delete this scene…", GUILayout.Height(UITheme.RowH)))
-                _confirmDelete = true;
-        }
-        else
-        {
-            UITheme.Header("Delete this scene?");
-            UITheme.Note($"“{env.name}” will be removed from the library. Archive instead if unsure.");
             GUILayout.BeginHorizontal();
+            UITheme.Note($"Delete “{env.name}”?");
             GUI.enabled = !_envBusy;
-            if (UITheme.DangerButton("Delete")) { StartCoroutine(CoArchiveEnv(env.id)); _confirmDelete = false; }
+            if (UITheme.DangerButton("Delete", GUILayout.Width(56))) { StartCoroutine(CoArchiveEnv(env.id)); _confirmDelete = null; }
             GUI.enabled = true;
-            if (UITheme.GhostButton("Cancel")) _confirmDelete = false;
+            if (UITheme.GhostButton("Cancel", GUILayout.Width(56))) _confirmDelete = null;
             GUILayout.EndHorizontal();
         }
     }
@@ -657,26 +643,28 @@ public class LibraryBrowser : MonoBehaviour
             err => { _envStatus = $"Save error: {err}"; _envBusy = false; });
     }
 
-    private void SaveAsEnvironment(string newName)
+    private void SaveAsEnvironment(string newName) => SaveAsEnvironment(_active, newName);
+
+    private void SaveAsEnvironment(LoadedEnv le, string newName)
     {
-        if (_active == null) return;
+        if (le == null) return;
         _envBusy = true; _envStatus = "Saving as...";
         // Deep-copy via Newtonsoft; snapshot the building defs so the copy renders immediately.
-        string json = Newtonsoft.Json.JsonConvert.SerializeObject(_active.env);
+        string json = Newtonsoft.Json.JsonConvert.SerializeObject(le.env);
         var copy = Newtonsoft.Json.JsonConvert.DeserializeObject<EnvironmentDef>(json);
         copy.id = Guid.NewGuid().ToString("D"); copy.name = newName; copy.version = 1;
         copy.locked = false;   // a copy of a locked twin is the sanctioned editable working copy
-        var buildings = new Dictionary<string, BuildingDef>(_active.buildings);
+        var buildings = new Dictionary<string, BuildingDef>(le.buildings);
         libraryClient.PostEnvironment(copy,
             id  => { copy.id = id; _envBusy = false; _envStatus = $"Saved as '{newName}'."; RefreshEnvironments(); InstallEnv(copy, buildings); },
             err => { _envBusy = false; _envStatus = $"Save As error: {err}"; },
             kind: "user");
     }
 
-    private void DuplicateEnvironment()
+    private void DuplicateEnvironment(LoadedEnv le)
     {
-        if (_active == null) return;
-        SaveAsEnvironment(_active.env.name + " (copy)");
+        if (le == null) return;
+        SaveAsEnvironment(le, le.env.name + " (copy)");
     }
 
     // Lock/unlock a loaded environment as a read-only "digital twin". Persists immediately (PUT)

@@ -1,21 +1,3 @@
-%YAML 1.1
-%TAG !u! tag:unity3d.com,2011:
---- !u!114 &11400000
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 555fb5cb711459f43b3fb55b26b3dc73, type: 3}
-  m_Name: FencePalette
-  m_EditorClassIdentifier: Assembly-CSharp::FencePalette
-  entries:
-  - fenceType: Fence
-    panelPrefab: {fileID: 187280, guid: a60669d674253c24fa1f33ebde77f974, type: 3}
-    postPrefab: {fileID: 0}
-    panelLength: 3
-    height: 2
-    scalePanelToFit: 0
+version https://git-lfs.github.com/spec/v1
+oid sha256:5274fad97ee032297c51b514272062e53a5a90194804e1f3040f90d34af74a5f
+size 698

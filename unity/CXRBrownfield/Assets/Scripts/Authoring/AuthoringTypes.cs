@@ -163,15 +163,25 @@ public class FenceDef
     public float height = 0f;           // optional height override in meters; 0 ⇒ FencePalette default
 }
 
-// Freehand ground-surface stroke: a disc of `radius` swept along `points`, rasterized into the
+// Ground-surface stroke: a brush footprint of `radius` swept along `points`, rasterized into the
 // terrain splatmap by WorldRenderer.PaintTerrain (alongside the rectangular TerrainZoneDefs).
+// Drawn either freehand (many sampled points) or as a straight run (two points).
 [Serializable]
 public class SurfaceStrokeDef
 {
     public string id;                   // stable GUID
     public string terrainType;          // key into TerrainRegistry (e.g. "grass", "concrete")
-    public float radius;                // brush radius in meters
+    public float radius;                // brush half-extent in meters (disc radius / half the square's side)
     public float[][] points;            // [[x, z], ...] stroke centerline in meters
+    // Brush footprint: "circle" (default) or "square". Square stamps rotate to each segment's
+    // heading so a run drawn at any angle keeps clean parallel edges. Anything unrecognized (or a
+    // missing key in older JSON) rasterizes as a circle.
+    public string shape = "circle";
+    // Fixed stamp angle in degrees, pinning every stamp to one orientation (e.g. a plaza laid on the
+    // same grid as the buildings around it) instead of following the run. < 0 ⇒ auto: each stamp
+    // takes its segment's heading. Only meaningful for "square" — a disc has no orientation.
+    // See BrushGeometry.ResolveStampAngleRad.
+    public float angleDeg = -1f;
 }
 
 // One control point for the optional terrain heightmap: at world (x, z) meters the ground is raised

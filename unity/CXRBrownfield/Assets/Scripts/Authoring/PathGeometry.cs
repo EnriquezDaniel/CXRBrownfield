@@ -19,7 +19,10 @@ public static class PathGeometry
 
     // Resample `points` into a dense centerline. `smoothing` in [0,1]: 0 -> straight (just resampled
     // polyline), 1 -> full centripetal Catmull-Rom curve. Endpoints are always preserved.
-    public static List<Vector2> Smooth(IReadOnlyList<Vector2> points, float smoothing, float step = DefaultStep)
+    // `roundFit` picks the subdivision count nearest to segLen/step instead of ceiling it, so sample
+    // spacing can stretch up to 1.5x `step` as well as shrink — fences use this so panels fit a drawn
+    // run at their natural length; path ribbons keep the ceil default (spacing never exceeds `step`).
+    public static List<Vector2> Smooth(IReadOnlyList<Vector2> points, float smoothing, float step = DefaultStep, bool roundFit = false)
     {
         if (points == null || points.Count < 2) return CopyOrEmpty(points);
         if (step <= 0f) step = DefaultStep;
@@ -31,7 +34,7 @@ public static class PathGeometry
 
         // Pure polyline resample when smoothing is off or there aren't enough points to fit a spline.
         if (smoothing <= 0f || ctrl.Count < 3)
-            return ResamplePolyline(ctrl, step);
+            return ResamplePolyline(ctrl, step, roundFit);
 
         var outPts = new List<Vector2> { ctrl[0] };
         int n = ctrl.Count;
@@ -44,7 +47,7 @@ public static class PathGeometry
             Vector2 p3 = ctrl[Mathf.Min(i + 2, n - 1)];
 
             float segLen = Vector2.Distance(p1, p2);
-            int subdiv = Mathf.Max(1, Mathf.CeilToInt(segLen / step));
+            int subdiv = Subdivisions(segLen, step, roundFit);
             for (int s = 1; s <= subdiv; s++)
             {
                 float u = (float)s / subdiv;                         // 0..1 along this segment
@@ -165,13 +168,17 @@ public static class PathGeometry
         return Vector2.Distance(p, proj);
     }
 
-    private static List<Vector2> ResamplePolyline(IReadOnlyList<Vector2> pts, float step)
+    private static int Subdivisions(float segLen, float step, bool roundFit) =>
+        Mathf.Max(1, roundFit ? Mathf.RoundToInt(segLen / step)
+                              : Mathf.CeilToInt(segLen / step));
+
+    private static List<Vector2> ResamplePolyline(IReadOnlyList<Vector2> pts, float step, bool roundFit)
     {
         var outPts = new List<Vector2> { pts[0] };
         for (int i = 0; i < pts.Count - 1; i++)
         {
             float segLen = Vector2.Distance(pts[i], pts[i + 1]);
-            int subdiv = Mathf.Max(1, Mathf.CeilToInt(segLen / step));
+            int subdiv = Subdivisions(segLen, step, roundFit);
             for (int s = 1; s <= subdiv; s++)
             {
                 outPts.Add(Vector2.LerpUnclamped(pts[i], pts[i + 1], (float)s / subdiv));

@@ -1,7 +1,7 @@
 {
   "id": "cac015da-5a47-4059-8a34-6595e7d53354",
   "name": "1077 Home",
-  "version": 5,
+  "version": 7,
   "tags": [
     "static"
   ],
@@ -527,8 +527,8 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "north": "SandBrickWall",
-        "east": "RedBricks"
+        "east": "RedBricks",
+        "north": "SandBrickWall"
       },
       "deform": {
         "dx": [
@@ -1830,8 +1830,8 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "west": "RedBricks",
-        "south": "RedBricks"
+        "south": "RedBricks",
+        "west": "RedBricks"
       },
       "deform": {
         "dx": [
@@ -2807,8 +2807,8 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "west": "RedBricks",
-        "south": "RedBricks"
+        "south": "RedBricks",
+        "west": "RedBricks"
       },
       "deform": {
         "dx": [
@@ -3088,8 +3088,8 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "west": "RedBricks",
-        "south": "RedBricks"
+        "south": "RedBricks",
+        "west": "RedBricks"
       },
       "deform": {
         "dx": [
@@ -3763,8 +3763,8 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "south": "RedBricks",
-        "east": "RedBricks"
+        "east": "RedBricks",
+        "south": "RedBricks"
       },
       "deform": {
         "dx": [
@@ -3956,8 +3956,8 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "west": "RedBricks",
-        "south": "RedBricks"
+        "south": "RedBricks",
+        "west": "RedBricks"
       },
       "deform": {
         "dx": [
@@ -4504,8 +4504,8 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "north": "SandBrickWall",
         "east": "RedBricks",
+        "north": "SandBrickWall",
         "top": "Ceiling"
       },
       "deform": {
@@ -5847,8 +5847,8 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "west": "RedBricks",
-        "south": "RedBricks"
+        "south": "RedBricks",
+        "west": "RedBricks"
       },
       "deform": {
         "dx": [
@@ -6682,8 +6682,8 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "west": "RedBricks",
-        "top": "Ceiling"
+        "top": "Ceiling",
+        "west": "RedBricks"
       },
       "deform": {
         "dx": [
@@ -6715,8 +6715,8 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "west": "RedBricks",
-        "top": "Ceiling"
+        "top": "Ceiling",
+        "west": "RedBricks"
       },
       "deform": {
         "dx": [
@@ -6874,8 +6874,8 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "west": "RedBricks",
-        "south": "RedBricks"
+        "south": "RedBricks",
+        "west": "RedBricks"
       },
       "deform": {
         "dx": [
@@ -7155,8 +7155,8 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "west": "RedBricks",
-        "south": "RedBricks"
+        "south": "RedBricks",
+        "west": "RedBricks"
       },
       "deform": {
         "dx": [
@@ -7188,8 +7188,8 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "west": "RedBricks",
-        "top": "Ceiling"
+        "top": "Ceiling",
+        "west": "RedBricks"
       },
       "deform": {
         "dx": [
@@ -7703,8 +7703,8 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "west": "RedBricks",
-        "top": "Ceiling"
+        "top": "Ceiling",
+        "west": "RedBricks"
       },
       "deform": {
         "dx": [
@@ -7736,8 +7736,8 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "west": "RedBricks",
-        "top": "Ceiling"
+        "top": "Ceiling",
+        "west": "RedBricks"
       },
       "deform": {
         "dx": [
@@ -7866,8 +7866,8 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "south": "RedBricks",
         "east": "RedBricks",
+        "south": "RedBricks",
         "top": "Ceiling"
       },
       "deform": {
@@ -8065,9 +8065,9 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "west": "RedBricks",
         "south": "RedBricks",
-        "top": "Ceiling"
+        "top": "Ceiling",
+        "west": "RedBricks"
       },
       "deform": {
         "dx": [
@@ -8099,8 +8099,8 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "south": "RedBricks",
         "east": "RedBricks",
+        "south": "RedBricks",
         "top": "Ceiling"
       },
       "deform": {
@@ -8265,8 +8265,8 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "north": "RedBricks",
         "east": "RedBricks",
+        "north": "RedBricks",
         "top": "Ceiling"
       },
       "deform": {
@@ -9011,9 +9011,9 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "west": "RedBricks",
         "south": "RedBricks",
-        "top": "Ceiling"
+        "top": "Ceiling",
+        "west": "RedBricks"
       },
       "deform": {
         "dx": [
@@ -9173,9 +9173,9 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "west": "RedBricks",
         "south": "RedBricks",
-        "top": "Ceiling"
+        "top": "Ceiling",
+        "west": "RedBricks"
       },
       "deform": {
         "dx": [
@@ -9239,9 +9239,9 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "west": "RedBricks",
         "south": "RedBricks",
-        "top": "Ceiling"
+        "top": "Ceiling",
+        "west": "RedBricks"
       },
       "deform": {
         "dx": [
@@ -9273,8 +9273,8 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "west": "RedBricks",
-        "top": "Ceiling"
+        "top": "Ceiling",
+        "west": "RedBricks"
       },
       "deform": {
         "dx": [
@@ -9500,8 +9500,8 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "west": "RedBricks",
-        "top": "Ceiling"
+        "top": "Ceiling",
+        "west": "RedBricks"
       },
       "deform": {
         "dx": [
@@ -9534,8 +9534,8 @@
       "rotationZ": 0.0,
       "faceMaterials": {
         "north": "RedBricks",
-        "west": "RedBricks",
-        "top": "Ceiling"
+        "top": "Ceiling",
+        "west": "RedBricks"
       },
       "deform": {
         "dx": [
