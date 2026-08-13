@@ -1,3 +1,69 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:f03d7e703ec30b3be30b4cf0fda4f73e09ff166163e99890ec789d681e187865
-size 3570
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 40709c1665b93493492bd11d3e11cde2, type: 3}
+  m_Name: TerrainRegistry
+  m_EditorClassIdentifier: Assembly-CSharp::TerrainRegistry
+  entries:
+  - key: grass
+    terrainLayer: {fileID: 8574412962073106934, guid: bd09f0681f28b484fb0610ef52f7254c, type: 2}
+  - key: pavement
+    terrainLayer: {fileID: 8574412962073106934, guid: 00b8d645b2b347942a3abcd3082f1f64, type: 2}
+  - key: asphalt
+    terrainLayer: {fileID: 8574412962073106934, guid: 31432dd812e13084a8a44b337772b90e, type: 2}
+  - key: plaza
+    terrainLayer: {fileID: 8574412962073106934, guid: 35ee2e01aa108fe4985a657932a2f6e2, type: 2}
+  - key: sand
+    terrainLayer: {fileID: 8574412962073106934, guid: 1f75228414d5254428e95e86edd17bb3, type: 2}
+  - key: dirt
+    terrainLayer: {fileID: 8574412962073106934, guid: 4dda612093d4afc4f8e1c2bb38d474df, type: 2}
+  - key: Tar
+    terrainLayer: {fileID: 8574412962073106934, guid: a0efd62527f5a5d43ac2c09b1abf3865, type: 2}
+  - key: Clay
+    terrainLayer: {fileID: 8574412962073106934, guid: ec0aff061e82b0846a94c9a457a7b5b5, type: 2}
+  - key: Dry Ground 1
+    terrainLayer: {fileID: 8574412962073106934, guid: f50323ce99aefba478e7af1ada1f42e7, type: 2}
+  - key: Dry Ground 2
+    terrainLayer: {fileID: 8574412962073106934, guid: a3d0aa6701bfe09448e48136682dbfa6, type: 2}
+  - key: Dry Ground 3
+    terrainLayer: {fileID: 8574412962073106934, guid: 0608415b84db11847a50c0c553fdedfe, type: 2}
+  - key: Yellow Grass
+    terrainLayer: {fileID: 8574412962073106934, guid: aeeb9f60f6ffed84c86962b7a8ff05ff, type: 2}
+  - key: Mixed Stone 1
+    terrainLayer: {fileID: 8574412962073106934, guid: 1b0b648a892588f409c239db7227869d, type: 2}
+  - key: Mixed Stone 2
+    terrainLayer: {fileID: 8574412962073106934, guid: fe96b03000717ab4db6e8bc0dc680254, type: 2}
+  - key: Moss Stone
+    terrainLayer: {fileID: 8574412962073106934, guid: c3b01beb856c1cd479ca000c04d68512, type: 2}
+  - key: Soil Weed
+    terrainLayer: {fileID: 8574412962073106934, guid: 5e4626df3eca75642bb3e5bec4571dc9, type: 2}
+  - key: Cobble Stone
+    terrainLayer: {fileID: 8574412962073106934, guid: ee55e81b6bd61e44f817baa989bf78f1, type: 2}
+  - key: Dirt 1
+    terrainLayer: {fileID: 8574412962073106934, guid: 4dda612093d4afc4f8e1c2bb38d474df, type: 2}
+  - key: Dirt 2
+    terrainLayer: {fileID: 8574412962073106934, guid: 30673da987ae167419175a29a9023ccb, type: 2}
+  - key: Metal 1
+    terrainLayer: {fileID: 8574412962073106934, guid: d0ed2e973f477fb418c083044fd93eb0, type: 2}
+  - key: 'Metal 2 '
+    terrainLayer: {fileID: 8574412962073106934, guid: 035c60f3fb4df5247a62e6369e112944, type: 2}
+  - key: Rocks
+    terrainLayer: {fileID: 8574412962073106934, guid: 9fdf81e157300054dac2aab9d4fcd73e, type: 2}
+  - key: Brown Ground
+    terrainLayer: {fileID: 8574412962073106934, guid: 0b165159803f41c49a222b9c17279b72, type: 2}
+  - key: Leafy Dirt
+    terrainLayer: {fileID: 8574412962073106934, guid: ce81e31c52cae4a489ca0d327996c0a9, type: 2}
+  - key: Dry Grass
+    terrainLayer: {fileID: 8574412962073106934, guid: 2f9ca0f2c54f77344b6df36b26de933f, type: 2}
+  - key: Cracked Stone
+    terrainLayer: {fileID: 8574412962073106934, guid: 672ce7548bc1dce4e90bb3082e201257, type: 2}
+  - key: Clean Grass
+    terrainLayer: {fileID: 8574412962073106934, guid: 906ea75245880804aa869574650b5ab3, type: 2}
