@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.Networking;
+using Newtonsoft.Json;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -248,7 +249,7 @@ public class ModelRequester : MonoBehaviour
     public void GenerateLayoutFromSketchButton()
     {
         // No image name -> server falls back to its own file dialog (legacy path).
-        StartCoroutine(RequestLayoutGeneration(null));
+        StartCoroutine(RequestLayoutGeneration(null, null, null, null));
     }
 
     /// <summary>
@@ -256,10 +257,19 @@ public class ModelRequester : MonoBehaviour
     /// </summary>
     public void GenerateLayoutFromImage(string imageName)
     {
-        StartCoroutine(RequestLayoutGeneration(imageName));
+        StartCoroutine(RequestLayoutGeneration(imageName, null, null, null));
     }
 
-    private IEnumerator RequestLayoutGeneration(string imageName)
+    /// <summary>
+    /// Site-aware overload: also sends the drawn site boundary (server canvas [0,1000] points from
+    /// SiteFit.BoundaryToCanvas) and its real dimensions so the LLM lays out for that parcel.
+    /// </summary>
+    public void GenerateLayoutFromImage(string imageName, float[][] lotBoundaryCanvas, float? siteWidthFt, float? siteHeightFt)
+    {
+        StartCoroutine(RequestLayoutGeneration(imageName, lotBoundaryCanvas, siteWidthFt, siteHeightFt));
+    }
+
+    private IEnumerator RequestLayoutGeneration(string imageName, float[][] lotBoundaryCanvas, float? siteWidthFt, float? siteHeightFt)
     {
         string layoutUrl = $"{serverBaseUrl}/api/layout/generate";
         Log($"Triggering layout generation: {layoutUrl} (image: {imageName ?? "<server dialog>"})");
@@ -270,9 +280,18 @@ public class ModelRequester : MonoBehaviour
 
         using (UnityWebRequest request = new UnityWebRequest(layoutUrl, "POST"))
         {
+            // Newtonsoft (not JsonUtility): the optional lot_boundary is a float[][], which
+            // JsonUtility cannot serialize. NullValueHandling.Ignore keeps an image-only request
+            // byte-compatible with the legacy {"image": ...} contract.
             string bodyJson = string.IsNullOrEmpty(imageName)
                 ? "{}"
-                : JsonUtility.ToJson(new LayoutGenerateRequest { image = imageName });
+                : JsonConvert.SerializeObject(new LayoutGenerateRequest
+                  {
+                      image          = imageName,
+                      lot_boundary   = lotBoundaryCanvas,
+                      site_width_ft  = siteWidthFt,
+                      site_height_ft = siteHeightFt,
+                  }, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
             byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(bodyJson);
             request.uploadHandler = new UploadHandlerRaw(bodyRaw);
             request.downloadHandler = new DownloadHandlerBuffer();
@@ -681,6 +700,13 @@ public class ModelRequester : MonoBehaviour
     [System.Serializable]
     public class LayoutGenerateRequest
     {
-        public string image;   // name of an uploaded input image under input/
+        public string image;            // name of an uploaded input image under input/
+        // Optional site targeting (see SiteFit): the drawn boundary normalized to the server canvas
+        // ([0,1000], index [0] -> X, [1] -> Z) plus the site bbox dimensions in feet. Null members
+        // are omitted from the JSON (Newtonsoft NullValueHandling.Ignore), preserving the legacy
+        // image-only contract.
+        public float[][] lot_boundary;
+        public float? site_width_ft;
+        public float? site_height_ft;
     }
 }

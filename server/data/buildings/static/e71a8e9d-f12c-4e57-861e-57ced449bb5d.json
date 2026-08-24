@@ -1,7 +1,7 @@
 {
   "id": "e71a8e9d-f12c-4e57-861e-57ced449bb5d",
   "name": "1252 Longfellow",
-  "version": 15,
+  "version": 18,
   "tags": [
     "static"
   ],
@@ -17,7 +17,9 @@
       "rotation": 0,
       "rotationX": 0.0,
       "rotationZ": 0.0,
-      "faceMaterials": null,
+      "faceMaterials": {
+        "south": "BlackConcreteBrickWall"
+      },
       "deform": {
         "dx": [
           2.797846,
@@ -47,7 +49,9 @@
       "rotation": 0,
       "rotationX": 0.0,
       "rotationZ": 0.0,
-      "faceMaterials": null,
+      "faceMaterials": {
+        "south": "BlackConcreteBrickWall"
+      },
       "deform": {
         "dx": [
           3.73046136,
@@ -167,7 +171,9 @@
       "rotation": 0,
       "rotationX": 0.0,
       "rotationZ": 0.0,
-      "faceMaterials": null,
+      "faceMaterials": {
+        "south": "BlackConcreteBrickWall"
+      },
       "deform": {
         "dx": [
           1.86523068,
@@ -198,7 +204,8 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "east": "Brick"
+        "east": "BlackConcreteBrickWall",
+        "south": "BlackConcreteBrickWall"
       },
       "deform": {
         "dx": [
@@ -230,7 +237,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "east": "Brick"
+        "east": "BlackConcreteBrickWall"
       },
       "deform": {
         "dx": [
@@ -262,7 +269,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "east": "Brick"
+        "east": "BlackConcreteBrickWall"
       },
       "deform": {
         "dx": [
@@ -414,7 +421,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "west": "Brick"
+        "west": "BlackConcreteBrickWall"
       },
       "deform": {
         "dx": [
@@ -446,7 +453,8 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "west": "Brick"
+        "west": "BlackConcreteBrickWall",
+        "south": "BlackConcreteBrickWall"
       },
       "deform": {
         "dx": [
@@ -478,7 +486,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "west": "Brick"
+        "west": "BlackConcreteBrickWall"
       },
       "deform": {
         "dx": [
@@ -510,7 +518,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "west": "Brick"
+        "west": "BlackConcreteBrickWall"
       },
       "deform": {
         "dx": [
@@ -542,7 +550,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "west": "Brick"
+        "west": "BlackConcreteBrickWall"
       },
       "deform": {
         "dx": [
@@ -604,7 +612,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "west": "Brick"
+        "west": "BlackConcreteBrickWall"
       },
       "deform": {
         "dx": [
@@ -696,7 +704,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "east": "Brick"
+        "east": "BlackConcreteBrickWall"
       },
       "deform": {
         "dx": [
@@ -758,7 +766,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "east": "Brick"
+        "east": "BlackConcreteBrickWall"
       },
       "deform": {
         "dx": [
@@ -910,7 +918,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "east": "Brick"
+        "east": "BlackConcreteBrickWall"
       },
       "deform": {
         "dx": [
@@ -942,7 +950,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "east": "Brick"
+        "east": "BlackConcreteBrickWall"
       },
       "deform": {
         "dx": [
@@ -974,7 +982,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "west": "Brick"
+        "west": "BlackConcreteBrickWall"
       },
       "deform": {
         "dx": [
@@ -1006,7 +1014,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "west": "Brick"
+        "west": "BlackConcreteBrickWall"
       },
       "deform": {
         "dx": [
@@ -1038,7 +1046,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "west": "Brick"
+        "west": "BlackConcreteBrickWall"
       },
       "deform": {
         "dx": [
@@ -1070,8 +1078,8 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "west": "Brick",
-        "north": "Brick"
+        "north": "BlackConcreteBrickWall",
+        "west": "BlackConcreteBrickWall"
       },
       "deform": {
         "dx": [
@@ -1103,7 +1111,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "north": "Brick"
+        "north": "BlackConcreteBrickWall"
       },
       "deform": {
         "dx": [
@@ -1135,7 +1143,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "north": "Brick"
+        "north": "BlackConcreteBrickWall"
       },
       "deform": {
         "dx": [
@@ -1167,7 +1175,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "north": "Brick"
+        "north": "BlackConcreteBrickWall"
       },
       "deform": {
         "dx": [
@@ -1229,8 +1237,8 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "north": "Brick",
-        "east": "Brick"
+        "east": "BlackConcreteBrickWall",
+        "north": "BlackConcreteBrickWall"
       },
       "deform": {
         "dx": [
@@ -1262,7 +1270,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "east": "Brick"
+        "east": "BlackConcreteBrickWall"
       },
       "deform": {
         "dx": [
@@ -1294,7 +1302,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "east": "Brick"
+        "east": "BlackConcreteBrickWall"
       },
       "deform": {
         "dx": [
@@ -1565,7 +1573,9 @@
       "rotation": 0,
       "rotationX": 0.0,
       "rotationZ": 0.0,
-      "faceMaterials": null,
+      "faceMaterials": {
+        "south": "BlackConcreteBrickWall"
+      },
       "deform": {
         "dx": [
           2.797846,
@@ -1595,7 +1605,9 @@
       "rotation": 0,
       "rotationX": 0.0,
       "rotationZ": 0.0,
-      "faceMaterials": null,
+      "faceMaterials": {
+        "south": "BlackConcreteBrickWall"
+      },
       "deform": {
         "dx": [
           3.73046136,
@@ -1715,7 +1727,9 @@
       "rotation": 0,
       "rotationX": 0.0,
       "rotationZ": 0.0,
-      "faceMaterials": null,
+      "faceMaterials": {
+        "south": "BlackConcreteBrickWall"
+      },
       "deform": {
         "dx": [
           1.86523068,
@@ -1746,7 +1760,8 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "east": "Brick"
+        "east": "BlackConcreteBrickWall",
+        "south": "BlackConcreteBrickWall"
       },
       "deform": {
         "dx": [
@@ -1778,7 +1793,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "east": "Brick"
+        "east": "BlackConcreteBrickWall"
       },
       "deform": {
         "dx": [
@@ -1810,7 +1825,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "east": "Brick"
+        "east": "BlackConcreteBrickWall"
       },
       "deform": {
         "dx": [
@@ -1962,7 +1977,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "west": "Brick"
+        "west": "BlackConcreteBrickWall"
       },
       "deform": {
         "dx": [
@@ -1994,7 +2009,8 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "west": "Brick"
+        "west": "BlackConcreteBrickWall",
+        "south": "BlackConcreteBrickWall"
       },
       "deform": {
         "dx": [
@@ -2026,7 +2042,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "west": "Brick"
+        "west": "BlackConcreteBrickWall"
       },
       "deform": {
         "dx": [
@@ -2058,7 +2074,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "west": "Brick"
+        "west": "BlackConcreteBrickWall"
       },
       "deform": {
         "dx": [
@@ -2090,7 +2106,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "west": "Brick"
+        "west": "BlackConcreteBrickWall"
       },
       "deform": {
         "dx": [
@@ -2152,7 +2168,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "west": "Brick"
+        "west": "BlackConcreteBrickWall"
       },
       "deform": {
         "dx": [
@@ -2244,7 +2260,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "east": "Brick"
+        "east": "BlackConcreteBrickWall"
       },
       "deform": {
         "dx": [
@@ -2306,7 +2322,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "east": "Brick"
+        "east": "BlackConcreteBrickWall"
       },
       "deform": {
         "dx": [
@@ -2458,7 +2474,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "east": "Brick"
+        "east": "BlackConcreteBrickWall"
       },
       "deform": {
         "dx": [
@@ -2490,7 +2506,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "east": "Brick"
+        "east": "BlackConcreteBrickWall"
       },
       "deform": {
         "dx": [
@@ -2522,7 +2538,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "west": "Brick"
+        "west": "BlackConcreteBrickWall"
       },
       "deform": {
         "dx": [
@@ -2554,7 +2570,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "west": "Brick"
+        "west": "BlackConcreteBrickWall"
       },
       "deform": {
         "dx": [
@@ -2586,7 +2602,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "west": "Brick"
+        "west": "BlackConcreteBrickWall"
       },
       "deform": {
         "dx": [
@@ -2618,8 +2634,8 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "west": "Brick",
-        "north": "Brick"
+        "north": "BlackConcreteBrickWall",
+        "west": "BlackConcreteBrickWall"
       },
       "deform": {
         "dx": [
@@ -2651,7 +2667,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "north": "Brick"
+        "north": "BlackConcreteBrickWall"
       },
       "deform": {
         "dx": [
@@ -2683,7 +2699,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "north": "Brick"
+        "north": "BlackConcreteBrickWall"
       },
       "deform": {
         "dx": [
@@ -2715,7 +2731,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "north": "Brick"
+        "north": "BlackConcreteBrickWall"
       },
       "deform": {
         "dx": [
@@ -2777,8 +2793,8 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "east": "Brick",
-        "north": "Brick"
+        "east": "BlackConcreteBrickWall",
+        "north": "BlackConcreteBrickWall"
       },
       "deform": {
         "dx": [
@@ -2810,7 +2826,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "east": "Brick"
+        "east": "BlackConcreteBrickWall"
       },
       "deform": {
         "dx": [
@@ -2842,7 +2858,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "east": "Brick"
+        "east": "BlackConcreteBrickWall"
       },
       "deform": {
         "dx": [
@@ -3113,7 +3129,9 @@
       "rotation": 0,
       "rotationX": 0.0,
       "rotationZ": 0.0,
-      "faceMaterials": null,
+      "faceMaterials": {
+        "south": "CobbleStoneWall"
+      },
       "deform": {
         "dx": [
           2.797846,
@@ -3143,7 +3161,9 @@
       "rotation": 0,
       "rotationX": 0.0,
       "rotationZ": 0.0,
-      "faceMaterials": null,
+      "faceMaterials": {
+        "south": "CobbleStoneWall"
+      },
       "deform": {
         "dx": [
           3.73046136,
@@ -3263,7 +3283,9 @@
       "rotation": 0,
       "rotationX": 0.0,
       "rotationZ": 0.0,
-      "faceMaterials": null,
+      "faceMaterials": {
+        "south": "CobbleStoneWall"
+      },
       "deform": {
         "dx": [
           1.86523068,
@@ -3294,7 +3316,8 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "east": "Brick"
+        "east": "CobbleStoneWall",
+        "south": "CobbleStoneWall"
       },
       "deform": {
         "dx": [
@@ -3326,7 +3349,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "east": "Brick"
+        "east": "CobbleStoneWall"
       },
       "deform": {
         "dx": [
@@ -3358,7 +3381,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "east": "Brick"
+        "east": "CobbleStoneWall"
       },
       "deform": {
         "dx": [
@@ -3510,7 +3533,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "west": "Brick"
+        "west": "CobbleStoneWall"
       },
       "deform": {
         "dx": [
@@ -3542,7 +3565,8 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "west": "Brick"
+        "west": "CobbleStoneWall",
+        "south": "CobbleStoneWall"
       },
       "deform": {
         "dx": [
@@ -3574,7 +3598,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "west": "Brick"
+        "west": "CobbleStoneWall"
       },
       "deform": {
         "dx": [
@@ -3606,7 +3630,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "west": "Brick"
+        "west": "CobbleStoneWall"
       },
       "deform": {
         "dx": [
@@ -3638,7 +3662,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "west": "Brick"
+        "west": "CobbleStoneWall"
       },
       "deform": {
         "dx": [
@@ -3700,7 +3724,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "west": "Brick"
+        "west": "CobbleStoneWall"
       },
       "deform": {
         "dx": [
@@ -3792,7 +3816,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "east": "Brick"
+        "east": "CobbleStoneWall"
       },
       "deform": {
         "dx": [
@@ -3854,7 +3878,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "east": "Brick"
+        "east": "CobbleStoneWall"
       },
       "deform": {
         "dx": [
@@ -4006,7 +4030,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "east": "Brick"
+        "east": "CobbleStoneWall"
       },
       "deform": {
         "dx": [
@@ -4038,7 +4062,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "east": "Brick"
+        "east": "CobbleStoneWall"
       },
       "deform": {
         "dx": [
@@ -4070,7 +4094,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "west": "Brick"
+        "west": "CobbleStoneWall"
       },
       "deform": {
         "dx": [
@@ -4102,7 +4126,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "west": "Brick"
+        "west": "CobbleStoneWall"
       },
       "deform": {
         "dx": [
@@ -4134,7 +4158,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "west": "Brick"
+        "west": "CobbleStoneWall"
       },
       "deform": {
         "dx": [
@@ -4166,8 +4190,8 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "west": "Brick",
-        "north": "Brick"
+        "north": "CobbleStoneWall",
+        "west": "CobbleStoneWall"
       },
       "deform": {
         "dx": [
@@ -4199,7 +4223,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "north": "Brick"
+        "north": "CobbleStoneWall"
       },
       "deform": {
         "dx": [
@@ -4231,7 +4255,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "north": "Brick"
+        "north": "CobbleStoneWall"
       },
       "deform": {
         "dx": [
@@ -4263,7 +4287,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "north": "Brick"
+        "north": "CobbleStoneWall"
       },
       "deform": {
         "dx": [
@@ -4325,8 +4349,8 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "north": "Brick",
-        "east": "Brick"
+        "east": "CobbleStoneWall",
+        "north": "CobbleStoneWall"
       },
       "deform": {
         "dx": [
@@ -4358,7 +4382,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "east": "Brick"
+        "east": "CobbleStoneWall"
       },
       "deform": {
         "dx": [
@@ -4390,7 +4414,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "east": "Brick"
+        "east": "CobbleStoneWall"
       },
       "deform": {
         "dx": [
@@ -4661,7 +4685,9 @@
       "rotation": 0,
       "rotationX": 0.0,
       "rotationZ": 0.0,
-      "faceMaterials": null,
+      "faceMaterials": {
+        "south": "CobbleStoneWall"
+      },
       "deform": {
         "dx": [
           2.797846,
@@ -4691,7 +4717,9 @@
       "rotation": 0,
       "rotationX": 0.0,
       "rotationZ": 0.0,
-      "faceMaterials": null,
+      "faceMaterials": {
+        "south": "CobbleStoneWall"
+      },
       "deform": {
         "dx": [
           3.73046136,
@@ -4811,7 +4839,9 @@
       "rotation": 0,
       "rotationX": 0.0,
       "rotationZ": 0.0,
-      "faceMaterials": null,
+      "faceMaterials": {
+        "south": "CobbleStoneWall"
+      },
       "deform": {
         "dx": [
           1.86523068,
@@ -4842,7 +4872,8 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "east": "Brick"
+        "east": "CobbleStoneWall",
+        "south": "CobbleStoneWall"
       },
       "deform": {
         "dx": [
@@ -4874,7 +4905,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "east": "Brick"
+        "east": "CobbleStoneWall"
       },
       "deform": {
         "dx": [
@@ -4906,7 +4937,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "east": "Brick"
+        "east": "CobbleStoneWall"
       },
       "deform": {
         "dx": [
@@ -5058,7 +5089,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "west": "Brick"
+        "west": "CobbleStoneWall"
       },
       "deform": {
         "dx": [
@@ -5090,7 +5121,8 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "west": "Brick"
+        "west": "CobbleStoneWall",
+        "south": "CobbleStoneWall"
       },
       "deform": {
         "dx": [
@@ -5122,7 +5154,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "west": "Brick"
+        "west": "CobbleStoneWall"
       },
       "deform": {
         "dx": [
@@ -5154,7 +5186,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "west": "Brick"
+        "west": "CobbleStoneWall"
       },
       "deform": {
         "dx": [
@@ -5186,7 +5218,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "west": "Brick"
+        "west": "CobbleStoneWall"
       },
       "deform": {
         "dx": [
@@ -5248,7 +5280,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "west": "Brick"
+        "west": "CobbleStoneWall"
       },
       "deform": {
         "dx": [
@@ -5340,7 +5372,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "east": "Brick"
+        "east": "CobbleStoneWall"
       },
       "deform": {
         "dx": [
@@ -5402,7 +5434,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "east": "Brick"
+        "east": "CobbleStoneWall"
       },
       "deform": {
         "dx": [
@@ -5554,7 +5586,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "east": "Brick"
+        "east": "CobbleStoneWall"
       },
       "deform": {
         "dx": [
@@ -5586,7 +5618,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "east": "Brick"
+        "east": "CobbleStoneWall"
       },
       "deform": {
         "dx": [
@@ -5618,7 +5650,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "west": "Brick"
+        "west": "CobbleStoneWall"
       },
       "deform": {
         "dx": [
@@ -5650,7 +5682,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "west": "Brick"
+        "west": "CobbleStoneWall"
       },
       "deform": {
         "dx": [
@@ -5682,7 +5714,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "west": "Brick"
+        "west": "CobbleStoneWall"
       },
       "deform": {
         "dx": [
@@ -5714,8 +5746,8 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "west": "Brick",
-        "north": "Brick"
+        "north": "CobbleStoneWall",
+        "west": "CobbleStoneWall"
       },
       "deform": {
         "dx": [
@@ -5747,7 +5779,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "north": "Brick"
+        "north": "CobbleStoneWall"
       },
       "deform": {
         "dx": [
@@ -5779,7 +5811,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "north": "Brick"
+        "north": "CobbleStoneWall"
       },
       "deform": {
         "dx": [
@@ -5811,7 +5843,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "north": "Brick"
+        "north": "CobbleStoneWall"
       },
       "deform": {
         "dx": [
@@ -5873,8 +5905,8 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "north": "Brick",
-        "east": "Brick"
+        "east": "CobbleStoneWall",
+        "north": "CobbleStoneWall"
       },
       "deform": {
         "dx": [
@@ -5906,7 +5938,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "east": "Brick"
+        "east": "CobbleStoneWall"
       },
       "deform": {
         "dx": [
@@ -5938,7 +5970,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "east": "Brick"
+        "east": "CobbleStoneWall"
       },
       "deform": {
         "dx": [
@@ -6209,7 +6241,9 @@
       "rotation": 0,
       "rotationX": 0.0,
       "rotationZ": 0.0,
-      "faceMaterials": null,
+      "faceMaterials": {
+        "south": "CobbleStoneWall"
+      },
       "deform": {
         "dx": [
           2.797846,
@@ -6239,7 +6273,9 @@
       "rotation": 0,
       "rotationX": 0.0,
       "rotationZ": 0.0,
-      "faceMaterials": null,
+      "faceMaterials": {
+        "south": "CobbleStoneWall"
+      },
       "deform": {
         "dx": [
           3.73046136,
@@ -6359,7 +6395,9 @@
       "rotation": 0,
       "rotationX": 0.0,
       "rotationZ": 0.0,
-      "faceMaterials": null,
+      "faceMaterials": {
+        "south": "CobbleStoneWall"
+      },
       "deform": {
         "dx": [
           1.86523068,
@@ -6390,7 +6428,8 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "east": "Brick"
+        "east": "CobbleStoneWall",
+        "south": "CobbleStoneWall"
       },
       "deform": {
         "dx": [
@@ -6422,7 +6461,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "east": "Brick"
+        "east": "CobbleStoneWall"
       },
       "deform": {
         "dx": [
@@ -6454,7 +6493,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "east": "Brick"
+        "east": "CobbleStoneWall"
       },
       "deform": {
         "dx": [
@@ -6606,7 +6645,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "west": "Brick"
+        "west": "CobbleStoneWall"
       },
       "deform": {
         "dx": [
@@ -6638,7 +6677,8 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "west": "Brick"
+        "west": "CobbleStoneWall",
+        "south": "CobbleStoneWall"
       },
       "deform": {
         "dx": [
@@ -6670,7 +6710,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "west": "Brick"
+        "west": "CobbleStoneWall"
       },
       "deform": {
         "dx": [
@@ -6702,7 +6742,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "west": "Brick"
+        "west": "CobbleStoneWall"
       },
       "deform": {
         "dx": [
@@ -6734,7 +6774,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "west": "Brick"
+        "west": "CobbleStoneWall"
       },
       "deform": {
         "dx": [
@@ -6796,7 +6836,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "west": "Brick"
+        "west": "CobbleStoneWall"
       },
       "deform": {
         "dx": [
@@ -6888,7 +6928,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "east": "Brick"
+        "east": "CobbleStoneWall"
       },
       "deform": {
         "dx": [
@@ -6950,7 +6990,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "east": "Brick"
+        "east": "CobbleStoneWall"
       },
       "deform": {
         "dx": [
@@ -7102,7 +7142,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "east": "Brick"
+        "east": "CobbleStoneWall"
       },
       "deform": {
         "dx": [
@@ -7134,7 +7174,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "east": "Brick"
+        "east": "CobbleStoneWall"
       },
       "deform": {
         "dx": [
@@ -7166,7 +7206,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "west": "Brick"
+        "west": "CobbleStoneWall"
       },
       "deform": {
         "dx": [
@@ -7198,7 +7238,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "west": "Brick"
+        "west": "CobbleStoneWall"
       },
       "deform": {
         "dx": [
@@ -7230,7 +7270,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "west": "Brick"
+        "west": "CobbleStoneWall"
       },
       "deform": {
         "dx": [
@@ -7262,8 +7302,8 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "west": "Brick",
-        "north": "Brick"
+        "north": "CobbleStoneWall",
+        "west": "CobbleStoneWall"
       },
       "deform": {
         "dx": [
@@ -7295,7 +7335,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "north": "Brick"
+        "north": "CobbleStoneWall"
       },
       "deform": {
         "dx": [
@@ -7327,7 +7367,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "north": "Brick"
+        "north": "CobbleStoneWall"
       },
       "deform": {
         "dx": [
@@ -7359,7 +7399,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "north": "Brick"
+        "north": "CobbleStoneWall"
       },
       "deform": {
         "dx": [
@@ -7421,8 +7461,8 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "north": "Brick",
-        "east": "Brick"
+        "east": "CobbleStoneWall",
+        "north": "CobbleStoneWall"
       },
       "deform": {
         "dx": [
@@ -7454,7 +7494,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "east": "Brick"
+        "east": "CobbleStoneWall"
       },
       "deform": {
         "dx": [
@@ -7486,7 +7526,7 @@
       "rotationX": 0.0,
       "rotationZ": 0.0,
       "faceMaterials": {
-        "east": "Brick"
+        "east": "CobbleStoneWall"
       },
       "deform": {
         "dx": [
@@ -7750,6 +7790,1257 @@
       }
     }
   ],
-  "embeddedObjects": [],
+  "embeddedObjects": [
+    {
+      "instanceId": "f1d08662-48f0-4c1d-85e3-fe5c5eca744a",
+      "prefabType": "StoreFront",
+      "localPos": [
+        45.5714531,
+        0.56497,
+        -34.0691223
+      ],
+      "rotationX": 0.0,
+      "rotationY": 155.000046,
+      "rotationZ": 0.0,
+      "scale": 0.8820345,
+      "hostGridX": 7,
+      "hostGridZ": -9,
+      "hostFloor": 0,
+      "hostFace": "west",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    },
+    {
+      "instanceId": "f2a28e69-f889-42f4-81c0-bfe12059e819",
+      "prefabType": "StoreFront",
+      "localPos": [
+        48.14824,
+        0.5120369,
+        -34.0
+      ],
+      "rotationX": 0.0,
+      "rotationY": 0.0,
+      "rotationZ": 0.0,
+      "scale": 0.799394965,
+      "hostGridX": 11,
+      "hostGridZ": -9,
+      "hostFloor": 0,
+      "hostFace": "east",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    },
+    {
+      "instanceId": "fe18d7f9-38d7-45ef-9afb-277252eec4f1",
+      "prefabType": "FireEscape",
+      "localPos": [
+        37.146965,
+        5.99999952,
+        -18.5184422
+      ],
+      "rotationX": 2.47610151e-05,
+      "rotationY": 245.0,
+      "rotationZ": 1.6284438e-12,
+      "scale": 0.864135,
+      "hostGridX": 7,
+      "hostGridZ": -5,
+      "hostFloor": 1,
+      "hostFace": "west",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 0,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    },
+    {
+      "instanceId": "6526c985-b757-4936-a240-ddcbf334fcd0",
+      "prefabType": "FireEscape",
+      "localPos": [
+        37.146965,
+        9.999999,
+        -18.5184422
+      ],
+      "rotationX": 2.47610151e-05,
+      "rotationY": 245.0,
+      "rotationZ": 1.6284438e-12,
+      "scale": 0.864135,
+      "hostGridX": 7,
+      "hostGridZ": -5,
+      "hostFloor": 2,
+      "hostFace": "west",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 0,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    },
+    {
+      "instanceId": "f7dbfbc9-cdfc-49ee-97c5-7ec98cced4fd",
+      "prefabType": "FireEscape",
+      "localPos": [
+        37.146965,
+        13.999999,
+        -18.5184422
+      ],
+      "rotationX": 2.47610151e-05,
+      "rotationY": 245.0,
+      "rotationZ": 1.6284438e-12,
+      "scale": 0.864135,
+      "hostGridX": 7,
+      "hostGridZ": -5,
+      "hostFloor": 3,
+      "hostFace": "west",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 0,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    },
+    {
+      "instanceId": "051fa63c-ceff-4338-b289-ad822c4388d3",
+      "prefabType": "WindowPair",
+      "localPos": [
+        38.1102066,
+        17.34355,
+        -18.0692749
+      ],
+      "rotationX": 1.221333e-12,
+      "rotationY": 155.0,
+      "rotationZ": -2.47610133e-05,
+      "scale": 1.7027173,
+      "hostGridX": 7,
+      "hostGridZ": -5,
+      "hostFloor": 4,
+      "hostFace": "west",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    },
+    {
+      "instanceId": "e5f3f06b-de47-4ca7-9b67-1df0b6988847",
+      "prefabType": "WindowPair",
+      "localPos": [
+        39.97544,
+        17.34355,
+        -22.0692749
+      ],
+      "rotationX": -1.221333e-12,
+      "rotationY": 155.0,
+      "rotationZ": 2.47610133e-05,
+      "scale": 1.7027173,
+      "hostGridX": 7,
+      "hostGridZ": -6,
+      "hostFloor": 4,
+      "hostFace": "west",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    },
+    {
+      "instanceId": "817e1e3a-b258-4c9d-bdb2-224f71c89ac1",
+      "prefabType": "WindowPair",
+      "localPos": [
+        41.8406677,
+        17.34355,
+        -26.0692749
+      ],
+      "rotationX": 1.221333e-12,
+      "rotationY": 155.0,
+      "rotationZ": -2.47610133e-05,
+      "scale": 1.7027173,
+      "hostGridX": 7,
+      "hostGridZ": -7,
+      "hostFloor": 4,
+      "hostFace": "west",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    },
+    {
+      "instanceId": "23dfa574-6ef8-45f1-8f8e-020fbf91e849",
+      "prefabType": "WindowPair",
+      "localPos": [
+        43.7059021,
+        17.3435516,
+        -30.0692749
+      ],
+      "rotationX": 0.0,
+      "rotationY": 154.999954,
+      "rotationZ": 0.0,
+      "scale": 1.70271778,
+      "hostGridX": 7,
+      "hostGridZ": -8,
+      "hostFloor": 4,
+      "hostFace": "west",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    },
+    {
+      "instanceId": "73854477-108e-4eb6-a9a1-e36bad8241cd",
+      "prefabType": "WindowPair",
+      "localPos": [
+        45.5711327,
+        17.34355,
+        -34.0692749
+      ],
+      "rotationX": 0.0,
+      "rotationY": 155.000046,
+      "rotationZ": 0.0,
+      "scale": 1.70271671,
+      "hostGridX": 7,
+      "hostGridZ": -9,
+      "hostFloor": 4,
+      "hostFace": "west",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    },
+    {
+      "instanceId": "30603884-1298-44c5-845a-ee6d5f101080",
+      "prefabType": "WindowPair",
+      "localPos": [
+        45.5711327,
+        13.34355,
+        -34.0692749
+      ],
+      "rotationX": 0.0,
+      "rotationY": 155.000046,
+      "rotationZ": 0.0,
+      "scale": 1.70271671,
+      "hostGridX": 7,
+      "hostGridZ": -9,
+      "hostFloor": 3,
+      "hostFace": "west",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    },
+    {
+      "instanceId": "4cad7fa4-d3ec-4423-a0bb-51883fb32936",
+      "prefabType": "WindowPair",
+      "localPos": [
+        43.7059021,
+        13.3435507,
+        -30.0692749
+      ],
+      "rotationX": 0.0,
+      "rotationY": 154.999954,
+      "rotationZ": 0.0,
+      "scale": 1.70271778,
+      "hostGridX": 7,
+      "hostGridZ": -8,
+      "hostFloor": 3,
+      "hostFace": "west",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    },
+    {
+      "instanceId": "dd246334-37dc-4659-9736-351a753330d5",
+      "prefabType": "WindowPair",
+      "localPos": [
+        41.8406677,
+        13.3435507,
+        -26.0692749
+      ],
+      "rotationX": 1.221333e-12,
+      "rotationY": 155.0,
+      "rotationZ": -2.47610133e-05,
+      "scale": 1.7027173,
+      "hostGridX": 7,
+      "hostGridZ": -7,
+      "hostFloor": 3,
+      "hostFace": "west",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    },
+    {
+      "instanceId": "a01512ea-9532-4630-960d-35502b3dc129",
+      "prefabType": "WindowPair",
+      "localPos": [
+        39.97544,
+        13.3435507,
+        -22.0692749
+      ],
+      "rotationX": -1.221333e-12,
+      "rotationY": 155.0,
+      "rotationZ": 2.47610133e-05,
+      "scale": 1.7027173,
+      "hostGridX": 7,
+      "hostGridZ": -6,
+      "hostFloor": 3,
+      "hostFace": "west",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    },
+    {
+      "instanceId": "14bbc9e7-9059-4f7d-abec-3e9ad6a55be9",
+      "prefabType": "WindowPair",
+      "localPos": [
+        39.97544,
+        9.343551,
+        -22.0692749
+      ],
+      "rotationX": -1.221333e-12,
+      "rotationY": 155.0,
+      "rotationZ": 2.47610133e-05,
+      "scale": 1.7027173,
+      "hostGridX": 7,
+      "hostGridZ": -6,
+      "hostFloor": 2,
+      "hostFace": "west",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    },
+    {
+      "instanceId": "1878ef53-8525-4ae0-9a31-818fd4323a8c",
+      "prefabType": "WindowPair",
+      "localPos": [
+        41.8406677,
+        9.343551,
+        -26.0692749
+      ],
+      "rotationX": 1.221333e-12,
+      "rotationY": 155.0,
+      "rotationZ": -2.47610133e-05,
+      "scale": 1.7027173,
+      "hostGridX": 7,
+      "hostGridZ": -7,
+      "hostFloor": 2,
+      "hostFace": "west",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    },
+    {
+      "instanceId": "cb1bcf11-546c-4317-9950-414ea59fbc95",
+      "prefabType": "WindowPair",
+      "localPos": [
+        43.7059021,
+        9.343551,
+        -30.0692749
+      ],
+      "rotationX": 0.0,
+      "rotationY": 154.999954,
+      "rotationZ": 0.0,
+      "scale": 1.70271778,
+      "hostGridX": 7,
+      "hostGridZ": -8,
+      "hostFloor": 2,
+      "hostFace": "west",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    },
+    {
+      "instanceId": "eaa3bd1b-0efe-4073-95a3-3e2c4d00f2aa",
+      "prefabType": "WindowPair",
+      "localPos": [
+        45.5711327,
+        9.34355,
+        -34.0692749
+      ],
+      "rotationX": 0.0,
+      "rotationY": 155.000046,
+      "rotationZ": 0.0,
+      "scale": 1.70271671,
+      "hostGridX": 7,
+      "hostGridZ": -9,
+      "hostFloor": 2,
+      "hostFace": "west",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    },
+    {
+      "instanceId": "a01fbbe3-2894-4045-b65b-c2ca5de93d1f",
+      "prefabType": "WindowPair",
+      "localPos": [
+        45.5711327,
+        5.34354973,
+        -34.0692749
+      ],
+      "rotationX": 0.0,
+      "rotationY": 155.000046,
+      "rotationZ": 0.0,
+      "scale": 1.70271671,
+      "hostGridX": 7,
+      "hostGridZ": -9,
+      "hostFloor": 1,
+      "hostFace": "west",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    },
+    {
+      "instanceId": "87bddb4b-0d2f-42a7-bddb-c0cadc367491",
+      "prefabType": "WindowPair",
+      "localPos": [
+        43.7059021,
+        5.34355068,
+        -30.0692749
+      ],
+      "rotationX": 0.0,
+      "rotationY": 154.999954,
+      "rotationZ": 0.0,
+      "scale": 1.70271778,
+      "hostGridX": 7,
+      "hostGridZ": -8,
+      "hostFloor": 1,
+      "hostFace": "west",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    },
+    {
+      "instanceId": "b2b4ec27-72c0-42b2-8b07-2304a9252197",
+      "prefabType": "WindowPair",
+      "localPos": [
+        41.8406677,
+        5.34355,
+        -26.0692749
+      ],
+      "rotationX": 1.221333e-12,
+      "rotationY": 155.0,
+      "rotationZ": -2.47610133e-05,
+      "scale": 1.7027173,
+      "hostGridX": 7,
+      "hostGridZ": -7,
+      "hostFloor": 1,
+      "hostFace": "west",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    },
+    {
+      "instanceId": "cd1a7a3f-4e00-41af-83ea-1e8ea14a1724",
+      "prefabType": "WindowPair",
+      "localPos": [
+        39.97544,
+        5.34355,
+        -22.0692749
+      ],
+      "rotationX": -1.221333e-12,
+      "rotationY": 155.0,
+      "rotationZ": 2.47610133e-05,
+      "scale": 1.7027173,
+      "hostGridX": 7,
+      "hostGridZ": -6,
+      "hostFloor": 1,
+      "hostFace": "west",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    },
+    {
+      "instanceId": "f4ef9eed-6cf1-456a-bf43-83683bef39bc",
+      "prefabType": "WindowPair",
+      "localPos": [
+        38.1102066,
+        5.34355,
+        -18.0692749
+      ],
+      "rotationX": 1.221333e-12,
+      "rotationY": 155.0,
+      "rotationZ": -2.47610133e-05,
+      "scale": 1.7027173,
+      "hostGridX": 7,
+      "hostGridZ": -5,
+      "hostFloor": 1,
+      "hostFace": "west",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    },
+    {
+      "instanceId": "2c8544ca-8614-4f9a-848e-a218b99b68f8",
+      "prefabType": "WindowPair",
+      "localPos": [
+        36.24498,
+        5.34355,
+        -14.0692749
+      ],
+      "rotationX": -1.221333e-12,
+      "rotationY": 155.0,
+      "rotationZ": 2.47610133e-05,
+      "scale": 1.7027173,
+      "hostGridX": 7,
+      "hostGridZ": -4,
+      "hostFloor": 1,
+      "hostFace": "west",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    },
+    {
+      "instanceId": "c99d0bec-f09c-46da-9176-bce57162f786",
+      "prefabType": "WindowPair",
+      "localPos": [
+        34.3797455,
+        5.34355,
+        -10.0692749
+      ],
+      "rotationX": 1.221333e-12,
+      "rotationY": 155.0,
+      "rotationZ": -2.47610133e-05,
+      "scale": 1.7027173,
+      "hostGridX": 7,
+      "hostGridZ": -3,
+      "hostFloor": 1,
+      "hostFace": "west",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    },
+    {
+      "instanceId": "9042cdf1-bab0-447c-a99a-818258d1b2a8",
+      "prefabType": "WindowPair",
+      "localPos": [
+        32.51452,
+        5.34355,
+        -6.06927443
+      ],
+      "rotationX": -1.221333e-12,
+      "rotationY": 155.0,
+      "rotationZ": 2.47610133e-05,
+      "scale": 1.7027173,
+      "hostGridX": 7,
+      "hostGridZ": -2,
+      "hostFloor": 1,
+      "hostFace": "west",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    },
+    {
+      "instanceId": "95d87796-820f-4206-8143-d344c704fa04",
+      "prefabType": "WindowPair",
+      "localPos": [
+        30.6492882,
+        5.34355,
+        -2.06927443
+      ],
+      "rotationX": 0.0,
+      "rotationY": 155.0,
+      "rotationZ": 0.0,
+      "scale": 1.7027173,
+      "hostGridX": 7,
+      "hostGridZ": -1,
+      "hostFloor": 1,
+      "hostFace": "west",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    },
+    {
+      "instanceId": "33f74d48-b5d9-4ac5-aaa2-c23c91d6288a",
+      "prefabType": "WindowPair",
+      "localPos": [
+        28.7840557,
+        5.34355,
+        1.93072546
+      ],
+      "rotationX": 0.0,
+      "rotationY": 155.0,
+      "rotationZ": 0.0,
+      "scale": 1.7027173,
+      "hostGridX": 7,
+      "hostGridZ": 0,
+      "hostFloor": 1,
+      "hostFace": "west",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    },
+    {
+      "instanceId": "1462305e-f71b-4075-a544-6caa0fa848b8",
+      "prefabType": "WindowPair",
+      "localPos": [
+        28.7840557,
+        9.343551,
+        1.93072546
+      ],
+      "rotationX": 0.0,
+      "rotationY": 155.0,
+      "rotationZ": 0.0,
+      "scale": 1.7027173,
+      "hostGridX": 7,
+      "hostGridZ": 0,
+      "hostFloor": 2,
+      "hostFace": "west",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    },
+    {
+      "instanceId": "0818a784-da23-4dd4-922c-40a8ea943317",
+      "prefabType": "WindowPair",
+      "localPos": [
+        30.6492882,
+        9.343551,
+        -2.06927443
+      ],
+      "rotationX": 0.0,
+      "rotationY": 155.0,
+      "rotationZ": 0.0,
+      "scale": 1.7027173,
+      "hostGridX": 7,
+      "hostGridZ": -1,
+      "hostFloor": 2,
+      "hostFace": "west",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    },
+    {
+      "instanceId": "7c83c24d-6af7-4fc7-a1a9-dac50ff546ab",
+      "prefabType": "WindowPair",
+      "localPos": [
+        32.51452,
+        9.343551,
+        -6.06927443
+      ],
+      "rotationX": -1.221333e-12,
+      "rotationY": 155.0,
+      "rotationZ": 2.47610133e-05,
+      "scale": 1.7027173,
+      "hostGridX": 7,
+      "hostGridZ": -2,
+      "hostFloor": 2,
+      "hostFace": "west",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    },
+    {
+      "instanceId": "e7d61c94-5cf7-4733-bae0-dcc4b97832cb",
+      "prefabType": "WindowPair",
+      "localPos": [
+        34.3797455,
+        9.343551,
+        -10.0692749
+      ],
+      "rotationX": 1.221333e-12,
+      "rotationY": 155.0,
+      "rotationZ": -2.47610133e-05,
+      "scale": 1.7027173,
+      "hostGridX": 7,
+      "hostGridZ": -3,
+      "hostFloor": 2,
+      "hostFace": "west",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    },
+    {
+      "instanceId": "16d5823f-b43b-4b1d-9dfe-ab8f36fa120f",
+      "prefabType": "WindowPair",
+      "localPos": [
+        36.24498,
+        9.343551,
+        -14.0692749
+      ],
+      "rotationX": -1.221333e-12,
+      "rotationY": 155.0,
+      "rotationZ": 2.47610133e-05,
+      "scale": 1.7027173,
+      "hostGridX": 7,
+      "hostGridZ": -4,
+      "hostFloor": 2,
+      "hostFace": "west",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    },
+    {
+      "instanceId": "fdffad10-7cae-459f-a5de-38dd93e23e71",
+      "prefabType": "WindowPair",
+      "localPos": [
+        38.1102066,
+        9.343551,
+        -18.0692749
+      ],
+      "rotationX": 1.221333e-12,
+      "rotationY": 155.0,
+      "rotationZ": -2.47610133e-05,
+      "scale": 1.7027173,
+      "hostGridX": 7,
+      "hostGridZ": -5,
+      "hostFloor": 2,
+      "hostFace": "west",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    },
+    {
+      "instanceId": "e3817f19-da88-4d59-be08-2137a69c7375",
+      "prefabType": "WindowPair",
+      "localPos": [
+        38.1102066,
+        13.3435507,
+        -18.0692749
+      ],
+      "rotationX": 1.221333e-12,
+      "rotationY": 155.0,
+      "rotationZ": -2.47610133e-05,
+      "scale": 1.7027173,
+      "hostGridX": 7,
+      "hostGridZ": -5,
+      "hostFloor": 3,
+      "hostFace": "west",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    },
+    {
+      "instanceId": "69aded08-167a-4b9e-9bcb-68037091490d",
+      "prefabType": "WindowPair",
+      "localPos": [
+        36.24498,
+        13.3435507,
+        -14.0692749
+      ],
+      "rotationX": -1.221333e-12,
+      "rotationY": 155.0,
+      "rotationZ": 2.47610133e-05,
+      "scale": 1.7027173,
+      "hostGridX": 7,
+      "hostGridZ": -4,
+      "hostFloor": 3,
+      "hostFace": "west",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    },
+    {
+      "instanceId": "941ed31e-30f3-44d9-96cd-bf07777c651d",
+      "prefabType": "WindowPair",
+      "localPos": [
+        34.3797455,
+        13.3435507,
+        -10.0692749
+      ],
+      "rotationX": 1.221333e-12,
+      "rotationY": 155.0,
+      "rotationZ": -2.47610133e-05,
+      "scale": 1.7027173,
+      "hostGridX": 7,
+      "hostGridZ": -3,
+      "hostFloor": 3,
+      "hostFace": "west",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    },
+    {
+      "instanceId": "4b0e58fa-1c61-494f-a7f8-f3d28fa191ac",
+      "prefabType": "WindowPair",
+      "localPos": [
+        32.51452,
+        13.3435507,
+        -6.06927443
+      ],
+      "rotationX": -1.221333e-12,
+      "rotationY": 155.0,
+      "rotationZ": 2.47610133e-05,
+      "scale": 1.7027173,
+      "hostGridX": 7,
+      "hostGridZ": -2,
+      "hostFloor": 3,
+      "hostFace": "west",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    },
+    {
+      "instanceId": "8a876ee7-e046-4964-9d06-aefc0be189e6",
+      "prefabType": "WindowPair",
+      "localPos": [
+        30.6492882,
+        13.3435507,
+        -2.06927443
+      ],
+      "rotationX": 0.0,
+      "rotationY": 155.0,
+      "rotationZ": 0.0,
+      "scale": 1.7027173,
+      "hostGridX": 7,
+      "hostGridZ": -1,
+      "hostFloor": 3,
+      "hostFace": "west",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    },
+    {
+      "instanceId": "b1bfdb55-110e-4b5b-b17a-a137b993c7ac",
+      "prefabType": "WindowPair",
+      "localPos": [
+        28.7840557,
+        13.3435507,
+        1.93072546
+      ],
+      "rotationX": 0.0,
+      "rotationY": 155.0,
+      "rotationZ": 0.0,
+      "scale": 1.7027173,
+      "hostGridX": 7,
+      "hostGridZ": 0,
+      "hostFloor": 3,
+      "hostFace": "west",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    },
+    {
+      "instanceId": "f8851b98-d933-4fc3-a332-0718b6323216",
+      "prefabType": "WindowPair",
+      "localPos": [
+        28.7840557,
+        17.34355,
+        1.93072546
+      ],
+      "rotationX": 0.0,
+      "rotationY": 155.0,
+      "rotationZ": 0.0,
+      "scale": 1.7027173,
+      "hostGridX": 7,
+      "hostGridZ": 0,
+      "hostFloor": 4,
+      "hostFace": "west",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    },
+    {
+      "instanceId": "e80a9e8c-b6f0-49a3-bbde-4dc3b2dab26c",
+      "prefabType": "WindowPair",
+      "localPos": [
+        30.6492882,
+        17.34355,
+        -2.06927443
+      ],
+      "rotationX": 0.0,
+      "rotationY": 155.0,
+      "rotationZ": 0.0,
+      "scale": 1.7027173,
+      "hostGridX": 7,
+      "hostGridZ": -1,
+      "hostFloor": 4,
+      "hostFace": "west",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    },
+    {
+      "instanceId": "92754f9f-639c-4228-b8e5-e7668dd4ab54",
+      "prefabType": "WindowPair",
+      "localPos": [
+        32.51452,
+        17.34355,
+        -6.06927443
+      ],
+      "rotationX": -1.221333e-12,
+      "rotationY": 155.0,
+      "rotationZ": 2.47610133e-05,
+      "scale": 1.7027173,
+      "hostGridX": 7,
+      "hostGridZ": -2,
+      "hostFloor": 4,
+      "hostFace": "west",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    },
+    {
+      "instanceId": "9663642d-bb11-4105-a3f8-e84ead942c82",
+      "prefabType": "WindowPair",
+      "localPos": [
+        34.3797455,
+        17.34355,
+        -10.0692749
+      ],
+      "rotationX": 1.221333e-12,
+      "rotationY": 155.0,
+      "rotationZ": -2.47610133e-05,
+      "scale": 1.7027173,
+      "hostGridX": 7,
+      "hostGridZ": -3,
+      "hostFloor": 4,
+      "hostFace": "west",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    },
+    {
+      "instanceId": "91a65819-c5cb-4a8f-97d4-bd14be5cafa0",
+      "prefabType": "WindowPair",
+      "localPos": [
+        36.24498,
+        17.34355,
+        -14.0692749
+      ],
+      "rotationX": -1.221333e-12,
+      "rotationY": 155.0,
+      "rotationZ": 2.47610133e-05,
+      "scale": 1.7027173,
+      "hostGridX": 7,
+      "hostGridZ": -4,
+      "hostFloor": 4,
+      "hostFace": "west",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    },
+    {
+      "instanceId": "ca9d17d0-4e66-4a96-bb5e-c7a12dc0c71b",
+      "prefabType": "WindowPair",
+      "localPos": [
+        36.24498,
+        1.34355032,
+        -14.0692749
+      ],
+      "rotationX": -1.221333e-12,
+      "rotationY": 155.0,
+      "rotationZ": 2.47610133e-05,
+      "scale": 1.7027173,
+      "hostGridX": 7,
+      "hostGridZ": -4,
+      "hostFloor": 0,
+      "hostFace": "west",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    },
+    {
+      "instanceId": "454fa430-f793-41d1-87d5-74a6d418190f",
+      "prefabType": "WindowPair",
+      "localPos": [
+        34.3797455,
+        1.34355021,
+        -10.0692749
+      ],
+      "rotationX": 1.221333e-12,
+      "rotationY": 155.0,
+      "rotationZ": -2.47610133e-05,
+      "scale": 1.7027173,
+      "hostGridX": 7,
+      "hostGridZ": -3,
+      "hostFloor": 0,
+      "hostFace": "west",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    },
+    {
+      "instanceId": "8e1145d9-513d-4440-8e09-d6f0b2465dfd",
+      "prefabType": "WindowPair",
+      "localPos": [
+        32.51452,
+        1.34355032,
+        -6.06927443
+      ],
+      "rotationX": -1.221333e-12,
+      "rotationY": 155.0,
+      "rotationZ": 2.47610133e-05,
+      "scale": 1.7027173,
+      "hostGridX": 7,
+      "hostGridZ": -2,
+      "hostFloor": 0,
+      "hostFace": "west",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    },
+    {
+      "instanceId": "5528df1c-383e-46c9-b045-a4d3c3014ab0",
+      "prefabType": "WindowPair",
+      "localPos": [
+        30.6492882,
+        1.34355032,
+        -2.06927443
+      ],
+      "rotationX": 0.0,
+      "rotationY": 155.0,
+      "rotationZ": 0.0,
+      "scale": 1.7027173,
+      "hostGridX": 7,
+      "hostGridZ": -1,
+      "hostFloor": 0,
+      "hostFace": "west",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    },
+    {
+      "instanceId": "8b52479f-8c0b-4046-a075-d1dae05cf6e7",
+      "prefabType": "WindowPair",
+      "localPos": [
+        28.7840557,
+        1.34355032,
+        1.93072546
+      ],
+      "rotationX": 0.0,
+      "rotationY": 155.0,
+      "rotationZ": 0.0,
+      "scale": 1.7027173,
+      "hostGridX": 7,
+      "hostGridZ": 0,
+      "hostFloor": 0,
+      "hostFace": "west",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    }
+  ],
   "favorite": false
 }

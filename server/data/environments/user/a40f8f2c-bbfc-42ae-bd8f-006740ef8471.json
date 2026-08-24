@@ -1,0 +1,26 @@
+{
+  "id": "a40f8f2c-bbfc-42ae-bd8f-006740ef8471",
+  "name": "New Site",
+  "version": 1,
+  "tags": [
+    "user"
+  ],
+  "locked": false,
+  "site": {
+    "terrainSize": [
+      100.0,
+      100.0
+    ],
+    "terrainZones": [],
+    "paths": [],
+    "fences": null,
+    "surfaceStrokes": [],
+    "scaleNote": "",
+    "gradePoints": null,
+    "maxGradeHeight": 30.0,
+    "lotBoundary": null,
+    "outsideTerrainType": "water"
+  },
+  "buildingInstances": [],
+  "objectInstances": []
+}

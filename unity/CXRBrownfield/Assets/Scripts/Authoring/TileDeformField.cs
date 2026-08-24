@@ -98,6 +98,30 @@ public static class TileDeformField
         foreach (var t in bdef.tiles) t.deform = null;
     }
 
+    // Deterministic content key for a deform, used to cache generated tile meshes (TileSpawner):
+    // identical offsets give identical keys, any differing offset gives a different key. Field
+    // order is significant (dx|dz|dyTop). Invariant culture so keys never vary by locale.
+    public static string DeformKey(TileDeform d)
+    {
+        if (d == null) return "-";
+        var sb = new System.Text.StringBuilder(64);
+        AppendOffsets(sb, d.dx);
+        AppendOffsets(sb, d.dz);
+        AppendOffsets(sb, d.dyTop);
+        return sb.ToString();
+    }
+
+    private static void AppendOffsets(System.Text.StringBuilder sb, float[] a)
+    {
+        sb.Append('|');
+        if (a == null) return;
+        for (int i = 0; i < a.Length; i++)
+        {
+            sb.Append(a[i].ToString("R", System.Globalization.CultureInfo.InvariantCulture));
+            sb.Append(',');
+        }
+    }
+
     // -----------------------------------------------------------------------
     // Procedural prism mesh (the geometry a deform describes)
     // -----------------------------------------------------------------------

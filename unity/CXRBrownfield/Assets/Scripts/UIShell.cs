@@ -51,8 +51,11 @@ public class UIShell : MonoBehaviour
     [SerializeField] private TileBuildingEditor tileBuildingEditor;
     [SerializeField] private ModelRequesterUI  modelRequester;
     [SerializeField] private LibraryBrowser    libraryBrowser;
+    [SerializeField] private WalkthroughController walkthrough;
 
-    [SerializeField] private float barWidth = 560f;
+    // Toolbar tabs plus the Walk button at the right end.
+    [SerializeField] private float barWidth = 640f;
+    private const float WALK_BUTTON_W = 72f;
 
     private void Awake()
     {
@@ -60,6 +63,7 @@ public class UIShell : MonoBehaviour
         if (tileBuildingEditor  == null) tileBuildingEditor  = FindObjectOfType<TileBuildingEditor>();
         if (modelRequester      == null) modelRequester      = FindObjectOfType<ModelRequesterUI>();
         if (libraryBrowser      == null) libraryBrowser      = FindObjectOfType<LibraryBrowser>();
+        if (walkthrough         == null) walkthrough         = FindObjectOfType<WalkthroughController>();
     }
 
     // The active shell, so the scene-picking code can ask where the bar is. Null when no shell is
@@ -93,12 +97,35 @@ public class UIShell : MonoBehaviour
 
     private void OnGUI()
     {
+        // Run after the rails (a lower GUI.depth draws later, i.e. on top) so the tooltip overlay
+        // below lands above every panel and shows the tooltip the rails captured this same frame.
+        GUI.depth = -10;
+
         var rect = BarRect;
         UITheme.PanelBackground(rect);
         GUILayout.BeginArea(UITheme.Inset(rect));
-        int sel = UITheme.CommandBar((int)UIMode.Current, UIMode.Labels);
+        if (WalkthroughController.IsEngaged)
+        {
+            // Walkthrough owns the screen: the bar keeps its rect (so clicks on it stay UI) and
+            // shows what the keys do instead of the mode tabs.
+            UITheme.HintStrip(WalkthroughController.IsWalking ? UITips.WalkingHint : UITips.PlacingHint);
+            UITheme.CaptureTooltip();
+            GUILayout.EndArea();
+            return;   // no hover card either: the cursor is locked or about to be
+        }
+
+        GUILayout.BeginHorizontal();
+        int sel = UITheme.CommandBar((int)UIMode.Current, UIMode.Labels, UITips.CommandBar);
+        GUILayout.Space(UITheme.Pad);
+        if (UITheme.Button("Walk", UITips.Walk, GUILayout.Width(WALK_BUTTON_W), GUILayout.Height(UITheme.PrimaryH)))
+            walkthrough?.BeginPlacing();
+        GUILayout.EndHorizontal();
+        UITheme.CaptureTooltip();
         GUILayout.EndArea();
 
         if (sel != (int)UIMode.Current) UIMode.Set((AppMode)sel);
+
+        // One hover card for the whole UI (see UITheme.CaptureTooltip / UITips).
+        UITheme.DrawTooltipOverlay();
     }
 }

@@ -36,6 +36,21 @@ public class LibraryBrowser : MonoBehaviour
     private List<EnvironmentSummary> _envList = new();
     private readonly List<LoadedEnv> _loaded  = new();
     private LoadedEnv _active;
+
+    // ---- site fills ----
+    // A fill = a generated child environment rendered inside a host's SitePlotDef. The child record
+    // stays pristine on the server; what renders is a deep copy projected into the site bbox
+    // (SiteFit.ProjectIntoSite), keyed by a synthetic render id so one child can fill several sites.
+    // Fills are managed backdrops: never rows in the Loaded list, never active, never published.
+    private class SiteFill
+    {
+        public string hostEnvId, siteId, childEnvId;
+        public string renderId;                    // childEnvId + "@" + siteId (WorldRenderer key)
+        public string boundaryKey;                 // serialized boundary at fit time (refit detection)
+        public EnvironmentDef projected;           // the deep copy actually rendered
+        public readonly Dictionary<string, BuildingDef> buildings = new();
+    }
+    private readonly List<SiteFill> _fills = new();
     // Building defs cached before any environment is active (e.g. a building fetched for placement);
     // folded into the working environment when one is auto-created. See AddBuildingDef.
     private readonly Dictionary<string, BuildingDef> _pendingBuildings = new();
@@ -67,12 +82,13 @@ public class LibraryBrowser : MonoBehaviour
     // True when the active env carries the persistent read-only "digital twin" flag. A locked env
     // may be active (it owns the shared terrain) but every mutation path checks this and refuses.
     public bool IsActiveLocked => _active?.env?.locked == true;
-    public void MarkDirty()
+    public void MarkDirty(bool autoSave = false)
     {
         if (_active == null || _active.env.locked) return;   // locked twin: no dirty, no auto-save
         _active.dirty = true;
-        // Live Share: schedule a debounced auto-save so viewers (VR / 2nd PC) pick up the edit.
-        if (_liveShare) _autoSaveAt = Time.unscaledTime + AutoSaveDebounce;
+        // Schedule the debounced auto-save when the edit must persist on its own (autoSave:
+        // site changes) or when Live Share publishes every edit to viewers (VR / 2nd PC).
+        if (autoSave || _liveShare) _autoSaveAt = Time.unscaledTime + AutoSaveDebounce;
     }
 
     // ---- Live Share (host publishing) ----
@@ -114,11 +130,21 @@ public class LibraryBrowser : MonoBehaviour
 
     // Swap the active environment's def for a restored copy (undo/redo). Keeps the same LoadedEnv
     // slot — building defs, persisted flag — so only the layout data changes. The caller re-renders.
-    public void ReplaceActiveEnvironment(EnvironmentDef env)
+    public void ReplaceActiveEnvironment(EnvironmentDef env, bool? sitesChanged = null)
     {
         if (_active == null || env == null) return;
+        // An undo/redo that touches sites must reach the server like any direct site edit. The
+        // undo path (EditController.RestoreEnvironment) already diffs the lists alongside its own
+        // site compare and passes the result in; the serialize-both-sides compare only runs for
+        // callers that didn't.
+        bool changed = sitesChanged ?? (Newtonsoft.Json.JsonConvert.SerializeObject(_active.env.sites)
+                                     != Newtonsoft.Json.JsonConvert.SerializeObject(env.sites));
         _active.env   = env;
         _active.dirty = true;
+        if (changed) MarkDirty(autoSave: true);
+        // Undo/redo can add, remove, reshape or relink sites — reconcile the fills to the
+        // restored data (the caller's re-render then paints the composite ground).
+        ResyncSiteFills();
     }
 
     // Load a server environment (by id) into the scene as a loaded+active env. Used by the
@@ -171,11 +197,159 @@ public class LibraryBrowser : MonoBehaviour
 
     // Makes an already-rendered loaded environment the editable/saveable one: enables its
     // colliders + paints terrain (locking/dimming the rest) and clears any stale selection.
+
+    // -----------------------------------------------------------------------
+    // Site fills — generated child environments rendered inside a host's drawn sites
+    // -----------------------------------------------------------------------
+
+    private static string BoundaryKey(float[][] b) => Newtonsoft.Json.JsonConvert.SerializeObject(b);
+
+    // Label for the Sites panel: the child env's name filling `siteId`, or null when unloaded.
+    public string GetSiteFillName(string siteId)
+    {
+        var f = _fills.Find(x => x.siteId == siteId);
+        return f?.projected?.name;
+    }
+
+    // Links a generated child env into a site and re-syncs. Overwriting an occupied site just
+    // replaces the reference; the previous child record stays in the library. Caller records undo.
+    public void AssignSiteFill(EnvironmentDef host, string siteId, string childEnvId)
+    {
+        var plot = host?.sites?.Find(s => s != null && s.id == siteId);
+        if (plot == null) return;
+        plot.fillEnvironmentId = childEnvId;
+        MarkDirty(autoSave: true);
+        ResyncSiteFills();
+    }
+
+    // Unlinks a site's fill (the child record survives in the library) and re-syncs.
+    public void RemoveSiteFill(EnvironmentDef host, string siteId)
+    {
+        var plot = host?.sites?.Find(s => s != null && s.id == siteId);
+        if (plot != null) plot.fillEnvironmentId = null;
+        MarkDirty(autoSave: true);
+        ResyncSiteFills();
+    }
+
+    // Re-reconciles the active host's fills (boundary edits, undo restores, assignment changes).
+    public void ResyncSiteFills()
+    {
+        if (_active != null) StartCoroutine(SyncSiteFills(_active));
+    }
+
+    // One reconciler for everything fill-related: diffs the host's sites against the live fills,
+    // unloads stale ones, loads + projects + renders new ones, then republishes the paint overlays
+    // and repaints the composite splat via SetActiveEnvironment.
+    private IEnumerator SyncSiteFills(LoadedEnv host)
+    {
+        if (host?.env == null || worldRenderer == null || libraryClient == null) yield break;
+        string hostId = host.env.id;
+
+        // Wanted: every site on this host with a fill reference and a usable boundary.
+        var wanted = new List<SitePlotDef>();
+        if (host.env.sites != null)
+            foreach (var s in host.env.sites)
+                if (s != null && !string.IsNullOrEmpty(s.fillEnvironmentId) &&
+                    s.boundary != null && s.boundary.Length >= 3)
+                    wanted.Add(s);
+
+        // Fast path: nothing wanted and nothing loaded for this host means there is nothing to
+        // unload, load, or composite, so skip the tail repaint entirely. (This coroutine runs
+        // after every undo/redo via ResyncSiteFills, and its unconditional tail used to repaint
+        // the full splat a second time on top of the re-render's own paint.)
+        if (wanted.Count == 0 && !_fills.Exists(f => f.hostEnvId == hostId)) yield break;
+
+        bool fillsChanged = false;
+
+        // Drop fills that no longer match (site gone, child swapped, boundary reshaped).
+        for (int i = _fills.Count - 1; i >= 0; i--)
+        {
+            var f = _fills[i];
+            if (f.hostEnvId != hostId) continue;
+            var s = wanted.Find(x => x.id == f.siteId);
+            if (s != null && s.fillEnvironmentId == f.childEnvId && BoundaryKey(s.boundary) == f.boundaryKey) continue;
+            worldRenderer.UnloadEnvironment(f.renderId);
+            _fills.RemoveAt(i);
+            fillsChanged = true;
+        }
+
+        // Load + project + render what's missing.
+        foreach (var s in wanted)
+        {
+            if (_fills.Exists(f => f.hostEnvId == hostId && f.siteId == s.id)) continue;
+
+            EnvironmentDef child = null; bool done = false;
+            libraryClient.GetEnvironment(s.fillEnvironmentId,
+                env => { child = env; done = true; },
+                err => { Debug.LogWarning($"[LibraryBrowser] site fill '{s.name}': load failed: {err}"); done = true; });
+            while (!done) yield return null;
+            if (child == null) continue;
+
+            var fill = new SiteFill
+            {
+                hostEnvId   = hostId,
+                siteId      = s.id,
+                childEnvId  = s.fillEnvironmentId,
+                renderId    = s.fillEnvironmentId + "@" + s.id,
+                boundaryKey = BoundaryKey(s.boundary),
+            };
+
+            var ids = new List<string>();
+            if (child.buildingInstances != null)
+                foreach (var bi in child.buildingInstances) ids.Add(bi.buildingId);
+            yield return BuildingFetch.FetchInto(libraryClient, ids, fill.buildings);
+
+            // Deep copy, then project into the site bbox; the stored record stays pristine.
+            string json = Newtonsoft.Json.JsonConvert.SerializeObject(child);
+            var copy = Newtonsoft.Json.JsonConvert.DeserializeObject<EnvironmentDef>(json);
+            copy.id = fill.renderId;   // synthetic render key: one child can fill several sites
+            if (!SiteFit.ProjectIntoSite(copy, s.boundary))
+            {
+                Debug.LogWarning($"[LibraryBrowser] site fill '{s.name}': degenerate fit, skipped.");
+                continue;
+            }
+            fill.projected = copy;
+            _fills.Add(fill);
+            fillsChanged = true;
+            // Fills never take the terrain; their own lot frame would double-draw the site frame.
+            worldRenderer.RenderEnvironment(copy, fill.buildings, makeActive: false, suppressLotFrame: true);
+        }
+
+        // Only recomposite when a fill actually changed: the overlay set and splat are already
+        // current otherwise (every undo/redo with unchanged sites lands here).
+        if (!fillsChanged) yield break;
+
+        // Publish the ground-paint overlays for this host and repaint the composite splat.
+        var overlays = new List<WorldRenderer.SiteOverlay>();
+        foreach (var f in _fills)
+        {
+            if (f.hostEnvId != hostId || f.projected?.site == null) continue;
+            var s = wanted.Find(x => x.id == f.siteId);
+            if (s != null) overlays.Add(new WorldRenderer.SiteOverlay { site = f.projected.site, clip = s.boundary });
+        }
+        worldRenderer.SetSiteOverlays(hostId, overlays);
+        if (_active?.env != null) worldRenderer.SetActiveEnvironment(_active.env.id);
+    }
+
+    // Unloads every fill belonging to `hostId` (host being closed).
+    private void UnloadSiteFills(string hostId)
+    {
+        for (int i = _fills.Count - 1; i >= 0; i--)
+        {
+            if (_fills[i].hostEnvId != hostId) continue;
+            worldRenderer?.UnloadEnvironment(_fills[i].renderId);
+            _fills.RemoveAt(i);
+        }
+        worldRenderer?.SetSiteOverlays(hostId, null);
+    }
+
     private void SetActive(LoadedEnv le)
     {
         var prev    = _active;
         _active     = le;
         _showSaveAs = false;
+        // A pending debounced save must not fire against a different env than the one that armed it.
+        _autoSaveAt = -1f;
         if (le != null) worldRenderer?.SetActiveEnvironment(le.env.id);
         // Live Share: when the editable env changes, republish the loaded set so viewers follow.
         PublishLive();
@@ -198,9 +372,9 @@ public class LibraryBrowser : MonoBehaviour
 
     private void Update()
     {
-        // Live Share: fire the debounced auto-save once edits settle, so a PUT bumps the env
-        // version and viewers polling /api/active re-render the latest.
-        if (_liveShare && _autoSaveAt >= 0f && Time.unscaledTime >= _autoSaveAt
+        // Fire the debounced auto-save once edits settle (armed by site changes or Live Share),
+        // so a PUT bumps the env version and viewers polling /api/active re-render the latest.
+        if (_autoSaveAt >= 0f && Time.unscaledTime >= _autoSaveAt
             && !_envBusy && _active != null && _active.dirty)
         {
             _autoSaveAt = -1f;
@@ -256,6 +430,8 @@ public class LibraryBrowser : MonoBehaviour
 
     private void OnGUI()
     {
+        if (WalkthroughController.IsEngaged) return;   // hidden during the first-person walkthrough
+
         var rect = new Rect(UITheme.Margin, UITheme.RailTop, panelWidth, Screen.height - UITheme.RailTop - UITheme.Margin);
         UITheme.PanelBackground(rect);
         GUILayout.BeginArea(UITheme.Inset(rect));
@@ -264,14 +440,14 @@ public class LibraryBrowser : MonoBehaviour
         GUILayout.BeginHorizontal();
         UITheme.Title("Library");
         GUILayout.FlexibleSpace();
-        bool live = GUILayout.Toggle(_liveShare, "Live", GUI.skin.button, GUILayout.Height(UITheme.RowH));
+        bool live = UITheme.ToggleButton(_liveShare, "Live share", UITips.LiveShare, GUILayout.Height(UITheme.RowH));
         if (live != _liveShare) SetLiveShare(live);
-        _adminEnabled = GUILayout.Toggle(_adminEnabled, "Admin", GUI.skin.button, GUILayout.Height(UITheme.RowH));
-        if (UITheme.GhostButton("New", GUILayout.Height(UITheme.RowH))) { _showNewEnv = !_showNewEnv; _newEnvName = ""; }
+        _adminEnabled = UITheme.ToggleButton(_adminEnabled, "Admin", UITips.Admin, GUILayout.Height(UITheme.RowH));
+        if (UITheme.GhostButton("New", UITips.NewPlace, GUILayout.Height(UITheme.RowH))) { _showNewEnv = !_showNewEnv; _newEnvName = ""; }
         GUILayout.EndHorizontal();
 
         // Places / Buildings as a segmented control.
-        int tabSel = UITheme.Segmented((int)_tab, new[] { "Places", "Buildings" });
+        int tabSel = UITheme.Segmented((int)_tab, new[] { "Places", "Buildings" }, UITips.LibraryTabs);
         if (tabSel != (int)_tab)
         {
             _tab = (Tab)tabSel;
@@ -284,6 +460,7 @@ public class LibraryBrowser : MonoBehaviour
             case Tab.Buildings:    DrawBuildingsTab();    break;
         }
 
+        UITheme.CaptureTooltip();
         GUILayout.EndArea();
     }
 
@@ -304,7 +481,7 @@ public class LibraryBrowser : MonoBehaviour
             GUILayout.BeginHorizontal();
             _newEnvName = GUILayout.TextField(_newEnvName, GUILayout.ExpandWidth(true));
             GUI.enabled = !_envBusy && !string.IsNullOrWhiteSpace(_newEnvName);
-            if (UITheme.PrimaryButton("Create", GUILayout.Width(72), GUILayout.Height(UITheme.RowH))) { CreateEnvironment(); _showNewEnv = false; }
+            if (UITheme.PrimaryButton("Create", UITips.CreatePlace, GUILayout.Width(72), GUILayout.Height(UITheme.RowH))) { CreateEnvironment(); _showNewEnv = false; }
             GUI.enabled = true;
             GUILayout.EndHorizontal();
         }
@@ -316,11 +493,11 @@ public class LibraryBrowser : MonoBehaviour
         GUILayout.BeginHorizontal();
         _envSearch = GUILayout.TextField(_envSearch, GUILayout.ExpandWidth(true));
         GUI.enabled = !_envBusy;
-        if (GUILayout.Button("↻", GUILayout.Width(30))) RefreshEnvironments();
+        if (UITheme.Button("Refresh", UITips.RefreshPlaces, GUILayout.Width(66))) RefreshEnvironments();
         GUI.enabled = true;
         GUILayout.EndHorizontal();
 
-        _envListScroll = GUILayout.BeginScrollView(_envListScroll, GUILayout.Height(_active != null ? 150 : 320));
+        _envListScroll = GUILayout.BeginScrollView(_envListScroll, false, false, GUIStyle.none, GUI.skin.verticalScrollbar, GUILayout.Height(_active != null ? 150 : 320));
         foreach (var s in _envList)
         {
             if (!Matches(s.name ?? s.id, _envSearch)) continue;
@@ -328,8 +505,8 @@ public class LibraryBrowser : MonoBehaviour
             GUILayout.BeginHorizontal();
             GUILayout.Label((isLoaded ? "• " : "") + (s.locked ? "🔒 " : "") + (s.name ?? s.id), GUILayout.ExpandWidth(true));
             GUI.enabled = !_envBusy;
-            if (GUILayout.Button(isLoaded ? "Focus" : "Load", GUILayout.Width(56), GUILayout.Height(UITheme.RowH))) LoadEnvironment(s.id);
-            if (GUILayout.Button(s.favorite ? "★" : "☆", GUILayout.Width(30), GUILayout.Height(UITheme.RowH)))
+            if (UITheme.Button(isLoaded ? "Focus" : "Load", isLoaded ? UITips.FocusPlace : UITips.LoadPlace, GUILayout.Width(56), GUILayout.Height(UITheme.RowH))) LoadEnvironment(s.id);
+            if (UITheme.Button(s.favorite ? "★" : "☆", UITips.Favorite, GUILayout.Width(30), GUILayout.Height(UITheme.RowH)))
             {
                 var row = s; bool prev = row.favorite;
                 row.favorite = !prev;   // optimistic flip for instant feedback
@@ -340,7 +517,7 @@ public class LibraryBrowser : MonoBehaviour
             if (_adminEnabled)
             {
                 GUI.enabled = !_envBusy && !s.locked;   // locked twin: unlock before archiving
-                if (GUILayout.Button("⌫", GUILayout.Width(30))) StartCoroutine(CoArchiveEnv(s.id));
+                if (UITheme.Button("Archive", UITips.ArchivePlace, GUILayout.Width(62))) StartCoroutine(CoArchiveEnv(s.id));
             }
             GUI.enabled = true;
             GUILayout.EndHorizontal();
@@ -356,7 +533,6 @@ public class LibraryBrowser : MonoBehaviour
     private void DrawLoadedListPanel()
     {
         UITheme.Header($"Loaded · {_loaded.Count}");
-        UITheme.Note("overlaid at one origin");
         LoadedEnv toActivate = null, toClose = null;
         foreach (var le in _loaded)
         {
@@ -368,7 +544,7 @@ public class LibraryBrowser : MonoBehaviour
                           : $"Active · editing · {le.env.objectInstances?.Count ?? 0} objects")
                 : (locked ? "Backdrop · locked twin" : "Backdrop · locked");
             // Clicking an inactive row makes it active; the trailing buttons handle Edit/close.
-            if (UITheme.StateRow(title, state, isActive, muted: !isActive) && !isActive) toActivate = le;
+            if (UITheme.StateRow(title, state, isActive, UITips.LoadedRow, muted: !isActive) && !isActive) toActivate = le;
 
             GUILayout.BeginHorizontal();
             GUILayout.FlexibleSpace();
@@ -376,16 +552,16 @@ public class LibraryBrowser : MonoBehaviour
             GUI.enabled = !_envBusy && le.persisted;
             if (!locked)
             {
-                if (GUILayout.Button("Lock", GUILayout.Width(56))) SetLocked(le, true);
+                if (UITheme.Button("Lock", UITips.Lock, GUILayout.Width(56))) SetLocked(le, true);
             }
             else if (_confirmUnlock != le)
             {
-                if (GUILayout.Button("Unlock…", GUILayout.Width(64))) _confirmUnlock = le;
+                if (UITheme.Button("Unlock…", UITips.UnlockAsk, GUILayout.Width(64))) _confirmUnlock = le;
             }
             GUI.enabled = !_envBusy && !isActive;
-            if (GUILayout.Button(locked ? "View" : "Edit", GUILayout.Width(56))) toActivate = le;
+            if (UITheme.Button(locked ? "View" : "Edit", locked ? UITips.ViewPlace : UITips.EditPlace, GUILayout.Width(56))) toActivate = le;
             GUI.enabled = !_envBusy;
-            if (GUILayout.Button("Close", GUILayout.Width(56))) toClose = le;
+            if (UITheme.Button("Close", UITips.ClosePlace, GUILayout.Width(56))) toClose = le;
             GUI.enabled = true;
             GUILayout.EndHorizontal();
 
@@ -394,9 +570,9 @@ public class LibraryBrowser : MonoBehaviour
                 GUILayout.BeginHorizontal();
                 UITheme.Note("Unlock the digital twin for editing?");
                 GUI.enabled = !_envBusy;
-                if (UITheme.DangerButton("Unlock", GUILayout.Width(64))) { SetLocked(le, false); _confirmUnlock = null; }
+                if (UITheme.DangerButton("Unlock", UITips.UnlockConfirm, GUILayout.Width(64))) { SetLocked(le, false); _confirmUnlock = null; }
                 GUI.enabled = true;
-                if (UITheme.GhostButton("Cancel", GUILayout.Width(56))) _confirmUnlock = null;
+                if (UITheme.GhostButton("Cancel", UITips.Cancel, GUILayout.Width(56))) _confirmUnlock = null;
                 GUILayout.EndHorizontal();
             }
 
@@ -423,9 +599,9 @@ public class LibraryBrowser : MonoBehaviour
         // live on each Loaded row's admin actions (DrawAdminRow, Admin toggle).
         GUILayout.BeginHorizontal();
         GUI.enabled = _active.dirty && !_envBusy && !env.locked;
-        if (UITheme.PrimaryButton("Save", GUILayout.Height(UITheme.RowH), GUILayout.ExpandWidth(true))) SaveEnvironment();
+        if (UITheme.PrimaryButton("Save", UITips.Save, GUILayout.Height(UITheme.RowH), GUILayout.ExpandWidth(true))) SaveEnvironment();
         GUI.enabled = !_envBusy;
-        if (UITheme.SecondaryButton("Save as…", GUILayout.Height(UITheme.RowH), GUILayout.Width(96))) { _showSaveAs = !_showSaveAs; _saveAsName = env.name; }
+        if (UITheme.SecondaryButton("Save as…", UITips.SaveAs, GUILayout.Height(UITheme.RowH), GUILayout.Width(96))) { _showSaveAs = !_showSaveAs; _saveAsName = env.name; }
         GUI.enabled = true;
         GUILayout.EndHorizontal();
 
@@ -435,12 +611,19 @@ public class LibraryBrowser : MonoBehaviour
             GUILayout.BeginHorizontal();
             _saveAsName = GUILayout.TextField(_saveAsName, GUILayout.ExpandWidth(true));
             GUI.enabled = !string.IsNullOrWhiteSpace(_saveAsName) && !_envBusy;
-            if (GUILayout.Button("OK", GUILayout.Width(40))) { SaveAsEnvironment(_saveAsName); _showSaveAs = false; }
+            if (UITheme.Button("Save copy", UITips.SaveCopy, GUILayout.Width(86))) { SaveAsEnvironment(_saveAsName); _showSaveAs = false; }
             GUI.enabled = true;
             GUILayout.EndHorizontal();
         }
 
-        // Contents — building + object instance include toggles (read-only when locked).
+        // Contents — building + object instance rows: the name selects (see below), the On/Off
+        // toggle sets `included`. Both are read-only when locked.
+        // Clicking a name is deferred to after the lists are drawn: EditController.SelectInstanceFromLibrary
+        // can switch the shell mode, which tears down the current tool and re-renders — not something
+        // to do midway through a foreach over these same lists inside an open scroll view.
+        string selId = null; bool selIsBuilding = false, selAdditive = false;
+        string delId = null; bool delIsBuilding = false;
+
         GUI.enabled = !env.locked;
         DrawInstanceList($"Buildings ({env.buildingInstances?.Count ?? 0})", env.buildingInstances?.Count > 0,
             ref _bInstScroll, 104, () =>
@@ -448,7 +631,10 @@ public class LibraryBrowser : MonoBehaviour
                 foreach (var bi in env.buildingInstances)
                 {
                     string label = _active.buildings.TryGetValue(bi.buildingId, out var bd) ? bd.name : bi.buildingId;
-                    if (DrawIncludeRow(label, bi.included, out bool next) && !env.locked) { editController?.RecordEnvironmentEdit("Toggle included"); bi.included = next; OnInstanceToggled(env); }
+                    bool sel = editController != null && editController.IsInstanceSelected(bi.instanceId);
+                    if (DrawIncludeRow(label, bi.included, sel, out bool next, out bool hit, out bool del) && !env.locked) { editController?.RecordEnvironmentEdit("Toggle included"); bi.included = next; OnInstanceToggled(env); }
+                    if (hit) { selId = bi.instanceId; selIsBuilding = true; selAdditive = Event.current.shift || Event.current.control; }
+                    if (del) { delId = bi.instanceId; delIsBuilding = true; }
                 }
             });
 
@@ -456,9 +642,19 @@ public class LibraryBrowser : MonoBehaviour
             ref _oInstScroll, 88, () =>
             {
                 foreach (var oi in env.objectInstances)
-                    if (DrawIncludeRow(oi.prefabType ?? oi.instanceId, oi.included, out bool next) && !env.locked) { editController?.RecordEnvironmentEdit("Toggle included"); oi.included = next; OnInstanceToggled(env); }
+                {
+                    bool sel = editController != null && editController.IsInstanceSelected(oi.instanceId);
+                    if (DrawIncludeRow(oi.prefabType ?? oi.instanceId, oi.included, sel, out bool next, out bool hit, out bool del) && !env.locked) { editController?.RecordEnvironmentEdit("Toggle included"); oi.included = next; OnInstanceToggled(env); }
+                    if (hit) { selId = oi.instanceId; selIsBuilding = false; selAdditive = Event.current.shift || Event.current.control; }
+                    if (del) { delId = oi.instanceId; delIsBuilding = false; }
+                }
             });
         GUI.enabled = true;
+
+        // Deferred like the name click: DeleteInstance mutates the very lists the foreach above
+        // iterates inside an open scroll view, so act only after both lists are closed.
+        if (delId != null && !env.locked) editController?.DeleteInstance(delId, delIsBuilding);
+        else if (selId != null) editController?.SelectInstanceFromLibrary(selId, selIsBuilding, selAdditive);
     }
 
     // Admin actions for one loaded environment — re-render / duplicate / archive / delete, drawn
@@ -471,15 +667,15 @@ public class LibraryBrowser : MonoBehaviour
         GUILayout.BeginHorizontal();
         GUILayout.FlexibleSpace();
         GUI.enabled = !_envBusy;
-        if (UITheme.SecondaryButton("Re-render", GUILayout.Width(74)))
+        if (UITheme.SecondaryButton("Re-render", UITips.Rerender, GUILayout.Width(74)))
             worldRenderer?.RenderEnvironment(env, le.buildings);
         GUI.enabled = !_envBusy && le.persisted;
-        if (UITheme.SecondaryButton("Duplicate", GUILayout.Width(74)))
+        if (UITheme.SecondaryButton("Duplicate", UITips.Duplicate, GUILayout.Width(74)))
             DuplicateEnvironment(le);
         GUI.enabled = !_envBusy && le.persisted && !env.locked;
-        if (UITheme.SecondaryButton("Archive", GUILayout.Width(62)))
+        if (UITheme.SecondaryButton("Archive", UITips.ArchivePlace, GUILayout.Width(62)))
             StartCoroutine(CoArchiveEnv(env.id));
-        if (UITheme.DangerButton("Delete…", GUILayout.Width(62)))
+        if (UITheme.DangerButton("Delete…", UITips.DeleteAsk, GUILayout.Width(62)))
             _confirmDelete = le;
         GUI.enabled = true;
         GUILayout.EndHorizontal();
@@ -489,9 +685,9 @@ public class LibraryBrowser : MonoBehaviour
             GUILayout.BeginHorizontal();
             UITheme.Note($"Delete “{env.name}”?");
             GUI.enabled = !_envBusy;
-            if (UITheme.DangerButton("Delete", GUILayout.Width(56))) { StartCoroutine(CoArchiveEnv(env.id)); _confirmDelete = null; }
+            if (UITheme.DangerButton("Delete", UITips.DeleteConfirm, GUILayout.Width(56))) { StartCoroutine(CoArchiveEnv(env.id)); _confirmDelete = null; }
             GUI.enabled = true;
-            if (UITheme.GhostButton("Cancel", GUILayout.Width(56))) _confirmDelete = null;
+            if (UITheme.GhostButton("Cancel", UITips.Cancel, GUILayout.Width(56))) _confirmDelete = null;
             GUILayout.EndHorizontal();
         }
     }
@@ -501,17 +697,21 @@ public class LibraryBrowser : MonoBehaviour
     {
         if (!hasItems) return;
         UITheme.Header(header);
-        scroll = GUILayout.BeginScrollView(scroll, GUILayout.Height(height));
+        scroll = GUILayout.BeginScrollView(scroll, false, false, GUIStyle.none, GUI.skin.verticalScrollbar, GUILayout.Height(height));
         body();
         GUILayout.EndScrollView();
     }
 
-    // A name + On/Off toggle row. Returns true (with the new value) when the toggle changed.
-    private static bool DrawIncludeRow(string label, bool included, out bool next)
+    // A clickable name + quiet On/Off toggle + × delete row. Returns true (with the new value)
+    // when the toggle changed; `clicked` reports a click on the *name*, which selects the instance
+    // in the scene; `deleteClicked` reports the ×, which removes the instance from the place.
+    private static bool DrawIncludeRow(string label, bool included, bool selected,
+                                       out bool next, out bool clicked, out bool deleteClicked)
     {
         GUILayout.BeginHorizontal();
-        GUILayout.Label(label, GUILayout.ExpandWidth(true));
-        next = GUILayout.Toggle(included, included ? "On" : "Off", GUI.skin.button, GUILayout.Width(46));
+        clicked = UITheme.ListRowLabel(label, selected, UITips.InstanceName, GUILayout.ExpandWidth(true));
+        next = UITheme.RowToggle(included, included ? "On" : "Off", UITips.IncludeToggle, GUILayout.Width(46), GUILayout.Height(22f));
+        deleteClicked = UITheme.RowDeleteButton(UITips.DeleteInstance);
         GUILayout.EndHorizontal();
         return next != included;
     }
@@ -532,21 +732,21 @@ public class LibraryBrowser : MonoBehaviour
         GUILayout.BeginHorizontal();
         _newBldgName = GUILayout.TextField(_newBldgName, GUILayout.ExpandWidth(true));
         GUI.enabled = !_bldgBusy && !string.IsNullOrWhiteSpace(_newBldgName);
-        if (UITheme.PrimaryButton("New", GUILayout.Width(64), GUILayout.Height(UITheme.RowH))) CreateBuilding();
+        if (UITheme.PrimaryButton("New", UITips.NewBuilding, GUILayout.Width(64), GUILayout.Height(UITheme.RowH))) CreateBuilding();
         GUI.enabled = !_bldgBusy;
-        if (GUILayout.Button("↻", GUILayout.Width(30), GUILayout.Height(UITheme.RowH))) RefreshBuildings();
+        if (UITheme.Button("Refresh", UITips.RefreshBuildings, GUILayout.Width(66), GUILayout.Height(UITheme.RowH))) RefreshBuildings();
         GUI.enabled = true;
         GUILayout.EndHorizontal();
 
         UITheme.Header("Buildings");
-        _bldgListScroll = GUILayout.BeginScrollView(_bldgListScroll, GUILayout.Height(Screen.height - 240f));
+        _bldgListScroll = GUILayout.BeginScrollView(_bldgListScroll, false, false, GUIStyle.none, GUI.skin.verticalScrollbar, GUILayout.Height(Screen.height - 240f));
         foreach (var s in _bldgList)
         {
             GUILayout.BeginHorizontal();
             GUILayout.Label((s.favorite ? "★ " : "") + (s.name ?? s.id), GUILayout.ExpandWidth(true));
             GUI.enabled = !_bldgBusy;
-            if (GUILayout.Button("Edit", GUILayout.Width(56))) OpenBuildingForEdit(s.id);
-            if (GUILayout.Button(s.favorite ? "★" : "☆", GUILayout.Width(30)))
+            if (UITheme.Button("Edit", UITips.EditBuilding, GUILayout.Width(56))) OpenBuildingForEdit(s.id);
+            if (UITheme.Button(s.favorite ? "★" : "☆", UITips.Favorite, GUILayout.Width(30)))
             {
                 var row = s; bool prev = row.favorite;
                 row.favorite = !prev;   // optimistic flip for instant feedback
@@ -554,7 +754,7 @@ public class LibraryBrowser : MonoBehaviour
                     nowFav => { row.favorite = nowFav; SortBldgList(); },
                     err    => { row.favorite = prev; _bldgStatus = $"Favorite error: {err}"; });
             }
-            if (_adminEnabled && GUILayout.Button("⌫", GUILayout.Width(30))) StartCoroutine(CoArchiveBldg(s.id));
+            if (_adminEnabled && UITheme.Button("Archive", UITips.ArchiveBuilding, GUILayout.Width(62))) StartCoroutine(CoArchiveBldg(s.id));
             GUI.enabled = true;
             GUILayout.EndHorizontal();
         }
@@ -617,6 +817,7 @@ public class LibraryBrowser : MonoBehaviour
         worldRenderer?.RenderEnvironment(env, le.buildings, makeActive: false);
         SetActive(le);
         _envStatus = $"Rendered: {env.name}"; _envBusy = false;
+        yield return SyncSiteFills(le);   // auto-load any generated scenes filling this host's sites
     }
 
     private void SaveEnvironment()
@@ -658,7 +859,7 @@ public class LibraryBrowser : MonoBehaviour
         libraryClient.PostEnvironment(copy,
             id  => { copy.id = id; _envBusy = false; _envStatus = $"Saved as '{newName}'."; RefreshEnvironments(); InstallEnv(copy, buildings); },
             err => { _envBusy = false; _envStatus = $"Save As error: {err}"; },
-            kind: "user");
+            kind: "user", dedupe: false);
     }
 
     private void DuplicateEnvironment(LoadedEnv le)
@@ -693,6 +894,7 @@ public class LibraryBrowser : MonoBehaviour
     private void CloseEnvironment(LoadedEnv le)
     {
         if (le == null) return;
+        UnloadSiteFills(le.env.id);
         worldRenderer?.UnloadEnvironment(le.env.id);
         _loaded.Remove(le);
         bool republished = false;
@@ -741,7 +943,7 @@ public class LibraryBrowser : MonoBehaviour
         _bldgBusy = true; _bldgStatus = "Creating...";
         var b = BlankBuilding(name);
         libraryClient.PostBuilding(b,
-            id  => { b.id = id; _newBldgName = ""; _bldgBusy = false; _bldgStatus = $"Created '{name}'."; RefreshBuildings(); AddBuildingDef(b); editController?.EditBuildingFromLibrary(b); },
+            id  => { b.id = id; _newBldgName = ""; _bldgBusy = false; _bldgStatus = $"Created '{name}'."; RefreshBuildings(); AddBuildingDef(b); editController?.EditBuildingFromLibrary(b, isNew: true); },
             err => { _bldgBusy = false; _bldgStatus = $"Create error: {err}"; },
             kind: "static");
     }
@@ -781,6 +983,7 @@ public class LibraryBrowser : MonoBehaviour
         _loaded.Add(le);
         worldRenderer?.RenderEnvironment(env, le.buildings, makeActive: false);
         SetActive(le);
+        StartCoroutine(SyncSiteFills(le));   // e.g. a Save As copy carries its sites along
     }
 
     private static EnvironmentDef BlankEnvironment(string name) => new EnvironmentDef
@@ -801,6 +1004,12 @@ public class LibraryBrowser : MonoBehaviour
         objectInstances   = new List<ObjectInstance>(),
     };
 
+    // A new building starts as a 3×3 ground-floor block centered on the origin cell, so it is
+    // visible the moment the editor opens and the user can see exactly where it sits. (A def with
+    // zero tiles used to fall through to the legacy bay-massing fallback in WorldRenderer, which
+    // drew an unrelated old prefab and hid where the building actually was.)
+    private const int NEW_BUILDING_SEED_HALF_EXTENT = 1;   // cells each side of the origin cell → 3×3
+
     private static BuildingDef BlankBuilding(string name) => new BuildingDef
     {
         id              = Guid.NewGuid().ToString("D"),
@@ -810,7 +1019,20 @@ public class LibraryBrowser : MonoBehaviour
         gridCellSize    = AuthoringConventions.DEFAULT_GRID_CELL_SIZE,
         floors          = 1,
         floorHeight     = AuthoringConventions.DEFAULT_FLOOR_HEIGHT,
-        tiles           = new List<TileDef>(),
+        tiles           = SeedFootprint(NEW_BUILDING_SEED_HALF_EXTENT),
         embeddedObjects = new List<EmbeddedObjectDef>(),
     };
+
+    // Square floor-0 footprint of plain "square" tiles spanning [-half..half] on both axes. Cells are
+    // corner-pivot (cell (0,0) has its corner at the building origin), so this is the closest
+    // integer-cell footprint to "centered on the origin"; negative cells are fully supported by the
+    // editor, renderer, and placement ghost. Same per-tile defaults as LayoutConverter's seed loop.
+    private static List<TileDef> SeedFootprint(int half)
+    {
+        var tiles = new List<TileDef>();
+        for (int x = -half; x <= half; x++)
+            for (int z = -half; z <= half; z++)
+                tiles.Add(new TileDef { gridX = x, gridZ = z, floor = 0, shapeId = "square", rotation = 0, faceMaterials = null });
+        return tiles;
+    }
 }

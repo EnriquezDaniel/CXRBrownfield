@@ -1,0 +1,4765 @@
+{
+  "id": "873931a2-f1c3-4762-9034-82b7331d0a13",
+  "name": "TrainWay",
+  "version": 8,
+  "tags": [
+    "static"
+  ],
+  "gridCellSize": 4.0,
+  "floors": 6,
+  "floorHeight": 3.5,
+  "tiles": [
+    {
+      "gridX": 1,
+      "gridZ": -2,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "WoodenFlooring",
+        "south": "WoodenFlooring",
+        "east": "WoodenFlooring",
+        "north": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.1047304,
+          -0.139640525,
+          -0.131882712,
+          -0.09891204
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 6,
+      "gridZ": -2,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "WoodenFlooring",
+        "south": "WoodenFlooring",
+        "east": "WoodenFlooring",
+        "north": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.27928105,
+          -0.3141912,
+          -0.296736121,
+          -0.263765424
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 1,
+      "gridZ": 2,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "WoodenFlooring",
+        "south": "WoodenFlooring",
+        "east": "WoodenFlooring",
+        "north": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.0814569741,
+          -0.1086093,
+          -0.100851491,
+          -0.07563862
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 5,
+      "gridZ": 2,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "WoodenFlooring",
+        "south": "WoodenFlooring",
+        "east": "WoodenFlooring",
+        "north": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.190066278,
+          -0.2172186,
+          -0.201702982,
+          -0.176490113
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 5,
+      "gridZ": 6,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "WoodenFlooring",
+        "south": "WoodenFlooring",
+        "east": "WoodenFlooring",
+        "north": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.135761619,
+          -0.155156136,
+          -0.139640525,
+          -0.122185461
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 0,
+      "gridZ": 7,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "WoodenFlooring",
+        "south": "WoodenFlooring",
+        "east": "WoodenFlooring",
+        "north": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.03491013,
+          -0.0523652,
+          -0.0465468429,
+          -0.0310312286
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -1,
+      "gridZ": 11,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "WoodenFlooring",
+        "south": "WoodenFlooring",
+        "east": "WoodenFlooring",
+        "north": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.00969725847,
+          -0.0193945169,
+          -0.0155156143,
+          -0.007757807
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 4,
+      "gridZ": 11,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "WoodenFlooring",
+        "south": "WoodenFlooring",
+        "east": "WoodenFlooring",
+        "north": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.0581835546,
+          -0.06788081,
+          -0.05430465,
+          -0.0465468429
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 3,
+      "gridZ": 15,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "WoodenFlooring",
+        "south": "WoodenFlooring",
+        "east": "WoodenFlooring",
+        "north": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.009697259,
+          -0.0116367107,
+          0.0,
+          0.0
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -2,
+      "gridZ": 15,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "WoodenFlooring",
+        "south": "WoodenFlooring",
+        "east": "WoodenFlooring",
+        "north": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          0.0,
+          -0.00193945179,
+          0.0,
+          0.0
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 1,
+      "gridZ": -2,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "WoodenFlooring",
+        "south": "WoodenFlooring",
+        "east": "WoodenFlooring",
+        "north": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.1047304,
+          -0.139640525,
+          -0.131882712,
+          -0.09891204
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 1,
+      "gridZ": 2,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "WoodenFlooring",
+        "south": "WoodenFlooring",
+        "east": "WoodenFlooring",
+        "north": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.0814569741,
+          -0.1086093,
+          -0.100851491,
+          -0.07563862
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 0,
+      "gridZ": 7,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "WoodenFlooring",
+        "south": "WoodenFlooring",
+        "east": "WoodenFlooring",
+        "north": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.03491013,
+          -0.0523652,
+          -0.0465468429,
+          -0.0310312286
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -1,
+      "gridZ": 11,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "WoodenFlooring",
+        "south": "WoodenFlooring",
+        "east": "WoodenFlooring",
+        "north": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.00969725847,
+          -0.0193945169,
+          -0.0155156143,
+          -0.007757807
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -2,
+      "gridZ": 15,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "WoodenFlooring",
+        "south": "WoodenFlooring",
+        "east": "WoodenFlooring",
+        "north": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          0.0,
+          -0.00193945179,
+          0.0,
+          0.0
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 3,
+      "gridZ": 15,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "WoodenFlooring",
+        "south": "WoodenFlooring",
+        "east": "WoodenFlooring",
+        "north": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.009697259,
+          -0.0116367107,
+          0.0,
+          0.0
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 4,
+      "gridZ": 11,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "WoodenFlooring",
+        "south": "WoodenFlooring",
+        "east": "WoodenFlooring",
+        "north": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.0581835546,
+          -0.06788081,
+          -0.05430465,
+          -0.0465468429
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 5,
+      "gridZ": 6,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "WoodenFlooring",
+        "south": "WoodenFlooring",
+        "east": "WoodenFlooring",
+        "north": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.135761619,
+          -0.155156136,
+          -0.139640525,
+          -0.122185461
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 5,
+      "gridZ": 2,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "WoodenFlooring",
+        "south": "WoodenFlooring",
+        "east": "WoodenFlooring",
+        "north": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.190066278,
+          -0.2172186,
+          -0.201702982,
+          -0.176490113
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 6,
+      "gridZ": -2,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "WoodenFlooring",
+        "south": "WoodenFlooring",
+        "east": "WoodenFlooring",
+        "north": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.27928105,
+          -0.3141912,
+          -0.296736121,
+          -0.263765424
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 1,
+      "gridZ": -2,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "WoodenFlooring",
+        "south": "WoodenFlooring",
+        "east": "WoodenFlooring",
+        "north": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.1047304,
+          -0.139640525,
+          -0.131882712,
+          -0.09891204
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 1,
+      "gridZ": 2,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "WoodenFlooring",
+        "south": "WoodenFlooring",
+        "east": "WoodenFlooring",
+        "north": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.0814569741,
+          -0.1086093,
+          -0.100851491,
+          -0.07563862
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 0,
+      "gridZ": 7,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "WoodenFlooring",
+        "south": "WoodenFlooring",
+        "east": "WoodenFlooring",
+        "north": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.03491013,
+          -0.0523652,
+          -0.0465468429,
+          -0.0310312286
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -1,
+      "gridZ": 11,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "WoodenFlooring",
+        "south": "WoodenFlooring",
+        "east": "WoodenFlooring",
+        "north": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.00969725847,
+          -0.0193945169,
+          -0.0155156143,
+          -0.007757807
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -2,
+      "gridZ": 15,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "WoodenFlooring",
+        "south": "WoodenFlooring",
+        "east": "WoodenFlooring",
+        "north": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          0.0,
+          -0.00193945179,
+          0.0,
+          0.0
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 3,
+      "gridZ": 15,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "WoodenFlooring",
+        "south": "WoodenFlooring",
+        "east": "WoodenFlooring",
+        "north": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.009697259,
+          -0.0116367107,
+          0.0,
+          0.0
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 4,
+      "gridZ": 11,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "WoodenFlooring",
+        "south": "WoodenFlooring",
+        "east": "WoodenFlooring",
+        "north": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.0581835546,
+          -0.06788081,
+          -0.05430465,
+          -0.0465468429
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 5,
+      "gridZ": 6,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "WoodenFlooring",
+        "south": "WoodenFlooring",
+        "east": "WoodenFlooring",
+        "north": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.135761619,
+          -0.155156136,
+          -0.139640525,
+          -0.122185461
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 5,
+      "gridZ": 2,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "WoodenFlooring",
+        "south": "WoodenFlooring",
+        "east": "WoodenFlooring",
+        "north": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.190066278,
+          -0.2172186,
+          -0.201702982,
+          -0.176490113
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 6,
+      "gridZ": -2,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "WoodenFlooring",
+        "south": "WoodenFlooring",
+        "east": "WoodenFlooring",
+        "north": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.27928105,
+          -0.3141912,
+          -0.296736121,
+          -0.263765424
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 1,
+      "gridZ": -2,
+      "floor": 3,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "WoodenFlooring",
+        "south": "WoodenFlooring",
+        "east": "WoodenFlooring",
+        "north": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.1047304,
+          -0.139640525,
+          -0.131882712,
+          -0.09891204
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 1,
+      "gridZ": 2,
+      "floor": 3,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "WoodenFlooring",
+        "south": "WoodenFlooring",
+        "east": "WoodenFlooring",
+        "north": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.0814569741,
+          -0.1086093,
+          -0.100851491,
+          -0.07563862
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 0,
+      "gridZ": 7,
+      "floor": 3,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "WoodenFlooring",
+        "south": "WoodenFlooring",
+        "east": "WoodenFlooring",
+        "north": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.03491013,
+          -0.0523652,
+          -0.0465468429,
+          -0.0310312286
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -1,
+      "gridZ": 11,
+      "floor": 3,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "WoodenFlooring",
+        "south": "WoodenFlooring",
+        "east": "WoodenFlooring",
+        "north": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.00969725847,
+          -0.0193945169,
+          -0.0155156143,
+          -0.007757807
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -2,
+      "gridZ": 15,
+      "floor": 3,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "WoodenFlooring",
+        "south": "WoodenFlooring",
+        "east": "WoodenFlooring",
+        "north": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          0.0,
+          -0.00193945179,
+          0.0,
+          0.0
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 3,
+      "gridZ": 15,
+      "floor": 3,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "WoodenFlooring",
+        "south": "WoodenFlooring",
+        "east": "WoodenFlooring",
+        "north": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.009697259,
+          -0.0116367107,
+          0.0,
+          0.0
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 4,
+      "gridZ": 11,
+      "floor": 3,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "WoodenFlooring",
+        "south": "WoodenFlooring",
+        "east": "WoodenFlooring",
+        "north": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.0581835546,
+          -0.06788081,
+          -0.05430465,
+          -0.0465468429
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 5,
+      "gridZ": 6,
+      "floor": 3,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "WoodenFlooring",
+        "south": "WoodenFlooring",
+        "east": "WoodenFlooring",
+        "north": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.135761619,
+          -0.155156136,
+          -0.139640525,
+          -0.122185461
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 5,
+      "gridZ": 2,
+      "floor": 3,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "WoodenFlooring",
+        "south": "WoodenFlooring",
+        "east": "WoodenFlooring",
+        "north": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.190066278,
+          -0.2172186,
+          -0.201702982,
+          -0.176490113
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 6,
+      "gridZ": -2,
+      "floor": 3,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "WoodenFlooring",
+        "south": "WoodenFlooring",
+        "east": "WoodenFlooring",
+        "north": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.27928105,
+          -0.3141912,
+          -0.296736121,
+          -0.263765424
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 1,
+      "gridZ": -2,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring",
+        "west": "WoodenFlooring",
+        "south": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.1047304,
+          -0.139640525,
+          -0.131882712,
+          -0.09891204
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 1,
+      "gridZ": 2,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.0814569741,
+          -0.1086093,
+          -0.100851491,
+          -0.07563862
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 0,
+      "gridZ": 7,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring",
+        "west": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.03491013,
+          -0.0523652,
+          -0.0465468429,
+          -0.0310312286
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -1,
+      "gridZ": 11,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring",
+        "west": "WoodenFlooring",
+        "south": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.00969725847,
+          -0.0193945169,
+          -0.0155156143,
+          -0.007757807
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -2,
+      "gridZ": 15,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring",
+        "west": "WoodenFlooring",
+        "south": "WoodenFlooring",
+        "north": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          0.0,
+          -0.00193945179,
+          0.0,
+          0.0
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 3,
+      "gridZ": 15,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring",
+        "east": "WoodenFlooring",
+        "north": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.009697259,
+          -0.0116367107,
+          0.0,
+          0.0
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 4,
+      "gridZ": 11,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring",
+        "east": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.0581835546,
+          -0.06788081,
+          -0.05430465,
+          -0.0465468429
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 5,
+      "gridZ": 6,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring",
+        "east": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.135761619,
+          -0.155156136,
+          -0.139640525,
+          -0.122185461
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 5,
+      "gridZ": 2,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring",
+        "east": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.190066278,
+          -0.2172186,
+          -0.201702982,
+          -0.176490113
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 6,
+      "gridZ": -2,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring",
+        "south": "WoodenFlooring",
+        "east": "WoodenFlooring",
+        "north": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.27928105,
+          -0.3141912,
+          -0.296736121,
+          -0.263765424
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 4,
+      "gridZ": 2,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.162913948,
+          -0.190066278,
+          -0.176490113,
+          -0.151277244
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 3,
+      "gridZ": 2,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.135761634,
+          -0.162913948,
+          -0.151277244,
+          -0.126064375
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 3,
+      "gridZ": 3,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.126064375,
+          -0.151277244,
+          -0.139640525,
+          -0.116367109
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 2,
+      "gridZ": 2,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.1086093,
+          -0.135761634,
+          -0.126064375,
+          -0.100851491
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 2,
+      "gridZ": 3,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.100851491,
+          -0.126064375,
+          -0.116367109,
+          -0.0930936858
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 5,
+      "gridZ": -2,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring",
+        "south": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.244370922,
+          -0.27928105,
+          -0.263765424,
+          -0.230794758
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 4,
+      "gridZ": -2,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring",
+        "south": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.2094608,
+          -0.244370922,
+          -0.230794758,
+          -0.197824076
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 4,
+      "gridZ": -1,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.197824076,
+          -0.230794758,
+          -0.2172186,
+          -0.186187372
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 3,
+      "gridZ": -1,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.164853409,
+          -0.197824076,
+          -0.186187372,
+          -0.15515615
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 3,
+      "gridZ": -2,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring",
+        "south": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.174550667,
+          -0.2094608,
+          -0.197824076,
+          -0.164853409
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 2,
+      "gridZ": -2,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring",
+        "south": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.139640525,
+          -0.174550667,
+          -0.164853409,
+          -0.131882712
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 2,
+      "gridZ": -1,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.131882712,
+          -0.164853409,
+          -0.15515615,
+          -0.124124914
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 1,
+      "gridZ": -1,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.09891204,
+          -0.131882712,
+          -0.124124914,
+          -0.0930936858
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 0,
+      "gridZ": -1,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring",
+        "west": "WoodenFlooring",
+        "south": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.0659413561,
+          -0.09891204,
+          -0.0930936858,
+          -0.0620624572
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 0,
+      "gridZ": 0,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring",
+        "west": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.0620624572,
+          -0.0930936858,
+          -0.08727533,
+          -0.05818355
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 1,
+      "gridZ": 0,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.0930936858,
+          -0.124124914,
+          -0.1163671,
+          -0.08727533
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 1,
+      "gridZ": 1,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.08727533,
+          -0.1163671,
+          -0.1086093,
+          -0.0814569741
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 2,
+      "gridZ": 0,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.124124914,
+          -0.15515615,
+          -0.145458892,
+          -0.1163671
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 2,
+      "gridZ": 1,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.1163671,
+          -0.145458892,
+          -0.135761634,
+          -0.1086093
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 3,
+      "gridZ": 0,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.15515615,
+          -0.186187372,
+          -0.174550667,
+          -0.145458892
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 3,
+      "gridZ": 1,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.145458892,
+          -0.174550667,
+          -0.162913948,
+          -0.135761634
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 4,
+      "gridZ": 0,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.186187372,
+          -0.2172186,
+          -0.203642443,
+          -0.174550667
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 4,
+      "gridZ": 1,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.174550667,
+          -0.203642443,
+          -0.190066278,
+          -0.162913948
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 5,
+      "gridZ": -1,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring",
+        "east": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.230794758,
+          -0.263765424,
+          -0.248249829,
+          -0.2172186
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 5,
+      "gridZ": 0,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring",
+        "east": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.2172186,
+          -0.248249829,
+          -0.2327342,
+          -0.203642443
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 5,
+      "gridZ": 1,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring",
+        "east": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.203642443,
+          -0.2327342,
+          -0.2172186,
+          -0.190066278
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 5,
+      "gridZ": 3,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring",
+        "east": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.176490113,
+          -0.201702982,
+          -0.186187372,
+          -0.162913948
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 4,
+      "gridZ": 3,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.151277244,
+          -0.176490113,
+          -0.162913948,
+          -0.139640525
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 4,
+      "gridZ": 4,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.139640525,
+          -0.162913948,
+          -0.149337783,
+          -0.128003821
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 3,
+      "gridZ": 4,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.116367109,
+          -0.139640525,
+          -0.128003821,
+          -0.106669851
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 1,
+      "gridZ": 3,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.07563862,
+          -0.100851491,
+          -0.0930936858,
+          -0.06982026
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 1,
+      "gridZ": 4,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.06982026,
+          -0.0930936858,
+          -0.08533588,
+          -0.06400191
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 0,
+      "gridZ": 4,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring",
+        "west": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.0465468429,
+          -0.06982026,
+          -0.06400191,
+          -0.04266794
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 0,
+      "gridZ": 3,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring",
+        "west": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.0504257455,
+          -0.07563862,
+          -0.06982026,
+          -0.0465468429
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 2,
+      "gridZ": 4,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.0930936858,
+          -0.116367109,
+          -0.106669851,
+          -0.08533588
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 4,
+      "gridZ": 5,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.128003821,
+          -0.149337783,
+          -0.135761619,
+          -0.116367109
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 4,
+      "gridZ": 6,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.116367109,
+          -0.135761619,
+          -0.122185461,
+          -0.1047304
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 4,
+      "gridZ": 7,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.1047304,
+          -0.122185461,
+          -0.1086093,
+          -0.0930936858
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 3,
+      "gridZ": 6,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.09697259,
+          -0.116367109,
+          -0.1047304,
+          -0.08727533
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 3,
+      "gridZ": 7,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.08727533,
+          -0.1047304,
+          -0.0930936858,
+          -0.0775780752
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 2,
+      "gridZ": 7,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.06982026,
+          -0.08727533,
+          -0.0775780752,
+          -0.0620624572
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 2,
+      "gridZ": 6,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.07757807,
+          -0.09697259,
+          -0.08727533,
+          -0.06982026
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 3,
+      "gridZ": 5,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.106669851,
+          -0.128003821,
+          -0.116367109,
+          -0.09697259
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 1,
+      "gridZ": 6,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.0581835546,
+          -0.07757807,
+          -0.06982026,
+          -0.0523652
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 0,
+      "gridZ": 6,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring",
+        "west": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.0387890339,
+          -0.0581835546,
+          -0.0523652,
+          -0.03491013
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 1,
+      "gridZ": 5,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.06400191,
+          -0.08533588,
+          -0.07757807,
+          -0.0581835546
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 0,
+      "gridZ": 5,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring",
+        "west": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.04266794,
+          -0.06400191,
+          -0.0581835546,
+          -0.0387890339
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 1,
+      "gridZ": 7,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.0523652,
+          -0.06982026,
+          -0.0620624572,
+          -0.0465468429
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 2,
+      "gridZ": 8,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.0620624572,
+          -0.0775780752,
+          -0.06788082,
+          -0.05430465
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 1,
+      "gridZ": 8,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.0465468429,
+          -0.0620624572,
+          -0.05430465,
+          -0.0407284871
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 2,
+      "gridZ": 5,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.08533588,
+          -0.106669851,
+          -0.09697259,
+          -0.07757807
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 3,
+      "gridZ": 8,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.0775780752,
+          -0.0930936858,
+          -0.0814569741,
+          -0.06788082
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 3,
+      "gridZ": 9,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.06788082,
+          -0.0814569741,
+          -0.06982026,
+          -0.0581835546
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 2,
+      "gridZ": 9,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.05430465,
+          -0.06788082,
+          -0.0581835546,
+          -0.0465468429
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 1,
+      "gridZ": 9,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.0407284871,
+          -0.05430465,
+          -0.0465468429,
+          -0.03491013
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 0,
+      "gridZ": 8,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring",
+        "west": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.0310312286,
+          -0.0465468429,
+          -0.0407284871,
+          -0.0271523241
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 0,
+      "gridZ": 9,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring",
+        "west": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.0271523241,
+          -0.0407284871,
+          -0.03491013,
+          -0.0232734215
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 0,
+      "gridZ": 10,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring",
+        "west": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.0232734215,
+          -0.03491013,
+          -0.0290917773,
+          -0.0193945169
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 1,
+      "gridZ": 10,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.03491013,
+          -0.0465468429,
+          -0.0387890339,
+          -0.0290917773
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 2,
+      "gridZ": 10,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.0465468429,
+          -0.0581835546,
+          -0.0484862961,
+          -0.0387890339
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 3,
+      "gridZ": 10,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.0581835546,
+          -0.06982026,
+          -0.0581835546,
+          -0.0484862961
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 4,
+      "gridZ": 8,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring",
+        "east": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.0930936858,
+          -0.1086093,
+          -0.09503314,
+          -0.0814569741
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 4,
+      "gridZ": 9,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring",
+        "east": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.0814569741,
+          -0.09503314,
+          -0.0814569741,
+          -0.06982026
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 4,
+      "gridZ": 10,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring",
+        "east": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.06982026,
+          -0.0814569741,
+          -0.06788081,
+          -0.0581835546
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 3,
+      "gridZ": 11,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.0484862961,
+          -0.0581835546,
+          -0.0465468429,
+          -0.0387890376
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 2,
+      "gridZ": 11,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.0387890339,
+          -0.0484862961,
+          -0.0387890376,
+          -0.0310312286
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 1,
+      "gridZ": 11,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.0290917773,
+          -0.0387890339,
+          -0.0310312286,
+          -0.0232734215
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 0,
+      "gridZ": 11,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.0193945169,
+          -0.0290917773,
+          -0.0232734215,
+          -0.0155156143
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 0,
+      "gridZ": 12,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.0155156143,
+          -0.0232734215,
+          -0.0174550656,
+          -0.0116367107
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -1,
+      "gridZ": 12,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring",
+        "west": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.007757807,
+          -0.0155156143,
+          -0.0116367107,
+          -0.00581835536
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 1,
+      "gridZ": 12,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.0232734215,
+          -0.0310312286,
+          -0.0232734215,
+          -0.0174550656
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 2,
+      "gridZ": 12,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.0310312286,
+          -0.0387890376,
+          -0.0290917773,
+          -0.0232734215
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 3,
+      "gridZ": 12,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.0387890376,
+          -0.0465468429,
+          -0.03491013,
+          -0.0290917773
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 3,
+      "gridZ": 13,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring",
+        "east": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.0290917773,
+          -0.03491013,
+          -0.0232734215,
+          -0.0193945188
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 2,
+      "gridZ": 13,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.0232734215,
+          -0.0290917773,
+          -0.0193945188,
+          -0.0155156143
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 1,
+      "gridZ": 13,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.0174550656,
+          -0.0232734215,
+          -0.0155156143,
+          -0.0116367107
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 0,
+      "gridZ": 13,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.0116367107,
+          -0.0174550656,
+          -0.0116367107,
+          -0.007757807
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -1,
+      "gridZ": 13,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring",
+        "west": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.00581835536,
+          -0.0116367107,
+          -0.007757807,
+          -0.00387890358
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 0,
+      "gridZ": 14,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.007757807,
+          -0.0116367107,
+          -0.00581835536,
+          -0.00387890358
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -1,
+      "gridZ": 14,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring",
+        "west": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.00387890358,
+          -0.007757807,
+          -0.00387890358,
+          -0.00193945179
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 1,
+      "gridZ": 14,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.0116367107,
+          -0.0155156143,
+          -0.007757807,
+          -0.00581835536
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 2,
+      "gridZ": 14,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.0155156143,
+          -0.0193945188,
+          -0.009697259,
+          -0.007757807
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 2,
+      "gridZ": 15,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring",
+        "north": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.007757807,
+          -0.009697259,
+          0.0,
+          0.0
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 1,
+      "gridZ": 15,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring",
+        "north": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.00581835536,
+          -0.007757807,
+          0.0,
+          0.0
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 0,
+      "gridZ": 15,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring",
+        "north": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.00387890358,
+          -0.00581835536,
+          0.0,
+          0.0
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -1,
+      "gridZ": 15,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring",
+        "north": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.00193945179,
+          -0.00387890358,
+          0.0,
+          0.0
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 3,
+      "gridZ": 14,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring",
+        "east": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.0193945188,
+          -0.0232734215,
+          -0.0116367107,
+          -0.009697259
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 4,
+      "gridZ": 12,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring",
+        "east": "WoodenFlooring",
+        "north": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.0465468429,
+          -0.05430465,
+          -0.0407284871,
+          -0.03491013
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 5,
+      "gridZ": 7,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring",
+        "east": "WoodenFlooring",
+        "north": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.122185461,
+          -0.139640525,
+          -0.124124914,
+          -0.1086093
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 5,
+      "gridZ": 4,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring",
+        "east": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.162913948,
+          -0.186187372,
+          -0.170671761,
+          -0.149337783
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 0,
+      "gridZ": 1,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring",
+        "west": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.05818355,
+          -0.08727533,
+          -0.0814569741,
+          -0.05430465
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 0,
+      "gridZ": 2,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring",
+        "west": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.05430465,
+          -0.0814569741,
+          -0.07563862,
+          -0.0504257455
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 5,
+      "gridZ": 5,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "WoodenFlooring",
+        "east": "WoodenFlooring"
+      },
+      "deform": {
+        "dx": [
+          -0.149337783,
+          -0.170671761,
+          -0.155156136,
+          -0.135761619
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    }
+  ],
+  "embeddedObjects": [],
+  "favorite": false
+}

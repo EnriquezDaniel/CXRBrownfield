@@ -5,7 +5,6 @@ using System.IO;
 using UnityEngine;
 using UnityEngine.Networking;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 // HTTP client for the /api/environments and /api/buildings CRUD endpoints.
 // All methods are fire-and-callback (coroutines). Safe to call from any MonoBehaviour.
@@ -24,8 +23,8 @@ public class LibraryClient : MonoBehaviour
         => StartCoroutine(CoGet<EnvironmentDef>($"{serverBaseUrl}/api/environments/{id}", onSuccess, onError));
 
     // kind: "user" (default) or "generated". onName receives the server-assigned (uniquified) name.
-    public void PostEnvironment(EnvironmentDef env, Action<string> onSuccess = null, Action<string> onError = null, string kind = null, Action<string> onName = null)
-        => StartCoroutine(CoPost($"{serverBaseUrl}/api/environments", env, onSuccess, onError, kind, onName));
+    public void PostEnvironment(EnvironmentDef env, Action<string> onSuccess = null, Action<string> onError = null, string kind = null, Action<string> onName = null, bool dedupe = true)
+        => StartCoroutine(CoPost($"{serverBaseUrl}/api/environments", env, onSuccess, onError, kind, onName, dedupe));
 
     public void PutEnvironment(EnvironmentDef env, Action onSuccess = null, Action<string> onError = null)
         => StartCoroutine(CoPut($"{serverBaseUrl}/api/environments/{env.id}", env, onSuccess, onError));
@@ -72,8 +71,8 @@ public class LibraryClient : MonoBehaviour
         => StartCoroutine(CoGet<BuildingDef>($"{serverBaseUrl}/api/buildings/{id}", onSuccess, onError));
 
     // kind: "static" (default) or "cached". onName receives the server-assigned (uniquified) name.
-    public void PostBuilding(BuildingDef bldg, Action<string> onSuccess = null, Action<string> onError = null, string kind = null, Action<string> onName = null)
-        => StartCoroutine(CoPost($"{serverBaseUrl}/api/buildings", bldg, onSuccess, onError, kind, onName));
+    public void PostBuilding(BuildingDef bldg, Action<string> onSuccess = null, Action<string> onError = null, string kind = null, Action<string> onName = null, bool dedupe = true)
+        => StartCoroutine(CoPost($"{serverBaseUrl}/api/buildings", bldg, onSuccess, onError, kind, onName, dedupe));
 
     public void PutBuilding(BuildingDef bldg, Action onSuccess = null, Action<string> onError = null)
         => StartCoroutine(CoPut($"{serverBaseUrl}/api/buildings/{bldg.id}", bldg, onSuccess, onError));
@@ -122,20 +121,24 @@ public class LibraryClient : MonoBehaviour
         onSuccess?.Invoke(obj);
     }
 
-    private IEnumerator CoPost<T>(string url, T body, Action<string> onSuccess, Action<string> onError, string kind = null, Action<string> onName = null)
+    private IEnumerator CoPost<T>(string url, T body, Action<string> onSuccess, Action<string> onError, string kind = null, Action<string> onName = null, bool dedupe = true)
     {
-        string json;
-        if (string.IsNullOrEmpty(kind))
+        var sw = System.Diagnostics.Stopwatch.StartNew();
+        string json = JsonConvert.SerializeObject(body);
+        // Transient routing fields the server pops before saving: "kind" routes to a subfolder,
+        // "dedupe": false (Save As / Duplicate) skips the server's whole-library duplicate scan.
+        // Spliced in as text: the old JObject.FromObject + indented ToString serialized the whole
+        // record a second time and roughly doubled the wire size.
+        string extras = "";
+        if (!string.IsNullOrEmpty(kind)) extras += $"\"kind\":\"{kind}\",";
+        if (!dedupe)                     extras += "\"dedupe\":false,";
+        if (extras.Length > 0)
         {
-            json = JsonConvert.SerializeObject(body);
+            json = json.Length > 2 && json[0] == '{'
+                ? "{" + extras + json.Substring(1)
+                : "{" + extras.TrimEnd(',') + "}";
         }
-        else
-        {
-            // Inject a transient "kind" field the server uses for routing (it pops it before saving).
-            var jo = JObject.FromObject(body);
-            jo["kind"] = kind;
-            json = jo.ToString();
-        }
+        long serializeMs = sw.ElapsedMilliseconds;
         byte[] bytes = System.Text.Encoding.UTF8.GetBytes(json);
         using var req = new UnityWebRequest(url, "POST");
         req.uploadHandler   = new UploadHandlerRaw(bytes);
@@ -143,6 +146,8 @@ public class LibraryClient : MonoBehaviour
         req.SetRequestHeader("Content-Type", "application/json");
         req.timeout = timeoutSeconds;
         yield return req.SendWebRequest();
+        PerfLog.Log(sw.ElapsedMilliseconds, 100,
+            $"POST {url}: serialize={serializeMs}ms body={bytes.Length / 1024}KB roundtrip={sw.ElapsedMilliseconds - serializeMs}ms");
         if (req.result != UnityWebRequest.Result.Success) { onError?.Invoke(req.error); yield break; }
         try
         {
@@ -170,13 +175,18 @@ public class LibraryClient : MonoBehaviour
 
     private IEnumerator CoPut<T>(string url, T body, Action onSuccess, Action<string> onError)
     {
-        byte[] bytes = System.Text.Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(body));
+        var sw = System.Diagnostics.Stopwatch.StartNew();
+        string json = JsonConvert.SerializeObject(body);   // whole record, on the main thread
+        long serializeMs = sw.ElapsedMilliseconds;
+        byte[] bytes = System.Text.Encoding.UTF8.GetBytes(json);
         using var req = new UnityWebRequest(url, "PUT");
         req.uploadHandler   = new UploadHandlerRaw(bytes);
         req.downloadHandler = new DownloadHandlerBuffer();
         req.SetRequestHeader("Content-Type", "application/json");
         req.timeout = timeoutSeconds;
         yield return req.SendWebRequest();
+        PerfLog.Log(sw.ElapsedMilliseconds, 100,
+            $"PUT {url}: serialize={serializeMs}ms body={bytes.Length / 1024}KB roundtrip={sw.ElapsedMilliseconds - serializeMs}ms");
         if (req.result != UnityWebRequest.Result.Success) { onError?.Invoke(req.error); yield break; }
         onSuccess?.Invoke();
     }

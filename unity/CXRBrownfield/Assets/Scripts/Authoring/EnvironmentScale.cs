@@ -219,6 +219,64 @@ public static class EnvironmentScale
         if (pos.Length >= 3) pos[2] = ScalarAbout(pos[2], pivot.y, fz);
     }
 
+    // Translates every world-meter position in the environment by (dx, dz) on the ground plane.
+    // Sizes, widths, radii, scales and terrainSize are untouched (a translation changes no extent).
+    // Companion to ScaleEnvironmentXZ; SiteFit.ProjectIntoSite runs the pair to fit a generated
+    // child environment into a host site's bounding box. Returns false only for a null env.
+    public static bool TranslateEnvironmentXZ(EnvironmentDef env, float dx, float dz)
+    {
+        if (env == null) return false;
+        if (float.IsNaN(dx) || float.IsInfinity(dx) || float.IsNaN(dz) || float.IsInfinity(dz)) return false;
+        if (Mathf.Approximately(dx, 0f) && Mathf.Approximately(dz, 0f)) return true;
+
+        var site = env.site;
+        if (site != null)
+        {
+            if (site.terrainZones != null)
+                foreach (var z in site.terrainZones)
+                {
+                    if (z?.rectMeters == null || z.rectMeters.Length < 4) continue;
+                    z.rectMeters[0] += dx;
+                    z.rectMeters[1] += dz;
+                    z.rectMeters[2] += dx;
+                    z.rectMeters[3] += dz;
+                }
+
+            if (site.paths != null)
+                foreach (var p in site.paths) TranslatePointsXZ(p?.points, dx, dz);
+            if (site.surfaceStrokes != null)
+                foreach (var s in site.surfaceStrokes) TranslatePointsXZ(s?.points, dx, dz);
+            TranslatePointsXZ(site.lotBoundary, dx, dz);
+        }
+
+        if (env.objectInstances != null)
+            foreach (var o in env.objectInstances) TranslatePosition(o?.position, dx, dz);
+        if (env.buildingInstances != null)
+            foreach (var b in env.buildingInstances) TranslatePosition(b?.position, dx, dz);
+
+        return true;
+    }
+
+    // Offsets a world position [x, y, z] by (dx, dz); y (height) is untouched.
+    private static void TranslatePosition(float[] pos, float dx, float dz)
+    {
+        if (pos == null) return;
+        if (pos.Length >= 1) pos[0] += dx;
+        if (pos.Length >= 3) pos[2] += dz;
+    }
+
+    // Offsets a list of [x, z] points by (dx, dz).
+    private static void TranslatePointsXZ(float[][] pts, float dx, float dz)
+    {
+        if (pts == null) return;
+        foreach (var pt in pts)
+        {
+            if (pt == null || pt.Length < 2) continue;
+            pt[0] += dx;
+            pt[1] += dz;
+        }
+    }
+
     // Scales a list of [x, z] points about the pivot (x by fx, z by fz).
     private static void ScalePointsXZ(float[][] pts, Vector2 pivot, float fx, float fz)
     {

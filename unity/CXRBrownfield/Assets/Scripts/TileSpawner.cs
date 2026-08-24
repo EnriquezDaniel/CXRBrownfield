@@ -163,6 +163,27 @@ public static class TileSpawner
     // Procedural deformed (skewed / trapezoidal) tiles
     // -----------------------------------------------------------------------
 
+    // Cache of generated deformed-tile meshes, keyed by everything the geometry depends on (shape,
+    // rotation, cell size, deform offsets). Building a deformed tile is expensive (instantiate +
+    // BakeMesh + CombineMeshes + per-vertex warp + RecalculateNormals) and used to run per tile on
+    // EVERY re-render -- and the generated meshes were never destroyed, so each rebuild also leaked
+    // them. Identical tiles now share one mesh (MeshFilter and MeshCollider both take sharedMesh).
+    // Content-keyed and never evicted: a session touches a bounded set of distinct deforms, and a
+    // play-mode domain reload clears the statics.
+    private static readonly Dictionary<string, Mesh> _deformedBoxMeshes = new();
+    private static readonly Dictionary<string, (Mesh mesh, Material[] mats)> _warpedShapeCache = new();
+
+    private static string Inv(float v) => v.ToString("R", System.Globalization.CultureInfo.InvariantCulture);
+
+    // Box meshes depend only on the deform cage + cell size (rotation is not baked into the box).
+    private static string BoxMeshKey(TileDef tile, float cellSize) =>
+        Inv(cellSize) + "|" + TileDeformField.DeformKey(tile.deform);
+
+    // Warped prefab meshes bake shape, fit AND rotation into the vertices, so all of it keys.
+    private static string WarpedMeshKey(TileDef tile, float cellSize) =>
+        tile.shapeId + "|" + Inv(tile.rotationX) + "|" + tile.rotation + "|" + Inv(tile.rotationZ) +
+        "|" + Inv(cellSize) + "|" + TileDeformField.DeformKey(tile.deform);
+
     // Builds the GameObject for a deformed tile. A SQUARE tile becomes a procedural box prism; any
     // other shape (wedge, quarter-curve, …) is rendered by warping the REAL prefab mesh through the
     // same deform cage, so curves/wedges keep their silhouette under skew instead of collapsing into
@@ -189,7 +210,12 @@ public static class TileSpawner
     {
         var go   = new GameObject("DeformedTile");
         go.transform.SetParent(parent, false);
-        var mesh = TileDeformField.BuildDeformedMesh(tile.deform, cellSize);
+        string key = BoxMeshKey(tile, cellSize);
+        if (!_deformedBoxMeshes.TryGetValue(key, out var mesh) || mesh == null)
+        {
+            mesh = TileDeformField.BuildDeformedMesh(tile.deform, cellSize);
+            _deformedBoxMeshes[key] = mesh;
+        }
 
         go.AddComponent<MeshFilter>().sharedMesh = mesh;
         var rend = go.AddComponent<MeshRenderer>();
@@ -214,6 +240,18 @@ public static class TileSpawner
         var go = new GameObject("DeformedTile");
         go.transform.SetParent(parent, false);   // identity local transform == cell-local space
 
+        // Cache hit: reuse the baked mesh, but CLONE the material slot array. ApplyFaceMaterial
+        // writes palette materials into the renderer's slots per instance, and two renderers
+        // sharing one cached array would leak face paint between buildings.
+        string cacheKey = WarpedMeshKey(tile, cellSize);
+        if (_warpedShapeCache.TryGetValue(cacheKey, out var cached) && cached.mesh != null)
+        {
+            go.AddComponent<MeshFilter>().sharedMesh = cached.mesh;
+            go.AddComponent<MeshRenderer>().sharedMaterials = (Material[])cached.mats.Clone();
+            go.AddComponent<MeshCollider>().sharedMesh = cached.mesh;
+            return go;
+        }
+
         // Pose a throwaway copy of the prefab in the cell (shape + rotation + fit), bake it, warp it,
         // then discard the copy — only the warped static mesh survives.
         var temp = Object.Instantiate(prefab, go.transform);
@@ -224,6 +262,7 @@ public static class TileSpawner
 
         if (BakeWarpedMesh(temp, go.transform, tile.deform, cellSize, out Mesh mesh, out Material[] mats))
         {
+            _warpedShapeCache[cacheKey] = (mesh, (Material[])mats.Clone());
             go.AddComponent<MeshFilter>().sharedMesh = mesh;
             go.AddComponent<MeshRenderer>().sharedMaterials = mats;
             go.AddComponent<MeshCollider>().sharedMesh = mesh;

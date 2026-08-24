@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TileShapePalette
   entries:
   - shapeId: square
-    prefab: {fileID: 3164745566429378585, guid: ca1878032edb64c4c9778f8867f5aeaf, type: 3}
+    prefab: {fileID: 5077126727584412044, guid: 94f6ebd7926b01f47a4de112534d26d3, type: 3}
     defaultRotation: {x: 0, y: 0, z: 0}
     faceNames:
     - north
@@ -24,20 +24,22 @@ MonoBehaviour:
     - top
     - bottom
   - shapeId: wedge
-    prefab: {fileID: 7337606931499053331, guid: 2db19f1342e66cc4c93fb47ee9ba8930, type: 3}
+    prefab: {fileID: 2307581127929770261, guid: 2c098679199b7164cbbd7eeea3aa250e, type: 3}
     defaultRotation: {x: 0, y: 0, z: 0}
     faceNames:
     - north
     - east
-    - top
+    - south
+    - west
     - bottom
-    - diagonal
   - shapeId: quartercurve
-    prefab: {fileID: 6023630983805122702, guid: 432812bafeb857a4290001009abcded5, type: 3}
+    prefab: {fileID: 3847115960689518914, guid: d0f40f2aa3d36174eabfee4c6170e1d6, type: 3}
     defaultRotation: {x: 90, y: 0, z: 0}
     faceNames:
     - north
     - east
+    - south
+    - west
     - top
     - bottom
     - curve

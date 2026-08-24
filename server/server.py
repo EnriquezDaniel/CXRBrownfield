@@ -186,6 +186,56 @@ def _validate_required(data: dict, fields: list[str]) -> str | None:
 
 
 # ---------------------------------------------------------------------------
+# Per-file record cache
+#
+# Every "scan the library" operation (list endpoints, name uniquing, POST dedup,
+# on-disk dedup grouping, /api/active version reads) used to re-read and re-parse
+# every record file per request: O(library size) JSON parses on each save, with
+# the store lock held. This memo caches, per file, the parsed record plus its
+# summary and (lazily) its dedup signature, keyed by (mtime_ns, size).
+# _atomic_write ends in os.replace, which bumps mtime, so invalidation is
+# automatic; a stale entry can serve at most one racing reader, same as the raw
+# filesystem read it replaces. In-memory only: server/data files are untouched.
+# ---------------------------------------------------------------------------
+_FILE_CACHE: dict = {}
+
+
+def _cached_record(path: Path) -> dict | None:
+    """Read-through cache for one record file: {'data', 'summary', 'name', 'signature'}.
+    Returns None (and warns) when the file is missing or unreadable."""
+    try:
+        st = path.stat()
+    except OSError:
+        _FILE_CACHE.pop(path, None)
+        return None
+    key = (st.st_mtime_ns, st.st_size)
+    entry = _FILE_CACHE.get(path)
+    if entry is not None and entry["key"] == key:
+        return entry
+    try:
+        data = _load_json(path)
+    except Exception as exc:
+        print(f"[WARN] Could not read record {path.name}: {exc}")
+        _FILE_CACHE.pop(path, None)
+        return None
+    entry = {
+        "key": key,
+        "data": data,
+        "summary": _summarize(data, path),
+        "name": data.get("name"),
+        "signature": None,   # computed on first dedup use
+    }
+    _FILE_CACHE[path] = entry
+    return entry
+
+
+def _cached_signature(entry: dict) -> str:
+    if entry["signature"] is None:
+        entry["signature"] = _canonical_signature(entry["data"])
+    return entry["signature"]
+
+
+# ---------------------------------------------------------------------------
 # Kind-aware record helpers
 # ---------------------------------------------------------------------------
 
@@ -222,10 +272,9 @@ def _unique_name(kinds: dict, base: str) -> str:
     existing = set()
     for d in kinds.values():
         for path in d.glob("*.json"):
-            try:
-                existing.add(_load_json(path).get("name"))
-            except Exception:
-                pass
+            entry = _cached_record(path)
+            if entry is not None:
+                existing.add(entry["name"])
     if base not in existing:
         return base
     n = 2
@@ -260,16 +309,22 @@ def _canonical_signature(data: dict) -> str:
 
 
 def _find_duplicate(scan_dirs: list[Path], data: dict) -> dict | None:
-    """Return an existing record in scan_dirs whose content matches data, else None."""
-    target = _canonical_signature(data)
+    """Return an existing record in scan_dirs whose content matches data, else None.
+
+    Prefiltered by name: 'name' participates in the signature (it is not in
+    _VOLATILE_KEYS), so only a same-named record can ever match; every other file
+    skips canonicalization entirely. Signatures come from the per-file cache."""
+    target = None
+    target_name = data.get("name")
     for d in scan_dirs:
         for path in d.glob("*.json"):
-            try:
-                existing = _load_json(path)
-            except Exception:
+            entry = _cached_record(path)
+            if entry is None or entry["name"] != target_name:
                 continue
-            if _canonical_signature(existing) == target:
-                return existing
+            if target is None:
+                target = _canonical_signature(data)
+            if _cached_signature(entry) == target:
+                return entry["data"]
     return None
 
 
@@ -284,11 +339,10 @@ def _group_by_signature(kinds: dict) -> dict:
     groups: dict = {}
     for d in kinds.values():
         for path in d.glob("*.json"):
-            try:
-                data = _load_json(path)
-            except Exception:
+            entry = _cached_record(path)
+            if entry is None:
                 continue
-            groups.setdefault(_canonical_signature(data), []).append((path, data))
+            groups.setdefault(_cached_signature(entry), []).append((path, entry["data"]))
     for sig, items in groups.items():
         items.sort(key=lambda pd: (kind_rank.get(pd[0].parent.name, 9),
                                    pd[0].stat().st_mtime,
@@ -720,10 +774,9 @@ def list_environments():
         summaries = []
         for d in dirs:
             for path in sorted(d.glob("*.json")):
-                try:
-                    summaries.append(_summarize(_load_json(path), path))
-                except Exception as exc:
-                    print(f"[WARN] Could not read environment {path.name}: {exc}")
+                entry = _cached_record(path)   # warns about unreadable files itself
+                if entry is not None:
+                    summaries.append(entry["summary"])
 
         return jsonify({"status": "success", "count": len(summaries), "environments": summaries})
     except Exception as e:
@@ -747,11 +800,14 @@ def create_environment():
             return jsonify({"status": "error", "message": err}), 400
 
         kind, target_dir = _kind_dir(ENV_KINDS, data.get("kind"), DEFAULT_ENV_KIND)
+        # Transient client flag: Save As / Duplicate send dedupe=false (a renamed copy can never
+        # dedup anyway), skipping the library scan. Popped so it never reaches disk or signatures.
+        dedupe = data.pop("dedupe", True)
 
         with _STORE_LOCK:
             # Reuse an existing environment of the SAME kind with identical content
             # (same name too — Save As with a new name creates a real new record).
-            dup = _find_duplicate([target_dir], data)
+            dup = _find_duplicate([target_dir], data) if dedupe else None
             if dup is not None:
                 return jsonify({"status": "success", "id": dup["id"],
                                 "name": dup["name"], "deduped": True}), 200
@@ -794,7 +850,8 @@ def update_environment(env_id):
             return jsonify({"status": "error", "message": "Request body must be JSON"}), 400
 
         with _STORE_LOCK:
-            existing = _load_json(path)
+            entry = _cached_record(path)
+            existing = entry["data"] if entry is not None else _load_json(path)
             data["id"]      = env_id
             data["version"] = existing.get("version", 0) + 1
             if "favorite" not in data:
@@ -858,12 +915,14 @@ def _env_pointer_entry(env_id: str):
     path = _find_record(ENVIRONMENTS_DIR, ENV_KINDS, env_id) if env_id else None
     if path is None:
         return None
-    env = _load_json(path)
+    entry = _cached_record(path)
+    if entry is None:
+        return None
     return {
         "envId":     env_id,
-        "version":   env.get("version", 0),
-        "name":      env.get("name"),
-        "updatedAt": _iso_mtime(path),
+        "version":   entry["data"].get("version", 0),
+        "name":      entry["name"],
+        "updatedAt": entry["summary"]["updated"],
     }
 
 
@@ -959,10 +1018,9 @@ def list_buildings():
         summaries = []
         for d in dirs:
             for path in sorted(d.glob("*.json")):
-                try:
-                    summaries.append(_summarize(_load_json(path), path))
-                except Exception as exc:
-                    print(f"[WARN] Could not read building {path.name}: {exc}")
+                entry = _cached_record(path)   # warns about unreadable files itself
+                if entry is not None:
+                    summaries.append(entry["summary"])
 
         return jsonify({"status": "success", "count": len(summaries), "buildings": summaries})
     except Exception as e:
@@ -986,11 +1044,12 @@ def create_building():
             return jsonify({"status": "error", "message": err}), 400
 
         kind, target_dir = _kind_dir(BLDG_KINDS, data.get("kind"), DEFAULT_BLDG_KIND)
+        dedupe = data.pop("dedupe", True)   # same transient flag as environments
 
         with _STORE_LOCK:
             # Reuse an existing building of the SAME kind with identical content
             # (same name too — a renamed copy is a distinct record).
-            dup = _find_duplicate([target_dir], data)
+            dup = _find_duplicate([target_dir], data) if dedupe else None
             if dup is not None:
                 return jsonify({"status": "success", "id": dup["id"],
                                 "name": dup["name"], "deduped": True}), 200
@@ -1033,7 +1092,8 @@ def update_building(bldg_id):
             return jsonify({"status": "error", "message": "Request body must be JSON"}), 400
 
         with _STORE_LOCK:
-            existing = _load_json(path)
+            entry = _cached_record(path)
+            existing = entry["data"] if entry is not None else _load_json(path)
             data["id"]      = bldg_id
             data["version"] = existing.get("version", 0) + 1
             if "favorite" not in data:

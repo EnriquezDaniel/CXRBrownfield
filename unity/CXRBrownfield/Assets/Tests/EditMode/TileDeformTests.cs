@@ -163,6 +163,32 @@ public class TileDeformTests
         }
     }
 
+    [Test]
+    public void DeformKey_SameOffsets_Equal_DifferentOffsets_Distinct()
+    {
+        var a = new TileDeform { dx = new[] { 0.1f, 0f, 0f, 0f }, dz = new float[4], dyTop = new float[4] };
+        var b = new TileDeform { dx = new[] { 0.1f, 0f, 0f, 0f }, dz = new float[4], dyTop = new float[4] };
+        var c = new TileDeform { dx = new[] { 0.2f, 0f, 0f, 0f }, dz = new float[4], dyTop = new float[4] };
+
+        Assert.AreEqual(TileDeformField.DeformKey(a), TileDeformField.DeformKey(b),
+                        "identical offsets must share one mesh-cache key");
+        Assert.AreNotEqual(TileDeformField.DeformKey(a), TileDeformField.DeformKey(c));
+        Assert.AreNotEqual(TileDeformField.DeformKey(a), TileDeformField.DeformKey(null));
+    }
+
+    [Test]
+    public void DeformKey_FieldPositionsAreDistinct()
+    {
+        // The same value in dx vs dz vs dyTop must never collapse to one key: the meshes differ.
+        var dxOnly = new TileDeform { dx    = new[] { 1f, 0f, 0f, 0f } };
+        var dzOnly = new TileDeform { dz    = new[] { 1f, 0f, 0f, 0f } };
+        var dyOnly = new TileDeform { dyTop = new[] { 1f, 0f, 0f, 0f } };
+
+        Assert.AreNotEqual(TileDeformField.DeformKey(dxOnly), TileDeformField.DeformKey(dzOnly));
+        Assert.AreNotEqual(TileDeformField.DeformKey(dzOnly), TileDeformField.DeformKey(dyOnly));
+        Assert.AreNotEqual(TileDeformField.DeformKey(dxOnly), TileDeformField.DeformKey(dyOnly));
+    }
+
     private static bool AnyNonZero(float[] a)
     {
         if (a == null) return false;

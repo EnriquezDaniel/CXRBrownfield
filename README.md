@@ -45,7 +45,7 @@ Three cooperating parts:
    the model, which returns one strict JSON object classifying every sketch element into terrain
    zones, paths, buildings, box-primitive objects, or prefab props — all inside the lot boundary and
    at real-world scale.
-3. **Unity frontend** ([unity/model2unity/Assets/Scripts/](unity/model2unity/Assets/Scripts/)) —
+3. **Unity frontend** ([unity/CXRBrownfield/Assets/Scripts/](unity/CXRBrownfield/Assets/Scripts/)) —
    `LibraryClient` talks to the API; `LayoutConverter` maps normalized coordinates into world
    meters; `WorldRenderer` builds the scene; `EditController` / `TileBuildingEditor` provide
    in-scene editing; `LibraryBrowser` / `ModelRequesterUI` are the UI panels; `BakePass` merges
@@ -86,7 +86,7 @@ curl http://localhost:5002/health
 curl http://localhost:5002/api/environments
 ```
 
-**4. Unity** — open [unity/model2unity](unity/model2unity/) in Unity **6000.3.10f1**, open the
+**4. Unity** — open [unity/CXRBrownfield](unity/CXRBrownfield/) in Unity **6000.3.10f1**, open the
 `BasicModel` scene, and enter Play mode. `LibraryClient.serverBaseUrl` should point at
 `http://localhost:5002`.
 
@@ -219,8 +219,10 @@ or conflict resolution.
 | Double-click building | Enter tile-edit mode (Q/E rotate placement; X/Y/Z pick rotate axis) |
 | Delete / Escape / Enter | Remove · cancel/exit · confirm (or finish a path/fence) |
 
-See [CLAUDE.md](CLAUDE.md) for the full controls table, Unity inspector wiring, and the
-ScriptableObject assets to create.
+See [docs/editing-controls.md](docs/editing-controls.md) for the full controls table,
+[docs/unity-scene-wiring.md](docs/unity-scene-wiring.md) for Unity inspector wiring and the
+ScriptableObject assets to create, and [docs/vr-live-sync.md](docs/vr-live-sync.md) for the VR
+viewer and live-sync details. [CLAUDE.md](CLAUDE.md) is the developer quick map.
 
 ## Data & storage
 

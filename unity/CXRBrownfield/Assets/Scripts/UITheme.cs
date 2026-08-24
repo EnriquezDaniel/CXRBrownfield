@@ -1,23 +1,28 @@
 using UnityEngine;
 
 // Shared IMGUI theme for every runtime tool panel (LibraryBrowser, EditController,
-// TileBuildingEditor, BakePass, ModelRequesterUI).
+// TileBuildingEditor, ModelRequesterUI, UIShell).
 //
 // This is the Unity port of Assets/Redesign.html — the "calmer, clearer interface" visual
 // target (Direction B: docked rails, light frosted-paper panels). Every panel renders through
 // this one class, so reskinning here reskins the whole tool. The color/size tokens below are the
-// literal values from the redesign's design system, so they line up 1:1 with its CSS variables.
+// literal values from the redesign's design system, so they line up 1:1 with its CSS variables
+// (button fills/edges were since darkened a step so controls separate from the paper panel).
 //
 // Usage inside OnGUI:
 //   UITheme.PanelBackground(rect);                 // rounded frosted-paper card behind the panel
 //   GUILayout.BeginArea(UITheme.Inset(rect));      // content inset with padding
 //   UITheme.Title("…"); UITheme.Header("…"); …
+//   UITheme.CaptureTooltip();                      // last thing before EndArea — feeds the overlay
 //   GUILayout.EndArea();
 //
-// Newer component helpers mirror the redesign's kit and are opt-in:
-//   UITheme.Segmented(sel, new[]{"Move","Rotate","Scale"});   // segmented control
-//   UITheme.PrimaryButton("Generate"); UITheme.GhostButton("Cancel");
-//   UITheme.Chip("Nature", active); UITheme.StatusBadge("Server connected", ok:true);
+// Controls. Every clickable helper takes an optional tooltip (a UITips constant); prefer these
+// over raw GUILayout.Button / GUILayout.Toggle so nothing ships without a hover explanation:
+//   UITheme.Button("Refresh", UITips.X);  UITheme.ToggleButton(on, "Draw paths", UITips.X);
+//   UITheme.PrimaryButton("Save", tip);   UITheme.GhostButton("Cancel", tip);  UITheme.DangerButton(…);
+//   UITheme.Checkbox(on, "Random rotation", tip);   UITheme.ListItem(on, id, tip)   // scroll-list rows
+//   UITheme.Segmented(sel, labels, tips);  UITheme.Chip(text, active, tip);  UITheme.ThumbCell(tex, label, on, tip);
+// The tooltip itself is drawn once per frame by UITheme.DrawTooltipOverlay() from UIShell.OnGUI.
 //
 // Calling any UITheme member installs the skin for the remainder of the current OnGUI pass.
 public static class UITheme
@@ -41,20 +46,22 @@ public static class UITheme
     // Surfaces
     public static readonly Color PanelCard  = new(0.988f, 0.988f, 0.984f, 0.985f); // --panel #FCFCFB, opaque over scene
     public static readonly Color Field      = Hex(0xFFFFFF);  // --field input background
-    public static readonly Color Btn        = Hex(0xF1F1EE);  // --btn   secondary button
-    public static readonly Color BtnHover   = Hex(0xE8E8E3);  // --btn-h
+    public static readonly Color Btn        = Hex(0xE8E8E2);  // --btn   secondary button (a step darker than the paper)
+    public static readonly Color BtnHover   = Hex(0xDCDCD5);  // --btn-h
     public static readonly Color Tile       = Hex(0xEFEEE9);  // --tile  segmented track / inset
     public static readonly Color Tile2      = Hex(0xE6E5DF);  // --tile2
     // Accent + tint
     public static readonly Color Accent     = Hex(0x2E63C8);  // --accent
-    public static readonly Color AccentInk  = Hex(0x1C4BA0);  // --accent-ink
+    public static readonly Color AccentInk  = Hex(0x1C4BA0);  // --accent-ink (also the primary-button hover)
     public static readonly Color Tint       = Hex(0xEAF1FC);  // --tint   active-row wash
+    public static readonly Color TintHover  = Hex(0xDCE8FA);  // hover over a tinted (selected) row / thumb
     public static readonly Color TintLine   = Hex(0xBCD2F4);  // --tint-line
     public static readonly Color Ok         = Hex(0x2E9E6B);  // --ok
     public static readonly Color Danger     = Hex(0xB3261E);  // delete red
     // Hairlines
     public static readonly Color Line       = new(0.078f, 0.086f, 0.110f, 0.09f);  // --line
-    public static readonly Color Line2       = new(0.078f, 0.086f, 0.110f, 0.14f); // --line2
+    public static readonly Color Line2      = new(0.078f, 0.086f, 0.110f, 0.14f);  // --line2
+    public static readonly Color BtnLine    = new(0.078f, 0.086f, 0.110f, 0.30f);  // button / field edge
 
     // ---- back-compat aliases (older call sites used these names on the dark theme) ----
     public static readonly Color Panel      = PanelCard;
@@ -66,9 +73,9 @@ public static class UITheme
 
     static GUISkin   _skin;
     static GUIStyle  _title, _header, _sub;
-    static GUIStyle  _cardStyle, _primary, _ghost, _chip, _chipOn, _segment;
-    static Texture2D _cardTex, _maskTex, _btnTex, _btnHover, _accentTex, _fieldTex,
-                     _tileTex, _tintTex, _white;
+    static GUIStyle  _cardStyle, _primary, _ghost, _chip, _chipOn, _segment, _listItem, _tip;
+    static Texture2D _cardTex, _maskTex, _btnTex, _btnHover, _accentTex, _accentHoverTex, _fieldTex,
+                     _outlineTex, _tileTex, _tintTex, _tintHoverTex, _tipTex, _white;
     static bool      _building;
 
     // ---- fonts (Public Sans for UI, IBM Plex Mono for numbers) ----
@@ -115,6 +122,7 @@ public static class UITheme
 
     // Anti-aliased rounded-rect texture, 9-slice friendly. When borderCol.a > 0 a 1px inner
     // border is baked along the rounded edge. Use the matching radius as the GUIStyle.border.
+    // A fully transparent fill + a border gives an outline-only shape (ghost buttons).
     static Texture2D Rounded(int radius, Color fill, Color borderCol = default)
     {
         int size = radius * 2 + 6;
@@ -147,15 +155,19 @@ public static class UITheme
     {
         _building = true;   // guard: don't reassign GUI.skin while cloning from it
 
-        _white     = Solid(Color.white);
-        _cardTex   = Rounded(13, PanelCard, Line2);
-        _maskTex   = Rounded(13, Color.white);
-        _btnTex    = Rounded(7, Btn,    Line2);
-        _btnHover  = Rounded(7, BtnHover, Line2);
-        _accentTex = Rounded(7, Accent);
-        _fieldTex  = Rounded(7, Field,  Line2);
-        _tileTex   = Rounded(7, Tile,   Line);
-        _tintTex   = Rounded(7, Tint,   TintLine);
+        _white          = Solid(Color.white);
+        _cardTex        = Rounded(13, PanelCard, Line2);
+        _maskTex        = Rounded(13, Color.white);
+        _btnTex         = Rounded(7, Btn,      BtnLine);
+        _btnHover       = Rounded(7, BtnHover, BtnLine);
+        _accentTex      = Rounded(7, Accent);
+        _accentHoverTex = Rounded(7, AccentInk);
+        _fieldTex       = Rounded(7, Field,    BtnLine);
+        _outlineTex     = Rounded(7, new Color(Btn.r, Btn.g, Btn.b, 0f), BtnLine);
+        _tileTex        = Rounded(7, Tile,     Line);
+        _tintTex        = Rounded(7, Tint,     TintLine);
+        _tintHoverTex   = Rounded(7, TintHover, TintLine);
+        _tipTex         = Rounded(6, Ink);
 
         EnsureFonts();
 
@@ -171,11 +183,15 @@ public static class UITheme
         l.padding = new RectOffset(2, 2, 3, 3);
         l.margin  = new RectOffset(2, 2, 1, 1);
 
-        // Button — label & button text 13 / medium; accent fill when pressed / "on" (toggle-as-button)
+        // Button — label & button text 13 / medium; accent fill when pressed / "on" (toggle-as-button).
+        // No word-wrap (fixed-height buttons would clip a second line); long text clips at the edge
+        // instead of widening the layout and summoning a horizontal scrollbar.
         var b = _skin.button;
         b.fontSize = 13; b.fontStyle = FontStyle.Normal;
         if (_sansMedium != null) b.font = _sansMedium;
         b.alignment = TextAnchor.MiddleCenter;
+        b.wordWrap  = false;
+        b.clipping  = TextClipping.Clip;
         b.padding = new RectOffset(10, 10, 6, 6);
         b.margin  = new RectOffset(3, 3, 3, 3);
         b.border  = new RectOffset(8, 8, 8, 8);
@@ -184,13 +200,13 @@ public static class UITheme
         SetBg(b.active,   _accentTex, Color.white);
         SetBg(b.focused,  _btnTex,    Ink);
         SetBg(b.onNormal, _accentTex, Color.white);
-        SetBg(b.onHover,  _accentTex, Color.white);
+        SetBg(b.onHover,  _accentHoverTex, Color.white);
         SetBg(b.onActive, _accentTex, Color.white);
 
-        // Toggle (used as list-selection text and tab buttons)
+        // Toggle (checkbox) — label text in full ink so it reads like the other controls
         var t = _skin.toggle;
         t.fontSize = 12; t.wordWrap = false;
-        t.normal.textColor   = Ink2;   t.hover.textColor   = Ink;
+        t.normal.textColor   = Ink;       t.hover.textColor   = Ink;
         t.onNormal.textColor = AccentInk; t.onHover.textColor = AccentInk;
         t.margin = new RectOffset(2, 2, 2, 2);
 
@@ -232,34 +248,72 @@ public static class UITheme
         if (_mono != null) _num.font = _mono;
         _num.normal.textColor = Ink;
         _numSmall = new GUIStyle(_num) { fontSize = 11 };
-        _numSmall.normal.textColor = Ink3;
+        _numSmall.normal.textColor = Ink2;
 
         // ---- component styles ----
         _cardStyle = new GUIStyle { border = new RectOffset(14, 14, 14, 14) };
         _cardStyle.normal.background = _cardTex;
 
         _primary = new GUIStyle(b);
-        SetBg(_primary.normal,  _accentTex, Color.white);
-        SetBg(_primary.hover,   _accentTex, Color.white);
-        SetBg(_primary.active,  _accentTex, Color.white);
-        SetBg(_primary.focused, _accentTex, Color.white);
+        SetBg(_primary.normal,  _accentTex,      Color.white);
+        SetBg(_primary.hover,   _accentHoverTex, Color.white);
+        SetBg(_primary.active,  _accentHoverTex, Color.white);
+        SetBg(_primary.focused, _accentTex,      Color.white);
 
+        // Ghost: outline only at rest, fills on hover — quiet, but still obviously a button.
         _ghost = new GUIStyle(b);
-        _ghost.normal.background = _ghost.hover.background = _ghost.active.background = _ghost.focused.background = null;
-        _ghost.normal.textColor = Ink2; _ghost.hover.textColor = Ink;
+        SetBg(_ghost.normal,  _outlineTex, Ink);
+        SetBg(_ghost.hover,   _btnHover,   Ink);
+        SetBg(_ghost.active,  _accentTex,  Color.white);
+        SetBg(_ghost.focused, _outlineTex, Ink);
 
-        _chip = new GUIStyle(b) { fontSize = 11, padding = new RectOffset(12, 12, 5, 5) };
-        SetBg(_chip.normal, _btnTex, Ink2); SetBg(_chip.hover, _btnHover, Ink);
+        _chip = new GUIStyle(b) { fontSize = 12, padding = new RectOffset(12, 12, 5, 5) };
+        SetBg(_chip.normal, _btnTex, Ink); SetBg(_chip.hover, _btnHover, Ink);
         _chipOn = new GUIStyle(_chip);
-        SetBg(_chipOn.normal, _accentTex, Color.white); SetBg(_chipOn.hover, _accentTex, Color.white);
+        SetBg(_chipOn.normal, _accentTex, Color.white); SetBg(_chipOn.hover, _accentHoverTex, Color.white);
 
         _segment = new GUIStyle(_skin.button) { fontSize = 12, fontStyle = FontStyle.Bold, margin = new RectOffset(0, 0, 0, 0) };
+
+        // Scroll-list row: left-aligned button-toggle that shrinks to the viewport and clips, so a
+        // long id never widens the list.
+        _listItem = new GUIStyle(b) { alignment = TextAnchor.MiddleLeft, clipping = TextClipping.Clip };
+
+        // Tooltip card: dark, white text, wraps.
+        _tip = new GUIStyle(l) { fontSize = 12, wordWrap = true, richText = false, alignment = TextAnchor.UpperLeft };
+        if (_sans != null) _tip.font = _sans;
+        _tip.normal.background = _tipTex;
+        _tip.normal.textColor  = Color.white;
+        _tip.border  = new RectOffset(7, 7, 7, 7);
+        _tip.padding = new RectOffset(9, 9, 6, 7);
 
         _building = false;
         GUI.skin = _skin;
     }
 
     static void SetBg(GUIStyleState s, Texture2D bg, Color text) { s.background = bg; s.textColor = text; }
+
+    // GUIContent with an optional tooltip (null/empty tip → plain content).
+    static GUIContent C(string text, string tip) =>
+        string.IsNullOrEmpty(tip) ? new GUIContent(text ?? "") : new GUIContent(text ?? "", tip);
+
+    static GUIContent[] C(string[] texts, string[] tips)
+    {
+        var arr = new GUIContent[texts.Length];
+        for (int i = 0; i < texts.Length; i++)
+            arr[i] = C(texts[i], tips != null && i < tips.Length ? tips[i] : null);
+        return arr;
+    }
+
+    // Prepend MinWidth(0) + ExpandWidth so the control can shrink below its text width (with
+    // clipping) instead of forcing the enclosing scroll view wider.
+    static GUILayoutOption[] Shrinkable(GUILayoutOption[] opts)
+    {
+        var all = new GUILayoutOption[(opts?.Length ?? 0) + 2];
+        all[0] = GUILayout.MinWidth(0f);
+        all[1] = GUILayout.ExpandWidth(true);
+        if (opts != null) opts.CopyTo(all, 2);
+        return all;
+    }
 
     // ---- drawing helpers ----
 
@@ -299,7 +353,9 @@ public static class UITheme
     public static void Title(string text)  { Ensure(); GUILayout.Label(text, _title);  }
     // Section header renders UPPERCASE per the redesign (11/700 caps).
     public static void Header(string text) { Ensure(); GUILayout.Label(text == null ? "" : text.ToUpperInvariant(), _header); }
-    public static void Note(string text)   { Ensure(); GUILayout.Label(text, _sub);    }
+    // Helper copy. Shrinkable so one long unbroken token (a URL, a path) clips instead of widening
+    // the panel / scroll view it sits in.
+    public static void Note(string text)   { Ensure(); GUILayout.Label(text ?? "", _sub, GUILayout.MinWidth(0f), GUILayout.ExpandWidth(true)); }
 
     // Inline IBM Plex Mono numeric label (right-aligned by default).
     public static void Num(string text, params GUILayoutOption[] opts) { Ensure(); GUILayout.Label(text, _num, opts); }
@@ -307,7 +363,8 @@ public static class UITheme
 
     // Flat clickable foldout row (▸ / ▾ + label) — reads like a section header, not a button.
     static GUIStyle _foldout;
-    public static bool Foldout(bool open, string label)
+    public static bool Foldout(bool open, string label) => Foldout(open, label, null);
+    public static bool Foldout(bool open, string label, string tip)
     {
         Ensure();
         if (_foldout == null)
@@ -319,8 +376,34 @@ public static class UITheme
             _foldout.margin  = new RectOffset(2, 2, 8, 2);
         }
         string text = $"{(open ? "▾  " : "▸  ")}{(label ?? "").ToUpperInvariant()}";
-        if (GUILayout.Button(text, _foldout, GUILayout.ExpandWidth(true))) open = !open;
+        if (GUILayout.Button(C(text, tip), _foldout, GUILayout.ExpandWidth(true))) open = !open;
         return open;
+    }
+
+    // Flat, left-aligned, full-width label that acts as a button — for list rows whose *name*
+    // selects the thing it names (the library's Buildings/Objects rows). Washed with the active
+    // tint when `selected`, so the row of the currently-selected instance reads as picked.
+    // Shrinks + clips so a long name can't widen the list.
+    static GUIStyle _rowLabel, _rowLabelOn;
+    public static bool ListRowLabel(string text, bool selected, params GUILayoutOption[] opts) =>
+        ListRowLabel(text, selected, null, opts);
+    public static bool ListRowLabel(string text, bool selected, string tip, params GUILayoutOption[] opts)
+    {
+        Ensure();
+        if (_rowLabel == null)
+        {
+            _rowLabel = new GUIStyle(_ghost) { alignment = TextAnchor.MiddleLeft, fontSize = 12, clipping = TextClipping.Clip };
+            _rowLabel.padding = new RectOffset(6, 6, 4, 4);
+            _rowLabel.normal.background = null; _rowLabel.focused.background = null;
+            _rowLabel.normal.textColor = Ink;
+            _rowLabel.hover.textColor  = Accent;
+
+            _rowLabelOn = new GUIStyle(_rowLabel) { border = new RectOffset(8, 8, 8, 8) };
+            _rowLabelOn.normal.background = _tintTex;
+            _rowLabelOn.hover.background  = _tintHoverTex;
+            _rowLabelOn.normal.textColor  = _rowLabelOn.hover.textColor  = AccentInk;
+        }
+        return GUILayout.Button(C(text, tip), selected ? _rowLabelOn : _rowLabel, Shrinkable(opts));
     }
 
     // Thin horizontal divider that fills the current layout width.
@@ -336,39 +419,158 @@ public static class UITheme
     // ---- component helpers (opt-in, mirror the redesign kit) ----
 
     // Segmented control (e.g. Move / Rotate / Scale). Returns the selected index.
-    public static int Segmented(int selected, string[] options)
+    public static int Segmented(int selected, string[] options) => Segmented(selected, options, null);
+    public static int Segmented(int selected, string[] options, string[] tips)
     {
         Ensure();
-        return GUILayout.Toolbar(selected, options, _segment, GUILayout.Height(RowH + 4));
+        return GUILayout.Toolbar(selected, C(options, tips), _segment, GUILayout.Height(RowH + 4));
+    }
+
+    // Standard button (the skin's default look). The `tip` overload is the one to use.
+    public static bool Button(string text, params GUILayoutOption[] opts) => Button(text, null, opts);
+    public static bool Button(string text, string tip, params GUILayoutOption[] opts)
+    {
+        Ensure();
+        return GUILayout.Button(C(text, tip), _skin.button, opts);
+    }
+
+    // Button-styled toggle (accent fill when on) — tool / mode / option pills.
+    public static bool ToggleButton(bool on, string text, params GUILayoutOption[] opts) => ToggleButton(on, text, null, opts);
+    public static bool ToggleButton(bool on, string text, string tip, params GUILayoutOption[] opts)
+    {
+        Ensure();
+        return GUILayout.Toggle(on, C(text, tip), _skin.button, opts);
+    }
+
+    // Button-styled drag surface: press and drag horizontally to nudge a value. Returns the
+    // horizontal pixel delta on captured MouseDrag events (0 otherwise). `started` fires on the
+    // press that captures the control, `ended` on release (routed here even when the cursor left
+    // the rect, via GetTypeForControl). Drawing the GUIContent through the style publishes the
+    // tooltip exactly like a built-in control, so CaptureTooltip picks it up unchanged.
+    public static float DragButton(string label, string tip, out bool started, out bool ended, params GUILayoutOption[] opts)
+    {
+        Ensure();
+        started = ended = false;
+        var content = C(label, tip);
+        Rect r  = GUILayoutUtility.GetRect(content, _skin.button, opts);
+        int  id = GUIUtility.GetControlID(FocusType.Passive, r);
+        var  e  = Event.current;
+        switch (e.GetTypeForControl(id))
+        {
+            case EventType.MouseDown:
+                if (e.button == 0 && r.Contains(e.mousePosition) && GUI.enabled)
+                { GUIUtility.hotControl = id; started = true; e.Use(); }
+                break;
+            case EventType.MouseDrag:
+                if (GUIUtility.hotControl == id) { e.Use(); return e.delta.x; }
+                break;
+            case EventType.MouseUp:
+                if (GUIUtility.hotControl == id)
+                { GUIUtility.hotControl = 0; ended = true; e.Use(); }
+                break;
+            case EventType.Repaint:
+                bool hot = GUIUtility.hotControl == id;
+                _skin.button.Draw(r, content, r.Contains(e.mousePosition), hot, hot, false);
+                break;
+        }
+        return 0f;
+    }
+
+    // Quiet toggle for rows inside a scrolled list: light outline pill when off, accent fill when
+    // on. Keeps list rows lighter than a full grey button while staying obviously clickable.
+    static GUIStyle _rowToggle;
+    public static bool RowToggle(bool on, string text, string tip, params GUILayoutOption[] opts)
+    {
+        Ensure();
+        if (_rowToggle == null)
+        {
+            _rowToggle = new GUIStyle(_skin.button) { fontSize = 11 };
+            SetBg(_rowToggle.normal,    _outlineTex,     Ink);
+            SetBg(_rowToggle.hover,     _btnHover,       Ink);
+            SetBg(_rowToggle.active,    _accentTex,      Color.white);
+            SetBg(_rowToggle.focused,   _outlineTex,     Ink);
+            SetBg(_rowToggle.onNormal,  _accentTex,      Color.white);
+            SetBg(_rowToggle.onHover,   _accentHoverTex, Color.white);
+            SetBg(_rowToggle.onActive,  _accentTex,      Color.white);
+            SetBg(_rowToggle.onFocused, _accentTex,      Color.white);
+        }
+        return GUILayout.Toggle(on, C(text, tip), _rowToggle, opts);
+    }
+
+    // Small centered red ✕ for deleting one row inline: flat at rest, red-tinted fill on hover.
+    // Fixed 22×22 unless options are passed, so it lines up with RowH-sized row controls.
+    static GUIStyle  _rowDelete;
+    static Texture2D _dangerHoverTex;
+    public static bool RowDeleteButton(string tip, params GUILayoutOption[] opts)
+    {
+        Ensure();
+        if (_rowDelete == null)
+        {
+            _dangerHoverTex = Rounded(6, new Color(Danger.r, Danger.g, Danger.b, 0.12f),
+                                         new Color(Danger.r, Danger.g, Danger.b, 0.45f));
+            _rowDelete = new GUIStyle(_skin.button)
+            {
+                fontSize  = 12,
+                fontStyle = FontStyle.Bold,
+                alignment = TextAnchor.MiddleCenter,
+                padding   = new RectOffset(0, 0, 0, 0),
+                margin    = new RectOffset(2, 2, 2, 2),
+            };
+            SetBg(_rowDelete.normal,  null,            Danger);
+            SetBg(_rowDelete.hover,   _dangerHoverTex, Danger);
+            SetBg(_rowDelete.active,  _dangerHoverTex, Danger);
+            SetBg(_rowDelete.focused, null,            Danger);
+        }
+        var o = (opts != null && opts.Length > 0) ? opts : new[] { GUILayout.Width(22f), GUILayout.Height(22f) };
+        return GUILayout.Button(C("✕", tip), _rowDelete, o);
+    }
+
+    // Plain checkbox toggle.
+    public static bool Checkbox(bool on, string text, string tip = null, params GUILayoutOption[] opts)
+    {
+        Ensure();
+        return GUILayout.Toggle(on, C(text, tip), _skin.toggle, opts);
+    }
+
+    // One selectable row inside a scrolled list (palette ids, uploaded files…). Left-aligned,
+    // fills the viewport width, and clips rather than widening it.
+    public static bool ListItem(bool on, string text, string tip = null)
+    {
+        Ensure();
+        return GUILayout.Toggle(on, C(text, tip), _listItem, GUILayout.MinWidth(0f), GUILayout.ExpandWidth(true), GUILayout.Height(RowH));
     }
 
     // Accent primary action button — 44px tall target (UITheme.PrimaryH) per the redesign.
-    public static bool PrimaryButton(string text, params GUILayoutOption[] opts)
+    public static bool PrimaryButton(string text, params GUILayoutOption[] opts) => PrimaryButton(text, null, opts);
+    public static bool PrimaryButton(string text, string tip, params GUILayoutOption[] opts)
     {
         Ensure();
         if (opts == null || opts.Length == 0) opts = new[] { GUILayout.Height(PrimaryH) };
-        return GUILayout.Button(text, _primary, opts);
+        return GUILayout.Button(C(text, tip), _primary, opts);
     }
 
     // Secondary (default) button — same look as GUI.skin.button, named for clarity.
-    public static bool SecondaryButton(string text, params GUILayoutOption[] opts)
+    public static bool SecondaryButton(string text, params GUILayoutOption[] opts) => SecondaryButton(text, null, opts);
+    public static bool SecondaryButton(string text, string tip, params GUILayoutOption[] opts)
     {
         Ensure();
-        return GUILayout.Button(text, _skin.button, opts);
+        return GUILayout.Button(C(text, tip), _skin.button, opts);
     }
 
-    // Borderless ghost / cancel button.
-    public static bool GhostButton(string text, params GUILayoutOption[] opts)
+    // Outlined ghost / cancel button.
+    public static bool GhostButton(string text, params GUILayoutOption[] opts) => GhostButton(text, null, opts);
+    public static bool GhostButton(string text, string tip, params GUILayoutOption[] opts)
     {
         Ensure();
-        return GUILayout.Button(text, _ghost, opts);
+        return GUILayout.Button(C(text, tip), _ghost, opts);
     }
 
     // Filter pill / chip. Returns true when clicked.
-    public static bool Chip(string text, bool active, params GUILayoutOption[] opts)
+    public static bool Chip(string text, bool active, params GUILayoutOption[] opts) => Chip(text, active, null, opts);
+    public static bool Chip(string text, bool active, string tip, params GUILayoutOption[] opts)
     {
         Ensure();
-        return GUILayout.Button(text, active ? _chipOn : _chip, opts);
+        return GUILayout.Button(C(text, tip), active ? _chipOn : _chip, opts);
     }
 
     // Inline status badge: a dot + label, green when ok else muted.
@@ -376,24 +578,26 @@ public static class UITheme
     {
         Ensure();
         var prev = GUI.contentColor;
-        GUI.contentColor = ok ? Ok : Ink3;
+        GUI.contentColor = ok ? Ok : Ink2;
         GUILayout.Label((ok ? "● " : "○ ") + text, _sub);
         GUI.contentColor = prev;
     }
 
-    // Danger / destructive action — borderless red, used for Delete.
+    // Danger / destructive action — outlined, red text, used for Delete.
     static GUIStyle _danger;
-    public static bool DangerButton(string text, params GUILayoutOption[] opts)
+    public static bool DangerButton(string text, params GUILayoutOption[] opts) => DangerButton(text, null, opts);
+    public static bool DangerButton(string text, string tip, params GUILayoutOption[] opts)
     {
         Ensure();
         if (_danger == null)
         {
             _danger = new GUIStyle(_ghost);
-            _danger.normal.textColor = Danger;
-            _danger.hover.textColor  = Danger;
+            _danger.normal.textColor  = Danger;
+            _danger.hover.textColor   = Danger;
+            _danger.focused.textColor = Danger;
             _danger.fontStyle = FontStyle.Bold;
         }
-        return GUILayout.Button(text, _danger, opts);
+        return GUILayout.Button(C(text, tip), _danger, opts);
     }
 
     // ---- redesign kit: steppers, sliders, rows, thumbnails, command bar ----
@@ -429,15 +633,17 @@ public static class UITheme
     // Returns true when the row body is clicked. Drawn as a vertical group whose own background is
     // the tile/tint texture, so the panel auto-sizes the row and the labels paint on top of it
     // (no GUILayout.BeginArea / manual rects, which previously hid the title behind the wash).
-    public static bool StateRow(string title, string state, bool active, bool muted = false)
+    public static bool StateRow(string title, string state, bool active, bool muted = false) =>
+        StateRow(title, state, active, null, muted);
+    public static bool StateRow(string title, string state, bool active, string tip, bool muted = false)
     {
         Ensure();
         EnsureRowStyles();
 
         GUILayout.BeginVertical(active ? _rowOn : (muted ? _rowMuted : _rowFlat));
-        GUILayout.Label(title, _rowTitle);
+        GUILayout.Label(C(title, tip), _rowTitle);
         if (!string.IsNullOrEmpty(state))
-            GUILayout.Label(state, active ? _rowStateOn : _rowState);
+            GUILayout.Label(C(state, tip), active ? _rowStateOn : _rowState);
         GUILayout.EndVertical();
 
         var r = GUILayoutUtility.GetLastRect();
@@ -462,23 +668,25 @@ public static class UITheme
         _rowMuted.normal.background = _tileTex;     // backdrop row: neutral tile
         _rowFlat = new GUIStyle { padding = pad, margin = mrg };
 
-        _rowTitle = new GUIStyle(_sub) { fontSize = 13, wordWrap = false };
+        _rowTitle = new GUIStyle(_sub) { fontSize = 13, wordWrap = true };   // long names wrap, never overflow
         if (_sansMedium != null) _rowTitle.font = _sansMedium;
         _rowTitle.normal.textColor = Ink;
         _rowState = new GUIStyle(_sub) { fontSize = 11 };
-        _rowState.normal.textColor = Ink3;
+        _rowState.normal.textColor = Ink2;
         _rowStateOn = new GUIStyle(_rowState);
         _rowStateOn.normal.textColor = AccentInk;
     }
 
     // Thumbnail tile button: image (or color swatch) with a caption, accent ring when selected.
-    public static bool Thumb(Texture tex, string label, bool selected, float size = 64f)
+    public static bool Thumb(Texture tex, string label, bool selected, float size = 64f) =>
+        Thumb(tex, label, selected, null, size);
+    public static bool Thumb(Texture tex, string label, bool selected, string tip, float size = 64f)
     {
         Ensure();
         EnsureThumbStyles();
         var style = selected ? _thumbOn : _thumb;
         GUILayout.BeginVertical(GUILayout.Width(size));
-        var clicked = GUILayout.Button(GUIContent.none, style, GUILayout.Width(size), GUILayout.Height(size));
+        var clicked = GUILayout.Button(C("", tip), style, GUILayout.Width(size), GUILayout.Height(size));
         var r = GUILayoutUtility.GetLastRect();
         if (tex != null)
         {
@@ -486,9 +694,23 @@ public static class UITheme
             GUI.DrawTexture(pad, tex, ScaleMode.ScaleToFit);
         }
         if (!string.IsNullOrEmpty(label))
-            GUILayout.Label(label, _thumbCap, GUILayout.Width(size), GUILayout.Height(26f));
+            GUILayout.Label(C(label, tip), _thumbCap, GUILayout.Width(size), GUILayout.Height(26f));
         GUILayout.EndVertical();
         return clicked;
+    }
+
+    // Three-column thumbnail grid for the 300px right rail. Wrap ThumbCell calls in
+    // BeginThumbGrid / EndThumbGrid; rows break automatically.
+    public const int ThumbCols = 3;
+    public const float ThumbSize = 76f;
+    static int _thumbCol;
+    public static void BeginThumbGrid() { _thumbCol = 0; GUILayout.BeginHorizontal(); }
+    public static void EndThumbGrid()   { GUILayout.EndHorizontal(); }
+    public static bool ThumbCell(Texture tex, string label, bool selected, string tip = null)
+    {
+        if (_thumbCol >= ThumbCols) { GUILayout.EndHorizontal(); GUILayout.BeginHorizontal(); _thumbCol = 0; }
+        _thumbCol++;
+        return Thumb(tex, label, selected, tip, ThumbSize);
     }
 
     // "roof_tar_weathered" -> "Roof Tar Weathered"
@@ -510,16 +732,35 @@ public static class UITheme
         _thumb.hover.background  = _tintTex;
         _thumbOn = new GUIStyle(_thumb);
         _thumbOn.normal.background = _tintTex;        // accent-tinted host
-        _thumbCap = new GUIStyle(_sub) { fontSize = 10, alignment = TextAnchor.UpperCenter, wordWrap = true, clipping = TextClipping.Clip };
-        _thumbCap.normal.textColor = Ink2;
+        _thumbOn.hover.background  = _tintHoverTex;
+        _thumbCap = new GUIStyle(_sub) { fontSize = 11, alignment = TextAnchor.UpperCenter, wordWrap = true, clipping = TextClipping.Clip };
+        _thumbCap.normal.textColor = Ink;
     }
 
-    // Top command bar (Browse / Place / Terrain / Build / Manage / Generate). Returns selected index.
-    public static int CommandBar(int selected, string[] items)
+    // Top command bar (Browse / Place / Terrain / Build / Generate). Returns selected index.
+    public static int CommandBar(int selected, string[] items) => CommandBar(selected, items, null);
+    public static int CommandBar(int selected, string[] items, string[] tips)
     {
         Ensure();
         EnsureCommandStyle();
-        return GUILayout.Toolbar(selected, items, _command, GUILayout.Height(PrimaryH));
+        return GUILayout.Toolbar(selected, C(items, tips), _command, GUILayout.Height(PrimaryH));
+    }
+
+    // One-line status strip drawn in place of the command bar while the walkthrough is engaged.
+    public static void HintStrip(string text)
+    {
+        Ensure();
+        EnsureHintStyle();
+        GUILayout.Label(text ?? "", _hint, GUILayout.Height(PrimaryH), GUILayout.ExpandWidth(true));
+    }
+
+    static GUIStyle _hint;
+    static void EnsureHintStyle()
+    {
+        if (_hint != null) return;
+        _hint = new GUIStyle(_sub) { fontSize = 13, alignment = TextAnchor.MiddleCenter };
+        if (_sansMedium != null) _hint.font = _sansMedium;
+        _hint.normal.textColor = Ink;
     }
 
     static GUIStyle _command;
@@ -528,5 +769,62 @@ public static class UITheme
         if (_command != null) return;
         _command = new GUIStyle(_skin.button) { fontSize = 13, fontStyle = FontStyle.Normal, fixedHeight = PrimaryH, padding = new RectOffset(14, 14, 0, 0) };
         if (_sansMedium != null) _command.font = _sansMedium;
+    }
+
+    // ---- tooltips ----
+    // IMGUI sets GUI.tooltip while the mouse is over a control drawn with a GUIContent tooltip, but
+    // only for the OnGUI call that drew it. Each panel therefore calls CaptureTooltip() right before
+    // its GUILayout.EndArea(); the value (plus the mouse position in screen space) is parked here and
+    // UIShell draws it once per frame, on top of every rail, via DrawTooltipOverlay(). Disabled
+    // controls report a tooltip too, so a tip can say why a button is off.
+
+    const float TipDelay    = 0.4f;    // seconds the same tip must be hovered before it shows
+    const float TipMaxWidth = 260f;
+
+    static string  _tipText;       // most recently captured tooltip
+    static Vector2 _tipPos;        // GUI screen-space mouse position at capture
+    static int     _tipFrame = -10;
+    static string  _tipShown;      // tip the delay timer is running for
+    static float   _tipSince;
+
+    // OnGUI-side sample of "a text field / slider holds keyboard focus", recorded by every panel's
+    // CaptureTooltip call. Update()-side guards read this alongside GUIUtility.keyboardControl so
+    // scene keys (WASD, hotkeys) stay suppressed while typing, with no OnGUI/Update timing gap.
+    static int _typingFrame = -10;
+    public static bool TypingInUI => Time.frameCount - _typingFrame <= 1;
+
+    public static void CaptureTooltip()
+    {
+        var e = Event.current;
+        if (e == null) return;
+        if (GUIUtility.keyboardControl != 0) _typingFrame = Time.frameCount;
+        if (e.type != EventType.Repaint) return;
+        string t = GUI.tooltip;
+        if (string.IsNullOrEmpty(t)) return;
+        _tipText  = t;
+        _tipFrame = Time.frameCount;
+        _tipPos   = GUIUtility.GUIToScreenPoint(e.mousePosition);
+    }
+
+    public static void DrawTooltipOverlay()
+    {
+        Ensure();
+        bool live = !string.IsNullOrEmpty(_tipText) && Time.frameCount - _tipFrame <= 1;
+        if (!live) { _tipShown = null; return; }
+        if (_tipShown != _tipText)
+        {
+            _tipShown = _tipText;
+            _tipSince = Time.unscaledTime;
+        }
+        if (Time.unscaledTime - _tipSince < TipDelay) return;
+        if (Event.current.type != EventType.Repaint) return;
+
+        var content = new GUIContent(_tipText);
+        float w = Mathf.Min(TipMaxWidth, _tip.CalcSize(content).x);
+        float h = _tip.CalcHeight(content, w);
+        float x = _tipPos.x + 14f, y = _tipPos.y + 22f;
+        if (x + w > Screen.width  - 4f) x = Mathf.Max(4f, _tipPos.x - w - 6f);
+        if (y + h > Screen.height - 4f) y = Mathf.Max(4f, _tipPos.y - h - 8f);
+        GUI.Label(new Rect(x, y, w, h), content, _tip);
     }
 }

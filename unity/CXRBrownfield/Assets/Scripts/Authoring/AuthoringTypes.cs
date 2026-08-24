@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 
 // Editable authoring schema — the persistent, interactive layer above the generation pipeline.
 // Separate from DataTypes.cs (generation/ingest schema). Uses Newtonsoft.Json throughout.
@@ -71,7 +72,8 @@ public class EmbeddedObjectDef
     public int    hostFloor;
     public string hostFace;             // "north"/"east"/.../"top"; the face the prop was painted on
     public bool   exclusive;            // locks the host tile: no other decor may be painted on it
-    public bool   fillsFace;            // one tile-sized prop per face; re-painting the face replaces it
+    public bool   fillsFace;            // a tile-sized prop seated on a face; re-painting it replaces it
+                                        // (decors stack per face — see TileBuildingEditor.ReplaceConflictingDecor)
     // Deform-aware placement rules, captured from the DecorPalette entry at paint time so render
     // paths can RE-DERIVE localPos/rotation/scale from the host tile's current TileDeform
     // (DecorPlacement.TryReseat / ReseatAll). decorWidthFrac <= 0 (the default for all legacy and
@@ -172,6 +174,10 @@ public class SurfaceStrokeDef
     public string id;                   // stable GUID
     public string terrainType;          // key into TerrainRegistry (e.g. "grass", "concrete")
     public float radius;                // brush half-extent in meters (disc radius / half the square's side)
+    // Rounded to 2 decimals (~1 cm) on serialize: strokes rasterize into ~0.5-1 m alphamap cells,
+    // and full-precision floats made surfaceStrokes ~65% of a large environment's JSON (save
+    // payloads, undo snapshots, disk records). Scoped to this member only.
+    [JsonConverter(typeof(RoundedPointArrayConverter))]
     public float[][] points;            // [[x, z], ...] stroke centerline in meters
     // Brush footprint: "circle" (default) or "square". Square stamps rotate to each segment's
     // heading so a run drawn at any angle keeps clean parallel edges. Anything unrecognized (or a
@@ -216,6 +222,20 @@ public class SiteDef
     public string outsideTerrainType = "water";  // TerrainRegistry key used outside the parcel
 }
 
+// A drawn plot inside a host environment that a generated child environment can fill. The boundary
+// lives in HOST world meters (same [x,z] convention as lotBoundary/paths) and is not origin-anchored.
+// The fill stays its own EnvironmentDef record on the server; on load it is deep-copied, scaled and
+// translated into this boundary's bounding box (SiteFit.ProjectIntoSite) and rendered as a managed
+// backdrop. null fillEnvironmentId = empty site.
+[Serializable]
+public class SitePlotDef
+{
+    public string id;                 // stable GUID
+    public string name;               // user label, "Site 1" default
+    public float[][] boundary;        // [[x, z], ...] host-world meters, >= 3 points
+    public string fillEnvironmentId;  // generated child env record id; null = empty site
+}
+
 [Serializable]
 public class EnvironmentDef
 {
@@ -232,6 +252,9 @@ public class EnvironmentDef
     public SiteDef site;
     public List<BuildingInstance> buildingInstances;
     public List<ObjectInstance> objectInstances;
+    // Drawn plots that generated child environments can fill (see SitePlotDef). nullable: old JSON
+    // without the field still loads (consumers null-guard, same precedent as SiteDef.fences).
+    public List<SitePlotDef> sites;
 }
 
 // Lightweight summary returned by GET /api/environments (list endpoint)
@@ -259,4 +282,31 @@ public class BuildingSummary
     public string kind;                 // "static" | "cached"
     public string updated;              // ISO 8601 timestamp
     public bool favorite;               // server-managed; pins the row to the top of the list
+}
+
+// Serializes a [[x, z], ...] float point array with each value rounded to 2 decimals (~1 cm).
+// Reading is a plain array read, so the first serialize after loading old full-precision data
+// rounds it and every later round-trip is byte-identical (idempotent). Applied per-member via
+// [JsonConverter] (currently SurfaceStrokeDef.points) -- never registered globally.
+public class RoundedPointArrayConverter : JsonConverter
+{
+    public override bool CanConvert(Type objectType) => objectType == typeof(float[][]);
+
+    public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+    {
+        var points = (float[][])value;
+        if (points == null) { writer.WriteNull(); return; }
+        writer.WriteStartArray();
+        foreach (var p in points)
+        {
+            if (p == null) { writer.WriteNull(); continue; }
+            writer.WriteStartArray();
+            foreach (var v in p) writer.WriteValue((float)Math.Round(v, 2));
+            writer.WriteEndArray();
+        }
+        writer.WriteEndArray();
+    }
+
+    public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        => serializer.Deserialize<float[][]>(reader);
 }

@@ -1,0 +1,4294 @@
+{
+  "id": "95a65e30-cf7f-4585-b53c-5de761731da3",
+  "name": "1252 Longfellow",
+  "version": 26,
+  "tags": [
+    "static"
+  ],
+  "gridCellSize": 4.0,
+  "floors": 6,
+  "floorHeight": 3.5,
+  "tiles": [
+    {
+      "gridX": -1,
+      "gridZ": 0,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "east": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.7814821,
+          1.528054,
+          0.764027,
+          0.39074105
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -2,
+      "gridZ": 0,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.03491013,
+          0.7814821,
+          0.39074105,
+          0.0174550656
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -2,
+      "gridZ": 1,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "BlackConcreteBrickWall",
+        "west": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.0174550656,
+          0.39074105,
+          0.0,
+          0.0
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -1,
+      "gridZ": 1,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "BlackConcreteBrickWall",
+        "east": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.39074105,
+          0.764027,
+          0.0,
+          0.0
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -2,
+      "gridZ": -1,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.0523652,
+          1.17222321,
+          0.7814821,
+          0.03491013
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -1,
+      "gridZ": -1,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "east": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          1.17222321,
+          2.292081,
+          1.528054,
+          0.7814821
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -2,
+      "gridZ": -2,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.06982026,
+          1.5629642,
+          1.17222321,
+          0.0523652
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -1,
+      "gridZ": -2,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "east": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          1.5629642,
+          3.056108,
+          2.292081,
+          1.17222321
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 2,
+      "gridZ": -3,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "BlackConcreteBrickWall",
+        "east": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.0174550656,
+          0.0,
+          0.0,
+          0.0139640523
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 1,
+      "gridZ": -3,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "BlackConcreteBrickWall",
+        "west": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.03491013,
+          0.0174550656,
+          0.0139640523,
+          0.0279281046
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -1,
+      "gridZ": -3,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "east": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.06982026,
+          0.0523652,
+          0.04189216,
+          0.05585621
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -2,
+      "gridZ": -3,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.0872753263,
+          0.06982026,
+          0.05585621,
+          0.06982026
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -2,
+      "gridZ": -4,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.1047304,
+          0.08378432,
+          0.06982026,
+          0.0872753263
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -2,
+      "gridZ": -5,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "BlackConcreteBrickWall",
+        "south": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.122185461,
+          0.09774837,
+          0.08378432,
+          0.1047304
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -1,
+      "gridZ": -5,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "east": "BlackConcreteBrickWall",
+        "south": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.09774837,
+          0.07331128,
+          0.06283824,
+          0.08378432
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -1,
+      "gridZ": -4,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "east": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.08378432,
+          0.06283824,
+          0.0523652,
+          0.06982026
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 1,
+      "gridZ": -4,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.04189216,
+          0.02094608,
+          0.0174550656,
+          0.03491013
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 1,
+      "gridZ": -5,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "BlackConcreteBrickWall",
+        "south": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.0488741845,
+          0.0244370922,
+          0.02094608,
+          0.04189216
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 2,
+      "gridZ": -5,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "east": "BlackConcreteBrickWall",
+        "south": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.0244370922,
+          0.0,
+          0.0,
+          0.02094608
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 2,
+      "gridZ": -4,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "east": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.02094608,
+          0.0,
+          0.0,
+          0.0174550656
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -1,
+      "gridZ": 0,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "east": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.7814821,
+          1.528054,
+          0.764027,
+          0.39074105
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -2,
+      "gridZ": 0,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.03491013,
+          0.7814821,
+          0.39074105,
+          0.0174550656
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -2,
+      "gridZ": 1,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "BlackConcreteBrickWall",
+        "west": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.0174550656,
+          0.39074105,
+          0.0,
+          0.0
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -1,
+      "gridZ": 1,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "BlackConcreteBrickWall",
+        "east": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.39074105,
+          0.764027,
+          0.0,
+          0.0
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -2,
+      "gridZ": -1,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.0523652,
+          1.17222321,
+          0.7814821,
+          0.03491013
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -1,
+      "gridZ": -1,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "east": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          1.17222321,
+          2.292081,
+          1.528054,
+          0.7814821
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -2,
+      "gridZ": -2,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.06982026,
+          1.5629642,
+          1.17222321,
+          0.0523652
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -1,
+      "gridZ": -2,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "east": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          1.5629642,
+          3.056108,
+          2.292081,
+          1.17222321
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 2,
+      "gridZ": -3,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "BlackConcreteBrickWall",
+        "east": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.0174550656,
+          0.0,
+          0.0,
+          0.0139640523
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 1,
+      "gridZ": -3,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "BlackConcreteBrickWall",
+        "west": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.03491013,
+          0.0174550656,
+          0.0139640523,
+          0.0279281046
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -1,
+      "gridZ": -3,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "east": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.06982026,
+          0.0523652,
+          0.04189216,
+          0.05585621
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -2,
+      "gridZ": -3,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.0872753263,
+          0.06982026,
+          0.05585621,
+          0.06982026
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -2,
+      "gridZ": -4,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.1047304,
+          0.08378432,
+          0.06982026,
+          0.0872753263
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -2,
+      "gridZ": -5,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "BlackConcreteBrickWall",
+        "south": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.122185461,
+          0.09774837,
+          0.08378432,
+          0.1047304
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -1,
+      "gridZ": -5,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "east": "BlackConcreteBrickWall",
+        "south": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.09774837,
+          0.07331128,
+          0.06283824,
+          0.08378432
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -1,
+      "gridZ": -4,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "east": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.08378432,
+          0.06283824,
+          0.0523652,
+          0.06982026
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 1,
+      "gridZ": -4,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.04189216,
+          0.02094608,
+          0.0174550656,
+          0.03491013
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 1,
+      "gridZ": -5,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "BlackConcreteBrickWall",
+        "south": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.0488741845,
+          0.0244370922,
+          0.02094608,
+          0.04189216
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 2,
+      "gridZ": -5,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "east": "BlackConcreteBrickWall",
+        "south": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.0244370922,
+          0.0,
+          0.0,
+          0.02094608
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 2,
+      "gridZ": -4,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "east": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.02094608,
+          0.0,
+          0.0,
+          0.0174550656
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -1,
+      "gridZ": 0,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "east": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.7814821,
+          1.528054,
+          0.764027,
+          0.39074105
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -2,
+      "gridZ": 0,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.03491013,
+          0.7814821,
+          0.39074105,
+          0.0174550656
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -2,
+      "gridZ": 1,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "BlackConcreteBrickWall",
+        "west": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.0174550656,
+          0.39074105,
+          0.0,
+          0.0
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -1,
+      "gridZ": 1,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "BlackConcreteBrickWall",
+        "east": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.39074105,
+          0.764027,
+          0.0,
+          0.0
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -2,
+      "gridZ": -1,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.0523652,
+          1.17222321,
+          0.7814821,
+          0.03491013
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -1,
+      "gridZ": -1,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "east": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          1.17222321,
+          2.292081,
+          1.528054,
+          0.7814821
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -2,
+      "gridZ": -2,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.06982026,
+          1.5629642,
+          1.17222321,
+          0.0523652
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -1,
+      "gridZ": -2,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "east": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          1.5629642,
+          3.056108,
+          2.292081,
+          1.17222321
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 2,
+      "gridZ": -3,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "BlackConcreteBrickWall",
+        "east": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.0174550656,
+          0.0,
+          0.0,
+          0.0139640523
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 1,
+      "gridZ": -3,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "BlackConcreteBrickWall",
+        "west": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.03491013,
+          0.0174550656,
+          0.0139640523,
+          0.0279281046
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -1,
+      "gridZ": -3,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "east": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.06982026,
+          0.0523652,
+          0.04189216,
+          0.05585621
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -2,
+      "gridZ": -3,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.0872753263,
+          0.06982026,
+          0.05585621,
+          0.06982026
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -2,
+      "gridZ": -4,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.1047304,
+          0.08378432,
+          0.06982026,
+          0.0872753263
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -2,
+      "gridZ": -5,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "BlackConcreteBrickWall",
+        "south": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.122185461,
+          0.09774837,
+          0.08378432,
+          0.1047304
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -1,
+      "gridZ": -5,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "east": "BlackConcreteBrickWall",
+        "south": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.09774837,
+          0.07331128,
+          0.06283824,
+          0.08378432
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -1,
+      "gridZ": -4,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "east": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.08378432,
+          0.06283824,
+          0.0523652,
+          0.06982026
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 1,
+      "gridZ": -4,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.04189216,
+          0.02094608,
+          0.0174550656,
+          0.03491013
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 1,
+      "gridZ": -5,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "BlackConcreteBrickWall",
+        "south": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.0488741845,
+          0.0244370922,
+          0.02094608,
+          0.04189216
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 2,
+      "gridZ": -5,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "east": "BlackConcreteBrickWall",
+        "south": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.0244370922,
+          0.0,
+          0.0,
+          0.02094608
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 2,
+      "gridZ": -4,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "east": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.02094608,
+          0.0,
+          0.0,
+          0.0174550656
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -1,
+      "gridZ": 0,
+      "floor": 3,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "east": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.7814821,
+          1.528054,
+          0.764027,
+          0.39074105
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -2,
+      "gridZ": 0,
+      "floor": 3,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.03491013,
+          0.7814821,
+          0.39074105,
+          0.0174550656
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -2,
+      "gridZ": 1,
+      "floor": 3,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "BlackConcreteBrickWall",
+        "west": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.0174550656,
+          0.39074105,
+          0.0,
+          0.0
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -1,
+      "gridZ": 1,
+      "floor": 3,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "BlackConcreteBrickWall",
+        "east": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.39074105,
+          0.764027,
+          0.0,
+          0.0
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -2,
+      "gridZ": -1,
+      "floor": 3,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.0523652,
+          1.17222321,
+          0.7814821,
+          0.03491013
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -1,
+      "gridZ": -1,
+      "floor": 3,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "east": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          1.17222321,
+          2.292081,
+          1.528054,
+          0.7814821
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -2,
+      "gridZ": -2,
+      "floor": 3,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.06982026,
+          1.5629642,
+          1.17222321,
+          0.0523652
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -1,
+      "gridZ": -2,
+      "floor": 3,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "east": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          1.5629642,
+          3.056108,
+          2.292081,
+          1.17222321
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 2,
+      "gridZ": -3,
+      "floor": 3,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "BlackConcreteBrickWall",
+        "east": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.0174550656,
+          0.0,
+          0.0,
+          0.0139640523
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 1,
+      "gridZ": -3,
+      "floor": 3,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "BlackConcreteBrickWall",
+        "west": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.03491013,
+          0.0174550656,
+          0.0139640523,
+          0.0279281046
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -1,
+      "gridZ": -3,
+      "floor": 3,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "east": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.06982026,
+          0.0523652,
+          0.04189216,
+          0.05585621
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -2,
+      "gridZ": -3,
+      "floor": 3,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.0872753263,
+          0.06982026,
+          0.05585621,
+          0.06982026
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -2,
+      "gridZ": -4,
+      "floor": 3,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.1047304,
+          0.08378432,
+          0.06982026,
+          0.0872753263
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -2,
+      "gridZ": -5,
+      "floor": 3,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "BlackConcreteBrickWall",
+        "south": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.122185461,
+          0.09774837,
+          0.08378432,
+          0.1047304
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -1,
+      "gridZ": -5,
+      "floor": 3,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "east": "BlackConcreteBrickWall",
+        "south": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.09774837,
+          0.07331128,
+          0.06283824,
+          0.08378432
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -1,
+      "gridZ": -4,
+      "floor": 3,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "east": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.08378432,
+          0.06283824,
+          0.0523652,
+          0.06982026
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 1,
+      "gridZ": -4,
+      "floor": 3,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.04189216,
+          0.02094608,
+          0.0174550656,
+          0.03491013
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 1,
+      "gridZ": -5,
+      "floor": 3,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "BlackConcreteBrickWall",
+        "south": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.0488741845,
+          0.0244370922,
+          0.02094608,
+          0.04189216
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 2,
+      "gridZ": -5,
+      "floor": 3,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "east": "BlackConcreteBrickWall",
+        "south": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.0244370922,
+          0.0,
+          0.0,
+          0.02094608
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 2,
+      "gridZ": -4,
+      "floor": 3,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "east": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.02094608,
+          0.0,
+          0.0,
+          0.0174550656
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -1,
+      "gridZ": 0,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "east": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.7814821,
+          1.528054,
+          0.764027,
+          0.39074105
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -2,
+      "gridZ": 0,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.03491013,
+          0.7814821,
+          0.39074105,
+          0.0174550656
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -2,
+      "gridZ": 1,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "BlackConcreteBrickWall",
+        "west": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.0174550656,
+          0.39074105,
+          0.0,
+          0.0
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -1,
+      "gridZ": 1,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "BlackConcreteBrickWall",
+        "east": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.39074105,
+          0.764027,
+          0.0,
+          0.0
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -2,
+      "gridZ": -1,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.0523652,
+          1.17222321,
+          0.7814821,
+          0.03491013
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -1,
+      "gridZ": -1,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "east": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          1.17222321,
+          2.292081,
+          1.528054,
+          0.7814821
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -2,
+      "gridZ": -2,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.06982026,
+          1.5629642,
+          1.17222321,
+          0.0523652
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -1,
+      "gridZ": -2,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "east": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          1.5629642,
+          3.056108,
+          2.292081,
+          1.17222321
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 2,
+      "gridZ": -3,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "BlackConcreteBrickWall",
+        "east": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.0174550656,
+          0.0,
+          0.0,
+          0.0139640523
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 1,
+      "gridZ": -3,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "BlackConcreteBrickWall",
+        "west": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.03491013,
+          0.0174550656,
+          0.0139640523,
+          0.0279281046
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -1,
+      "gridZ": -3,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "east": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.06982026,
+          0.0523652,
+          0.04189216,
+          0.05585621
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -2,
+      "gridZ": -3,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.0872753263,
+          0.06982026,
+          0.05585621,
+          0.06982026
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -2,
+      "gridZ": -4,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.1047304,
+          0.08378432,
+          0.06982026,
+          0.0872753263
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -2,
+      "gridZ": -5,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "BlackConcreteBrickWall",
+        "south": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.122185461,
+          0.09774837,
+          0.08378432,
+          0.1047304
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -1,
+      "gridZ": -5,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "east": "BlackConcreteBrickWall",
+        "south": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.09774837,
+          0.07331128,
+          0.06283824,
+          0.08378432
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": -1,
+      "gridZ": -4,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "east": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.08378432,
+          0.06283824,
+          0.0523652,
+          0.06982026
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 1,
+      "gridZ": -4,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.04189216,
+          0.02094608,
+          0.0174550656,
+          0.03491013
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 1,
+      "gridZ": -5,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "BlackConcreteBrickWall",
+        "south": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.0488741845,
+          0.0244370922,
+          0.02094608,
+          0.04189216
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 2,
+      "gridZ": -5,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "east": "BlackConcreteBrickWall",
+        "south": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.0244370922,
+          0.0,
+          0.0,
+          0.02094608
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 2,
+      "gridZ": -4,
+      "floor": 4,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "east": "BlackConcreteBrickWall"
+      },
+      "deform": {
+        "dx": [
+          0.02094608,
+          0.0,
+          0.0,
+          0.0174550656
+        ],
+        "dz": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "dyTop": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "gridX": 0,
+      "gridZ": -2,
+      "floor": 5,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "NormalBrickWall"
+      },
+      "deform": null
+    }
+  ],
+  "embeddedObjects": [
+    {
+      "instanceId": "490832d3-0fa2-4c6f-ab30-f3c168ea5125",
+      "prefabType": "WindowPair",
+      "localPos": [
+        -2.0,
+        5.21767044,
+        8.14856
+      ],
+      "rotationX": 0.0,
+      "rotationY": 270.0,
+      "rotationZ": 0.0,
+      "scale": 1.543186,
+      "hostGridX": -1,
+      "hostGridZ": 1,
+      "hostFloor": 1,
+      "hostFace": "north",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    },
+    {
+      "instanceId": "6733c62e-80a9-4d22-af10-8b09c7673bdf",
+      "prefabType": "WindowPair",
+      "localPos": [
+        -6.0,
+        5.21767044,
+        8.14856
+      ],
+      "rotationX": 0.0,
+      "rotationY": 270.0,
+      "rotationZ": 0.0,
+      "scale": 1.543186,
+      "hostGridX": -2,
+      "hostGridZ": 1,
+      "hostFloor": 1,
+      "hostFace": "north",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    },
+    {
+      "instanceId": "d5c0cd04-7066-4349-869b-93d1c9022009",
+      "prefabType": "WindowPair",
+      "localPos": [
+        -6.0,
+        9.21767,
+        8.14856
+      ],
+      "rotationX": 0.0,
+      "rotationY": 270.0,
+      "rotationZ": 0.0,
+      "scale": 1.543186,
+      "hostGridX": -2,
+      "hostGridZ": 1,
+      "hostFloor": 2,
+      "hostFace": "north",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    },
+    {
+      "instanceId": "a3e62010-13ab-4e5c-aa5e-a6da1ad412e1",
+      "prefabType": "WindowPair",
+      "localPos": [
+        -2.0,
+        9.21767,
+        8.14856
+      ],
+      "rotationX": 0.0,
+      "rotationY": 270.0,
+      "rotationZ": 0.0,
+      "scale": 1.543186,
+      "hostGridX": -1,
+      "hostGridZ": 1,
+      "hostFloor": 2,
+      "hostFace": "north",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    },
+    {
+      "instanceId": "80b93719-fc43-43be-bc11-aaa2f5db99fc",
+      "prefabType": "WindowPair",
+      "localPos": [
+        -2.0,
+        13.21767,
+        8.14856
+      ],
+      "rotationX": 0.0,
+      "rotationY": 270.0,
+      "rotationZ": 0.0,
+      "scale": 1.543186,
+      "hostGridX": -1,
+      "hostGridZ": 1,
+      "hostFloor": 3,
+      "hostFace": "north",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    },
+    {
+      "instanceId": "4615b8ac-74b8-4cfc-9cc0-e3a683b593e7",
+      "prefabType": "WindowPair",
+      "localPos": [
+        -6.0,
+        13.21767,
+        8.14856
+      ],
+      "rotationX": 0.0,
+      "rotationY": 270.0,
+      "rotationZ": 0.0,
+      "scale": 1.543186,
+      "hostGridX": -2,
+      "hostGridZ": 1,
+      "hostFloor": 3,
+      "hostFace": "north",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    },
+    {
+      "instanceId": "4383a589-3d97-490d-81b0-6ab9847491f5",
+      "prefabType": "WindowPair",
+      "localPos": [
+        -6.0,
+        17.21767,
+        8.14856
+      ],
+      "rotationX": 0.0,
+      "rotationY": 270.0,
+      "rotationZ": 0.0,
+      "scale": 1.543186,
+      "hostGridX": -2,
+      "hostGridZ": 1,
+      "hostFloor": 4,
+      "hostFace": "north",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    },
+    {
+      "instanceId": "3c6fb275-a9b7-4a66-835d-07adf484cc59",
+      "prefabType": "WindowPair",
+      "localPos": [
+        -2.0,
+        17.21767,
+        8.14856
+      ],
+      "rotationX": 0.0,
+      "rotationY": 270.0,
+      "rotationZ": 0.0,
+      "scale": 1.543186,
+      "hostGridX": -1,
+      "hostGridZ": 1,
+      "hostFloor": 4,
+      "hostFace": "north",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    },
+    {
+      "instanceId": "c729fcda-ea3c-4d67-b0cf-c67c000848da",
+      "prefabType": "WindowPair",
+      "localPos": [
+        1.67661369,
+        5.532397,
+        6.11350346
+      ],
+      "rotationX": 0.0,
+      "rotationY": 322.6192,
+      "rotationZ": 0.0,
+      "scale": 1.94204736,
+      "hostGridX": -1,
+      "hostGridZ": 1,
+      "hostFloor": 1,
+      "hostFace": "east",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    },
+    {
+      "instanceId": "68a0d003-e91e-4541-9400-807258823bdd",
+      "prefabType": "WindowPair",
+      "localPos": [
+        4.73272133,
+        5.532397,
+        2.11350369
+      ],
+      "rotationX": 2.544444e-13,
+      "rotationY": 322.6192,
+      "rotationZ": 2.71369572e-06,
+      "scale": 1.94204736,
+      "hostGridX": -1,
+      "hostGridZ": 0,
+      "hostFloor": 1,
+      "hostFace": "east",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    },
+    {
+      "instanceId": "4ae92ae1-e960-47f3-b5c8-385ae2d90870",
+      "prefabType": "WindowPair",
+      "localPos": [
+        7.78883,
+        5.532397,
+        -1.88649642
+      ],
+      "rotationX": 0.0,
+      "rotationY": 322.619171,
+      "rotationZ": 0.0,
+      "scale": 1.9420476,
+      "hostGridX": -1,
+      "hostGridZ": -1,
+      "hostFloor": 1,
+      "hostFace": "east",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    },
+    {
+      "instanceId": "375ab76a-5321-40b8-b2f6-2dbfb0f46f62",
+      "prefabType": "WindowPair",
+      "localPos": [
+        7.78883,
+        1.53239691,
+        -1.88649642
+      ],
+      "rotationX": 0.0,
+      "rotationY": 322.619171,
+      "rotationZ": 0.0,
+      "scale": 1.9420476,
+      "hostGridX": -1,
+      "hostGridZ": -1,
+      "hostFloor": 0,
+      "hostFace": "east",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    },
+    {
+      "instanceId": "e17d0005-b8f7-4a0a-b966-ac0ae25e3286",
+      "prefabType": "WindowPair",
+      "localPos": [
+        10.8449383,
+        1.53239679,
+        -5.88649654
+      ],
+      "rotationX": -3.0533326e-13,
+      "rotationY": 322.6192,
+      "rotationZ": -5.427392e-06,
+      "scale": 1.94204736,
+      "hostGridX": -1,
+      "hostGridZ": -2,
+      "hostFloor": 0,
+      "hostFace": "east",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    },
+    {
+      "instanceId": "4fe16cea-d1d6-4504-a7c1-b3660d63ff35",
+      "prefabType": "WindowPair",
+      "localPos": [
+        10.8449383,
+        5.532397,
+        -5.88649654
+      ],
+      "rotationX": -3.0533326e-13,
+      "rotationY": 322.6192,
+      "rotationZ": -5.427392e-06,
+      "scale": 1.94204736,
+      "hostGridX": -1,
+      "hostGridZ": -2,
+      "hostFloor": 1,
+      "hostFace": "east",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    },
+    {
+      "instanceId": "8f766219-fb60-4766-9e80-2079d12cfcf6",
+      "prefabType": "WindowPair",
+      "localPos": [
+        10.8449383,
+        9.532396,
+        -5.88649654
+      ],
+      "rotationX": -3.0533326e-13,
+      "rotationY": 322.6192,
+      "rotationZ": -5.427392e-06,
+      "scale": 1.94204736,
+      "hostGridX": -1,
+      "hostGridZ": -2,
+      "hostFloor": 2,
+      "hostFace": "east",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    },
+    {
+      "instanceId": "980a7791-0d8a-4d73-a51d-985e83c86e02",
+      "prefabType": "WindowPair",
+      "localPos": [
+        7.78883,
+        9.532397,
+        -1.88649642
+      ],
+      "rotationX": 0.0,
+      "rotationY": 322.619171,
+      "rotationZ": 0.0,
+      "scale": 1.9420476,
+      "hostGridX": -1,
+      "hostGridZ": -1,
+      "hostFloor": 2,
+      "hostFace": "east",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    },
+    {
+      "instanceId": "806d18d6-c575-401a-b9f5-893159919ab9",
+      "prefabType": "WindowPair",
+      "localPos": [
+        4.73272133,
+        9.532396,
+        2.11350369
+      ],
+      "rotationX": 2.544444e-13,
+      "rotationY": 322.6192,
+      "rotationZ": 2.71369572e-06,
+      "scale": 1.94204736,
+      "hostGridX": -1,
+      "hostGridZ": 0,
+      "hostFloor": 2,
+      "hostFace": "east",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    },
+    {
+      "instanceId": "fd479d2f-90a7-4d3d-90bb-ab0c8b6b215f",
+      "prefabType": "WindowPair",
+      "localPos": [
+        1.67661369,
+        9.532396,
+        6.11350346
+      ],
+      "rotationX": 0.0,
+      "rotationY": 322.6192,
+      "rotationZ": 0.0,
+      "scale": 1.94204736,
+      "hostGridX": -1,
+      "hostGridZ": 1,
+      "hostFloor": 2,
+      "hostFace": "east",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    },
+    {
+      "instanceId": "faf36dae-bb8d-4e8c-a275-d2b49da2ff0e",
+      "prefabType": "WindowPair",
+      "localPos": [
+        1.67661369,
+        13.5323963,
+        6.11350346
+      ],
+      "rotationX": 0.0,
+      "rotationY": 322.6192,
+      "rotationZ": 0.0,
+      "scale": 1.94204736,
+      "hostGridX": -1,
+      "hostGridZ": 1,
+      "hostFloor": 3,
+      "hostFace": "east",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    },
+    {
+      "instanceId": "b85c04a9-d0ae-403d-b5f0-e22205cda741",
+      "prefabType": "WindowPair",
+      "localPos": [
+        4.73272133,
+        13.5323963,
+        2.11350369
+      ],
+      "rotationX": 2.544444e-13,
+      "rotationY": 322.6192,
+      "rotationZ": 2.71369572e-06,
+      "scale": 1.94204736,
+      "hostGridX": -1,
+      "hostGridZ": 0,
+      "hostFloor": 3,
+      "hostFace": "east",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    },
+    {
+      "instanceId": "4b79239b-76f2-4417-9efc-ae6324ce9356",
+      "prefabType": "WindowPair",
+      "localPos": [
+        7.78883,
+        13.5323973,
+        -1.88649642
+      ],
+      "rotationX": 0.0,
+      "rotationY": 322.619171,
+      "rotationZ": 0.0,
+      "scale": 1.9420476,
+      "hostGridX": -1,
+      "hostGridZ": -1,
+      "hostFloor": 3,
+      "hostFace": "east",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    },
+    {
+      "instanceId": "63eba92a-199e-47e4-85a8-848f6e6af86e",
+      "prefabType": "WindowPair",
+      "localPos": [
+        10.8449383,
+        13.5323963,
+        -5.88649654
+      ],
+      "rotationX": -3.0533326e-13,
+      "rotationY": 322.6192,
+      "rotationZ": -5.427392e-06,
+      "scale": 1.94204736,
+      "hostGridX": -1,
+      "hostGridZ": -2,
+      "hostFloor": 3,
+      "hostFace": "east",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    },
+    {
+      "instanceId": "cbe5066d-5761-4ebf-bbd2-79686bbd42ae",
+      "prefabType": "WindowPair",
+      "localPos": [
+        10.8449383,
+        17.5323963,
+        -5.88649654
+      ],
+      "rotationX": -3.0533326e-13,
+      "rotationY": 322.6192,
+      "rotationZ": -5.427392e-06,
+      "scale": 1.94204736,
+      "hostGridX": -1,
+      "hostGridZ": -2,
+      "hostFloor": 4,
+      "hostFace": "east",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    },
+    {
+      "instanceId": "25bf07be-2610-40fb-a88d-c4ccce158f73",
+      "prefabType": "WindowPair",
+      "localPos": [
+        7.78883,
+        17.5323963,
+        -1.88649642
+      ],
+      "rotationX": 0.0,
+      "rotationY": 322.619171,
+      "rotationZ": 0.0,
+      "scale": 1.9420476,
+      "hostGridX": -1,
+      "hostGridZ": -1,
+      "hostFloor": 4,
+      "hostFace": "east",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    },
+    {
+      "instanceId": "3843b284-832a-4dd9-ac92-89d64f7304bf",
+      "prefabType": "WindowPair",
+      "localPos": [
+        4.73272133,
+        17.5323963,
+        2.11350369
+      ],
+      "rotationX": 2.544444e-13,
+      "rotationY": 322.6192,
+      "rotationZ": 2.71369572e-06,
+      "scale": 1.94204736,
+      "hostGridX": -1,
+      "hostGridZ": 0,
+      "hostFloor": 4,
+      "hostFace": "east",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    },
+    {
+      "instanceId": "4a3de29a-5847-4edf-a57c-aa63e03c939e",
+      "prefabType": "WindowPair",
+      "localPos": [
+        1.67661369,
+        17.5323963,
+        6.11350346
+      ],
+      "rotationX": 0.0,
+      "rotationY": 322.6192,
+      "rotationZ": 0.0,
+      "scale": 1.94204736,
+      "hostGridX": -1,
+      "hostGridZ": 1,
+      "hostFloor": 4,
+      "hostFace": "east",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    },
+    {
+      "instanceId": "75814d08-ee09-4635-a88a-1adef4a64a70",
+      "prefabType": "WindowPair",
+      "localPos": [
+        12.14856,
+        1.2176702,
+        -10.0
+      ],
+      "rotationX": 0.0,
+      "rotationY": 0.0,
+      "rotationZ": 0.0,
+      "scale": 1.543186,
+      "hostGridX": 2,
+      "hostGridZ": -3,
+      "hostFloor": 0,
+      "hostFace": "east",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    },
+    {
+      "instanceId": "106c41bd-115b-4cf3-875c-1c725cc8eddd",
+      "prefabType": "WindowPair",
+      "localPos": [
+        12.14856,
+        1.2176702,
+        -14.0
+      ],
+      "rotationX": 0.0,
+      "rotationY": 0.0,
+      "rotationZ": 0.0,
+      "scale": 1.543186,
+      "hostGridX": 2,
+      "hostGridZ": -4,
+      "hostFloor": 0,
+      "hostFace": "east",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    },
+    {
+      "instanceId": "8b9614f7-3194-4d50-b27b-6faef2508eb0",
+      "prefabType": "WindowPair",
+      "localPos": [
+        12.14856,
+        1.2176702,
+        -18.0
+      ],
+      "rotationX": 0.0,
+      "rotationY": 0.0,
+      "rotationZ": 0.0,
+      "scale": 1.543186,
+      "hostGridX": 2,
+      "hostGridZ": -5,
+      "hostFloor": 0,
+      "hostFace": "east",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    },
+    {
+      "instanceId": "a1d9d51e-7368-4609-8a8a-0474495ddab8",
+      "prefabType": "WindowPair",
+      "localPos": [
+        12.14856,
+        5.21767044,
+        -18.0
+      ],
+      "rotationX": 0.0,
+      "rotationY": 0.0,
+      "rotationZ": 0.0,
+      "scale": 1.543186,
+      "hostGridX": 2,
+      "hostGridZ": -5,
+      "hostFloor": 1,
+      "hostFace": "east",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    },
+    {
+      "instanceId": "47b4ae5d-0baa-40d9-8acb-4281731ae4e0",
+      "prefabType": "WindowPair",
+      "localPos": [
+        12.14856,
+        5.21767044,
+        -10.0
+      ],
+      "rotationX": 0.0,
+      "rotationY": 0.0,
+      "rotationZ": 0.0,
+      "scale": 1.543186,
+      "hostGridX": 2,
+      "hostGridZ": -3,
+      "hostFloor": 1,
+      "hostFace": "east",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    },
+    {
+      "instanceId": "7f0c0d23-5635-499c-b16c-99bae99c278b",
+      "prefabType": "WindowPair",
+      "localPos": [
+        12.14856,
+        5.21767044,
+        -14.0
+      ],
+      "rotationX": 0.0,
+      "rotationY": 0.0,
+      "rotationZ": 0.0,
+      "scale": 1.543186,
+      "hostGridX": 2,
+      "hostGridZ": -4,
+      "hostFloor": 1,
+      "hostFace": "east",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    },
+    {
+      "instanceId": "9d4da298-106d-4c51-b9ea-d12c88f61b6c",
+      "prefabType": "WindowPair",
+      "localPos": [
+        12.14856,
+        9.21767,
+        -18.0
+      ],
+      "rotationX": 0.0,
+      "rotationY": 0.0,
+      "rotationZ": 0.0,
+      "scale": 1.543186,
+      "hostGridX": 2,
+      "hostGridZ": -5,
+      "hostFloor": 2,
+      "hostFace": "east",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    },
+    {
+      "instanceId": "b367f575-765c-40c5-9173-61dc83bf446e",
+      "prefabType": "WindowPair",
+      "localPos": [
+        12.14856,
+        9.21767,
+        -14.0
+      ],
+      "rotationX": 0.0,
+      "rotationY": 0.0,
+      "rotationZ": 0.0,
+      "scale": 1.543186,
+      "hostGridX": 2,
+      "hostGridZ": -4,
+      "hostFloor": 2,
+      "hostFace": "east",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    },
+    {
+      "instanceId": "0922d55a-17e2-4eea-8854-702f5a31c355",
+      "prefabType": "WindowPair",
+      "localPos": [
+        12.14856,
+        9.21767,
+        -10.0
+      ],
+      "rotationX": 0.0,
+      "rotationY": 0.0,
+      "rotationZ": 0.0,
+      "scale": 1.543186,
+      "hostGridX": 2,
+      "hostGridZ": -3,
+      "hostFloor": 2,
+      "hostFace": "east",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    },
+    {
+      "instanceId": "4d89dc7d-38ea-452b-b4d9-065145e091ad",
+      "prefabType": "WindowPair",
+      "localPos": [
+        12.14856,
+        13.21767,
+        -10.0
+      ],
+      "rotationX": 0.0,
+      "rotationY": 0.0,
+      "rotationZ": 0.0,
+      "scale": 1.543186,
+      "hostGridX": 2,
+      "hostGridZ": -3,
+      "hostFloor": 3,
+      "hostFace": "east",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    },
+    {
+      "instanceId": "b1a7ce43-2483-47ff-94d3-a6173d0756d8",
+      "prefabType": "WindowPair",
+      "localPos": [
+        12.14856,
+        13.21767,
+        -14.0
+      ],
+      "rotationX": 0.0,
+      "rotationY": 0.0,
+      "rotationZ": 0.0,
+      "scale": 1.543186,
+      "hostGridX": 2,
+      "hostGridZ": -4,
+      "hostFloor": 3,
+      "hostFace": "east",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    },
+    {
+      "instanceId": "47ffcb4f-4f0e-45fe-a34b-1932273a3f58",
+      "prefabType": "WindowPair",
+      "localPos": [
+        12.14856,
+        13.21767,
+        -18.0
+      ],
+      "rotationX": 0.0,
+      "rotationY": 0.0,
+      "rotationZ": 0.0,
+      "scale": 1.543186,
+      "hostGridX": 2,
+      "hostGridZ": -5,
+      "hostFloor": 3,
+      "hostFace": "east",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    },
+    {
+      "instanceId": "f41933bf-39de-4341-87a9-eb57bcc9445f",
+      "prefabType": "WindowPair",
+      "localPos": [
+        12.14856,
+        17.21767,
+        -18.0
+      ],
+      "rotationX": 0.0,
+      "rotationY": 0.0,
+      "rotationZ": 0.0,
+      "scale": 1.543186,
+      "hostGridX": 2,
+      "hostGridZ": -5,
+      "hostFloor": 4,
+      "hostFace": "east",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    },
+    {
+      "instanceId": "bfc81fb2-e16d-4f1d-9a89-9633c17e70b7",
+      "prefabType": "WindowPair",
+      "localPos": [
+        12.14856,
+        17.21767,
+        -14.0
+      ],
+      "rotationX": 0.0,
+      "rotationY": 0.0,
+      "rotationZ": 0.0,
+      "scale": 1.543186,
+      "hostGridX": 2,
+      "hostGridZ": -4,
+      "hostFloor": 4,
+      "hostFace": "east",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    },
+    {
+      "instanceId": "5324d0e7-4e8b-47b1-9953-8f2dc14c4c0f",
+      "prefabType": "WindowPair",
+      "localPos": [
+        12.14856,
+        17.21767,
+        -10.0
+      ],
+      "rotationX": 0.0,
+      "rotationY": 0.0,
+      "rotationZ": 0.0,
+      "scale": 1.543186,
+      "hostGridX": 2,
+      "hostGridZ": -3,
+      "hostFloor": 4,
+      "hostFace": "east",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false
+    }
+  ],
+  "favorite": false
+}

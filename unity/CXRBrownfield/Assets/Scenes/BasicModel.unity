@@ -4688,6 +4688,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::InstanceMarker
   instanceId: b297cf32-1b6b-4e31-aa36-b7acf44e1bfe
   isBuilding: 0
+  isEmbedded: 0
 --- !u!64 &57429242
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -4928,6 +4929,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::InstanceMarker
   instanceId: 3d265790-0277-4a09-9dd9-a9c3ce57c641
   isBuilding: 0
+  isEmbedded: 0
 --- !u!64 &59895216
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -17066,6 +17068,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::InstanceMarker
   instanceId: 938940ab-eb1e-43b4-8ef5-80cd128590f2
   isBuilding: 0
+  isEmbedded: 0
 --- !u!64 &227855801
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -17866,6 +17869,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::InstanceMarker
   instanceId: 596638ff-8fe4-44fa-8703-012cd50d803f
   isBuilding: 0
+  isEmbedded: 0
 --- !u!64 &238458300
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -22313,6 +22317,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::InstanceMarker
   instanceId: a77cdcd5-2ff2-4bc2-ac14-712dfe7158e9
   isBuilding: 0
+  isEmbedded: 0
 --- !u!64 &295868552
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -25028,6 +25033,7 @@ GameObject:
   - component: {fileID: 330585547}
   - component: {fileID: 330585548}
   - component: {fileID: 330585549}
+  - component: {fileID: 330585550}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -25196,7 +25202,30 @@ MonoBehaviour:
   tileBuildingEditor: {fileID: 0}
   modelRequester: {fileID: 0}
   libraryBrowser: {fileID: 0}
+  walkthrough: {fileID: 0}
   barWidth: 560
+--- !u!114 &330585550
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 330585543}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 22d9d35ce7c4e6a4bbf95b53a9ed2f40, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WalkthroughController
+  editController: {fileID: 0}
+  worldRenderer: {fileID: 0}
+  mainCamera: {fileID: 0}
+  walkSpeed: 1.4
+  runSpeed: 3
+  lookSens: 0.12
+  gravity: -9.81
+  stepOffset: 0.4
+  slopeLimit: 50
+  solidBackdrops: 1
 --- !u!1 &332881489
 GameObject:
   m_ObjectHideFlags: 0
@@ -32739,6 +32768,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::InstanceMarker
   instanceId: aed62579-5fbf-4cdf-a5ec-3f1c8915c6eb
   isBuilding: 0
+  isEmbedded: 0
 --- !u!64 &448350133
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -34547,6 +34577,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::InstanceMarker
   instanceId: b84114f3-642c-4c20-9a95-1bd76ff4c875
   isBuilding: 0
+  isEmbedded: 0
 --- !u!64 &485375328
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -39523,6 +39554,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::InstanceMarker
   instanceId: 510771d9-1d66-4abc-a211-bdd7ca3ab137
   isBuilding: 0
+  isEmbedded: 0
 --- !u!64 &552969885
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -42620,6 +42652,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::InstanceMarker
   instanceId: 6ba98084-f410-442a-8c27-484e19bfddc9
   isBuilding: 1
+  isEmbedded: 0
 --- !u!1 &605312557
 GameObject:
   m_ObjectHideFlags: 0
@@ -49420,6 +49453,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::InstanceMarker
   instanceId: 3c0d3a78-229d-40aa-a13d-eb18ae8a875b
   isBuilding: 0
+  isEmbedded: 0
 --- !u!64 &701938466
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -50668,6 +50702,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::InstanceMarker
   instanceId: 1dd57e61-9365-4b9f-801f-a27b66741f7b
   isBuilding: 0
+  isEmbedded: 0
 --- !u!64 &721636100
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -51020,6 +51055,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::InstanceMarker
   instanceId: 4fecade3-0a35-4f7c-8c83-949275dbc169
   isBuilding: 0
+  isEmbedded: 0
 --- !u!64 &724934273
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -54453,6 +54489,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::InstanceMarker
   instanceId: 21ff9804-7055-4be5-ba3c-b6e096a8b66e
   isBuilding: 1
+  isEmbedded: 0
 --- !u!1 &787732675
 GameObject:
   m_ObjectHideFlags: 0
@@ -57983,6 +58020,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::InstanceMarker
   instanceId: 535ead56-23d7-4073-9e27-f44a5f599a01
   isBuilding: 0
+  isEmbedded: 0
 --- !u!64 &854937959
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -74161,6 +74199,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::InstanceMarker
   instanceId: af1a6362-1c9f-43d1-a349-5dc3dddf8a36
   isBuilding: 0
+  isEmbedded: 0
 --- !u!64 &1090953521
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -77587,6 +77626,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::InstanceMarker
   instanceId: 8b4e571e-73a1-430d-aaa9-6454fcba100b
   isBuilding: 0
+  isEmbedded: 0
 --- !u!64 &1127168808
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -80048,6 +80088,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::InstanceMarker
   instanceId: 538dab82-a926-459b-af41-1d3dec74380c
   isBuilding: 1
+  isEmbedded: 0
 --- !u!1 &1161438749
 GameObject:
   m_ObjectHideFlags: 0
@@ -88184,6 +88225,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::InstanceMarker
   instanceId: bab82923-64f2-4ac0-8983-930fd0891ec9
   isBuilding: 0
+  isEmbedded: 0
 --- !u!64 &1278897576
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -95570,6 +95612,7 @@ MonoBehaviour:
   worldRenderer: {fileID: 1624537038}
   libraryClient: {fileID: 1624537040}
   libraryBrowser: {fileID: 1624537039}
+  editController: {fileID: 0}
   panelWidth: 360
   useDummyLayout: 1
 --- !u!114 &1381680489
@@ -111905,6 +111948,7 @@ MonoBehaviour:
   prefabScaleFactor: 1
   defaultYRotation: 90
   lotFrameColor: {r: 1, g: 0.85, b: 0.2, a: 1}
+  siteFrameColor: {r: 0.25, g: 0.85, b: 0.95, a: 1}
   lotFrameLift: 0.15
 --- !u!114 &1624537039
 MonoBehaviour:
@@ -122450,7 +122494,7 @@ TerrainCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_TerrainData: {fileID: 15600000, guid: 6c694d7010fcce642b823b780acbf73e, type: 2}
+  m_TerrainData: {fileID: 15600000, guid: 6a87f524104df406da57333d9936db06, type: 2}
   m_EnableTreeColliders: 1
 --- !u!4 &1822902670
 Transform:
@@ -124756,6 +124800,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::InstanceMarker
   instanceId: f48f9b38-df67-465f-938a-9005fbfcd2b6
   isBuilding: 0
+  isEmbedded: 0
 --- !u!64 &1863073614
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -126639,6 +126684,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::InstanceMarker
   instanceId: c26ce2ea-d3d7-481b-9c3c-4ec0701b81a0
   isBuilding: 0
+  isEmbedded: 0
 --- !u!64 &1898452083
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -128920,6 +128966,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::InstanceMarker
   instanceId: cb16608c-64b6-49b0-a66b-10ac60ae16fd
   isBuilding: 0
+  isEmbedded: 0
 --- !u!64 &1939762279
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -132971,6 +133018,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::InstanceMarker
   instanceId: 16c90b1e-defe-468c-b382-0a351eb76939
   isBuilding: 0
+  isEmbedded: 0
 --- !u!64 &2003451330
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -140953,6 +141001,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::InstanceMarker
   instanceId: f70b58b8-8f8f-4b2c-af4f-33e1599d393b
   isBuilding: 0
+  isEmbedded: 0
 --- !u!64 &2110815331
 MeshCollider:
   m_ObjectHideFlags: 0

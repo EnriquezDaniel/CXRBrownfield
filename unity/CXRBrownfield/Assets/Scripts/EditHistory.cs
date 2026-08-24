@@ -32,6 +32,13 @@ public class EditHistory
         // Replace the live state for `scope`/`contextId` from JSON and re-render. Restoring a
         // building the user isn't currently editing re-enters it (see EditController.Restore).
         void Restore(Scope scope, string contextId, string json);
+
+        // True when an entry for (scope, contextId) belongs to what the user can edit RIGHT NOW.
+        // The list interleaves independent timelines — one per environment and per building — so
+        // undo must take the newest entry for the current context, not the newest entry overall.
+        // Without this, Ctrl+Z inside a tile-edit session pops another building's (or the
+        // environment's) entry and yanks the user out of the building they're editing.
+        bool IsUndoEligible(Scope scope, string contextId);
     }
 
     private struct Snapshot
@@ -44,13 +51,19 @@ public class EditHistory
 
     private readonly IHost _host;
     private readonly int   _maxDepth;
-    private readonly LinkedList<Snapshot> _undo = new();
-    private readonly Stack<Snapshot>      _redo = new();
+    // Both are ordered oldest -> newest; the newest ELIGIBLE entry is the one undo/redo takes.
+    private readonly List<Snapshot> _undo = new();
+    private readonly List<Snapshot> _redo = new();
 
     // Open gesture: the baseline snapshot is pushed once on BeginGesture and dropped on EndGesture
     // if nothing actually changed during the drag.
     private bool     _gestureOpen;
     private Snapshot _gestureBaseline;
+
+    // Redo entries the most recent Push() invalidated. A no-op gesture that EndGesture() drops never
+    // really invalidated anything, so they are put back — otherwise a click that changed nothing
+    // (a decorate drag that missed the mesh, a paint stroke on an occupied cell) silently kills redo.
+    private readonly List<Snapshot> _redoDroppedByPush = new();
 
     public EditHistory(IHost host, int maxDepth = 100)
     {
@@ -58,8 +71,9 @@ public class EditHistory
         _maxDepth = System.Math.Max(1, maxDepth);
     }
 
-    public bool CanUndo => _undo.Count > 0;
-    public bool CanRedo => _redo.Count > 0;
+    // Only entries for the context the user is editing right now can actually be stepped to.
+    public bool CanUndo => NewestEligible(_undo) >= 0;
+    public bool CanRedo => NewestEligible(_redo) >= 0;
 
     // Discrete edit: snapshot the pre-edit state. MUST be called immediately BEFORE the mutation.
     // No-op while a gesture is open (the baseline already captured the pre-gesture state).
@@ -86,9 +100,15 @@ public class EditHistory
         if (!_gestureOpen) return;
         _gestureOpen = false;
 
-        if (_undo.Count == 0 || _undo.Last.Value.json != _gestureBaseline.json) return;
+        int last = _undo.Count - 1;
+        if (last < 0 || _undo[last].json != _gestureBaseline.json) return;
         string cur = _host.Serialize(_gestureBaseline.scope, _gestureBaseline.contextId);
-        if (cur != null && cur == _gestureBaseline.json) _undo.RemoveLast();
+        if (cur == null || cur != _gestureBaseline.json) return;
+
+        _undo.RemoveAt(last);
+        // The gesture changed nothing, so the redo entries its Push() dropped are still valid.
+        _redo.AddRange(_redoDroppedByPush);
+        _redoDroppedByPush.Clear();
     }
 
     public void Undo() => Step(undo: true);
@@ -98,38 +118,45 @@ public class EditHistory
     {
         _undo.Clear();
         _redo.Clear();
+        _redoDroppedByPush.Clear();
         _gestureOpen = false;
     }
 
-    // Pops one entry off the source stack, pushes the current state onto the other, then restores
-    // the popped entry. Undo pops the tail of _undo; Redo pops _redo.
+    // Takes the newest entry BELONGING TO THE CURRENT EDIT CONTEXT off the source list, pushes the
+    // current state onto the other, then restores it. Snapshots are whole-def replacements, so the
+    // entries for different contexts (each environment, each building) are independent timelines and
+    // taking the newest matching one — not the newest overall — is exactly right. When the current
+    // context has no entries left, this is a no-op: Ctrl+Z simply stops rather than reaching into
+    // another building's history and dragging the user there.
     private void Step(bool undo)
     {
         EndGesture();
 
-        Snapshot entry;
-        if (undo)
-        {
-            if (_undo.Count == 0) return;
-            entry = _undo.Last.Value;
-            _undo.RemoveLast();
-        }
-        else
-        {
-            if (_redo.Count == 0) return;
-            entry = _redo.Pop();
-        }
+        var  source = undo ? _undo : _redo;
+        int  idx    = NewestEligible(source);
+        if (idx < 0) return;
+
+        Snapshot entry = source[idx];
+        source.RemoveAt(idx);
 
         // Capture the present state (by the SAME context id) so the inverse operation can return.
         string cur = _host.Serialize(entry.scope, entry.contextId);
         if (cur != null)
         {
             var inverse = new Snapshot { scope = entry.scope, contextId = entry.contextId, json = cur, label = entry.label };
-            if (undo) _redo.Push(inverse);
-            else      _undo.AddLast(inverse);
+            if (undo) _redo.Add(inverse);
+            else      _undo.Add(inverse);
         }
 
         _host.Restore(entry.scope, entry.contextId, entry.json);
+    }
+
+    // Index of the newest entry the host will accept for the current context, or -1.
+    private int NewestEligible(List<Snapshot> list)
+    {
+        for (int i = list.Count - 1; i >= 0; i--)
+            if (_host.IsUndoEligible(list[i].scope, list[i].contextId)) return i;
+        return -1;
     }
 
     private bool TryCapture(Scope scope, string label, out Snapshot snap)
@@ -145,8 +172,19 @@ public class EditHistory
 
     private void Push(Snapshot snap)
     {
-        _undo.AddLast(snap);
-        _redo.Clear();
-        while (_undo.Count > _maxDepth) _undo.RemoveFirst();
+        _undo.Add(snap);
+
+        // A new edit only invalidates the redo timeline it forked — editing building A must not
+        // discard a pending redo in building B or in the environment.
+        _redoDroppedByPush.Clear();
+        for (int i = _redo.Count - 1; i >= 0; i--)
+        {
+            if (_redo[i].scope != snap.scope || _redo[i].contextId != snap.contextId) continue;
+            _redoDroppedByPush.Add(_redo[i]);
+            _redo.RemoveAt(i);
+        }
+        _redoDroppedByPush.Reverse();   // keep oldest -> newest so EndGesture can append them back
+
+        while (_undo.Count > _maxDepth) _undo.RemoveAt(0);
     }
 }

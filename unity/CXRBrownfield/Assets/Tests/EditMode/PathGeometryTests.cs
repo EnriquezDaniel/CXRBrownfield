@@ -167,6 +167,67 @@ public class PathGeometryTests
         }
     }
 
+    [Test]
+    public void SegmentsIntersect_CrossingPair_ReportsHit()
+    {
+        bool hitOk = PathGeometry.SegmentsIntersect(new Vector2(0, 0), new Vector2(10, 10),
+                                                    new Vector2(0, 10), new Vector2(10, 0), out Vector2 hit);
+        Assert.IsTrue(hitOk);
+        Assert.That(Vector2.Distance(hit, new Vector2(5, 5)), Is.LessThan(1e-4f));
+
+        Assert.IsFalse(PathGeometry.SegmentsIntersect(new Vector2(0, 0), new Vector2(1, 0),
+                                                      new Vector2(0, 1), new Vector2(1, 1), out _));
+    }
+
+    [Test]
+    public void SegmentBoxesOverlap_NeverRejectsAnIntersectingPair()
+    {
+        // Conservativeness: for every pair that truly intersects, the box prefilter must pass —
+        // otherwise the junction pass would silently drop real crossings.
+        var pairs = new (Vector2 a1, Vector2 a2, Vector2 b1, Vector2 b2)[]
+        {
+            (new(0, 0), new(10, 10), new(0, 10), new(10, 0)),         // X crossing
+            (new(0, 0), new(10, 0),  new(5, -5), new(5, 5)),          // + crossing
+            (new(0, 0), new(10, 0),  new(10, 0), new(20, 5)),         // touch at a shared endpoint
+            (new(-3, 2), new(7, 2),  new(0, -1), new(1, 8)),          // slanted crossing
+            (new(0, 0), new(0.001f, 0.001f), new(-1, 1), new(1, -1)), // tiny segment on a crossing
+        };
+        int verified = 0;
+        foreach (var (a1, a2, b1, b2) in pairs)
+        {
+            if (!PathGeometry.SegmentsIntersect(a1, a2, b1, b2, out _)) continue;
+            verified++;
+            Assert.IsTrue(PathGeometry.SegmentBoxesOverlap(a1, a2, b1, b2),
+                          $"prefilter rejected intersecting pair {a1}-{a2} / {b1}-{b2}");
+        }
+        Assert.GreaterOrEqual(verified, 3, "fixture must actually exercise intersecting pairs");
+    }
+
+    [Test]
+    public void PolylineBounds_ContainsEveryPoint_InflatedByPad()
+    {
+        var pts = new List<Vector2> { new(1, 2), new(-4, 7), new(9, -3) };
+        Assert.IsTrue(PathGeometry.PolylineBounds(pts, 2f, out Vector2 min, out Vector2 max));
+        foreach (var p in pts)
+        {
+            Assert.That(p.x, Is.InRange(min.x, max.x));
+            Assert.That(p.y, Is.InRange(min.y, max.y));
+        }
+        Assert.AreEqual(-6f, min.x, 1e-4f);   // -4 - pad
+        Assert.AreEqual(11f, max.x, 1e-4f);   //  9 + pad
+
+        Assert.IsFalse(PathGeometry.PolylineBounds(new List<Vector2>(), 1f, out _, out _));
+    }
+
+    [Test]
+    public void BoundsOverlap_TouchingCountsAsOverlap_SeparatedDoesNot()
+    {
+        Assert.IsTrue(PathGeometry.BoundsOverlap(new Vector2(0, 0), new Vector2(5, 5),
+                                                 new Vector2(5, 5), new Vector2(9, 9)));
+        Assert.IsFalse(PathGeometry.BoundsOverlap(new Vector2(0, 0), new Vector2(5, 5),
+                                                  new Vector2(6, 0), new Vector2(9, 5)));
+    }
+
     private static float DistToSegment(Vector2 p, Vector2 a, Vector2 b)
     {
         Vector2 ab = b - a;

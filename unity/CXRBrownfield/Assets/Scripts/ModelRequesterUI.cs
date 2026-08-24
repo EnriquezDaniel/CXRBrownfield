@@ -20,6 +20,7 @@ public class ModelRequesterUI : MonoBehaviour
     public WorldRenderer  worldRenderer;   // USER WIRES THIS IN INSPECTOR (optional — enables library integration)
     public LibraryClient  libraryClient;   // USER WIRES THIS IN INSPECTOR (optional — enables library integration)
     public LibraryBrowser libraryBrowser;  // USER WIRES THIS IN INSPECTOR (optional — adopts generated envs as loaded)
+    public EditController editController;  // optional — records the undo entry when a site is filled
 
     [Header("Panel")]
     [SerializeField] private int panelWidth = 360;   // top-center panel, between the left/right tool panels
@@ -27,6 +28,12 @@ public class ModelRequesterUI : MonoBehaviour
     // Names of uploaded input images, shown as a selectable list.
     private readonly List<string> _inputNames = new List<string>();
     private int _selectedInput = -1;
+
+    // Generate target: null = a new standalone environment (legacy); else the SitePlotDef id in the
+    // active env the generated scene should fill. _generateTargetSiteId is the value captured at
+    // click time so a selection change mid-generation can't retarget the result.
+    private string _targetSiteId;
+    private string _generateTargetSiteId;
 
     [Header("Debug")]
     [SerializeField] private bool useDummyLayout = false;
@@ -64,6 +71,8 @@ public class ModelRequesterUI : MonoBehaviour
             libraryClient = FindFirstObjectByType<LibraryClient>();
         if (libraryBrowser == null)
             libraryBrowser = FindFirstObjectByType<LibraryBrowser>();
+        if (editController == null)
+            editController = FindFirstObjectByType<EditController>();
 
         // Populate the uploaded-image list from the server if library integration is available.
         if (libraryClient != null)
@@ -104,6 +113,7 @@ public class ModelRequesterUI : MonoBehaviour
 
     private void OnGUI()
     {
+        if (WalkthroughController.IsEngaged) return;   // hidden during the first-person walkthrough
         // Generate is one mode of the docked right rail (Direction B). Only draw under that command.
         if (UIMode.Current != AppMode.Generate) return;
 
@@ -116,7 +126,7 @@ public class ModelRequesterUI : MonoBehaviour
         UITheme.Title("Sketch → Generate");
         UITheme.Note(_status);
 
-        _bodyScroll = GUILayout.BeginScrollView(_bodyScroll);
+        _bodyScroll = GUILayout.BeginScrollView(_bodyScroll, false, false, GUIStyle.none, GUI.skin.verticalScrollbar, GUILayout.ExpandHeight(true));
         DrawServerSection();
         DrawGenerateSection();
         DrawSamplesSection();
@@ -125,13 +135,14 @@ public class ModelRequesterUI : MonoBehaviour
         DrawOutputSection();
         GUILayout.EndScrollView();
 
+        UITheme.CaptureTooltip();
         GUILayout.EndArea();
     }
 
     private void DrawServerSection()
     {
         UITheme.Header("Server");
-        if (GUILayout.Button("Health Check", GUILayout.Height(UITheme.RowH)))
+        if (UITheme.Button("Health check", UITips.HealthCheck, GUILayout.Height(UITheme.RowH)))
             OnHealthCheckClicked();
     }
 
@@ -146,36 +157,106 @@ public class ModelRequesterUI : MonoBehaviour
         }
         else
         {
-            _inputScroll = GUILayout.BeginScrollView(_inputScroll, GUILayout.Height(90));
+            _inputScroll = GUILayout.BeginScrollView(_inputScroll, false, false, GUIStyle.none, GUI.skin.verticalScrollbar, GUILayout.Height(90));
             for (int i = 0; i < _inputNames.Count; i++)
             {
                 bool sel = i == _selectedInput;
-                bool now = GUILayout.Toggle(sel, _inputNames[i], GUI.skin.button, GUILayout.Height(UITheme.RowH));
+                bool now = UITheme.ListItem(sel, _inputNames[i], UITips.InputImage);
                 if (now && !sel) _selectedInput = i;
             }
             GUILayout.EndScrollView();
         }
 
         GUILayout.BeginHorizontal();
-        if (GUILayout.Button("Upload Image")) OnUploadImageClicked();
-        if (GUILayout.Button("↻", GUILayout.Width(30))) RefreshInputs();
+        if (UITheme.Button("Upload image", UITips.UploadImage)) OnUploadImageClicked();
+        if (UITheme.Button("Refresh", UITips.RefreshInputs, GUILayout.Width(66))) RefreshInputs();
         GUILayout.EndHorizontal();
 
+        DrawSitesTargetSection();
+
         GUI.enabled = _selectedInput >= 0 && _selectedInput < _inputNames.Count;
-        if (UITheme.PrimaryButton("Generate 3D scene"))
+        if (UITheme.PrimaryButton("Generate 3D scene", UITips.GenerateScene))
             OnGenerateFromImageClicked();
         GUI.enabled = true;
 
-        if (UITheme.GhostButton("Pick a sketch from disk…"))
+        if (UITheme.GhostButton("Pick a sketch from disk…", UITips.PickFromDisk))
             OnGenerateLayoutClicked();
+    }
+
+    // Sites live here, in the Generate rail only: one unified list. Selecting a row both selects
+    // the site (its controls from EditController appear below) and makes it the generation target;
+    // "New environment" stays the default. Sites can be drawn, reshaped, renamed and deleted from
+    // here without ever loading a sketch — drawing with nothing loaded creates a working env.
+    private void DrawSitesTargetSection()
+    {
+        var host  = libraryBrowser != null ? libraryBrowser.CurrentEnvironment : null;
+        var sites = host?.sites;
+
+        // One selection across rails: EditController's selection is the source of truth and the
+        // generation target mirrors it (null = new standalone environment). This also adopts a
+        // freshly drawn site as the target, and clears the target when the site is deleted or the
+        // active environment switches.
+        if (editController != null) _targetSiteId = editController.SelectedSiteId;
+        else if (_targetSiteId != null && (sites == null || sites.Find(s => s != null && s.id == _targetSiteId) == null))
+            _targetSiteId = null;
+
+        UITheme.Header("Sites");
+        if (host == null)
+            UITheme.Note("No place loaded. Drawing a site creates a new one.");
+
+        if (sites != null && sites.Count > 0)
+        {
+            if (UITheme.ListItem(_targetSiteId == null, "No site", UITips.SiteTargetNew) && _targetSiteId != null)
+            {
+                _targetSiteId = null;
+                editController?.SelectSite(null);
+            }
+            string delSiteId = null;
+            foreach (var s in sites)
+            {
+                if (s == null) continue;
+                bool degenerate = !SiteFit.BoundaryBounds(s.boundary, out _, out _, out _, out _);
+                string fillName = libraryBrowser?.GetSiteFillName(s.id);
+                string status = string.IsNullOrEmpty(s.fillEnvironmentId) ? "empty" : fillName ?? "filled";
+                string suffix = $" · {status}" +
+                                (!string.IsNullOrEmpty(s.fillEnvironmentId) ? " (replaces current fill)" : "");
+                bool sel = _targetSiteId == s.id;
+                if (editController != null)
+                {
+                    // Single-line row: select + inline rename + boundary edit + delete (DrawSiteRow).
+                    if (editController.DrawSiteRow(host, s, sel, !degenerate, suffix, out bool delSite))
+                    {
+                        _targetSiteId = s.id;
+                        editController.SelectSite(s.id);
+                    }
+                    if (delSite) delSiteId = s.id;
+                }
+                else
+                {
+                    GUI.enabled = !degenerate;
+                    if (UITheme.ListItem(sel, s.name + suffix, UITips.SiteTargetRow) && !sel) _targetSiteId = s.id;
+                    GUI.enabled = true;
+                }
+            }
+            // Deferred: DeleteSite mutates env.sites, which the foreach above iterates.
+            if (delSiteId != null) editController?.DeleteSite(host, delSiteId);
+        }
+
+        if (editController != null)
+        {
+            editController.DrawSiteCreateControls(host);
+            editController.DrawSelectedSiteControls(host);
+        }
+        if (_targetSiteId != null && host != null && host.locked)
+            UITheme.Note("The active place is locked. Unlock it to fill a site.");
     }
 
     private void DrawSamplesSection()
     {
         UITheme.Header("Samples");
         GUILayout.BeginHorizontal();
-        if (GUILayout.Button("Local Sample"))  OnTestLocalSampleClicked();
-        if (GUILayout.Button("Server Sample")) OnTestServerSampleClicked();
+        if (UITheme.Button("Local sample", UITips.LocalSample))  OnTestLocalSampleClicked();
+        if (UITheme.Button("Server sample", UITips.ServerSample)) OnTestServerSampleClicked();
         GUILayout.EndHorizontal();
     }
 
@@ -184,7 +265,7 @@ public class ModelRequesterUI : MonoBehaviour
         UITheme.Header("Model Search");
         GUILayout.BeginHorizontal();
         _searchQuery = GUILayout.TextField(_searchQuery, GUILayout.ExpandWidth(true));
-        if (GUILayout.Button("Search", GUILayout.Width(64))) OnSearchClicked();
+        if (UITheme.Button("Search", UITips.ModelSearch, GUILayout.Width(64))) OnSearchClicked();
         GUILayout.EndHorizontal();
     }
 
@@ -207,7 +288,7 @@ public class ModelRequesterUI : MonoBehaviour
     {
         UITheme.Divider();
         UITheme.Header("Output");
-        _resultsScroll = GUILayout.BeginScrollView(_resultsScroll, GUILayout.Height(100));
+        _resultsScroll = GUILayout.BeginScrollView(_resultsScroll, false, false, GUIStyle.none, GUI.skin.verticalScrollbar, GUILayout.Height(100));
         UITheme.Note(_results);
         GUILayout.EndScrollView();
     }
@@ -343,11 +424,29 @@ public class ModelRequesterUI : MonoBehaviour
         if (idx < 0 || idx >= _inputNames.Count) { UpdateStatusText("Select an image to generate from."); return; }
 
         string imageName = _inputNames[idx];
+
+        // Site targeting: send the drawn boundary + its real dimensions so the layout is generated
+        // for that parcel, and remember the target for SaveAndRenderLayout's assignment.
+        _generateTargetSiteId = null;
+        float[][] lotCanvas = null; float? widthFt = null, heightFt = null;
+        var host = libraryBrowser != null ? libraryBrowser.CurrentEnvironment : null;
+        var plot = host?.sites?.Find(s => s != null && s.id == _targetSiteId);
+        if (_targetSiteId != null)
+        {
+            if (plot == null) { UpdateStatusText("Target site no longer exists. Pick a target again."); return; }
+            if (host.locked)  { UpdateStatusText("The active place is locked. Unlock it to fill a site."); return; }
+            lotCanvas = SiteFit.BoundaryToCanvas(plot.boundary);
+            if (lotCanvas == null || !SiteFit.SiteDimsFeet(plot.boundary, out float wFt, out float hFt))
+            { UpdateStatusText($"Site '{plot.name}' has a degenerate boundary. Reshape it first."); return; }
+            widthFt = wFt; heightFt = hFt;
+            _generateTargetSiteId = plot.id;
+        }
+
         UpdateStatusText($"Generating layout from '{imageName}'...");
         UpdateResultsText($"Generating layout from '{imageName}' via Claude...");
         SetProgressVisible(true);
         UpdateProgress(0f, $"Generating from {imageName}...");
-        modelRequester.GenerateLayoutFromImage(imageName);
+        modelRequester.GenerateLayoutFromImage(imageName, lotCanvas, widthFt, heightFt);
     }
 
     // Load the bundled local sample (Resources/DummyLayout) into the scene as an editable env,
@@ -519,9 +618,14 @@ public class ModelRequesterUI : MonoBehaviour
     {
         UpdateStatusText("Converting layout...");
 
+        var host       = libraryBrowser != null ? libraryBrowser.CurrentEnvironment : null;
+        var targetPlot = host?.sites?.Find(s => s != null && s.id == _generateTargetSiteId);
+
         string envName = string.IsNullOrEmpty(sketchPath)
             ? "Generated Environment"
             : System.IO.Path.GetFileNameWithoutExtension(sketchPath);
+        // A site fill is named after its place in the host so the library row reads clearly.
+        if (targetPlot != null) envName = $"{host.name} - {targetPlot.name}";
 
         var conv = LayoutConverter.Convert(data, envName);
 
@@ -577,12 +681,26 @@ public class ModelRequesterUI : MonoBehaviour
             if (!string.IsNullOrEmpty(bldg.id))
                 buildingDefs[bldg.id] = bldg;
 
-        if (libraryBrowser != null)
+        if (targetPlot != null && libraryBrowser != null)
+        {
+            // Fill the drawn site: the child stays its own saved record; the host only gains the
+            // reference (undoable), and LibraryBrowser projects + renders the fill in place.
+            editController?.RecordEnvironmentEdit("Fill site");
+            libraryBrowser.AssignSiteFill(host, targetPlot.id, conv.Environment.id);
+            libraryBrowser.RefreshEnvironments();
+            UpdateStatusText($"Filled site '{targetPlot.name}' with '{conv.Environment.name}' ({total} building(s)).");
+        }
+        else if (libraryBrowser != null)
+        {
             libraryBrowser.AdoptGeneratedEnvironment(conv.Environment, buildingDefs);
+            UpdateStatusText($"Saved + loaded '{conv.Environment.name}' ({total} building(s)).");
+        }
         else
+        {
             worldRenderer.RenderEnvironment(conv.Environment, buildingDefs);
-
-        UpdateStatusText($"Saved + loaded '{conv.Environment.name}' ({total} building(s)).");
+            UpdateStatusText($"Saved + loaded '{conv.Environment.name}' ({total} building(s)).");
+        }
+        _generateTargetSiteId = null;
     }
 
     // Full-content key so only fully identical generated buildings collapse into one cached def.

@@ -58,7 +58,7 @@ public class TileBuildingEditor : MonoBehaviour
                 if (t.gridZ < minZ) minZ = t.gridZ;
                 if (t.gridZ > maxZ) maxZ = t.gridZ;
             }
-        if (minX > maxX) { minX = 0; maxX = 3; minZ = 0; maxZ = 3; }   // empty building: small default
+        if (minX > maxX) { minX = -1; maxX = 1; minZ = -1; maxZ = 1; }   // empty building: 3×3 around the origin cell (the new-building seed)
 
         float cx = (minX + maxX + 1) * 0.5f * cs;
         float cz = (minZ + maxZ + 1) * 0.5f * cs;
@@ -96,10 +96,14 @@ public class TileBuildingEditor : MonoBehaviour
     // Decorate tool state — paints EmbeddedObjectDef entries onto tile faces from a DecorPalette.
     // Pick a decor, click a tile face: one prop auto-centers, fits, and seats flush (like the Paint
     // tool assigning a face material). Dragging paints each face under the cursor; re-painting a face
-    // replaces its prop (one decor per face). Erase removes painted decorations.
+    // with the SAME decor replaces that prop, while different decors stack on one face (unless an entry
+    // is marked replacesOtherDecor). Erase removes painted decorations, one per click.
     private string  _activeDecorId;
     private bool    _decorErase;
     private string  _decorLastTileKey;         // last tile decorated this stroke (one per tile per drag)
+    // Used when a DecorPalette entry's width/heightFraction is 0 — mirrors DecorPalette.Entry's own
+    // field initializers, which Unity does NOT apply to assets serialized before the fields existed.
+    private const float DEFAULT_DECOR_FRACTION = 0.8f;
 
     private int    _activeFloor       = 0;
     private string _activeShapeId     = "square";
@@ -129,9 +133,14 @@ public class TileBuildingEditor : MonoBehaviour
     // Public API
     // -----------------------------------------------------------------------
 
-    public void Enter(BuildingDef bdef, Vector3 worldPos, float rotY)
+    // `startInAddTool` opens straight into the Add tool (grid + placement ghost visible at once) —
+    // used for a freshly created building. A building with no tiles at all also opens in Add, since
+    // there is nothing to Select and the Add grid is the only thing that shows where it sits.
+    public void Enter(BuildingDef bdef, Vector3 worldPos, float rotY, bool startInAddTool = false)
     {
         if (IsActive) ExitAndDiscard();
+
+        bool empty = bdef?.tiles == null || bdef.tiles.Count == 0;
 
         _bdef               = bdef;
         _bldgWorldPos       = worldPos;
@@ -139,7 +148,9 @@ public class TileBuildingEditor : MonoBehaviour
         _activeFloor        = 0;
         _activeTileRotation = 0;
         _activeMaterialId   = null;
-        _subTool            = SubTool.Select;
+        // Set before RebuildVisuals: Add-mode floor dimming is applied in SpawnTileGO, so choosing the
+        // tool first avoids the extra respawn SetSubTool would do.
+        _subTool            = (startInAddTool || empty) ? SubTool.Add : SubTool.Select;
         _selectedKeys.Clear();
         _primaryKey         = null;
         _highlightedGOs.Clear();
@@ -204,8 +215,9 @@ public class TileBuildingEditor : MonoBehaviour
         if (lUp)              _isDragging = false;
 
         // Keyboard tile shortcuts are suppressed while a panel text field/slider has focus, so
-        // typing never rotates, re-axes, or deletes a tile.
-        bool typing = GUIUtility.keyboardControl != 0;
+        // typing never rotates, re-axes, or deletes a tile. UITheme.TypingInUI is the OnGUI-side
+        // sample of the same state (see EditController.TypingInUI).
+        bool typing = GUIUtility.keyboardControl != 0 || UITheme.TypingInUI;
         bool ctrl   = kb.leftCtrlKey.isPressed || kb.rightCtrlKey.isPressed;
         if (!typing && !ctrl)   // Ctrl held = undo/redo (handled by EditController) — don't eat Z as the Z axis
         {
@@ -873,24 +885,38 @@ public class TileBuildingEditor : MonoBehaviour
         float yBase = _activeFloor * cs + 0.05f;   // active floor's surface (tiles rest on it)
 
         // Editable region = active-floor footprint (min AND max on both axes, so it covers negative
-        // cells), grown by a 2-cell working margin, with a minimum 8×8 so an empty floor still shows
-        // a grid to paint onto. Recomputed each frame, so the region visibly expands as tiles are added.
-        int cMinX = 0, cMinZ = 0, cMaxX = 7, cMaxZ = 7;   // inclusive cell-index bounds (default 8×8)
-        bool any = false;
+        // cells), grown by a 2-cell working margin. An empty active floor (e.g. a fresh upper floor)
+        // falls back to the whole building's footprint, so the grid sits over the floors below; an
+        // entirely empty building shows ±MAX_GROW_CELLS around the origin — exactly the cells
+        // WithinGrowRange lets you place on, so no drawn cell is dead and no live cell is undrawn.
+        // Recomputed each frame, so the region visibly expands as tiles are added.
+        int cMinX = 0, cMinZ = 0, cMaxX = 0, cMaxZ = 0;   // inclusive cell-index bounds
+        int bMinX = 0, bMinZ = 0, bMaxX = 0, bMaxZ = 0;   // whole-building footprint (all floors)
+        bool any = false, anyBldg = false;
         if (_bdef.tiles != null)
             foreach (var t in _bdef.tiles)
-                if (t.floor == _activeFloor)
+            {
+                if (!anyBldg) { bMinX = bMaxX = t.gridX; bMinZ = bMaxZ = t.gridZ; anyBldg = true; }
+                else
                 {
-                    if (!any) { cMinX = cMaxX = t.gridX; cMinZ = cMaxZ = t.gridZ; any = true; }
-                    else
-                    {
-                        if (t.gridX < cMinX) cMinX = t.gridX;
-                        if (t.gridX > cMaxX) cMaxX = t.gridX;
-                        if (t.gridZ < cMinZ) cMinZ = t.gridZ;
-                        if (t.gridZ > cMaxZ) cMaxZ = t.gridZ;
-                    }
+                    if (t.gridX < bMinX) bMinX = t.gridX;
+                    if (t.gridX > bMaxX) bMaxX = t.gridX;
+                    if (t.gridZ < bMinZ) bMinZ = t.gridZ;
+                    if (t.gridZ > bMaxZ) bMaxZ = t.gridZ;
                 }
+                if (t.floor != _activeFloor) continue;
+                if (!any) { cMinX = cMaxX = t.gridX; cMinZ = cMaxZ = t.gridZ; any = true; }
+                else
+                {
+                    if (t.gridX < cMinX) cMinX = t.gridX;
+                    if (t.gridX > cMaxX) cMaxX = t.gridX;
+                    if (t.gridZ < cMinZ) cMinZ = t.gridZ;
+                    if (t.gridZ > cMaxZ) cMaxZ = t.gridZ;
+                }
+            }
+        if (!any && anyBldg) { cMinX = bMinX; cMaxX = bMaxX; cMinZ = bMinZ; cMaxZ = bMaxZ; any = true; }
         if (any) { cMinX -= 2; cMinZ -= 2; cMaxX += 2; cMaxZ += 2; }
+        else     { cMinX = cMinZ = -MAX_GROW_CELLS; cMaxX = cMaxZ = MAX_GROW_CELLS; }
 
         // Line endpoints span the inclusive cell range [cMin..cMax] → world [cMin·cs .. (cMax+1)·cs].
         float xLo = cMinX * cs, xHi = (cMaxX + 1) * cs;
@@ -954,6 +980,7 @@ public class TileBuildingEditor : MonoBehaviour
 
     private void OnGUI()
     {
+        if (WalkthroughController.IsEngaged) return;   // hidden during the first-person walkthrough
         if (!IsActive || UIMode.Current != AppMode.Build) return;
 
         var rect = new Rect(Screen.width - PANEL_W - UITheme.Margin, UITheme.RailTop, PANEL_W, Screen.height - UITheme.RailTop - UITheme.Margin);
@@ -964,11 +991,11 @@ public class TileBuildingEditor : MonoBehaviour
         UITheme.Note($"{_bdef?.name}   •   {_bdef?.tiles?.Count ?? 0} tiles");
 
         // Tool selector — one active sub-tool at a time; labels must stay aligned with SubTool order.
-        int ts = UITheme.Segmented((int)_subTool, new[] { "Select", "Add", "Paint", "Extras" });
+        int ts = UITheme.Segmented((int)_subTool, new[] { "Select", "Add", "Paint", "Decorate" }, UITips.BuildTools);
         if (ts != (int)_subTool) SetSubTool((SubTool)ts);
 
         UITheme.Divider();
-        _panelScroll = GUILayout.BeginScrollView(_panelScroll, GUILayout.ExpandHeight(true));
+        _panelScroll = GUILayout.BeginScrollView(_panelScroll, false, false, GUIStyle.none, GUI.skin.verticalScrollbar, GUILayout.ExpandHeight(true));
         switch (_subTool)
         {
             case SubTool.Add:      DrawAddPanel();      break;
@@ -980,9 +1007,10 @@ public class TileBuildingEditor : MonoBehaviour
 
         // Save / exit footer (spec: "Save changes" primary · Esc).
         UITheme.Divider();
-        if (UITheme.PrimaryButton("Save changes")) OnSaveRequested?.Invoke();
+        if (UITheme.PrimaryButton("Save changes", UITips.SaveChanges)) OnSaveRequested?.Invoke();
         UITheme.Note("Esc = save & exit");
 
+        UITheme.CaptureTooltip();
         GUILayout.EndArea();
     }
 
@@ -996,45 +1024,39 @@ public class TileBuildingEditor : MonoBehaviour
         _panelScroll = Vector2.zero;
         if (tool != SubTool.Paint)  _activeMaterialId = null;  // paint is keyed off an active material
         if (tool != SubTool.Select) ClearSelection();
+        // Whole-face is one shared flag but a VERY different action per tool: left on from Paint, the
+        // first click in Extras used to plaster the active decor over every exposed face of a whole
+        // building side (dozens of props from one click). Each tool now opts in explicitly.
+        _wholeFace  = false;
+        _decorErase = false;
         if (dimChanged) RebuildVisuals();
     }
 
-    // ---- thumbnail grid helpers (shared by shape + material pickers) ----
-    private Vector2 _panelScroll;
-    private int _thumbCol;
-    private const int ThumbCols = 3;
-    private void BeginThumbGrid() { _thumbCol = 0; GUILayout.BeginHorizontal(); }
-    private void EndThumbGrid()   { GUILayout.EndHorizontal(); }
-    private bool ThumbCell(Texture tex, string label, bool selected)
-    {
-        if (_thumbCol >= ThumbCols) { GUILayout.EndHorizontal(); GUILayout.BeginHorizontal(); _thumbCol = 0; }
-        _thumbCol++;
-        return UITheme.Thumb(tex, label, selected, 76f);
-    }
+    private Vector2 _panelScroll;   // thumbnail grids (shape + material pickers) use UITheme.BeginThumbGrid / ThumbCell
 
     // Floor selector (Add tool only). Clearing a floor is destructive, so it's de-emphasised (a small
     // red text link, not a button) and asks for confirmation before wiping the floor's tiles.
     private void DrawFloorSelector()
     {
-        UITheme.Header($"Floor {_activeFloor}");
+        // One line: floor number (shown 1-based; data stays 0-based) + ▼/▲ steppers + clear.
         GUILayout.BeginHorizontal();
-        if (GUILayout.Button("▼", GUILayout.Width(34)) && _activeFloor > 0) { _activeFloor--; _confirmClearFloor = false; RebuildVisuals(); }
-        if (GUILayout.Button("▲", GUILayout.Width(34))) { _activeFloor++; _confirmClearFloor = false; if (_activeFloor >= _bdef.floors) { History?.RecordBefore(EditHistory.Scope.Building, "Add floor"); _bdef.floors = _activeFloor + 1; } RebuildVisuals(); }
-        GUILayout.FlexibleSpace();
-        if (!_confirmClearFloor && UITheme.DangerButton("Clear floor…", GUILayout.Width(96)))
+        GUILayout.Label($"Floor {_activeFloor + 1}", GUILayout.ExpandWidth(true));
+        if (UITheme.Button("▼", UITips.FloorDown, GUILayout.Width(28)) && _activeFloor > 0) { _activeFloor--; _confirmClearFloor = false; RebuildVisuals(); }
+        if (UITheme.Button("▲", UITips.FloorUp, GUILayout.Width(28))) { _activeFloor++; _confirmClearFloor = false; if (_activeFloor >= _bdef.floors) { History?.RecordBefore(EditHistory.Scope.Building, "Add floor"); _bdef.floors = _activeFloor + 1; } RebuildVisuals(); }
+        if (!_confirmClearFloor && UITheme.DangerButton("Clear floor…", UITips.ClearFloorAsk, GUILayout.Width(96)))
             _confirmClearFloor = true;
         GUILayout.EndHorizontal();
 
         // Stack a copy of this floor's tiles (+ decor) onto the floor above and move up to it.
-        if (GUILayout.Button("Duplicate floor ↑")) DuplicateFloorUp();
+        if (UITheme.Button("Duplicate floor ↑", UITips.DuplicateFloor)) DuplicateFloorUp();
 
         if (_confirmClearFloor)
         {
-            UITheme.Note($"Delete every tile on floor {_activeFloor}? (Ctrl+Z to undo.)");
+            UITheme.Note($"Delete every tile on floor {_activeFloor + 1}? (Ctrl+Z to undo.)");
             GUILayout.BeginHorizontal();
             GUILayout.FlexibleSpace();
-            if (UITheme.GhostButton("Cancel", GUILayout.Width(72))) _confirmClearFloor = false;
-            if (UITheme.DangerButton("Clear floor", GUILayout.Width(96))) { ClearFloor(_activeFloor); _confirmClearFloor = false; }
+            if (UITheme.GhostButton("Cancel", UITips.Cancel, GUILayout.Width(72))) _confirmClearFloor = false;
+            if (UITheme.DangerButton("Clear floor", UITips.ClearFloorConfirm, GUILayout.Width(96))) { ClearFloor(_activeFloor); _confirmClearFloor = false; }
             GUILayout.EndHorizontal();
         }
     }
@@ -1047,28 +1069,26 @@ public class TileBuildingEditor : MonoBehaviour
         DrawFloorSelector();
         UITheme.Divider();
 
-        UITheme.Note("Click or drag the grid to add tiles.");
         UITheme.Header("Tile shape");
         if (tileShapePalette != null)
         {
-            BeginThumbGrid();
+            UITheme.BeginThumbGrid();
             foreach (var e in tileShapePalette.entries)
             {
                 bool on = e.shapeId == _activeShapeId;
-                if (ThumbCell(ThumbnailCache.GetPrefab(e.prefab), UITheme.PrettyId(e.shapeId), on)) _activeShapeId = e.shapeId;
+                if (UITheme.ThumbCell(ThumbnailCache.GetPrefab(e.prefab), UITheme.PrettyId(e.shapeId), on, UITips.TileShape(UITheme.PrettyId(e.shapeId)))) _activeShapeId = e.shapeId;
             }
-            EndThumbGrid();
+            UITheme.EndThumbGrid();
         }
 
-        UITheme.Header("New-tile yaw");
+        UITheme.Header("Default rotation");
         GUILayout.BeginHorizontal();
         foreach (int r in new[] { 0, 90, 180, 270 })
         {
             bool on = _activeTileRotation == r;
-            if (GUILayout.Toggle(on, $"{r}°", GUI.skin.button) && !on) _activeTileRotation = r;
+            if (UITheme.ToggleButton(on, $"{r}°", UITips.TileYaw(r)) && !on) _activeTileRotation = r;
         }
         GUILayout.EndHorizontal();
-        UITheme.Note("Q / E = turn new tile ±90°");
     }
 
     private void DrawSelectPanel()
@@ -1077,8 +1097,8 @@ public class TileBuildingEditor : MonoBehaviour
 
         // Bulk-selection helpers
         GUILayout.BeginHorizontal();
-        if (GUILayout.Button("Select floor")) SelectAll(activeFloorOnly: true);
-        if (GUILayout.Button("Select all"))   SelectAll(activeFloorOnly: false);
+        if (UITheme.Button("Select floor", UITips.SelectFloor)) SelectAll(activeFloorOnly: true);
+        if (UITheme.Button("Select all", UITips.SelectAll))   SelectAll(activeFloorOnly: false);
         GUILayout.EndHorizontal();
 
         if (_selectedKeys.Count == 0)
@@ -1093,8 +1113,8 @@ public class TileBuildingEditor : MonoBehaviour
         if (t == null) { ClearSelection(); return; }
 
         UITheme.Header(_selectedKeys.Count == 1
-            ? $"Tile  x{t.gridX} z{t.gridZ} F{t.floor}"
-            : $"{_selectedKeys.Count} tiles  (ref x{t.gridX} z{t.gridZ} F{t.floor})");
+            ? $"Tile  x{t.gridX} z{t.gridZ} F{t.floor + 1}"
+            : $"{_selectedKeys.Count} tiles  (ref x{t.gridX} z{t.gridZ} F{t.floor + 1})");
 
         // Active rotate axis (also pickable with X/Y/Z keys)
         GUILayout.BeginHorizontal();
@@ -1112,23 +1132,23 @@ public class TileBuildingEditor : MonoBehaviour
 
         // Quick steps on the active axis
         GUILayout.BeginHorizontal();
-        if (GUILayout.Button("−90")) RotateSelectedAxis(-90f);
-        if (GUILayout.Button("−15")) RotateSelectedAxis(-15f);
-        if (GUILayout.Button("+15")) RotateSelectedAxis(+15f);
-        if (GUILayout.Button("+90")) RotateSelectedAxis(+90f);
+        if (UITheme.Button("−90", UITips.RotateStep(-90f))) RotateSelectedAxis(-90f);
+        if (UITheme.Button("−15", UITips.RotateStep(-15f))) RotateSelectedAxis(-15f);
+        if (UITheme.Button("+15", UITips.RotateStep(+15f))) RotateSelectedAxis(+15f);
+        if (UITheme.Button("+90", UITips.RotateStep(+90f))) RotateSelectedAxis(+90f);
         GUILayout.EndHorizontal();
 
         GUILayout.BeginHorizontal();
-        if (GUILayout.Button("Reset"))    ResetSelectedRotation();
-        if (GUILayout.Button("Delete"))   RemoveSelectedTiles();
-        if (GUILayout.Button("Deselect")) ClearSelection();
+        if (UITheme.Button("Reset", UITips.ResetRotation))    ResetSelectedRotation();
+        if (UITheme.Button("Delete", UITips.DeleteTiles))   RemoveSelectedTiles();
+        if (UITheme.Button("Deselect", UITips.Deselect)) ClearSelection();
         GUILayout.EndHorizontal();
     }
 
     private void DrawAxisToggle(string label, int axis)
     {
         bool on = _rotAxis == axis;
-        if (GUILayout.Toggle(on, label, GUI.skin.button, GUILayout.Width(42)) && !on) _rotAxis = axis;
+        if (UITheme.ToggleButton(on, label, UITips.RotateAxis(label), GUILayout.Width(42)) && !on) _rotAxis = axis;
     }
 
     private void DrawTileRotSlider(TileDef t, string label, int axis)
@@ -1151,24 +1171,23 @@ public class TileBuildingEditor : MonoBehaviour
             ? "Click a face to paint the whole building side."
             : "Pick a material, then click a tile face.");
 
-        _wholeFace = GUILayout.Toggle(_wholeFace, "Whole face (paint the entire side)", GUI.skin.button, GUILayout.Height(UITheme.RowH));
+        _wholeFace = UITheme.ToggleButton(_wholeFace, "Whole face (entire side)", UITips.WholeFacePaint, GUILayout.Height(UITheme.RowH));
 
         UITheme.Header("Face material");
         if (materialPalette == null || materialPalette.entries.Count == 0)
             UITheme.Note("MaterialPalette is empty.");
         else
         {
-            BeginThumbGrid();
+            UITheme.BeginThumbGrid();
             foreach (var e in materialPalette.entries)
             {
                 bool on = e.materialId == _activeMaterialId;
-                if (ThumbCell(ThumbnailCache.GetMaterial(e.material), UITheme.PrettyId(e.materialId), on)) _activeMaterialId = e.materialId;
+                if (UITheme.ThumbCell(ThumbnailCache.GetMaterial(e.material), UITheme.PrettyId(e.materialId), on, UITips.FaceMaterial(UITheme.PrettyId(e.materialId)))) _activeMaterialId = e.materialId;
             }
-            EndThumbGrid();
+            UITheme.EndThumbGrid();
         }
 
         UITheme.Header("Face fallback");
-        UITheme.Note("Used only when a click can't detect the face.");
         string[] faces = { "north", "east", "south", "west", "top", "bottom" };
         int half = faces.Length / 2;
         for (int row = 0; row < 2; row++)
@@ -1177,7 +1196,7 @@ public class TileBuildingEditor : MonoBehaviour
             for (int i = row * half; i < (row + 1) * half; i++)
             {
                 bool on = _activeFaceName == faces[i];
-                if (GUILayout.Toggle(on, faces[i], GUI.skin.button) && !on) _activeFaceName = faces[i];
+                if (UITheme.ToggleButton(on, faces[i], UITips.FaceFallback(faces[i])) && !on) _activeFaceName = faces[i];
             }
             GUILayout.EndHorizontal();
         }
@@ -1200,8 +1219,9 @@ public class TileBuildingEditor : MonoBehaviour
     }
 
     // Each qualifying frame: raycast a tile face and either erase the decoration there or place the
-    // active decor on it. Placement is systematic — one prop per face, centered, fit, and seated
-    // flush — and dragging paints each face under the cursor (one per tile per stroke, like Paint).
+    // active decor on it. Placement is systematic — centered, fit, and seated flush — and dragging
+    // paints each face under the cursor (one per tile per stroke, like Paint). Decors stack, so a face
+    // can carry several different props; only a repaint of the SAME decor replaces what's there.
     private void HandleDecorate(bool lDown)
     {
         if (Mouse.current == null || mainCamera == null) return;
@@ -1225,8 +1245,8 @@ public class TileBuildingEditor : MonoBehaviour
     }
 
     // Places the active decor on the clicked tile face: one prop, centered and fit to the entry's
-    // width/height fraction of the cell, seated flush at its anchor, replacing any prior prop on that
-    // face (one decor per face). Returns true when something was placed.
+    // width/height fraction of the cell, seated flush at its anchor, replacing only the prior props on
+    // that face it conflicts with (see ReplaceConflictingDecor). Returns true when something was placed.
     private bool TryDecorateAt(RaycastHit hit, DecorPalette.Entry entry)
     {
         if (entry == null || string.IsNullOrEmpty(entry.prefabKey) || _tileRoot == null) return false;
@@ -1243,7 +1263,7 @@ public class TileBuildingEditor : MonoBehaviour
         if (entry.surface == DecorPalette.Surface.Wall && isRoof)  return false;
         if (entry.surface == DecorPalette.Surface.Roof && !isRoof) return false;
 
-        // Face name (host key, one decor per face); robust to tile rotation via the existing resolvers.
+        // Face name (the host key decor is grouped by); robust to tile rotation via the existing resolvers.
         string key = MakeKey(gx, gz, gf);
         var tile   = FindTile(key);
         _tileGOs.TryGetValue(key, out var tileGO);
@@ -1273,7 +1293,7 @@ public class TileBuildingEditor : MonoBehaviour
 
     // Core systematic placement shared by single-face and whole-face: seats one prop on a tile face,
     // sized to the entry's width/height fraction of the face (aspect preserved), anchored vertically,
-    // and flush along the face normal. Replaces any prior decor on that face. Deform-aware: placement
+    // and flush along the face normal. Replaces only conflicting prior decor. Deform-aware: placement
     // is derived from the host face's ACTUAL (possibly skewed/sloped) plane via DecorPlacement — the
     // same function the render paths re-run when the building's deform changes, so paint-time and
     // render-time placement agree by construction and props follow later skews.
@@ -1281,12 +1301,20 @@ public class TileBuildingEditor : MonoBehaviour
     {
         if (entry == null || string.IsNullOrEmpty(entry.prefabKey) || _tileRoot == null) return;
 
-        // One decor per face: drop any prior prop on this tile face before placing the new one.
-        ReplacePriorFill(gx, gz, gf, face);
+        // Drop any prior prop on this face that CONFLICTS with the incoming decor (same kind, or two
+        // face-claiming decors); stacking decor is left in place.
+        ReplaceConflictingDecor(gx, gz, gf, face, entry);
 
         // Analyze the prop's mount basis (auto from mesh bounds, or a per-entry override) so it seats
         // flush and faces outward regardless of how its mesh / pivot is authored.
         TryAnalyzeProp(entry.prefabKey, entry.mountAxis, entry.flipMount, out var basis);
+
+        // A palette entry authored before these fields existed serializes them as 0, which makes the
+        // prop unreseatable (DecorPlacement.IsReseatable) and drops it into the legacy baked path at
+        // full prefab size instead of fitting the cell. Fall back to the DecorPalette.Entry defaults
+        // so a stale asset still places sensibly. (0 stays the legacy sentinel on the *def* itself.)
+        float widthFrac  = entry.widthFraction  > 0f ? entry.widthFraction  : DEFAULT_DECOR_FRACTION;
+        float heightFrac = entry.heightFraction > 0f ? entry.heightFraction : DEFAULT_DECOR_FRACTION;
 
         float cs  = CellSize();
         var   emb = new EmbeddedObjectDef
@@ -1300,8 +1328,8 @@ public class TileBuildingEditor : MonoBehaviour
             fillsFace  = true,
             // Placement rules, persisted so the render paths can reseat this prop against the host
             // tile's current TileDeform (see DecorPlacement.ReseatAll).
-            decorWidthFrac     = entry.widthFraction,
-            decorHeightFrac    = entry.heightFraction,
+            decorWidthFrac     = widthFrac,
+            decorHeightFrac    = heightFrac,
             decorAnchor        = (int)entry.anchor,
             decorSurfaceOffset = entry.surfaceOffset,
             decorMountAxis     = (int)entry.mountAxis,
@@ -1314,7 +1342,7 @@ public class TileBuildingEditor : MonoBehaviour
             // cell formula against the raycast normal, and clear the rules so the def honestly stays
             // a baked-replay legacy def (never store rules the renderer can't re-derive).
             Vector3 cellCenter = new Vector3((gx + 0.5f) * cs, (gf + 0.5f) * cs, (gz + 0.5f) * cs);
-            float   scale      = DecorAlignment.FitScaleBox(basis, cs, entry.widthFraction, entry.heightFraction);
+            float   scale      = DecorAlignment.FitScaleBox(basis, cs, widthFrac, heightFrac);
             float   seat       = DecorAlignment.SeatDistance(basis, scale) + entry.surfaceOffset;
             Vector3 faceUp     = DecorAlignment.FaceUp(faceNormal, isRoof);
             float   anchorOff  = DecorAlignment.AnchorOffset(entry.anchor, basis.inPlaneHeight * scale, cs);
@@ -1339,15 +1367,31 @@ public class TileBuildingEditor : MonoBehaviour
         SpawnEmbeddedGO(emb);
     }
 
-    // Removes any prior decoration on the same tile face so a face keeps exactly one decor.
-    private void ReplacePriorFill(int gx, int gz, int gf, string face)
+    // Clears the decorations on one tile face that CONFLICT with the decor about to be placed there.
+    // Decor stacks by default — a window and a fire escape can share a face — so a prior prop is only
+    // dropped when:
+    //   * it is the SAME kind (same prefab) — a repaint replaces itself, so click/drag churn on one
+    //     face can never pile up duplicates of the same prop; or
+    //   * BOTH the incoming decor and the prior one are marked replacesOtherDecor, i.e. both claim the
+    //     whole face (the old one-decor-per-face rule, now opt-in per palette entry).
+    // The rule is symmetric: a stacking decor never displaces a different decor and is never displaced
+    // by one. A prop whose prefab is no longer in the palette counts as stacking, so legacy/generated
+    // decorations are never collaterally deleted.
+    private void ReplaceConflictingDecor(int gx, int gz, int gf, string face, DecorPalette.Entry entry)
     {
-        if (_bdef?.embeddedObjects == null) return;
+        if (_bdef?.embeddedObjects == null || entry == null) return;
         for (int i = _bdef.embeddedObjects.Count - 1; i >= 0; i--)
         {
             var e = _bdef.embeddedObjects[i];
-            if (e != null && e.fillsFace && e.hostGridX == gx && e.hostGridZ == gz && e.hostFloor == gf && e.hostFace == face)
-                RemoveEmbedded(e.instanceId);
+            if (e == null || !e.fillsFace) continue;
+            if (e.hostGridX != gx || e.hostGridZ != gz || e.hostFloor != gf || e.hostFace != face) continue;
+
+            bool sameKind = string.Equals(e.prefabType, entry.prefabKey, StringComparison.OrdinalIgnoreCase);
+            bool bothClaimFace = entry.replacesOtherDecor
+                                 && decorPalette != null
+                                 && decorPalette.EntryForPrefab(e.prefabType)?.replacesOtherDecor == true;
+
+            if (sameKind || bothClaimFace) RemoveEmbedded(e.instanceId);
         }
     }
 
@@ -1368,8 +1412,9 @@ public class TileBuildingEditor : MonoBehaviour
         return true;
     }
 
-    // Removes every painted decoration whose GameObject is under the cursor (a direct hit, or within
-    // a small radius of the hit point), from both the live scene and _bdef.embeddedObjects.
+    // Removes ONE painted decoration under the cursor: the prop actually hit, or — when the ray landed
+    // on the wall rather than a prop's collider — the single nearest decoration within a small radius.
+    // One prop per click, so a face holding a stack can be peeled one decor at a time.
     private void EraseDecorAt(RaycastHit hit)
     {
         float radius = 1.5f;
@@ -1378,17 +1423,18 @@ public class TileBuildingEditor : MonoBehaviour
         var marker = hit.collider.GetComponentInParent<InstanceMarker>();
         if (marker != null && _embGOs.ContainsKey(marker.instanceId)) { RemoveEmbedded(marker.instanceId); return; }
 
-        // Otherwise remove any decorations near the hit point.
+        // Otherwise remove the closest decoration to the hit point (props stack, so never sweep them all).
         if (_bdef?.embeddedObjects == null || _tileRoot == null) return;
         Vector3 localHit = _tileRoot.InverseTransformPoint(hit.point);
-        float sq = radius * radius;
-        for (int i = _bdef.embeddedObjects.Count - 1; i >= 0; i--)
+        float  bestSq    = radius * radius;
+        string bestId    = null;
+        foreach (var e in _bdef.embeddedObjects)
         {
-            var e = _bdef.embeddedObjects[i];
             if (e?.localPos == null || e.localPos.Length < 3) continue;
             Vector3 d = localHit - new Vector3(e.localPos[0], e.localPos[1], e.localPos[2]);
-            if (d.sqrMagnitude <= sq) RemoveEmbedded(e.instanceId);
+            if (d.sqrMagnitude <= bestSq) { bestSq = d.sqrMagnitude; bestId = e.instanceId; }
         }
+        if (bestId != null) RemoveEmbedded(bestId);
     }
 
     private void RemoveEmbedded(string instanceId)
@@ -1436,6 +1482,7 @@ public class TileBuildingEditor : MonoBehaviour
         var marker = go.AddComponent<InstanceMarker>();
         marker.instanceId = emb.instanceId;
         marker.isBuilding = false;
+        marker.isEmbedded = true;   // matches WorldRenderer: not an env object instance
         _embGOs[emb.instanceId] = go;
     }
 
@@ -1460,31 +1507,32 @@ public class TileBuildingEditor : MonoBehaviour
 
         // Place / Erase
         GUILayout.BeginHorizontal();
-        if (GUILayout.Toggle(!_decorErase, "Place", GUI.skin.button, GUILayout.Height(UITheme.RowH)) && _decorErase) _decorErase = false;
-        if (GUILayout.Toggle(_decorErase,  "Erase", GUI.skin.button, GUILayout.Height(UITheme.RowH)) && !_decorErase) _decorErase = true;
+        if (UITheme.ToggleButton(!_decorErase, "Place", UITips.DecorPlace, GUILayout.Height(UITheme.RowH)) && _decorErase) _decorErase = false;
+        if (UITheme.ToggleButton(_decorErase,  "Erase", UITips.DecorErase, GUILayout.Height(UITheme.RowH)) && !_decorErase) _decorErase = true;
         GUILayout.EndHorizontal();
 
         if (!_decorErase)
             // Whole-face: one click places the active decor on every exposed face of the clicked
             // building side (e.g. windows across a whole wall).
-            _wholeFace = GUILayout.Toggle(_wholeFace, "Whole face", GUI.skin.button, GUILayout.Height(UITheme.RowH));
+            _wholeFace = UITheme.ToggleButton(_wholeFace, "Whole face", UITips.WholeFaceDecor, GUILayout.Height(UITheme.RowH));
 
         // Decor picker
-        UITheme.Header("Extras");
+        UITheme.Header("Decor");
         var active = ActiveDecor();
         foreach (var e in decorPalette.entries)
         {
             if (e == null || string.IsNullOrEmpty(e.decorId)) continue;
             bool on = active != null && e.decorId == active.decorId;
-            if (GUILayout.Toggle(on, $"{e.decorId}", GUI.skin.button) && !on)
+            if (UITheme.ToggleButton(on, e.decorId, UITips.Decor(e.decorId)) && !on)
                 _activeDecorId = e.decorId;
         }
 
         if (active != null)
-            UITheme.Note($"{active.widthFraction:0.##}×{active.heightFraction:0.##} of cell • anchor {active.anchor}");
+            UITheme.Note($"{active.widthFraction:0.##}×{active.heightFraction:0.##} of cell • anchor {active.anchor}"
+                         + (active.replacesOtherDecor ? " • clears face" : " • stacks"));
 
         if (_decorErase)
-            UITheme.Note("Click or drag across props to remove them.");
+            UITheme.Note("Click or drag across props to remove them (one per click).");
     }
 
     // -----------------------------------------------------------------------
@@ -1604,8 +1652,9 @@ public class TileBuildingEditor : MonoBehaviour
 
     // Clones each renderer's materials and switches them to alpha-blended transparency, tinted to
     // `tint`, so the object reads as see-through on both the Standard and URP Lit shaders. Shared by
-    // the Add-tool placement ghost and the dimmed non-active floors.
-    private static void ApplyTranslucent(GameObject go, Color tint)
+    // the Add-tool placement ghost, the dimmed non-active floors, and WorldRenderer's empty-building
+    // placeholder pad (hence internal).
+    internal static void ApplyTranslucent(GameObject go, Color tint)
     {
         foreach (var r in go.GetComponentsInChildren<Renderer>())
         {

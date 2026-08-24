@@ -139,6 +139,64 @@ public static class PathGeometry
         return outPts;
     }
 
+    // ---- segment / bounds helpers (shared with WorldRenderer's path-junction pass) ---------
+
+    // Segment/segment intersection in XZ meters. Parallel/collinear pairs report no hit.
+    public static bool SegmentsIntersect(Vector2 p1, Vector2 p2, Vector2 p3, Vector2 p4, out Vector2 hit)
+    {
+        hit = default;
+        Vector2 r = p2 - p1, s = p4 - p3;
+        float denom = r.x * s.y - r.y * s.x;
+        if (Mathf.Abs(denom) < 1e-9f) return false;          // parallel/collinear
+        Vector2 qp = p3 - p1;
+        float t = (qp.x * s.y - qp.y * s.x) / denom;
+        float u = (qp.x * r.y - qp.y * r.x) / denom;
+        if (t < 0f || t > 1f || u < 0f || u > 1f) return false;
+        hit = p1 + t * r;
+        return true;
+    }
+
+    // Distance from point p to segment ab.
+    public static float PointSegmentDistance(Vector2 p, Vector2 a, Vector2 b)
+    {
+        Vector2 ab = b - a;
+        float len2 = ab.sqrMagnitude;
+        if (len2 < 1e-9f) return Vector2.Distance(p, a);
+        float t = Mathf.Clamp01(Vector2.Dot(p - a, ab) / len2);
+        return Vector2.Distance(p, a + t * ab);
+    }
+
+    // Axis-aligned bounds of a polyline, inflated by `pad` on every side. False when empty.
+    public static bool PolylineBounds(IReadOnlyList<Vector2> pts, float pad, out Vector2 min, out Vector2 max)
+    {
+        min = max = default;
+        if (pts == null || pts.Count == 0) return false;
+        min = new Vector2(float.MaxValue, float.MaxValue);
+        max = new Vector2(float.MinValue, float.MinValue);
+        for (int i = 0; i < pts.Count; i++)
+        {
+            min = Vector2.Min(min, pts[i]);
+            max = Vector2.Max(max, pts[i]);
+        }
+        min -= new Vector2(pad, pad);
+        max += new Vector2(pad, pad);
+        return true;
+    }
+
+    public static bool BoundsOverlap(Vector2 minA, Vector2 maxA, Vector2 minB, Vector2 maxB) =>
+        minA.x <= maxB.x && minB.x <= maxA.x && minA.y <= maxB.y && minB.y <= maxA.y;
+
+    // Conservative prefilter for the segment-pair sweep: compares the two segments' AABBs, each
+    // inflated by `pad`. Any pair that actually intersects (or approaches within 2*pad) overlaps
+    // here, so filtering on it can only skip pairs SegmentsIntersect would reject anyway.
+    public static bool SegmentBoxesOverlap(Vector2 a1, Vector2 a2, Vector2 b1, Vector2 b2, float pad = 0f)
+    {
+        return Mathf.Min(a1.x, a2.x) - pad <= Mathf.Max(b1.x, b2.x) &&
+               Mathf.Min(b1.x, b2.x) - pad <= Mathf.Max(a1.x, a2.x) &&
+               Mathf.Min(a1.y, a2.y) - pad <= Mathf.Max(b1.y, b2.y) &&
+               Mathf.Min(b1.y, b2.y) - pad <= Mathf.Max(a1.y, a2.y);
+    }
+
     // ---- internals ---------------------------------------------------------
 
     private static void RdpRecurse(IReadOnlyList<Vector2> pts, int lo, int hi, float tol, bool[] keep)
