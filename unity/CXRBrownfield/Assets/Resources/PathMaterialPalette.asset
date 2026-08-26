@@ -19,3 +19,11 @@ MonoBehaviour:
     material: {fileID: 2100000, guid: 55b74adec8f535849b31c82aabe614ba, type: 2}
   - id: dirt
     material: {fileID: 2100000, guid: df0bec9054b453e438140fc875e06332, type: 2}
+  - id: pavement_light
+    material: {fileID: 2100000, guid: 55b74adec8f535849b31c82aabe614ba, type: 2}
+  - id: pavement_dark
+    material: {fileID: 2100000, guid: 55b74adec8f535849b31c82aabe614ba, type: 2}
+  - id: asphalt
+    material: {fileID: 2100000, guid: 55b74adec8f535849b31c82aabe614ba, type: 2}
+  - id: brick
+    material: {fileID: 2100000, guid: 55b74adec8f535849b31c82aabe614ba, type: 2}

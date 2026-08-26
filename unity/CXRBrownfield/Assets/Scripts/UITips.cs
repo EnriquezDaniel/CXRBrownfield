@@ -198,15 +198,13 @@ public static class UITips
     public const string RefreshInputs  = "Reloads the list of uploaded sketches.";
     public const string GenerateScene  = "Sends the selected sketch to the server. The layout it returns becomes a new place in the library. Off until a sketch is selected.";
     public const string PickFromDisk   = "Runs the layout generator on a file picked with a dialog on the server machine.";
-    public const string LocalSample    = "Loads the bundled DummyLayout.json without the server, for a quick look.";
+    public const string LocalSample    = "Loads the bundled Home Longfellow sketch without the server. Pick a site above and it lands inside that plot, ground and all, otherwise it loads at the origin. It arrives editable and unsaved, so press Save to keep it.";
     public const string ServerSample   = "Loads a sample place from the server.";
     public const string ModelSearch    = "Searches for a 3D model by the typed name and loads it.";
 
     // ---- Sites (Site panel + Generate rail targeting) ----
     public const string SiteRow          = "Selects this site. Its controls appear below.";
-    public const string DrawSiteTool     = "Draws a new site plot for a generated scene. Click the ground to drop corners. Enter or Finish closes the shape. Esc cancels.";
-    public const string FinishSite       = "Closes the shape and keeps the site. Needs at least 3 corners.";
-    public const string CancelSite       = "Drops the unfinished shape.";
+    public const string DrawSiteTool     = "Draws a new site plot for a generated scene. Drag on the ground to size it, Shift for a square. The tool stays on so you can drag the next one. Esc leaves it.";
     public const string RenameSite       = "Renames this site. Click, type the new name, then press Enter or click Rename again.";
     public const string EditSiteBoundary = "Shows drag handles for this site's corners. Click again to finish.";
     public const string DoneSiteBoundary = "Hides the handles. The shape is kept.";

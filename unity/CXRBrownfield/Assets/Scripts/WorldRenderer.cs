@@ -217,6 +217,30 @@ public class WorldRenderer : MonoBehaviour
     {
         if (site?.terrainSize == null || site.terrainSize.Length < 2) return;
         SetTerrainSizeClamped(site.terrainSize[0], site.terrainSize[1]);
+        ApplyTerrainOrigin(site);
+    }
+
+    // Moves the terrain's min corner to site.terrainOrigin (null ⇒ the world origin, which is where
+    // every environment authored before that field sits). Sizing alone is not enough for an
+    // environment projected into a host's site: its content is out at the site's coordinates, so a
+    // terrain left at the origin would sit entirely beside it. Terrain-relative math throughout this
+    // file already reads targetTerrain.transform.position, so moving it is safe. Y is preserved —
+    // that is the height range's base, not a horizontal placement.
+    private void ApplyTerrainOrigin(SiteDef site)
+    {
+        if (targetTerrain == null) return;
+        float x = 0f, z = 0f;
+        var o = site?.terrainOrigin;
+        if (o != null && o.Length >= 2 &&
+            !float.IsNaN(o[0]) && !float.IsInfinity(o[0]) &&
+            !float.IsNaN(o[1]) && !float.IsInfinity(o[1]))
+        {
+            x = o[0];
+            z = o[1];
+        }
+        var p = targetTerrain.transform.position;
+        if (!Mathf.Approximately(p.x, x) || !Mathf.Approximately(p.z, z))
+            targetTerrain.transform.position = new Vector3(x, p.y, z);
     }
 
     // Lightweight live preview of a terrain resize from raw width/length (meters), without touching
@@ -1238,8 +1262,8 @@ public class WorldRenderer : MonoBehaviour
     // -----------------------------------------------------------------------
     // Lot / parcel boundary frame — a draped outline of the editable parcel so the lot reads as a
     // first-class object (it's the same polygon PaintTerrain masks the water against, or the terrain
-    // rectangle when no explicit boundary is set). Pure authoring aid: a single terrain-following
-    // LineRenderer, rebuilt with every render, no collider (never interferes with picking).
+    // rectangle when no explicit boundary is set). Pure authoring aid: a terrain-draped ribbon mesh,
+    // rebuilt with every render, no collider (never interferes with picking).
     // -----------------------------------------------------------------------
 
     [Header("Lot frame")]
@@ -1265,48 +1289,48 @@ public class WorldRenderer : MonoBehaviour
         if (poly == null || poly.Length < 3 || er?.root == null) return;
 
         Vector3 terrainPos = targetTerrain != null ? targetTerrain.transform.position : Vector3.zero;
+        var corners = new List<Vector2>(poly.Length);
+        foreach (var p in poly)
+            if (p != null && p.Length >= 2) corners.Add(new Vector2(terrainPos.x + p[0], terrainPos.z + p[1]));
+        if (corners.Count < 3) return;
 
-        // Densify each edge so the outline hugs any terrain grade between corners (cheap; flat sites
-        // collapse to ~corner count). Spacing scales with the lot so big parcels don't over-sample.
-        float diag = targetTerrain != null
-            ? Mathf.Sqrt(targetTerrain.terrainData.size.x * targetTerrain.terrainData.size.x +
-                         targetTerrain.terrainData.size.z * targetTerrain.terrainData.size.z)
-            : 100f;
-        float spacing = Mathf.Clamp(diag * 0.05f, 2f, 40f);
-
-        var pts = new List<Vector3>();
-        int n = poly.Length;
-        for (int i = 0; i < n; i++)
-        {
-            float[] a = poly[i], b = poly[(i + 1) % n];
-            if (a == null || a.Length < 2 || b == null || b.Length < 2) continue;
-            Vector2 pa = new(terrainPos.x + a[0], terrainPos.z + a[1]);
-            Vector2 pb = new(terrainPos.x + b[0], terrainPos.z + b[1]);
-            int steps = Mathf.Max(1, Mathf.CeilToInt(Vector2.Distance(pa, pb) / spacing));
-            for (int s = 0; s < steps; s++)   // exclude endpoint; next edge contributes its start
-            {
-                Vector2 p = Vector2.Lerp(pa, pb, s / (float)steps);
-                pts.Add(new Vector3(p.x, SamplePathSurfaceY(p.x, p.y) + lotFrameLift, p.y));
-            }
-        }
-        if (pts.Count < 3) return;
+        Mesh mesh = BuildPolygonFrameMesh(corners, closed: true, lift: lotFrameLift);
+        if (mesh == null) return;
 
         var go = new GameObject(goName);
         go.transform.SetParent(er.root, false);
-        var lr = go.AddComponent<LineRenderer>();
-        lr.useWorldSpace = true;
-        lr.loop = true;
-        lr.positionCount = pts.Count;
-        lr.SetPositions(pts.ToArray());
-        lr.numCornerVertices = 2;
-        lr.alignment = LineAlignment.View;
-        float w = Mathf.Clamp(diag * 0.004f, 0.25f, 4f);
-        lr.widthMultiplier = w;
-        lr.material = FrameMaterial(color);
-        lr.startColor = lr.endColor = color;
-        lr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
-        lr.receiveShadows = false;
+        go.AddComponent<MeshFilter>().sharedMesh = mesh;
+        var mr = go.AddComponent<MeshRenderer>();
+        mr.sharedMaterial = FrameMaterial(color);
+        mr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+        mr.receiveShadows = false;
+        // Deliberately no collider: the frame is an authoring aid and must never be hit by picking.
     }
+
+    // The draped band for one polygon outline, in WORLD XZ metres. A flat ribbon rather than a
+    // LineRenderer: every edge vertex samples the terrain at its own XZ (PathMesh.Build), so the
+    // band lies flat across a side-slope and hugs grade between corners instead of cutting chords
+    // through it, and its width is a real world width instead of a camera-facing billboard.
+    // Public so EditController's live preview builds the identical mesh and nothing changes on
+    // commit. Returns null when the ring is degenerate.
+    public Mesh BuildPolygonFrameMesh(IReadOnlyList<Vector2> cornersWorld, bool closed, float lift)
+    {
+        if (cornersWorld == null) return null;
+
+        float spacing = PolygonFrame.Spacing(PolygonFrame.Perimeter(cornersWorld, closed));
+        var ring = PolygonFrame.DenseRing(cornersWorld, spacing, closed);
+        if (ring.Count < 2) return null;
+
+        float HeightAt(float x, float z) => SamplePathSurfaceY(x, z) + lift;
+        var centerline = new List<Vector3>(ring.Count);
+        foreach (var p in ring) centerline.Add(new Vector3(p.x, HeightAt(p.x, p.y), p.y));
+
+        float width = PolygonFrame.Width(PolygonFrame.BboxDiagonal(cornersWorld));
+        return PathMesh.Build(centerline, width, HeightAt, capSegments: 0);
+    }
+
+    // Lift the frames sit at above the path surface, so the preview can match the committed band.
+    public float FrameLift => lotFrameLift;
 
     // One unlit line material per frame color (lot amber, site cyan), lazily built and cached.
     private readonly Dictionary<Color, Material> _frameMaterials = new();
@@ -1322,6 +1346,9 @@ public class WorldRenderer : MonoBehaviour
         _frameMaterials[color] = m;
         return m;
     }
+
+    // Same cached material the committed frame uses, for EditController's live preview.
+    public Material GetFrameMaterial(Color color) => FrameMaterial(color);
 
     // Lazily-built magenta material used to flag prefab_types that have no PrefabRegistry entry.
     // Mirrors Unity's own "missing shader" look so an unmapped prefab reads as broken at a glance.

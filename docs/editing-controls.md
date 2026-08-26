@@ -17,6 +17,29 @@ Everything here runs in Play mode in `BasicModel`. Panels are IMGUI: `LibraryBro
 5. **LibraryBrowser → Save** to persist.
 6. **BakePass → Bake** to combine meshes for VR / lightweight play.
 
+No server or API key handy? **Generate rail → Samples → Local sample** loads
+`Assets/Resources/DummyLayout.json`, a hand-authored reading of the Home Longfellow sketch
+(`samples/HomeLongfellowSample1.jpg`) on the real 286 × 133 ft parcel. It arrives as an editable,
+unsaved environment in the Loaded list, so steps 3 to 6 work on it like any other. It honours the
+same **Sites** target Generate uses: pick a site and the sample is projected into that plot
+(`SiteFit.ProjectIntoSite`) instead of loading at the origin.
+
+`Assets/Tests/EditMode/DummyLayoutSampleTests.cs` pins the sample's geometry, its orientation, and
+its fit into a site, and keeps it a valid reference for what a layout response should look like.
+
+### Where the terrain sits
+
+`site.terrainSize` is the ground's extent and `site.terrainOrigin` its min corner in world meters
+(null ⇒ the world origin, which is where every environment authored before that field sits). Both are
+applied by `WorldRenderer.ApplyTerrainSize` whenever an environment becomes active, and both travel
+with the environment through `EnvironmentScale` — the size scales directly while the origin, being a
+position, scales about the pivot and shifts on a translate.
+
+`SiteFit.ProjectIntoSite` seeds `terrainOrigin` with the site's corner, so an environment fitted into
+a host's drawn site brings its ground with it. Only one environment owns the terrain at a time, so
+while such an environment is active the ground sits over its site and the host is a backdrop without
+ground under it; make the host active again and the terrain returns to it.
+
 ## Edit-mode controls
 
 | Key / action | Effect |
@@ -120,7 +143,10 @@ box (+ margin). Geometry helpers: `EnvironmentScale` in `Assets/Scripts/Authorin
 A **site** is a polygon drawn anywhere inside the active (host) environment that a sketch-generated
 scene can fill. All site controls live in the **Generate rail** (there is no Sites block on the
 Terrain rail). Sites are a list on the environment (`EnvironmentDef.sites`, `SitePlotDef`: id, name,
-boundary in host meters, optional `fillEnvironmentId`); each draws a cyan "Site frame" outline.
+boundary in host meters, optional `fillEnvironmentId`); each draws a cyan "Site frame" outline
+(a terrain-draped ribbon mesh, so it hugs grade at a constant world width instead of
+billboarding at the camera). Corners land on the terrain surface under the pointer, not on the
+flat y=0 plane the other draw tools use.
 Any site change (draw, reshape, rename, delete, fill or clear a fill) auto-saves the host
 environment to the server after about a second, so other clients loading the environment see the
 same sites. Drawing the first site with nothing loaded creates the working environment's server
@@ -128,7 +154,7 @@ record automatically.
 
 | Control | Use |
 |---|---|
-| **Draw site** | Click the ground to drop corners (anywhere, no origin anchoring); Enter or **Finish** closes the shape (min 3), Esc cancels |
+| **New site** | Press and drag on the ground to size the plot (axis-aligned rectangle, Shift for a square); release commits it. A live readout shows the size in m and ft. A bare click does nothing. The tool stays on so you can drag the next site; Esc mid-drag drops the rectangle, Esc again leaves the tool |
 | **Site rows** | Select a site; shows `empty` or the name of the scene filling it |
 | **Rename** | Renames the selected site |
 | **Edit boundary** | Drag corners, click an edge to insert one, Delete removes the selected corner (min 3). A linked fill re-fits live |

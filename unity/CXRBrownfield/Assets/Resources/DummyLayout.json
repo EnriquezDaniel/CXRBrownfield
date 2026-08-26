@@ -1,65 +1,174 @@
 {
   "site_scale": {
-    "site_width_ft": 1000,
-    "site_height_ft": 1000,
-    "normalized_canvas": [0, 0, 1000, 1000],
-    "lot_boundary": [[0,0],[0,1000],[1000,0],[1000,1000]],
-    "scale_note": "All placements must fall within lot_boundary."
+    "site_width_ft": 286,
+    "site_height_ft": 133,
+    "normalized_canvas": [
+      0,
+      0,
+      1000,
+      1000
+    ],
+    "lot_boundary": [
+      [
+        1000,
+        208
+      ],
+      [
+        7,
+        4
+      ],
+      [
+        0,
+        300
+      ],
+      [
+        64,
+        302
+      ],
+      [
+        46,
+        1000
+      ]
+    ],
+    "scale_note": "Home Longfellow parcel: a wedge tapering to a north tip, with a stepped south-east corner. All placements must fall within lot_boundary. Bounding boxes define placement. Real-world dimensions define scale."
   },
   "terrain_zones": [
-    { "area_name": "West Grass Area 1",   "terrain_type": "grass",    "bounding_box": [480,   0, 550, 290] },
-    { "area_name": "West Grass Area 2",   "terrain_type": "grass",    "bounding_box": [480, 290, 550, 490] },
-    { "area_name": "East Grass Area 1",   "terrain_type": "grass",    "bounding_box": [480, 520, 550, 710] },
-    { "area_name": "East Grass Area 2",   "terrain_type": "grass",    "bounding_box": [480, 710, 550,1000] },
-    { "area_name": "West Plaza Section",  "terrain_type": "plaza",    "bounding_box": [550, 290, 790, 490] },
-    { "area_name": "East Plaza Section",  "terrain_type": "plaza",    "bounding_box": [550, 520, 790, 710] },
-    { "area_name": "Central Path",        "terrain_type": "pavement", "bounding_box": [480, 490, 790, 520] },
-    { "area_name": "Cafe Path",           "terrain_type": "pavement", "bounding_box": [790,   0, 820, 490] },
-    { "area_name": "Daycare Path",        "terrain_type": "pavement", "bounding_box": [790, 520, 820,1000] },
-    { "area_name": "Main Access Road",    "terrain_type": "asphalt",  "bounding_box": [820,   0,1000,1000] }
+    {
+      "area_name": "Soccer Pitch",
+      "semantic_tag": "sports_field",
+      "terrain_type": "grass",
+      "bounding_box": [
+        366,
+        148,
+        595,
+        450
+      ],
+      "approx_sq_ft": 2630,
+      "unity_strategy": "paint_terrain"
+    },
+    {
+      "area_name": "North Open Area",
+      "semantic_tag": "open_space",
+      "terrain_type": "plaza",
+      "bounding_box": [
+        627,
+        200,
+        763,
+        400
+      ],
+      "approx_sq_ft": 1030,
+      "unity_strategy": "paint_terrain"
+    }
+  ],
+  "paths": [
+    {
+      "area_name": "South Walkway",
+      "semantic_tag": "sidewalk",
+      "path_material": "pavement_light",
+      "width_ft": 14,
+      "points": [
+        [
+          105,
+          940
+        ],
+        [
+          93,
+          500
+        ],
+        [
+          76,
+          30
+        ]
+      ]
+    }
+  ],
+  "fences": [
+    {
+      "area_name": "Pitch Enclosure",
+      "semantic_tag": "sports_fence",
+      "fence_type": "chain_link",
+      "points": [
+        [
+          595,
+          450
+        ],
+        [
+          595,
+          148
+        ],
+        [
+          366,
+          148
+        ],
+        [
+          366,
+          450
+        ],
+        [
+          595,
+          450
+        ]
+      ],
+      "height_ft": 10
+    }
   ],
   "generated_buildings": [
     {
-      "area_name": "Cafe Building",
-      "semantic_tag": "cafe",
-      "bounding_box": [550, 0, 790, 290],
-      "center_point": [670, 145],
+      "area_name": "Apt West Wing",
+      "semantic_tag": "residential_apartment",
+      "bounding_box": [
+        308,
+        456,
+        512,
+        610
+      ],
+      "center_point": [
+        410,
+        533
+      ],
       "rotation_y_deg": 0,
-      "floors": 1,
+      "floors": 3,
+      "approx_sq_ft": 1200,
       "unity_strategy": "modular_prefab"
     },
     {
-      "area_name": "Daycare Building",
-      "semantic_tag": "daycare",
-      "bounding_box": [550, 710, 790, 1000],
-      "center_point": [670, 855],
+      "area_name": "Apt South Wing",
+      "semantic_tag": "residential_apartment",
+      "bounding_box": [
+        172,
+        168,
+        316,
+        770
+      ],
+      "center_point": [
+        244,
+        469
+      ],
       "rotation_y_deg": 0,
-      "floors": 1,
+      "floors": 3,
+      "approx_sq_ft": 3300,
       "unity_strategy": "modular_prefab"
     }
   ],
-  "generated_objects": [
-    {
-      "area_name": "Dr.s Office Building",
-      "semantic_tag": "medical_office",
-      "object_type": "building",
-      "bounding_box": [0, 0, 480, 980],
-      "center_point": [240, 490],
-      "rotation_y_deg": 0,
-      "target_dimensions_ft": { "width_ft": 980, "depth_ft": 480, "height_ft": 50 },
-      "unity_strategy": "box_primitive"
-    }
-  ],
+  "generated_objects": [],
   "prefab_instances": [
-    { "area_name": "Plaza Bench 1", "prefab_type": "bench", "center_point": [650, 310], "rotation_deg": 90,  "scale_multiplier": 1.0 },
-    { "area_name": "Plaza Bench 2", "prefab_type": "bench", "center_point": [665, 310], "rotation_deg": 90,  "scale_multiplier": 1.0 },
-    { "area_name": "Plaza Bench 3", "prefab_type": "bench", "center_point": [680, 310], "rotation_deg": 90,  "scale_multiplier": 1.0 },
-    { "area_name": "Plaza Bench 4", "prefab_type": "bench", "center_point": [695, 310], "rotation_deg": 90,  "scale_multiplier": 1.0 },
-    { "area_name": "Plaza Tree 1",  "prefab_type": "tree",  "center_point": [600, 390], "rotation_deg":  0,  "scale_multiplier": 1.0 },
-    { "area_name": "Plaza Tree 2",  "prefab_type": "tree",  "center_point": [630, 410], "rotation_deg":  0,  "scale_multiplier": 1.0 },
-    { "area_name": "Plaza Tree 3",  "prefab_type": "tree",  "center_point": [660, 430], "rotation_deg":  0,  "scale_multiplier": 1.0 },
-    { "area_name": "Plaza Tree 4",  "prefab_type": "tree",  "center_point": [600, 620], "rotation_deg":  0,  "scale_multiplier": 1.0 },
-    { "area_name": "Plaza Tree 5",  "prefab_type": "tree",  "center_point": [630, 640], "rotation_deg":  0,  "scale_multiplier": 1.0 },
-    { "area_name": "Plaza Tree 6",  "prefab_type": "tree",  "center_point": [660, 660], "rotation_deg":  0,  "scale_multiplier": 1.0 }
+    {
+      "area_name": "North Tree",
+      "semantic_tag": "vegetation_tree",
+      "prefab_type": "tree",
+      "center_point": [
+        852,
+        278
+      ],
+      "footprint_box": [
+        832,
+        246,
+        872,
+        310
+      ],
+      "rotation_deg": 0,
+      "scale_multiplier": 1.0,
+      "unity_strategy": "place_prefab"
+    }
   ]
 }

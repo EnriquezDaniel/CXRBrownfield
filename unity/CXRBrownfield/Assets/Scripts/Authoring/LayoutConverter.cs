@@ -119,23 +119,52 @@ public static class LayoutConverter
             if (gb?.bounding_box == null || gb.bounding_box.Length < 4) continue;
 
             string bldgId = Guid.NewGuid().ToString("D");
-            buildings.Add(BuildingDefFromGeneratedBuilding(gb, bldgId, canvasW, canvasH, terrainWidthM, terrainHeightM));
+            var def = BuildingDefFromGeneratedBuilding(gb, bldgId, canvasW, canvasH, terrainWidthM, terrainHeightM);
+            buildings.Add(def);
 
             float worldX = (gb.center_point != null && gb.center_point.Length >= 1)
                 ? (gb.center_point[0] / canvasW) * terrainWidthM : 0f;
             float worldZ = (gb.center_point != null && gb.center_point.Length >= 2)
                 ? (gb.center_point[1] / canvasH) * terrainHeightM : 0f;
 
+            // A tile grid is CORNER-pivoted: TileSpawner puts cell (gridX, gridZ) at
+            // ((gridX + 0.5)·cell, (gridZ + 0.5)·cell) local, and the def's grid starts at (0, 0),
+            // so the root's origin is the footprint's min corner. center_point is the footprint's
+            // CENTRE (site_parsing.md: "center_point must be the exact center of the bounding box"),
+            // so the instance has to sit half a footprint back from it, along the building's own
+            // rotated axes, or the building lands offset by half its own size.
+            float yaw = MapRotation(gb.rotation_y_deg);
+            Vector3 corner = Quaternion.Euler(0f, yaw, 0f) * FootprintHalfExtent(def);
+
             bldgInsts.Add(new BuildingInstance
             {
                 instanceId = Guid.NewGuid().ToString("D"),
                 buildingId = bldgId,
-                position   = new[] { worldX, 0f, worldZ },
-                rotationY  = MapRotation(gb.rotation_y_deg),
+                position   = new[] { worldX - corner.x, 0f, worldZ - corner.z },
+                rotationY  = yaw,
                 scale      = 1f,
                 included   = true,
             });
         }
+    }
+
+    // Half the tile grid's XZ extent in metres, in the building's own (unrotated) frame: the vector
+    // from the corner-pivot origin to the footprint centre. Zero for a def with no tiles.
+    private static Vector3 FootprintHalfExtent(BuildingDef def)
+    {
+        if (def?.tiles == null || def.tiles.Count == 0) return Vector3.zero;
+        int minX = int.MaxValue, maxX = int.MinValue, minZ = int.MaxValue, maxZ = int.MinValue;
+        foreach (var t in def.tiles)
+        {
+            if (t == null) continue;
+            if (t.gridX < minX) minX = t.gridX;
+            if (t.gridX > maxX) maxX = t.gridX;
+            if (t.gridZ < minZ) minZ = t.gridZ;
+            if (t.gridZ > maxZ) maxZ = t.gridZ;
+        }
+        if (minX > maxX || minZ > maxZ) return Vector3.zero;
+        float cell = def.gridCellSize > 0f ? def.gridCellSize : AuthoringConventions.DEFAULT_GRID_CELL_SIZE;
+        return new Vector3((maxX - minX + 1) * cell * 0.5f, 0f, (maxZ - minZ + 1) * cell * 0.5f);
     }
 
     private static void ConvertGeneratedObjects(

@@ -151,6 +151,12 @@ public static class EnvironmentScale
                 site.terrainSize[0] *= fx;
                 site.terrainSize[1] *= fz;
             }
+            // The terrain's corner is a position, so unlike terrainSize it scales about the pivot.
+            if (site.terrainOrigin != null && site.terrainOrigin.Length >= 2)
+            {
+                site.terrainOrigin[0] = ScalarAbout(site.terrainOrigin[0], pivot.x, fx);
+                site.terrainOrigin[1] = ScalarAbout(site.terrainOrigin[1], pivot.y, fz);
+            }
 
             if (site.terrainZones != null)
                 foreach (var z in site.terrainZones)
@@ -176,6 +182,16 @@ public static class EnvironmentScale
                     if (s == null) continue;
                     s.radius *= iso;
                     ScalePointsXZ(s.points, pivot, fx, fz);
+                }
+
+            // Fences move and resize exactly like paths: a polyline plus one isotropic scalar.
+            // height 0 means "use the FencePalette default", so leave that sentinel alone.
+            if (site.fences != null)
+                foreach (var f in site.fences)
+                {
+                    if (f == null) continue;
+                    if (f.height > 0f) f.height *= iso;
+                    ScalePointsXZ(f.points, pivot, fx, fz);
                 }
 
             ScalePointsXZ(site.lotBoundary, pivot, fx, fz);
@@ -246,7 +262,14 @@ public static class EnvironmentScale
                 foreach (var p in site.paths) TranslatePointsXZ(p?.points, dx, dz);
             if (site.surfaceStrokes != null)
                 foreach (var s in site.surfaceStrokes) TranslatePointsXZ(s?.points, dx, dz);
+            if (site.fences != null)
+                foreach (var f in site.fences) TranslatePointsXZ(f?.points, dx, dz);
             TranslatePointsXZ(site.lotBoundary, dx, dz);
+            if (site.terrainOrigin != null && site.terrainOrigin.Length >= 2)
+            {
+                site.terrainOrigin[0] += dx;
+                site.terrainOrigin[1] += dz;
+            }
         }
 
         if (env.objectInstances != null)

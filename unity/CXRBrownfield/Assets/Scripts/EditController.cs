@@ -229,9 +229,8 @@ public class EditController : MonoBehaviour, EditHistory.IHost
     private bool _lotMoved;                                // did the active drag actually change anything
     private float _lotW = 100f, _lotL = 100f;             // working rectangle size during a rect drag
     private readonly List<GameObject> _lotHandles = new();
-    private GameObject   _lotPreviewGO;
-    private LineRenderer _lotPreviewLR;
-    private Material      _lotPreviewMat;
+    private GameObject _lotPreviewGO;
+    private MeshFilter _lotPreviewMF;
 
     // Sites: draw a new SitePlotDef polygon anywhere in the host (DrawSite) or reshape an existing
     // one's corners (EditSite). Fills are managed by LibraryBrowser; this is only the geometry UX.
@@ -243,9 +242,15 @@ public class EditController : MonoBehaviour, EditHistory.IHost
     private bool _siteDragging;
     private bool _siteMoved;
     private readonly List<GameObject> _siteHandles = new();
-    private GameObject   _sitePreviewGO;
-    private LineRenderer _sitePreviewLR;
-    private Material      _sitePreviewMat;
+    private GameObject _sitePreviewGO;
+    private MeshFilter _sitePreviewMF;
+
+    // DrawSite is press-drag-release: the press point is captured once and the rectangle grows to
+    // the cursor until release (mirrors the fence tool's straight mode). Shift squares it.
+    private bool    _siteDragActive;
+    private Vector3 _siteDragStart;
+    private const float SITE_MIN_DRAG = 1f;                // m per axis; a shorter release cancels
+    private GUIStyle _siteLabelStyle;                      // lazily built, for the drag size readout
 
     // PaintObjects (scatter brush)
     private string _brushPrefab;
@@ -2054,6 +2059,25 @@ public class EditController : MonoBehaviour, EditHistory.IHost
         GUI.Label(r, $"{_fenceGhostLength:0.0} m · {_fenceGhostPanelCount} panel{(_fenceGhostPanelCount == 1 ? "" : "s")}", _fenceLabelStyle);
     }
 
+    // Floating "w x l" readout near the cursor while a site rectangle is being dragged (from OnGUI).
+    private void DrawSiteDragLabel()
+    {
+        if (!_siteDragActive || mainCamera == null) return;
+        if (!PolygonFrame.Bbox(SiteCorners2D(), out float w, out float l)) return;
+
+        if (_siteLabelStyle == null)
+            _siteLabelStyle = new GUIStyle(GUI.skin.label)
+            {
+                alignment = TextAnchor.MiddleCenter,
+                fontStyle = FontStyle.Bold,
+                normal = { textColor = new Color(0.55f, 0.95f, 1f, 1f) },
+            };
+
+        float wFt = w / AuthoringConventions.FT_TO_M, lFt = l / AuthoringConventions.FT_TO_M;
+        var r = new Rect(MousePos.x - 120f, Screen.height - MousePos.y - 34f, 240f, 20f);
+        GUI.Label(r, $"{w:0.0} x {l:0.0} m  ({wFt:0} x {lFt:0} ft)", _siteLabelStyle);
+    }
+
     // Highlight sphere at the snapped endpoint so the snap is visible instead of silent.
     private void UpdateFenceSnapMarker(Vector3 pos, bool snapped) =>
         ShowSnapMarker(ref _fenceSnapMarker, "FenceSnapMarker", pos, snapped);
@@ -2757,12 +2781,12 @@ public class EditController : MonoBehaviour, EditHistory.IHost
     }
 
     private void EnsureLotPreview() =>
-        EnsureOutlinePreview(ref _lotPreviewGO, ref _lotPreviewLR, ref _lotPreviewMat,
+        EnsureOutlinePreview(ref _lotPreviewGO, ref _lotPreviewMF,
                              new Color(1f, 0.85f, 0.2f, 1f), "LotEditPreview");
 
     private void UpdateLotPreview()
     {
-        if (_lotPreviewLR == null) return;
+        if (_lotPreviewMF == null) return;
         var corners = new List<Vector2>();
         if (_lotPolygonMode) { foreach (var p in _lotPts) corners.Add(new Vector2(p.x, p.z)); }
         else
@@ -2772,8 +2796,7 @@ public class EditController : MonoBehaviour, EditHistory.IHost
             corners.Add(new Vector2(_lotW, _lotL));
             corners.Add(new Vector2(0f, _lotL));
         }
-        if (corners.Count < 3) { _lotPreviewLR.positionCount = 0; return; }
-        UpdateOutlinePreview(_lotPreviewLR, corners, loop: true, _lotW, _lotL);
+        UpdateOutlinePreview(_lotPreviewMF, corners, loop: true);
     }
 
     // Hide/show the committed "Lot frame" LineRenderer under the active env root (so it doesn't
@@ -2836,7 +2859,7 @@ public class EditController : MonoBehaviour, EditHistory.IHost
         if (env == null) return;
         _mode = EditMode.DrawSite;
         _sitePts.Clear();
-        _sitePtSel = -1; _siteDragging = false; _siteMoved = false;
+        _sitePtSel = -1; _siteDragging = false; _siteMoved = false; _siteDragActive = false;
         EnsureSitePreview();
     }
 
@@ -2844,25 +2867,70 @@ public class EditController : MonoBehaviour, EditHistory.IHost
     {
         var env = libraryBrowser?.CurrentEnvironment;
         if (env == null) { StopDrawSite(); return; }
-        if (KB != null && !TypingInUI && KB.escapeKey.wasPressedThisFrame) { StopDrawSite(); return; }
-        if (KB != null && !TypingInUI && (KB.enterKey.wasPressedThisFrame || KB.numpadEnterKey.wasPressedThisFrame))
-        { CommitDrawnSite(env); return; }
 
-        if (LMBDown && !IsMouseOverUI())
+        // Two-stage Esc, same as DrawFence: mid-drag it throws the rectangle away and keeps the
+        // tool armed; with nothing in flight it leaves the tool.
+        if (KB != null && !TypingInUI && KB.escapeKey.wasPressedThisFrame)
         {
-            Vector3 g = GroundPoint();
-            _sitePts.Add(new Vector3(g.x, 0f, g.z));
+            if (_siteDragActive) { ResetSiteDrawing(rerender: false); return; }
+            StopDrawSite();
+            return;
         }
-        UpdateSitePreview(loop: _sitePts.Count > 2);
+
+        Vector3 cursor = GroundPointOnTerrain();
+
+        // Press-drag-release sizes one axis-aligned rectangle. The press point is captured once and
+        // never re-derived. IsMouseOverUI gates only the press, so a drag that ends over the rail
+        // still commits (mirrors the fence tool's straight mode).
+        if (LMBDown && !IsMouseOverUI()) { _siteDragStart = cursor; _siteDragActive = true; }
+
+        if (_siteDragActive)
+            SetSiteCorners(PolygonFrame.RectCorners(new Vector2(_siteDragStart.x, _siteDragStart.z),
+                                                    new Vector2(cursor.x, cursor.z), ShiftHeld));
+
+        if (_siteDragActive && LMBUp)
+        {
+            _siteDragActive = false;
+            // A bare click or a sliver drag is a cancel, never a degenerate plot.
+            if (Mathf.Abs(cursor.x - _siteDragStart.x) >= SITE_MIN_DRAG &&
+                Mathf.Abs(cursor.z - _siteDragStart.z) >= SITE_MIN_DRAG)
+            {
+                CommitDrawnSite(env);   // stays armed, so several sites can be dragged in a row
+                return;
+            }
+            ResetSiteDrawing(rerender: false);
+            return;
+        }
+
+        UpdateSitePreview(loop: _sitePts.Count >= 3);
+    }
+
+    // Replaces the working corners with a corner run in XZ (the drag rectangle).
+    private void SetSiteCorners(Vector2[] corners)
+    {
+        _sitePts.Clear();
+        foreach (var c in corners) _sitePts.Add(new Vector3(c.x, 0f, c.y));
+    }
+
+    // Drops the in-progress rectangle and hides its preview, leaving the tool armed for the next
+    // drag. `rerender` rebuilds the env so a just-committed site frame appears.
+    private void ResetSiteDrawing(bool rerender)
+    {
+        _sitePts.Clear();
+        _siteDragActive = false;
+        UpdateSitePreview(loop: false);
+        if (!rerender) return;
+        var env = libraryBrowser?.CurrentEnvironment;
+        if (env != null) worldRenderer?.RenderEnvironment(env, libraryBrowser?.CurrentBuildingDefs);
     }
 
     // Turns the in-progress outline into a new SitePlotDef on the environment. Needs 3+ corners.
     private void CommitDrawnSite(EnvironmentDef env)
     {
-        if (_sitePts.Count < 3) { StopDrawSite(); return; }
+        if (_sitePts.Count < 3) { ResetSiteDrawing(rerender: false); return; }
         var boundary = new float[_sitePts.Count][];
         for (int i = 0; i < _sitePts.Count; i++) boundary[i] = new[] { _sitePts[i].x, _sitePts[i].z };
-        if (!SiteFit.BoundaryBounds(boundary, out _, out _, out _, out _)) { StopDrawSite(); return; }
+        if (!SiteFit.BoundaryBounds(boundary, out _, out _, out _, out _)) { ResetSiteDrawing(rerender: false); return; }
 
         _history?.RecordBefore(EditHistory.Scope.Environment, "Draw site");
         env.sites ??= new List<SitePlotDef>();
@@ -2875,13 +2943,14 @@ public class EditController : MonoBehaviour, EditHistory.IHost
         env.sites.Add(plot);
         _siteSel = plot.id; _siteRenameStr = plot.name;
         libraryBrowser?.MarkDirty(autoSave: true);
-        StopDrawSite();   // re-renders, so the committed site frame appears
+        ResetSiteDrawing(rerender: true);   // the committed site frame appears; the tool stays armed
     }
 
     private void StopDrawSite()
     {
         if (_sitePreviewGO != null) _sitePreviewGO.SetActive(false);
         _sitePts.Clear();
+        _siteDragActive = false;
         _mode = EditMode.Browse;
         var env = libraryBrowser?.CurrentEnvironment;
         if (env != null) worldRenderer?.RenderEnvironment(env, libraryBrowser?.CurrentBuildingDefs);
@@ -2928,9 +2997,8 @@ public class EditController : MonoBehaviour, EditHistory.IHost
             else
             {
                 SiteBboxSize(out float w, out float l);
-                var corners = new List<Vector2>(_sitePts.Count);
-                foreach (var p in _sitePts) corners.Add(new Vector2(p.x, p.z));
-                Vector3 g = GroundPoint();
+                var corners = SiteCorners2D();
+                Vector3 g = GroundPointOnTerrain();
                 if (PolygonEdit.TryInsertVertex(corners, new Vector2(g.x, g.z),
                                                 PolygonEdit.PickTolerance(w, l), out int idx, out Vector2 pt))
                 {
@@ -2944,7 +3012,7 @@ public class EditController : MonoBehaviour, EditHistory.IHost
 
         if (_siteDragging && LMBHeld && _sitePtSel >= 0 && _sitePtSel < _sitePts.Count)
         {
-            Vector3 g = GroundPoint();
+            Vector3 g = GroundPointOnTerrain();
             var nv = new Vector3(g.x, 0f, g.z);
             if ((nv - _sitePts[_sitePtSel]).sqrMagnitude > 1e-6f) _siteMoved = true;
             _sitePts[_sitePtSel] = nv;
@@ -2988,16 +3056,9 @@ public class EditController : MonoBehaviour, EditHistory.IHost
     // Bounding box of the working corners; falls back to a small size before any exist.
     private void SiteBboxSize(out float w, out float l)
     {
-        float minX = float.MaxValue, minZ = float.MaxValue, maxX = float.MinValue, maxZ = float.MinValue;
-        foreach (var p in _sitePts)
-        {
-            if (p.x < minX) minX = p.x;
-            if (p.x > maxX) maxX = p.x;
-            if (p.z < minZ) minZ = p.z;
-            if (p.z > maxZ) maxZ = p.z;
-        }
-        w = _sitePts.Count > 0 ? Mathf.Max(1f, maxX - minX) : 50f;
-        l = _sitePts.Count > 0 ? Mathf.Max(1f, maxZ - minZ) : 50f;
+        if (!PolygonFrame.Bbox(SiteCorners2D(), out w, out l)) { w = l = 50f; return; }
+        w = Mathf.Max(1f, w);
+        l = Mathf.Max(1f, l);
     }
 
     private Vector3 SiteHandleWorld(int i)
@@ -3050,16 +3111,20 @@ public class EditController : MonoBehaviour, EditHistory.IHost
     }
 
     private void EnsureSitePreview() =>
-        EnsureOutlinePreview(ref _sitePreviewGO, ref _sitePreviewLR, ref _sitePreviewMat,
+        EnsureOutlinePreview(ref _sitePreviewGO, ref _sitePreviewMF,
                              SITE_PREVIEW_COLOR, "SiteEditPreview");
 
     private void UpdateSitePreview(bool loop)
     {
-        if (_sitePreviewLR == null) return;
+        if (_sitePreviewMF == null) return;
+        UpdateOutlinePreview(_sitePreviewMF, SiteCorners2D(), loop);
+    }
+
+    private List<Vector2> SiteCorners2D()
+    {
         var corners = new List<Vector2>(_sitePts.Count);
         foreach (var p in _sitePts) corners.Add(new Vector2(p.x, p.z));
-        SiteBboxSize(out float w, out float l);
-        UpdateOutlinePreview(_sitePreviewLR, corners, loop, w, l);
+        return corners;
     }
 
     // Hide/show one committed "Site frame:<id>" outline under the active env root so it doesn't
@@ -3071,64 +3136,38 @@ public class EditController : MonoBehaviour, EditHistory.IHost
         if (f != null) f.gameObject.SetActive(visible);
     }
 
-    // Shared draped-outline preview used by the lot and site tools.
-    private static void EnsureOutlinePreview(ref GameObject go, ref LineRenderer lr, ref Material mat,
-                                             Color color, string name)
+    // Shared draped-outline preview used by the lot and site tools. The same terrain-draped ribbon
+    // mesh WorldRenderer commits (WorldRenderer.BuildPolygonFrameMesh), so the outline does not
+    // change thickness or drape the instant it commits.
+    private void EnsureOutlinePreview(ref GameObject go, ref MeshFilter mf, Color color, string name)
     {
-        if (mat == null)
-        {
-            var sh = Shader.Find("Universal Render Pipeline/Unlit") ?? Shader.Find("Unlit/Color") ?? Shader.Find("Sprites/Default");
-            mat = new Material(sh) { name = name };
-            if (mat.HasProperty("_BaseColor")) mat.SetColor("_BaseColor", color);
-            if (mat.HasProperty("_Color"))     mat.SetColor("_Color", color);
-        }
         if (go == null)
         {
             go = new GameObject(name);
-            lr = go.AddComponent<LineRenderer>();
-            lr.useWorldSpace = true;
-            lr.loop = true;
-            lr.numCornerVertices = 2;
-            lr.alignment = LineAlignment.View;
-            lr.material = mat;
-            lr.startColor = lr.endColor = color;
-            lr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
-            lr.receiveShadows = false;
+            mf = go.AddComponent<MeshFilter>();
+            var created = go.AddComponent<MeshRenderer>();
+            created.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            created.receiveShadows = false;
         }
+        // Resolved every call, not just on creation: the renderer may not have been wired yet the
+        // first time round, and the frame material is cached per colour on WorldRenderer.
+        var mr = go.GetComponent<MeshRenderer>();
+        if (mr != null && mr.sharedMaterial == null && worldRenderer != null)
+            mr.sharedMaterial = worldRenderer.GetFrameMaterial(color);
         go.SetActive(true);
     }
 
-    // Densifies the corner run so the outline drapes the terrain; `loop` closes the ring
-    // (open while a site is still being drawn).
-    private void UpdateOutlinePreview(LineRenderer lr, List<Vector2> corners, bool loop, float sizeW, float sizeL)
+    // Rebuilds the preview band from the working corners; `loop` closes the ring (open while a
+    // polyline is still being drawn). The old mesh is destroyed so the per-frame rebuild does not
+    // pile up throwaway meshes.
+    private void UpdateOutlinePreview(MeshFilter mf, List<Vector2> corners, bool loop)
     {
-        if (lr == null) return;
-        lr.loop = loop;
-        if (corners.Count < 2) { lr.positionCount = 0; return; }
-
-        float diag = Mathf.Sqrt(sizeW * sizeW + sizeL * sizeL);
-        float spacing = Mathf.Clamp(diag * 0.05f, 2f, 40f);
-        var pts = new List<Vector3>();
-        int n = corners.Count;
-        int edges = loop ? n : n - 1;
-        for (int i = 0; i < edges; i++)
-        {
-            Vector2 a = corners[i], b = corners[(i + 1) % n];
-            int steps = Mathf.Max(1, Mathf.CeilToInt(Vector2.Distance(a, b) / spacing));
-            for (int s = 0; s < steps; s++)
-            {
-                Vector2 p = Vector2.Lerp(a, b, s / (float)steps);
-                pts.Add(new Vector3(p.x, PreviewY(p.x, p.y) + 0.2f, p.y));
-            }
-        }
-        if (!loop)
-        {
-            Vector2 last = corners[n - 1];
-            pts.Add(new Vector3(last.x, PreviewY(last.x, last.y) + 0.2f, last.y));
-        }
-        lr.widthMultiplier = Mathf.Clamp(diag * 0.004f, 0.25f, 4f);
-        lr.positionCount = pts.Count;
-        lr.SetPositions(pts.ToArray());
+        if (mf == null) return;
+        var stale = mf.sharedMesh;
+        mf.sharedMesh = worldRenderer != null && corners.Count >= (loop ? 3 : 2)
+            ? worldRenderer.BuildPolygonFrameMesh(corners, loop, worldRenderer.FrameLift)
+            : null;
+        if (stale != null) Destroy(stale);
     }
 
     // ---- PaintObjects: Unity-style scatter brush (density, random rot/scale) + eraser ----
@@ -4445,7 +4484,8 @@ public class EditController : MonoBehaviour, EditHistory.IHost
     private static bool IsPreservedToolMode(EditMode m) =>
         m == EditMode.PaintObjects || m == EditMode.PaintSurface ||
         m == EditMode.DrawPath     || m == EditMode.DrawFence     ||
-        m == EditMode.Measure      || m == EditMode.EditLot;
+        m == EditMode.Measure      || m == EditMode.EditLot        ||
+        m == EditMode.DrawSite     || m == EditMode.EditSite;
 
     // Re-sync a preserved tool's transient view to the just-restored env. Most tools only need their
     // in-progress point buffer cleared so no stale rubber-band references a pre-undo point; EditLot
@@ -4467,6 +4507,25 @@ public class EditController : MonoBehaviour, EditHistory.IHost
             case EditMode.DrawPath:     _pathPts.Clear();  break;   // preview goes inactive next Update
             case EditMode.DrawFence:    _fencePts.Clear(); break;
             case EditMode.Measure:      _measurePts.Clear(); UpdateMeasureOverlay(); break;
+            case EditMode.DrawSite:
+                ResetSiteDrawing(rerender: false);
+                break;
+            case EditMode.EditSite:
+            {
+                // Same shape as EditLot: the tool holds a working copy of the polygon, so re-seed it
+                // from the restored plot or drop the tool if that plot is gone.
+                var plot = FindSite(env, _siteSel);
+                if (plot?.boundary == null || plot.boundary.Length < 3) { StopEditSite(); break; }
+                _sitePts.Clear();
+                foreach (var p in plot.boundary)
+                    if (p != null && p.Length >= 2) _sitePts.Add(new Vector3(p[0], 0f, p[1]));
+                _sitePtSel = -1; _siteDragging = false; _siteMoved = false;
+                EnsureHandleMaterials();
+                EnsureSitePreview();
+                SetSiteFrameVisible(_siteSel, false);
+                RebuildSiteHandles();
+                break;
+            }
             case EditMode.EditLot:
                 _lotSel = -1; _lotDragging = false; _lotMoved = false;
                 _lotPolygonMode = env.site?.lotBoundary != null && env.site.lotBoundary.Length >= 3;
@@ -4755,6 +4814,9 @@ public class EditController : MonoBehaviour, EditHistory.IHost
         // Floating fence readout (length · panel count) while a ghost preview is live.
         if (_mode == EditMode.DrawFence || _mode == EditMode.EditFence) DrawFenceGhostLabel();
 
+        // Floating site readout (metres and feet) while a site rectangle is being dragged out.
+        if (_mode == EditMode.DrawSite) DrawSiteDragLabel();
+
         // Floating ground-run readout (length · angle) while a straight surface drag is in flight.
         if (_mode == EditMode.PaintSurface) DrawSurfaceDragLabel();
 
@@ -4886,22 +4948,17 @@ public class EditController : MonoBehaviour, EditHistory.IHost
         _siteRenameId  = null;
     }
 
-    // "New site" toggle + Finish/Cancel, drawn by the Generate rail (the sites UI lives there).
-    // Enabled with no environment loaded — StartDrawSite auto-creates a working one.
+    // "New site" toggle, drawn by the Generate rail (the sites UI lives there). Sizing is a drag,
+    // so there is nothing to finish or cancel: the release commits and the toggle stays on for the
+    // next one. Enabled with no environment loaded — StartDrawSite auto-creates a working one.
     public void DrawSiteCreateControls(EnvironmentDef env)
     {
         bool drawing = _mode == EditMode.DrawSite;
-        GUILayout.BeginHorizontal();
-        if (UITheme.ToggleButton(drawing, "New site", UITips.DrawSiteTool, GUILayout.Height(UITheme.RowH)) && !drawing)
-            StartDrawSite();
-        if (drawing && UITheme.Button("Finish", UITips.FinishSite, GUILayout.Width(60f)))
-        {
-            var e = libraryBrowser?.CurrentEnvironment;   // the working env StartDrawSite ensured
-            if (e != null) CommitDrawnSite(e);
-        }
-        if (drawing && UITheme.Button("Cancel", UITips.CancelSite, GUILayout.Width(60f)))
-            StopDrawSite();
-        GUILayout.EndHorizontal();
+        bool want = UITheme.ToggleButton(drawing, "New site", UITips.DrawSiteTool, GUILayout.Height(UITheme.RowH));
+        // Draw the hint before switching mode, so this pass's control count matches `drawing`.
+        if (drawing) UITheme.Note("Drag on the ground to size the site. Hold Shift for a square.");
+        if (want && !drawing) StartDrawSite();
+        else if (!want && drawing) StopDrawSite();
     }
 
     // One site row for the Generate rail's list: [name / select | Rename | Edit | ✕] on a single
@@ -6059,6 +6116,30 @@ public class EditController : MonoBehaviour, EditHistory.IHost
         var plane = new Plane(Vector3.up, Vector3.zero);
         Ray ray   = mainCamera.ScreenPointToRay(MousePos);
         return plane.Raycast(ray, out float d) ? ray.GetPoint(d) : Vector3.zero;
+    }
+
+    // Cursor point on the TERRAIN surface rather than the y=0 plane. Start from the flat-plane hit,
+    // then re-intersect the ray with a horizontal plane at the height sampled there, a few times.
+    // On graded ground the y=0 hit sits well away from what the pointer is over, which shows up as a
+    // site landing somewhere other than where it was dragged. Converges on everything short of
+    // cliff-steep grade and needs no collider, so it works on the raw heightfield.
+    private Vector3 GroundPointOnTerrain()
+    {
+        Vector3 p = GroundPoint();
+        if (worldRenderer == null || mainCamera == null) return p;
+
+        Ray ray = mainCamera.ScreenPointToRay(MousePos);
+        for (int i = 0; i < 4; i++)
+        {
+            float y = worldRenderer.SampleTerrainSurfaceY(p.x, p.z);
+            var plane = new Plane(Vector3.up, new Vector3(0f, y, 0f));
+            if (!plane.Raycast(ray, out float d)) break;
+            Vector3 next = ray.GetPoint(d);
+            bool settled = (next - p).sqrMagnitude < 1e-4f;
+            p = next;
+            if (settled) break;
+        }
+        return p;
     }
 
     private bool IsMouseOverUI()

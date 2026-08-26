@@ -222,6 +222,20 @@ public class LibraryBrowser : MonoBehaviour
         ResyncSiteFills();
     }
 
+    // Republishes the ground-paint overlays for one host from its live fills.
+    private void PublishSiteOverlays(EnvironmentDef host)
+    {
+        if (host == null || worldRenderer == null) return;
+        var overlays = new List<WorldRenderer.SiteOverlay>();
+        foreach (var f in _fills)
+        {
+            if (f.hostEnvId != host.id || f.projected?.site == null) continue;
+            var s = host.sites?.Find(x => x != null && x.id == f.siteId);
+            if (s != null) overlays.Add(new WorldRenderer.SiteOverlay { site = f.projected.site, clip = s.boundary });
+        }
+        worldRenderer.SetSiteOverlays(host.id, overlays);
+    }
+
     // Unlinks a site's fill (the child record survives in the library) and re-syncs.
     public void RemoveSiteFill(EnvironmentDef host, string siteId)
     {
@@ -320,14 +334,8 @@ public class LibraryBrowser : MonoBehaviour
         if (!fillsChanged) yield break;
 
         // Publish the ground-paint overlays for this host and repaint the composite splat.
-        var overlays = new List<WorldRenderer.SiteOverlay>();
-        foreach (var f in _fills)
-        {
-            if (f.hostEnvId != hostId || f.projected?.site == null) continue;
-            var s = wanted.Find(x => x.id == f.siteId);
-            if (s != null) overlays.Add(new WorldRenderer.SiteOverlay { site = f.projected.site, clip = s.boundary });
-        }
-        worldRenderer.SetSiteOverlays(hostId, overlays);
+        // Goes through PublishSiteOverlays so local (server-free) fills are not wiped out here.
+        PublishSiteOverlays(host.env);
         if (_active?.env != null) worldRenderer.SetActiveEnvironment(_active.env.id);
     }
 

@@ -205,6 +205,12 @@ public class GradePointDef
 public class SiteDef
 {
     public float[] terrainSize;         // [width_m, length_m]
+    // Optional world position of the terrain's min corner, [x_m, z_m]. null/short ⇒ the origin,
+    // which is what every environment authored before this field used and still round-trips as.
+    // An environment projected into a host's site (SiteFit.ProjectIntoSite) carries the site's
+    // corner here, so when it becomes the active env the ground moves under it instead of staying
+    // at the origin with the content floating off it. Scales and translates with the environment.
+    public float[] terrainOrigin;
     public List<TerrainZoneDef> terrainZones;
     public List<PathDef> paths;
     public List<FenceDef> fences;       // nullable: old JSON without the field still loads (consumers null-guard)

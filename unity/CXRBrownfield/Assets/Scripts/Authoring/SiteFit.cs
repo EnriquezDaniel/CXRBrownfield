@@ -104,6 +104,12 @@ public static class SiteFit
         float w = childCopy.site.terrainSize[0], l = childCopy.site.terrainSize[1];
         if (!TryComputeFit(siteBoundary, w, l, out var fit)) return false;
 
+        // Generated environments are origin-anchored and usually leave terrainOrigin null. Seed it
+        // so the scale + translate below carry it along with everything else and it ends up on the
+        // site's corner: an env rendered here has its ground under it, not back at the origin.
+        if (childCopy.site.terrainOrigin == null || childCopy.site.terrainOrigin.Length < 2)
+            childCopy.site.terrainOrigin = new[] { 0f, 0f };
+
         // Warn when the request/response aspect drifted: the fit then stretches per-axis and
         // iso-scaled footprints (buildings, path widths) will slightly under/overfill.
         float ratio = fit.scaleZ > 1e-6f ? fit.scaleX / fit.scaleZ : float.PositiveInfinity;

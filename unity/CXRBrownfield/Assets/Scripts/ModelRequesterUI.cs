@@ -469,7 +469,19 @@ public class ModelRequesterUI : MonoBehaviour
         try { data = JsonConvert.DeserializeObject<FullTerrainData>(asset.text); }
         catch (Exception e) { UpdateStatusText($"Local sample parse error: {e.Message}"); return; }
 
-        RenderLayoutLocalOnly(data, "LocalSample");
+        // Honour the same Sites target Generate uses, so the sample lands in the drawn plot instead
+        // of at the world origin. Resolved before converting so a stale target reports immediately.
+        // A locked host is fine here: unlike a real fill this never writes to the host.
+        var host = libraryBrowser.CurrentEnvironment;
+        SitePlotDef plot = null;
+        if (_targetSiteId != null)
+        {
+            plot = host?.sites?.Find(s => s != null && s.id == _targetSiteId);
+            if (plot == null) { UpdateStatusText("Target site no longer exists. Pick a target again."); return; }
+        }
+
+        string envName = plot != null ? $"{host.name} - {plot.name}" : "Home Longfellow Sample";
+        RenderLayoutLocalOnly(data, envName, plot);
     }
 
     // Load a sample environment that already exists on the server, via the LibraryBrowser load path
@@ -493,16 +505,33 @@ public class ModelRequesterUI : MonoBehaviour
             err => UpdateStatusText($"Server sample error: {err}"));
     }
 
-    // Convert a layout and load it into the LibraryBrowser as an editable, unsaved environment.
-    private void RenderLayoutLocalOnly(FullTerrainData data, string envName)
+    // Convert a layout and load it into the LibraryBrowser as an editable, unsaved environment:
+    // a real row in the Loaded list, active, selectable, tile-editable, Save-able.
+    //
+    // With `plot` set it is first scaled + translated into that site's bounding box
+    // (SiteFit.ProjectIntoSite, the same fit a generated fill uses) so it lands where the site was
+    // drawn. SiteFit also seeds site.terrainOrigin with the site's corner, so when this env takes
+    // over as active the ground MOVES to the site rather than staying at the world origin with the
+    // whole layout floating beside it. Nothing is saved and the host is never written to, so this
+    // still works with no server running.
+    private void RenderLayoutLocalOnly(FullTerrainData data, string envName, SitePlotDef plot = null)
     {
         if (data == null) { UpdateStatusText("Local sample: no layout data."); return; }
         var conv = LayoutConverter.Convert(data, envName);
+
+        if (plot != null && !SiteFit.ProjectIntoSite(conv.Environment, plot.boundary))
+        {
+            UpdateStatusText($"Site '{plot.name}' has a degenerate boundary. Reshape it first.");
+            return;
+        }
+
         var buildingDefs = new Dictionary<string, BuildingDef>();
         foreach (var b in conv.Buildings)
             if (!string.IsNullOrEmpty(b.id)) buildingDefs[b.id] = b;
         libraryBrowser.AdoptLocalEnvironment(conv.Environment, buildingDefs);
-        UpdateStatusText($"Loaded local sample '{envName}' ({conv.Buildings.Count} building(s)). Editable — press Save to persist.");
+
+        string where = plot != null ? $" in site '{plot.name}'" : "";
+        UpdateStatusText($"Loaded local sample '{envName}'{where} ({conv.Buildings.Count} building(s)). Editable, press Save to persist.");
     }
 
     private void ApplyDummyLayout()
