@@ -65,16 +65,23 @@ public static class TileFaceGeometry
     // For a plain unrotated tile this reproduces the legacy cell math exactly: center = cellCenter
     // + axis*cellSize/2, width = height = cellSize, uBottom/uTop = ∓cellSize/2.
     public static bool TryGetFaceFrame(TileDef tile, string face, float cellSize, out FaceFrame frame)
+        => TryGetFaceFrame(tile, face, cellSize, TileFit.Full, out frame);
+
+    // Same, for a shape that fills only part of its cell (see TileFit): the corner posts are the
+    // shape's own box, turned about its center by the tile rotation and slid to its anchor, exactly
+    // as TileSpawner.PlaceInCell poses the geometry — so a prop seats on the real pillar or slab
+    // surface rather than on the nominal cell face.
+    public static bool TryGetFaceFrame(TileDef tile, string face, float cellSize, TileFit fit, out FaceFrame frame)
     {
         frame = default;
         if (tile == null || cellSize <= 0f) return false;
         if (!FaceQuad(face, out int bl, out int br, out int tl, out int tr)) return false;
 
         // The 8 undeformed corner posts in cell-local meters (cell centered on the origin, floor
-        // plane at y = -h) — the same convention as TileDeformField.BuildDeformedMesh.
-        float h = cellSize * 0.5f;
-        float[] xs = { -h, +h, +h, -h };
-        float[] zs = { -h, -h, +h, +h };
+        // plane at y = -h for a full cube) — the same convention as TileDeformField.BuildDeformedMesh.
+        Vector3 e = fit.LocalSize(cellSize) * 0.5f;
+        float[] xs = { -e.x, +e.x, +e.x, -e.x };
+        float[] zs = { -e.z, -e.z, +e.z, +e.z };
 
         // Tile rotation, mirroring TileSpawner: a deformed SQUARE is built procedurally in grid space
         // (rotation ignored — see TileSpawner.SpawnDeformedBox); everything else rotates the cell.
@@ -82,12 +89,13 @@ public static class TileFaceGeometry
         Quaternion rot = ignoreRotation
             ? Quaternion.identity
             : Quaternion.Euler(tile.rotationX, tile.rotation, tile.rotationZ);
+        Vector3 anchorOffset = fit.CenterOffset(rot, cellSize);
 
         Vector3 Corner(int k)
         {
             int i = k & 3;
-            var p = new Vector3(xs[i], k < 4 ? -h : +h, zs[i]);
-            return TileDeformField.WarpVertex(tile.deform, rot * p, cellSize);
+            var p = new Vector3(xs[i], k < 4 ? -e.y : +e.y, zs[i]);
+            return TileDeformField.WarpVertex(tile.deform, anchorOffset + rot * p, cellSize);
         }
 
         Vector3 cellCenter = new Vector3((tile.gridX + 0.5f) * cellSize,

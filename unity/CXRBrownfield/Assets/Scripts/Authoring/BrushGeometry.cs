@@ -40,4 +40,13 @@ public static class BrushGeometry
         float k = Mathf.Round((headingRad - phaseRad) / stepRad);
         return phaseRad + k * stepRad;
     }
+
+    // [ / ] brush sizing shared by the ground brushes (Paint objects, Paint ground, Shape ground):
+    // 10% per press with a 0.25 m floor so a small brush still moves, clamped to the slider band.
+    public static float NudgeRadius(float radius, bool grow, float min = 0.5f, float max = 30f)
+    {
+        if (float.IsNaN(radius) || float.IsInfinity(radius)) radius = min;
+        float step = Mathf.Max(0.25f, radius * 0.1f);
+        return Mathf.Clamp(radius + (grow ? step : -step), min, max);
+    }
 }

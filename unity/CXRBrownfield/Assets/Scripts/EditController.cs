@@ -12,7 +12,7 @@ using UnityEngine.InputSystem;
 // data-mutating edit (here and in TileBuildingEditor) records a snapshot before mutating; Ctrl+Z /
 // Ctrl+Shift+Z restore them (see the Update hotkey block and the IHost region). History is in-memory
 // and cleared whenever the active environment changes (see LibraryBrowser.SetActive → ClearHistory).
-public class EditController : MonoBehaviour, EditHistory.IHost
+public partial class EditController : MonoBehaviour, EditHistory.IHost
 {
     // -----------------------------------------------------------------------
     // Inspector references
@@ -43,7 +43,7 @@ public class EditController : MonoBehaviour, EditHistory.IHost
     // State
     // -----------------------------------------------------------------------
 
-    private enum EditMode { Browse, PlaceObject, PlaceBuilding, Transform, EditBuilding, DrawPath, EditPath, DrawFence, EditFence, PaintObjects, PaintSurface, Measure, EditLot, DrawSite, EditSite }
+    private enum EditMode { Browse, PlaceObject, PlaceBuilding, Transform, EditBuilding, DrawPath, EditPath, DrawFence, EditFence, PaintObjects, PaintSurface, SculptGround, Measure, EditLot, DrawSite, EditSite, DrawWater, EditWater }
     private enum Tool { Move, Rotate, Scale }
 
     private EditMode _mode = EditMode.Browse;
@@ -311,9 +311,19 @@ public class EditController : MonoBehaviour, EditHistory.IHost
     private string _dimWStr = "", _dimDStr = "", _dimHStr = "";
     private string _dimFieldsId;
 
-    // Elevation (basic) — sparse grade points for gentle terrain height. Optional; flat by default.
-    private bool   _showElevation;
-    private string _gradeXStr = "", _gradeZStr = "", _gradeHStr = "";
+    // SculptGround (height brush). Time based: holding the button keeps applying, so the stored
+    // samples carry per-sample amounts (rate * dt, merged) rather than a rate, and replay is exact.
+    private HeightBrushKind _sculptKind = HeightBrushKind.Raise;
+    private float _sculptRadius    = 8f;
+    private float _sculptRate      = 5f;                 // m/s at the brush center, signed: negative digs
+    private const float SCULPT_RATE_MAX = 25f;           // the full 15 m range in under a second at the top
+    private float _sculptStrength  = 1f;                 // per second blend for Smooth / Flatten
+    private bool  _sculptClipToLot = true;
+    private readonly List<float[]> _sculptPts = new();   // in-flight stroke samples [x, z, amount]
+    private Vector3 _sculptLastCenter;                   // center of the last stored sample
+    private bool  _sculptStroking;
+    private float _sculptTargetHeight;                   // flatten: meters above base at the press
+    private const float BRUSH_RADIUS_MIN = HeightBrush.MIN_RADIUS, BRUSH_RADIUS_MAX = HeightBrush.MAX_RADIUS;
 
     // UI scrolls
     private Vector2 _prefabScroll, _bldgPickerScroll;
@@ -463,10 +473,13 @@ public class EditController : MonoBehaviour, EditHistory.IHost
             case EditMode.EditFence:     UpdateEditFence();     break;
             case EditMode.PaintObjects:  UpdatePaintObjects();  break;
             case EditMode.PaintSurface:  UpdatePaintSurface();  break;
+            case EditMode.SculptGround:  UpdateSculptGround();  break;
             case EditMode.Measure:       UpdateMeasure();       break;
             case EditMode.EditLot:       UpdateEditLot();       break;
             case EditMode.DrawSite:      UpdateDrawSite();      break;
             case EditMode.EditSite:      UpdateEditSite();      break;
+            case EditMode.DrawWater:     UpdateDrawWater();     break;
+            case EditMode.EditWater:     UpdateEditWater();     break;
         }
 
         // World-space dot for the skew panel's Corner picker (hides itself when not applicable).
@@ -643,9 +656,19 @@ public class EditController : MonoBehaviour, EditHistory.IHost
         var seen = new HashSet<string>();
         float  nearestInst  = float.MaxValue;
         float  nearestFence = float.MaxValue;
+        float  nearestWater = float.MaxValue;
         string fenceId      = null;
+        string waterId      = null;
         foreach (var h in Physics.RaycastAll(ray, 1000f))
         {
+            // A water surface is a trigger collider carrying a WaterMarker; like a fence it opens its
+            // own editor rather than joining the instance overlap list.
+            var wm = h.collider.GetComponentInParent<WaterMarker>();
+            if (wm != null)
+            {
+                if (h.distance < nearestWater && IsEditableWater(wm.waterId)) { nearestWater = h.distance; waterId = wm.waterId; }
+                continue;
+            }
             var m = h.collider.GetComponentInParent<InstanceMarker>();
             if (m != null)
             {
@@ -673,6 +696,13 @@ public class EditController : MonoBehaviour, EditHistory.IHost
             (UIMode.Current == AppMode.Browse || UIMode.Current == AppMode.Terrain))
         {
             EnterEditFenceFromClick(fenceId);
+            return;
+        }
+        // Water yields to any instance or fence in front of it (a boat on a pond stays selectable).
+        if (waterId != null && nearestWater < nearestInst && nearestWater < nearestFence && !AdditiveHeld() &&
+            (UIMode.Current == AppMode.Browse || UIMode.Current == AppMode.Terrain))
+        {
+            EnterEditWaterFromClick(waterId);
             return;
         }
 
@@ -2157,6 +2187,17 @@ public class EditController : MonoBehaviour, EditHistory.IHost
     // Held Shift suppresses fence snapping frame-by-frame and, at commit, auto-linking/splitting.
     private static bool ShiftHeld => KB != null && (KB.leftShiftKey.isPressed || KB.rightShiftKey.isPressed);
 
+    // [ shrinks and ] grows the active brush; shared by Paint objects, Paint ground and Shape
+    // ground so the three brushes answer the same keys. Returns true when the radius changed.
+    private static bool NudgeBrushRadius(ref float radius)
+    {
+        if (KB == null || TypingInUI) return false;
+        bool shrink = KB.leftBracketKey.wasPressedThisFrame, grow = KB.rightBracketKey.wasPressedThisFrame;
+        if (shrink == grow) return false;
+        radius = BrushGeometry.NudgeRadius(radius, grow, BRUSH_RADIUS_MIN, BRUSH_RADIUS_MAX);
+        return true;
+    }
+
     // Snap to existing fences: endpoints first (they keep priority so chaining corners stays easy),
     // then the nearest projected point anywhere along a fence's control polyline — both within
     // FENCE_SNAP_DIST. `excludeFenceId` skips the fence being edited so its own dragged endpoint
@@ -3187,8 +3228,10 @@ public class EditController : MonoBehaviour, EditHistory.IHost
     private void UpdatePaintObjects()
     {
         if (KB != null && !TypingInUI && KB.escapeKey.wasPressedThisFrame) { StopPaintObjects(); return; }
+        NudgeBrushRadius(ref _brushRadius);
 
-        Vector3 center = GroundPoint();
+        // On the terrain surface, so the brush lands under the cursor on sculpted ground.
+        Vector3 center = GroundPointOnTerrain();
         UpdateBrushRing(center, _brushRadius, _brushErase ? new Color(1f, 0.4f, 0.3f, 0.9f) : new Color(0.4f, 1f, 0.5f, 0.9f));
 
         if (IsMouseOverUI()) return;
@@ -3323,8 +3366,10 @@ public class EditController : MonoBehaviour, EditHistory.IHost
             if (_surfDragging) { CancelSurfaceRun(); return; }
             StopPaintSurface(); return;
         }
+        NudgeBrushRadius(ref _surfRadius);
 
-        Vector3 center = GroundPoint();
+        // On the terrain surface, so the brush lands under the cursor on sculpted ground.
+        Vector3 center = GroundPointOnTerrain();
 
         // In straight mode the run's endpoint is the snapped one, so the ghost must sit there rather
         // than under the raw cursor — otherwise the preview lies about where the band will land.
@@ -3634,6 +3679,132 @@ public class EditController : MonoBehaviour, EditHistory.IHost
     // Heading of b-a in the XZ plane (atan2(dz, dx)) — the same convention WorldRenderer stamps at.
     private static float Heading(Vector3 a, Vector3 b) => Mathf.Atan2(b.z - a.z, b.x - a.x);
 
+    // ---- SculptGround: height brush (Raise/Lower, Smooth, Flatten) ----
+    // Time based: the brush applies every frame the button is held, rate * dt at the center with a
+    // smoothstep falloff to the rim, so holding still keeps raising or digging. Each frame's amount
+    // is folded into the stroke's sample list (AccumulateSculptSample) and the live stamp is laid at
+    // the STORED sample's center, so the preview and WorldRenderer.ApplyHeightmap's replay agree.
+    // The stroke commits on release, then the environment re-renders so everything that drapes
+    // re-seats on the new ground.
+
+    private void StartSculptGround()
+    {
+        ExitCurrentMode();
+        _sculptPts.Clear();
+        _sculptStroking = false;
+        _mode = EditMode.SculptGround;
+    }
+
+    private void UpdateSculptGround()
+    {
+        if (KB != null && !TypingInUI && KB.escapeKey.wasPressedThisFrame) { StopSculptGround(); return; }
+        NudgeBrushRadius(ref _sculptRadius);
+
+        Vector3 center = GroundPointOnTerrain();
+        UpdateBrushRing(center, _sculptRadius, SculptColor(_sculptKind));
+
+        // A release anywhere (even over a panel) ends the stroke, so one can never be left dangling.
+        if (LMBUp && _sculptStroking) { CommitHeightStroke(); return; }
+        if (IsMouseOverUI() || ActiveLocked) return;
+
+        if (LMBDown)
+        {
+            // The stroke data is committed on release, which runs after the central gesture-end
+            // this frame, so snapshot the pre-stroke state here as a discrete entry (the Paint
+            // ground freehand press does the same).
+            libraryBrowser?.EnsureWorkingEnvironment();
+            _history?.RecordBefore(EditHistory.Scope.Environment, "Shape ground");
+            _sculptPts.Clear();
+            _sculptStroking     = true;
+            _sculptTargetHeight = worldRenderer != null ? worldRenderer.SampleHeightAboveBase(center.x, center.z) : 0f;
+        }
+
+        if (LMBHeld && _sculptStroking)
+        {
+            float amount = (_sculptKind == HeightBrushKind.Raise ? _sculptRate : _sculptStrength) * Time.deltaTime;
+            if (Mathf.Abs(amount) < 1e-6f) return;
+            Vector3 stampAt = AccumulateSculptSample(center, amount);
+            worldRenderer?.StampHeightLive(stampAt, _sculptKind, _sculptRadius, amount, _sculptTargetHeight,
+                                           _sculptClipToLot, libraryBrowser?.CurrentEnvironment?.site);
+        }
+    }
+
+    // Merge rule shared with replay: a frame within radius * MERGE_FRACTION of the last stored sample
+    // folds into it (HeightBrush.MergeAmount); otherwise a new sample starts. Returns the center the
+    // live stamp must use: the stored sample's, so raise and flatten previews match replay exactly.
+    private Vector3 AccumulateSculptSample(Vector3 center, float amount)
+    {
+        if (_sculptPts.Count > 0)
+        {
+            float d = Vector2.Distance(new Vector2(center.x, center.z),
+                                       new Vector2(_sculptLastCenter.x, _sculptLastCenter.z));
+            if (d < _sculptRadius * HeightBrush.MERGE_FRACTION)
+            {
+                var last = _sculptPts[_sculptPts.Count - 1];
+                last[2] = HeightBrush.MergeAmount(_sculptKind, last[2], amount);
+                return _sculptLastCenter;
+            }
+        }
+        _sculptPts.Add(new[] { center.x, center.z, amount });
+        _sculptLastCenter = center;
+        return center;
+    }
+
+    private void CommitHeightStroke()
+    {
+        _sculptStroking = false;
+        var env = libraryBrowser?.EnsureWorkingEnvironment();
+        if (env?.site != null && _sculptPts.Count > 0)
+        {
+            env.site.heightStrokes ??= new List<HeightStrokeDef>();
+            env.site.heightStrokes.Add(new HeightStrokeDef
+            {
+                id           = Guid.NewGuid().ToString("D"),
+                brush        = HeightBrush.KindKey(_sculptKind),
+                radius       = _sculptRadius,
+                targetHeight = _sculptTargetHeight,
+                clipToLot    = _sculptClipToLot,
+                points       = _sculptPts.ToArray(),
+            });
+            libraryBrowser?.MarkDirty();
+            RebakeGround(env);
+        }
+        _sculptPts.Clear();
+    }
+
+    // Authoritative replay of the stroke list (cheap: one 257² fill), then a re-render so objects,
+    // buildings, paths, fences and frames re-seat on the new ground. skipTerrainPaint keeps the
+    // 1024² splat repaint out of it; the heightmap was just replayed, so nothing else changed.
+    private void RebakeGround(EnvironmentDef env)
+    {
+        worldRenderer?.ApplyHeightmap(env.site);
+        worldRenderer?.RenderEnvironment(env, libraryBrowser?.CurrentBuildingDefs, skipTerrainPaint: true);
+        RebindSelection();
+    }
+
+    private void StopSculptGround()
+    {
+        if (_sculptStroking) CommitHeightStroke();
+        if (_brushRing) { Destroy(_brushRing.gameObject); _brushRing = null; }
+        _mode = EditMode.Browse;
+    }
+
+    private void ResetGroundHeight(EnvironmentDef env)
+    {
+        if (env?.site == null) return;
+        _history?.RecordBefore(EditHistory.Scope.Environment, "Reset ground height");
+        env.site.heightStrokes = null;
+        libraryBrowser?.MarkDirty();
+        RebakeGround(env);
+    }
+
+    private static Color SculptColor(HeightBrushKind kind) => kind switch
+    {
+        HeightBrushKind.Smooth  => new Color(0.8f, 0.7f, 1f, 0.9f),
+        HeightBrushKind.Flatten => new Color(1f, 0.8f, 0.45f, 0.9f),
+        _                       => new Color(0.45f, 0.8f, 1f, 0.9f),
+    };
+
     private void ShowSurfaceLinePreview(Vector3 a, Vector3 b)
     {
         if (_surfLinePreview == null)
@@ -3773,7 +3944,9 @@ public class EditController : MonoBehaviour, EditHistory.IHost
 
     // Draws one brush footprint outline: a ring for a round brush, four corners for a square one
     // (rotated by `dirRad` so it previews the orientation it will be stamped at). Takes the renderer
-    // by ref so the cursor ghost and the straight run's start ghost can share the code.
+    // by ref so the cursor ghost and the straight run's start ghost can share the code. Each vertex
+    // is draped onto the terrain surface, so the outline follows sculpted ground instead of
+    // floating over a hollow or sinking into a mound.
     private void UpdateGhostOutline(ref LineRenderer lr, string name, Vector3 center, float radius,
                                     bool square, float dirRad, Color color)
     {
@@ -3791,7 +3964,7 @@ public class EditController : MonoBehaviour, EditHistory.IHost
             for (int i = 0; i < 4; i++)
             {
                 float lx = corners[i].Item1 * radius, lz = corners[i].Item2 * radius;
-                lr.SetPosition(i, center + new Vector3(lx * c - lz * s, 0.05f, lx * s + lz * c));
+                lr.SetPosition(i, DrapedPoint(center.x + lx * c - lz * s, center.z + lx * s + lz * c));
             }
             return;
         }
@@ -3801,9 +3974,13 @@ public class EditController : MonoBehaviour, EditHistory.IHost
         for (int i = 0; i < seg; i++)
         {
             float a = (i / (float)seg) * Mathf.PI * 2f;
-            lr.SetPosition(i, center + new Vector3(Mathf.Cos(a) * radius, 0.05f, Mathf.Sin(a) * radius));
+            lr.SetPosition(i, DrapedPoint(center.x + Mathf.Cos(a) * radius, center.z + Mathf.Sin(a) * radius));
         }
     }
+
+    // World point on the terrain surface at (x, z), lifted a hair so overlay lines stay visible.
+    private Vector3 DrapedPoint(float x, float z) =>
+        new Vector3(x, (worldRenderer != null ? worldRenderer.SampleTerrainSurfaceY(x, z) : 0f) + 0.05f, z);
 
     private static void HideGhostOutline(LineRenderer lr)
     {
@@ -4162,11 +4339,12 @@ public class EditController : MonoBehaviour, EditHistory.IHost
         if (string.IsNullOrEmpty(instanceId) || ActiveLocked) return;
         UIMode.Set(AppMode.Browse);
 
-        var go = worldRenderer != null ? worldRenderer.GetInstanceGO(instanceId) : null;
+        var go = LiveGO(instanceId);
         if (additive) ToggleSelection(instanceId, isBuilding, go);
         else          SetSelection(instanceId, isBuilding, go);
 
-        // Excluded ("Off") instances aren't rendered — no GameObject to drag, so select only.
+        // Excluded ("Off") instances aren't rendered, and Low detail hides optional ones — no
+        // GameObject to drag either way, so select only.
         if (_selGO != null) EnterTransform(Tool.Move);
         else if (_mode == EditMode.Transform) _mode = EditMode.Browse;
     }
@@ -4174,6 +4352,30 @@ public class EditController : MonoBehaviour, EditHistory.IHost
     // Read-only probe so the library can wash the row of a selected instance.
     public bool IsInstanceSelected(string id) =>
         !string.IsNullOrEmpty(id) && (id == _selId || _extraSel.FindIndex(s => s.id == id) >= 0);
+
+    public int SelectionCount => (string.IsNullOrEmpty(_selId) ? 0 : 1) + _extraSel.Count;
+
+    // Snapshot of the selection ids for the library rail (primary first). A copy, never the live list.
+    public List<(string id, bool isBuilding)> SelectedInstances()
+    {
+        var list = new List<(string, bool)>();
+        foreach (var s in AllSelected()) list.Add((s.id, s.isBuilding));
+        return list;
+    }
+
+    // prefabType of the primary selection when it is an object, else null (drives the by-type button).
+    public string PrimarySelectedPrefabType() =>
+        _selIsBuilding || string.IsNullOrEmpty(_selId) ? null
+                                                       : FindOI(libraryBrowser?.CurrentEnvironment, _selId)?.prefabType;
+
+    // The renderer's GO for an instance, or null when it is hidden by the Low detail preview. A
+    // hidden GO must never bind as a selection target: it behaves exactly like an excluded ("Off")
+    // instance, which keeps its id but has no GO to drag (see SelectInstanceFromLibrary).
+    private GameObject LiveGO(string id)
+    {
+        var go = worldRenderer != null ? worldRenderer.GetInstanceGO(id) : null;
+        return go != null && go.activeInHierarchy ? go : null;
+    }
 
     // Primary first, then extras. Used by every transform op so it touches the whole selection.
     private IEnumerable<Sel> AllSelected()
@@ -4210,7 +4412,7 @@ public class EditController : MonoBehaviour, EditHistory.IHost
         for (int i = 0; i < _extraSel.Count; i++)
         {
             var s = _extraSel[i];
-            s.go = worldRenderer?.GetInstanceGO(s.id);
+            s.go = LiveGO(s.id);
             if (s.go != null)
             {
                 s.baseScale = BaseScaleOf(s.go, env != null ? GetScaleFor(env, s.id, s.isBuilding) : 1f);
@@ -4219,13 +4421,22 @@ public class EditController : MonoBehaviour, EditHistory.IHost
             _extraSel[i] = s;
         }
 
-        _selGO = worldRenderer?.GetInstanceGO(_selId);
+        _selGO = LiveGO(_selId);
         if (_selGO != null)
         {
             CacheBaseScale();
             ApplyHighlight(_selGO);
         }
         UpdateGizmoTargets();
+    }
+
+    // Called after anything flips optional GOs active/inactive (Low detail toggle, optional marks).
+    // Rebinding through LiveGO drops hidden GOs from the selection like excluded instances; when
+    // they come back, UpdateBrowse's lazy rebind picks them up again.
+    public void OnOptionalVisibilityChanged()
+    {
+        RebindSelection();
+        if (_selGO == null && _mode == EditMode.Transform) _mode = EditMode.Browse;
     }
 
     private void CacheBaseScale()
@@ -4482,10 +4693,11 @@ public class EditController : MonoBehaviour, EditHistory.IHost
     // Brush/draw tools whose transient state (brush params, standalone preview GOs) survives a
     // re-render, so an undo/redo can revert the data without kicking the user back to Browse.
     private static bool IsPreservedToolMode(EditMode m) =>
-        m == EditMode.PaintObjects || m == EditMode.PaintSurface ||
+        m == EditMode.PaintObjects || m == EditMode.PaintSurface || m == EditMode.SculptGround ||
         m == EditMode.DrawPath     || m == EditMode.DrawFence     ||
         m == EditMode.Measure      || m == EditMode.EditLot        ||
-        m == EditMode.DrawSite     || m == EditMode.EditSite;
+        m == EditMode.DrawSite     || m == EditMode.EditSite       ||
+        m == EditMode.DrawWater    || m == EditMode.EditWater;
 
     // Re-sync a preserved tool's transient view to the just-restored env. Most tools only need their
     // in-progress point buffer cleared so no stale rubber-band references a pre-undo point; EditLot
@@ -4504,6 +4716,7 @@ public class EditController : MonoBehaviour, EditHistory.IHost
                 HideSurfaceLinePreview(); HideGhostOutline(_surfStartGhost);
                 if (_surfSnapMarker) _surfSnapMarker.SetActive(false);
                 break;
+            case EditMode.SculptGround: _sculptStroking = false; _sculptPts.Clear(); break;   // ground already replayed
             case EditMode.DrawPath:     _pathPts.Clear();  break;   // preview goes inactive next Update
             case EditMode.DrawFence:    _fencePts.Clear(); break;
             case EditMode.Measure:      _measurePts.Clear(); UpdateMeasureOverlay(); break;
@@ -4533,6 +4746,14 @@ public class EditController : MonoBehaviour, EditHistory.IHost
                 EnsureLotPreview();
                 SetLotFrameVisible(false);
                 RebuildLotHandles();
+                break;
+            case EditMode.DrawWater:
+                ResetWaterDrawing();
+                break;
+            case EditMode.EditWater:
+                // Working copy of the body's points: re-seed from the restored record, or drop the
+                // tool if that body is gone (mirrors EditSite).
+                if (!ReseedEditWater()) StopEditWater();
                 break;
         }
     }
@@ -4632,6 +4853,40 @@ public class EditController : MonoBehaviour, EditHistory.IHost
         if (IsInstanceSelected(instanceId)) Deselect();
         libraryBrowser?.MarkDirty();
         worldRenderer?.RenderEnvironment(env, libraryBrowser?.CurrentBuildingDefs);
+    }
+
+    // -----------------------------------------------------------------------
+    // Optional content — items the VR viewer skips (see OptionalContent). Marks never re-render:
+    // the GO stays where it is and only its marker / Low detail visibility changes.
+    // -----------------------------------------------------------------------
+
+    // Marks (or unmarks) every selected instance. Library rail and right rail both call this.
+    public void SetSelectedOptional(bool optional)
+    {
+        var env = libraryBrowser?.CurrentEnvironment;
+        if (env == null || SelectionCount == 0 || ActiveLocked) return;
+        var targets = SelectedInstances();
+        if (!OptionalContent.AnyDiffers(env, targets, optional)) return;   // no no-op undo entries
+        _history?.RecordBefore(EditHistory.Scope.Environment, optional ? "Mark optional" : "Mark required");
+        OptionalContent.SetOptional(env, targets, optional);
+        libraryBrowser?.MarkDirty();
+        foreach (var (id, _) in targets) worldRenderer?.SetInstanceOptional(id, optional);
+        OnOptionalVisibilityChanged();
+    }
+
+    // Marks every object of one prefab type across the whole place (all the trees at once).
+    public void SetOptionalByPrefabType(string prefabType, bool optional)
+    {
+        var env = libraryBrowser?.CurrentEnvironment;
+        if (env?.objectInstances == null || string.IsNullOrEmpty(prefabType) || ActiveLocked) return;
+        if (!OptionalContent.AnyDiffersByPrefabType(env, prefabType, optional)) return;
+        _history?.RecordBefore(EditHistory.Scope.Environment, optional ? "Mark type optional" : "Mark type required");
+        OptionalContent.SetByPrefabType(env, prefabType, optional);
+        libraryBrowser?.MarkDirty();
+        foreach (var o in env.objectInstances)
+            if (o != null && string.Equals(o.prefabType, prefabType, StringComparison.OrdinalIgnoreCase))
+                worldRenderer?.SetInstanceOptional(o.instanceId, optional);
+        OnOptionalVisibilityChanged();
     }
 
     // -----------------------------------------------------------------------
@@ -4740,6 +4995,7 @@ public class EditController : MonoBehaviour, EditHistory.IHost
                 copy.position     = Offset(copy.position);
                 copy.included     = true;
                 copy.brushPainted = false;   // a paste is a deliberate edit — eraser brush must not bulk-delete it
+                // `optional` is inherited on purpose: a copy of a background prop is still a background prop.
                 (env.objectInstances ??= new List<ObjectInstance>()).Add(copy);
                 pasted.Add((copy.instanceId, false));
             }
@@ -4777,10 +5033,13 @@ public class EditController : MonoBehaviour, EditHistory.IHost
             case EditMode.EditFence:     StopEditFence();            break;
             case EditMode.PaintObjects:  StopPaintObjects();         break;
             case EditMode.PaintSurface:  StopPaintSurface();         break;
+            case EditMode.SculptGround:  StopSculptGround();         break;
             case EditMode.Measure:       StopMeasure();              break;
             case EditMode.EditLot:       StopEditLot();              break;
             case EditMode.DrawSite:      StopDrawSite();             break;
             case EditMode.EditSite:      StopEditSite();             break;
+            case EditMode.DrawWater:     StopDrawWater();            break;
+            case EditMode.EditWater:     StopEditWater();            break;
         }
     }
 
@@ -4930,8 +5189,6 @@ public class EditController : MonoBehaviour, EditHistory.IHost
         GUILayout.EndHorizontal();
 
         DrawLotToolSection(env);
-
-        DrawElevationSection(env);
     }
 
     // The site selected in the Generate rail's Sites list (the only sites UI). Null = none.
@@ -5178,54 +5435,6 @@ public class EditController : MonoBehaviour, EditHistory.IHost
         worldRenderer?.RenderEnvironment(env, libraryBrowser?.CurrentBuildingDefs);
     }
 
-    // Optional gentle elevation: a sparse set of (x, z, height) grade points the renderer bakes into
-    // a low-res heightmap. Flat by default; objects and paths drape onto the grade automatically.
-    private void DrawElevationSection(EnvironmentDef env)
-    {
-        int count = env.site.gradePoints?.Count ?? 0;
-        _showElevation = UITheme.ToggleButton(_showElevation, $"Elevation (basic) · {count} pts", UITips.ElevationFold);
-        if (!_showElevation) return;
-
-        GUILayout.BeginHorizontal();
-        GUILayout.Label("X", GUILayout.Width(14f)); _gradeXStr = GUILayout.TextField(_gradeXStr ?? "", GUILayout.Width(48f));
-        GUILayout.Label("Z", GUILayout.Width(14f)); _gradeZStr = GUILayout.TextField(_gradeZStr ?? "", GUILayout.Width(48f));
-        GUILayout.Label("H", GUILayout.Width(14f)); _gradeHStr = GUILayout.TextField(_gradeHStr ?? "", GUILayout.Width(48f));
-        GUILayout.EndHorizontal();
-        if (UITheme.Button("Add grade point", UITips.AddGradePoint))
-        {
-            if (float.TryParse(_gradeXStr, out float gx) && float.TryParse(_gradeZStr, out float gz) &&
-                float.TryParse(_gradeHStr, out float gh))
-                AddGradePoint(env, gx, gz, gh);
-            else UITheme.Note("Enter numeric X, Z, and height (m).");
-        }
-        if (count > 0 && UITheme.Button("Clear elevation (flat)", UITips.ClearElevation)) ClearGradePoints(env);
-        UITheme.Note("Sparse points → gentle slope (inverse-distance). Flat when empty. Bakes a low-res heightmap.");
-    }
-
-    private void AddGradePoint(EnvironmentDef env, float x, float z, float h)
-    {
-        _history?.RecordBefore(EditHistory.Scope.Environment, "Add grade point");
-        env.site.gradePoints ??= new List<GradePointDef>();
-        env.site.gradePoints.Add(new GradePointDef { x = x, z = z, height = h });
-        RebakeElevation(env);
-        _gradeHStr = "";
-    }
-
-    private void ClearGradePoints(EnvironmentDef env)
-    {
-        _history?.RecordBefore(EditHistory.Scope.Environment, "Clear elevation");
-        env.site.gradePoints = null;
-        RebakeElevation(env);
-    }
-
-    // Re-bakes the heightmap and re-renders so draped objects/paths resample the new ground.
-    private void RebakeElevation(EnvironmentDef env)
-    {
-        worldRenderer?.ApplyHeightmap(env.site);
-        libraryBrowser?.MarkDirty();
-        worldRenderer?.RenderEnvironment(env, libraryBrowser?.CurrentBuildingDefs);
-    }
-
     // Lazily attaches the true-scale grid overlay to the main camera (a pure viewing aid).
     private ScaleGridOverlay GridOverlay()
     {
@@ -5419,6 +5628,9 @@ public class EditController : MonoBehaviour, EditHistory.IHost
             GUILayout.EndScrollView();
         }
 
+        // ---- Draw water (ponds, rivers) ----
+        DrawWaterSection(env);
+
         // ---- Paint objects (scatter brush) ----
         GUILayout.BeginHorizontal();
         if (UITheme.ToggleButton(_mode == EditMode.PaintObjects, "Paint objects", UITips.PaintObjects, GUILayout.Height(UITheme.RowH))
@@ -5457,7 +5669,7 @@ public class EditController : MonoBehaviour, EditHistory.IHost
             _brushScaleMin = GUILayout.HorizontalSlider(_brushScaleMin, 0.2f, 2f);
             _brushScaleMax = GUILayout.HorizontalSlider(_brushScaleMax, 0.2f, 3f);
             if (_brushScaleMax < _brushScaleMin) _brushScaleMax = _brushScaleMin;
-            UITheme.Note("Hold left-mouse and drag to paint. Esc exits.");
+            UITheme.Note("Hold left-mouse and drag to paint. [ and ] resize the brush. Esc exits.");
         }
 
         // ---- Paint ground (surface brush) ----
@@ -5540,7 +5752,43 @@ public class EditController : MonoBehaviour, EditHistory.IHost
             UITheme.Note(_surfStraight
                 ? "Drag start → end · the run snaps to the brush angle's grid and its start snaps to " +
                   "existing run ends · hold Shift for no snapping · Esc cancels the drag."
-                : "Hold left-mouse and drag to paint. Esc exits.");
+                : "Hold left-mouse and drag to paint. [ and ] resize the brush. Esc exits.");
+        }
+
+        // ---- Shape ground (height brush) ----
+        GUILayout.BeginHorizontal();
+        if (UITheme.ToggleButton(_mode == EditMode.SculptGround, "Shape ground", UITips.ShapeGround, GUILayout.Height(UITheme.RowH))
+            && _mode != EditMode.SculptGround) StartSculptGround();
+        if (_mode == EditMode.SculptGround && UITheme.Button("Done", UITips.DoneShapeGround, GUILayout.Width(54f))) StopSculptGround();
+        GUILayout.EndHorizontal();
+
+        if (_mode == EditMode.SculptGround)
+        {
+            _sculptKind   = (HeightBrushKind)UITheme.Segmented((int)_sculptKind, UITips.SculptBrushLabels, UITips.SculptBrushTips);
+            // Same label-over-slider layout as the other two brushes: a full-width caption keeps the
+            // readout legible instead of squeezing "-12.5 m/s" into a narrow right-aligned cell.
+            GUILayout.Label($"Radius: {_sculptRadius:0.0} m");
+            _sculptRadius = GUILayout.HorizontalSlider(_sculptRadius, BRUSH_RADIUS_MIN, BRUSH_RADIUS_MAX);
+            if (_sculptKind == HeightBrushKind.Raise)
+            {
+                GUILayout.Label(_sculptRate < 0f ? $"Rate: {_sculptRate:0.0} m/s (digs)" : $"Rate: {_sculptRate:0.0} m/s (raises)");
+                _sculptRate = GUILayout.HorizontalSlider(_sculptRate, -SCULPT_RATE_MAX, SCULPT_RATE_MAX);
+            }
+            else
+            {
+                GUILayout.Label($"Strength: {_sculptStrength:0.0}");
+                _sculptStrength = GUILayout.HorizontalSlider(_sculptStrength, 0.1f, 4f);
+            }
+            _sculptClipToLot = UITheme.Checkbox(_sculptClipToLot, "  Stay inside lot", UITips.SculptClipToLot);
+
+            if ((env?.site?.heightStrokes?.Count ?? 0) > 0 && UITheme.DangerButton("Reset to flat", UITips.ResetGround))
+                ResetGroundHeight(env);
+
+            UITheme.Note(_sculptKind == HeightBrushKind.Raise
+                ? "Hold left-mouse to raise the ground. A negative rate digs. Holding still keeps going. [ and ] resize the brush. Esc exits."
+                : _sculptKind == HeightBrushKind.Smooth
+                ? "Hold left-mouse and drag to soften bumps and steps. [ and ] resize the brush. Esc exits."
+                : "Press on the height you want, then drag to level the ground toward it. [ and ] resize the brush. Esc exits.");
         }
 
         // ---- Measure & calibrate ----
@@ -5744,6 +5992,12 @@ public class EditController : MonoBehaviour, EditHistory.IHost
         if (_selIsBuilding && total == 1) DrawBuildingSkewSection(env);
 
         GUILayout.Space(4);
+        // Optional = the VR viewer skips it. Same action as the library rail's button.
+        bool allOptional = !OptionalContent.AnyDiffers(env, SelectedInstances(), true);
+        if (UITheme.SecondaryButton(allOptional ? "Mark required" : "Mark optional",
+                                    allOptional ? UITips.MarkRequired : UITips.MarkOptional,
+                                    GUILayout.Height(UITheme.RowH)))
+            SetSelectedOptional(!allOptional);
         if (UITheme.DangerButton("Delete selected", UITips.DeleteSelected, GUILayout.Height(UITheme.RowH))) DeleteSelected();
     }
 

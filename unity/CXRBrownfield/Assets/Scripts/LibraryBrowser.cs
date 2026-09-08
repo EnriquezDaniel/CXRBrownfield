@@ -66,6 +66,7 @@ public class LibraryBrowser : MonoBehaviour
     private LoadedEnv _confirmUnlock;        // Loaded list: row awaiting unlock confirmation
     private bool    _adminEnabled;           // per-env admin actions (archive / DrawAdminRow) are gated by this
     public  bool    AdminEnabled => _adminEnabled;
+    private bool    _lowDetail;              // Low detail preview: optional items hidden, as the VR viewer shows them
     private Vector2 _manageScroll;
 
     // ---- building state ----
@@ -451,6 +452,8 @@ public class LibraryBrowser : MonoBehaviour
         bool live = UITheme.ToggleButton(_liveShare, "Live share", UITips.LiveShare, GUILayout.Height(UITheme.RowH));
         if (live != _liveShare) SetLiveShare(live);
         _adminEnabled = UITheme.ToggleButton(_adminEnabled, "Admin", UITips.Admin, GUILayout.Height(UITheme.RowH));
+        bool low = UITheme.ToggleButton(_lowDetail, "Low detail", UITips.LowDetail, GUILayout.Height(UITheme.RowH));
+        if (low != _lowDetail) SetLowDetail(low);
         if (UITheme.GhostButton("New", UITips.NewPlace, GUILayout.Height(UITheme.RowH))) { _showNewEnv = !_showNewEnv; _newEnvName = ""; }
         GUILayout.EndHorizontal();
 
@@ -624,8 +627,10 @@ public class LibraryBrowser : MonoBehaviour
             GUILayout.EndHorizontal();
         }
 
+        DrawOptionalActions(env);
+
         // Contents — building + object instance rows: the name selects (see below), the On/Off
-        // toggle sets `included`. Both are read-only when locked.
+        // toggle sets `included`, the Opt toggle sets `optional`. All read-only when locked.
         // Clicking a name is deferred to after the lists are drawn: EditController.SelectInstanceFromLibrary
         // can switch the shell mode, which tears down the current tool and re-renders — not something
         // to do midway through a foreach over these same lists inside an open scroll view.
@@ -640,7 +645,9 @@ public class LibraryBrowser : MonoBehaviour
                 {
                     string label = _active.buildings.TryGetValue(bi.buildingId, out var bd) ? bd.name : bi.buildingId;
                     bool sel = editController != null && editController.IsInstanceSelected(bi.instanceId);
-                    if (DrawIncludeRow(label, bi.included, sel, out bool next, out bool hit, out bool del) && !env.locked) { editController?.RecordEnvironmentEdit("Toggle included"); bi.included = next; OnInstanceToggled(env); }
+                    DrawIncludeRow(label, bi.included, bi.optional, sel, out bool incCh, out bool nextInc, out bool optCh, out bool nextOpt, out bool hit, out bool del);
+                    if (incCh && !env.locked) { editController?.RecordEnvironmentEdit("Toggle included"); bi.included = nextInc; OnInstanceToggled(env); }
+                    if (optCh && !env.locked) { editController?.RecordEnvironmentEdit(nextOpt ? "Mark optional" : "Mark required"); bi.optional = nextOpt; OnOptionalToggled(bi.instanceId, nextOpt); }
                     if (hit) { selId = bi.instanceId; selIsBuilding = true; selAdditive = Event.current.shift || Event.current.control; }
                     if (del) { delId = bi.instanceId; delIsBuilding = true; }
                 }
@@ -652,7 +659,9 @@ public class LibraryBrowser : MonoBehaviour
                 foreach (var oi in env.objectInstances)
                 {
                     bool sel = editController != null && editController.IsInstanceSelected(oi.instanceId);
-                    if (DrawIncludeRow(oi.prefabType ?? oi.instanceId, oi.included, sel, out bool next, out bool hit, out bool del) && !env.locked) { editController?.RecordEnvironmentEdit("Toggle included"); oi.included = next; OnInstanceToggled(env); }
+                    DrawIncludeRow(oi.prefabType ?? oi.instanceId, oi.included, oi.optional, sel, out bool incCh, out bool nextInc, out bool optCh, out bool nextOpt, out bool hit, out bool del);
+                    if (incCh && !env.locked) { editController?.RecordEnvironmentEdit("Toggle included"); oi.included = nextInc; OnInstanceToggled(env); }
+                    if (optCh && !env.locked) { editController?.RecordEnvironmentEdit(nextOpt ? "Mark optional" : "Mark required"); oi.optional = nextOpt; OnOptionalToggled(oi.instanceId, nextOpt); }
                     if (hit) { selId = oi.instanceId; selIsBuilding = false; selAdditive = Event.current.shift || Event.current.control; }
                     if (del) { delId = oi.instanceId; delIsBuilding = false; }
                 }
@@ -710,24 +719,75 @@ public class LibraryBrowser : MonoBehaviour
         GUILayout.EndScrollView();
     }
 
-    // A clickable name + quiet On/Off toggle + × delete row. Returns true (with the new value)
-    // when the toggle changed; `clicked` reports a click on the *name*, which selects the instance
-    // in the scene; `deleteClicked` reports the ×, which removes the instance from the place.
-    private static bool DrawIncludeRow(string label, bool included, bool selected,
-                                       out bool next, out bool clicked, out bool deleteClicked)
+    // A clickable name + quiet On/Off toggle + quiet Opt toggle + × delete row. `includeChanged` /
+    // `optionalChanged` report a toggle flip (with the new value); `clicked` reports a click on the
+    // *name*, which selects the instance in the scene; `deleteClicked` reports the ×, which removes
+    // the instance from the place.
+    private static void DrawIncludeRow(string label, bool included, bool optional, bool selected,
+                                       out bool includeChanged, out bool nextIncluded,
+                                       out bool optionalChanged, out bool nextOptional,
+                                       out bool clicked, out bool deleteClicked)
     {
         GUILayout.BeginHorizontal();
-        clicked = UITheme.ListRowLabel(label, selected, UITips.InstanceName, GUILayout.ExpandWidth(true));
-        next = UITheme.RowToggle(included, included ? "On" : "Off", UITips.IncludeToggle, GUILayout.Width(46), GUILayout.Height(22f));
+        clicked      = UITheme.ListRowLabel(label, selected, UITips.InstanceName, GUILayout.ExpandWidth(true));
+        nextIncluded = UITheme.RowToggle(included, included ? "On" : "Off", UITips.IncludeToggle, GUILayout.Width(46), GUILayout.Height(22f));
+        nextOptional = UITheme.RowToggle(optional, "Opt", UITips.OptionalToggle, GUILayout.Width(38), GUILayout.Height(22f));
         deleteClicked = UITheme.RowDeleteButton(UITips.DeleteInstance);
         GUILayout.EndHorizontal();
-        return next != included;
+        includeChanged  = nextIncluded != included;
+        optionalChanged = nextOptional != optional;
     }
 
     private void OnInstanceToggled(EnvironmentDef env)
     {
         _active.dirty = true;
         worldRenderer?.RenderEnvironment(env, _active.buildings);
+    }
+
+    // An optional flip changes nothing on screen unless Low detail is on, so no re-render: the
+    // renderer just re-stamps the GO's marker and applies the preview state.
+    private void OnOptionalToggled(string instanceId, bool optional)
+    {
+        MarkDirty();   // Live share auto-saves it like any other edit
+        worldRenderer?.SetInstanceOptional(instanceId, optional);
+        editController?.OnOptionalVisibilityChanged();
+    }
+
+    // Low detail preview: what the VR viewer shows (everything marked optional hidden). Editing
+    // stays on; a hidden selected item just loses its gizmo until the preview is turned off.
+    private void SetLowDetail(bool on)
+    {
+        _lowDetail = on;
+        worldRenderer?.SetOptionalHidden(on);
+        editController?.OnOptionalVisibilityChanged();
+    }
+
+    // "Mark optional" for the scene selection plus "Type optional" for every object sharing the
+    // primary selection's prefab type. Labels flip to "required" when the targets are all optional
+    // already. Both act through EditController (undo, dirty, marker update).
+    private void DrawOptionalActions(EnvironmentDef env)
+    {
+        int    selN = editController != null ? editController.SelectionCount : 0;
+        string type = editController?.PrimarySelectedPrefabType();
+        bool allOpt     = selN > 0 && !OptionalContent.AnyDiffers(env, editController.SelectedInstances(), true);
+        bool typeAllOpt = type != null && !OptionalContent.AnyDiffersByPrefabType(env, type, true);
+
+        GUILayout.BeginHorizontal();
+        GUI.enabled = selN > 0 && !env.locked;
+        if (UITheme.SecondaryButton(allOpt ? "Mark required" : "Mark optional",
+                                    allOpt ? UITips.MarkRequired : UITips.MarkOptional,
+                                    GUILayout.Height(UITheme.RowH), GUILayout.ExpandWidth(true)))
+            editController.SetSelectedOptional(!allOpt);
+        GUI.enabled = type != null && !env.locked;
+        if (UITheme.SecondaryButton(typeAllOpt ? "Type required" : "Type optional",
+                                    typeAllOpt ? UITips.TypeRequired : UITips.TypeOptional,
+                                    GUILayout.Height(UITheme.RowH), GUILayout.ExpandWidth(true)))
+            editController.SetOptionalByPrefabType(type, !typeAllOpt);
+        GUI.enabled = true;
+        GUILayout.EndHorizontal();
+
+        if (selN > 0)
+            UITheme.Note(type != null ? $"Selected {selN} · type {type}" : $"Selected {selN}");
     }
 
     // -----------------------------------------------------------------------
@@ -1006,6 +1066,7 @@ public class LibraryBrowser : MonoBehaviour
             terrainZones   = new List<TerrainZoneDef>(),
             paths          = new List<PathDef>(),
             surfaceStrokes = new List<SurfaceStrokeDef>(),
+            heightStrokes  = new List<HeightStrokeDef>(),
             scaleNote      = ""
         },
         buildingInstances = new List<BuildingInstance>(),

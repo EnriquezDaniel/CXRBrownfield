@@ -23,6 +23,8 @@ MonoBehaviour:
     - west
     - top
     - bottom
+    cellExtents: {x: 0, y: 0, z: 0}
+    cellAnchor: {x: 0, y: 0, z: 0}
   - shapeId: wedge
     prefab: {fileID: 2307581127929770261, guid: 2c098679199b7164cbbd7eeea3aa250e, type: 3}
     defaultRotation: {x: 0, y: 0, z: 0}
@@ -32,6 +34,8 @@ MonoBehaviour:
     - south
     - west
     - bottom
+    cellExtents: {x: 0, y: 0, z: 0}
+    cellAnchor: {x: 0, y: 0, z: 0}
   - shapeId: quartercurve
     prefab: {fileID: 3847115960689518914, guid: d0f40f2aa3d36174eabfee4c6170e1d6, type: 3}
     defaultRotation: {x: 90, y: 0, z: 0}
@@ -43,3 +47,29 @@ MonoBehaviour:
     - top
     - bottom
     - curve
+    cellExtents: {x: 0, y: 0, z: 0}
+    cellAnchor: {x: 0, y: 0, z: 0}
+  - shapeId: pillar
+    prefab: {fileID: 3067720743524439067, guid: 84bfacb5c2d8a4b4ebc7a9dcdc6f6917, type: 3}
+    defaultRotation: {x: 0, y: 0, z: 0}
+    faceNames:
+    - north
+    - east
+    - south
+    - west
+    - top
+    - bottom
+    cellExtents: {x: 0.5, y: 1, z: 0.5}
+    cellAnchor: {x: 0, y: 0, z: 0}
+  - shapeId: slab
+    prefab: {fileID: 7896708721937206572, guid: 1ec781c344c22ac40a962588907f97ce, type: 3}
+    defaultRotation: {x: 0, y: 0, z: 0}
+    faceNames:
+    - north
+    - east
+    - south
+    - west
+    - top
+    - bottom
+    cellExtents: {x: 1, y: 0.5, z: 1}
+    cellAnchor: {x: 0, y: -1, z: 0}

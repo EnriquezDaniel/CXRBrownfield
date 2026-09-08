@@ -108,4 +108,18 @@ public class BrushGeometryTests
         float onGrid = 90f * Mathf.Deg2Rad;
         Assert.AreEqual(90f, BrushGeometry.SnapHeadingRad(onGrid, 0f, 45f) * Mathf.Rad2Deg, 0.01f);
     }
+
+    // ---- NudgeRadius: the [ / ] keys shared by the ground brushes ----
+
+    [Test]
+    public void NudgeRadius_TenPercentStep_WithFloorAndClamp()
+    {
+        Assert.AreEqual(8.8f, BrushGeometry.NudgeRadius(8f, true),  1e-5f);
+        Assert.AreEqual(7.2f, BrushGeometry.NudgeRadius(8f, false), 1e-5f);
+        // Below 2.5 m the 10% step would shrink under 0.25 m; the floor keeps small brushes moving.
+        Assert.AreEqual(0.75f, BrushGeometry.NudgeRadius(1f, false), 1e-5f);
+        Assert.AreEqual(0.5f,  BrushGeometry.NudgeRadius(0.5f, false), 1e-5f, "clamped at the minimum");
+        Assert.AreEqual(30f,   BrushGeometry.NudgeRadius(30f, true),  1e-5f, "clamped at the maximum");
+        Assert.AreEqual(0.5f,  BrushGeometry.NudgeRadius(float.NaN, false), 1e-5f, "non-finite resets to the minimum");
+    }
 }

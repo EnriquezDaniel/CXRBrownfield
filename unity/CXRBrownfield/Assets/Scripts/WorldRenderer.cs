@@ -20,6 +20,7 @@ public class WorldRenderer : MonoBehaviour
     [SerializeField] private MaterialPalette materialPalette;     // USER WIRES THIS IN INSPECTOR (tile face materials)
     [SerializeField] private PathMaterialPalette pathMaterialPalette; // USER WIRES THIS IN INSPECTOR (path ribbon materials)
     [SerializeField] private FencePalette fencePalette;           // USER WIRES THIS IN INSPECTOR (fence segment prefabs)
+    [SerializeField] private WaterPalette waterPalette;           // USER WIRES THIS IN INSPECTOR (water surface materials; falls back to Resources/WaterPalette)
 
     [Header("Path rendering")]
     [SerializeField] private float pathYEpsilon = 0.05f;          // lift above terrain to avoid z-fighting
@@ -30,6 +31,18 @@ public class WorldRenderer : MonoBehaviour
     [Header("Settings")]
     [SerializeField] private float prefabScaleFactor = 1f;
     [SerializeField] private float defaultYRotation  = 90f;
+
+    [Header("Detail")]
+    // Spawn gate for the low-performance client: instances and decor marked `optional` are never
+    // instantiated (no GOs, no colliders, no draw calls). SyncClient turns this on in the VRViewer
+    // scene; the desktop editor leaves it false and uses SetOptionalHidden for a reversible preview.
+    [SerializeField] private bool skipOptional = false;
+    public bool SkipOptional => skipOptional;
+    public void SetSkipOptional(bool on) => skipOptional = on;
+    // Editor "Low detail" preview: optional GOs exist but are inactive. Applied at spawn time too,
+    // so a rebuild (undo, include toggle, paste) comes back in the same visual state.
+    private bool _optionalHidden;
+    public  bool OptionalHidden => _optionalHidden;
 
     // Per-environment render state. Multiple environments can be rendered at once (overlaid at
     // their shared origin); only the active one is interactive — see SetActiveEnvironment.
@@ -82,6 +95,10 @@ public class WorldRenderer : MonoBehaviour
     // wired here instead of requiring a second inspector assignment.
     public PathMaterialPalette PathMaterialPalette => pathMaterialPalette;
     public FencePalette        FencePalette        => fencePalette;
+    // The water palette lives in Resources, so an unwired slot (VRViewer, a fresh scene) still
+    // resolves; the inspector slot only overrides it.
+    public WaterPalette        WaterPalette        =>
+        waterPalette != null ? waterPalette : (waterPalette = Resources.Load<WaterPalette>("WaterPalette"));
     public TerrainRegistry     TerrainRegistry     => terrainRegistry;
     public PrefabRegistry      PrefabRegistry      => prefabRegistry;
 
@@ -147,6 +164,12 @@ public class WorldRenderer : MonoBehaviour
         UnityEngine.Profiling.Profiler.EndSample();
         long tFences = Lap();
 
+        UnityEngine.Profiling.Profiler.BeginSample("WR.Water");
+        if (env.site?.waterBodies != null)
+            RenderWater(env.site.waterBodies, er);
+        UnityEngine.Profiling.Profiler.EndSample();
+        long tWater = Lap();
+
         // Site fills pass suppressLotFrame:true — their own lot frame would double-draw the
         // host's site frame at the same spot.
         if (!suppressLotFrame)
@@ -169,7 +192,7 @@ public class WorldRenderer : MonoBehaviour
         PerfLog.Log(sw.ElapsedMilliseconds, 50,
             $"RenderEnvironment '{env.name}': total={sw.ElapsedMilliseconds}ms clear={tClear} " +
             $"terrain={tTerrain} objects={tObjects} buildings={tBuildings} paths={tPaths} " +
-            $"fences={tFences} frames={tFrames} activate={tActivate}");
+            $"fences={tFences} water={tWater} frames={tFrames} activate={tActivate}");
     }
 
     // Marks one loaded environment as the editable/saveable one: repaints the shared terrain
@@ -210,7 +233,7 @@ public class WorldRenderer : MonoBehaviour
     // Sizes the in-scene Terrain to the environment's real-world site.terrainSize (meters) so the
     // visible ground is true scale (1 unit = 1 m) and every coordinate that's normalized against
     // terrainData.size (zones, strokes, lot mask, paths) lands correctly. The terrain's Y (height
-    // range) is preserved — flat sites keep their existing height ceiling. Width/length are clamped
+    // range) is preserved — it is owned by EnsureHeightSetup. Width/length are clamped
     // to a sane band so a malformed/zero terrainSize can't collapse or blow up the ground. Public so
     // EditController can re-apply after a Site Settings edit or Scale Calibration.
     public void ApplyTerrainSize(SiteDef site)
@@ -225,7 +248,7 @@ public class WorldRenderer : MonoBehaviour
     // environment projected into a host's site: its content is out at the site's coordinates, so a
     // terrain left at the origin would sit entirely beside it. Terrain-relative math throughout this
     // file already reads targetTerrain.transform.position, so moving it is safe. Y is preserved —
-    // that is the height range's base, not a horizontal placement.
+    // EnsureHeightSetup parks it at the height range's base, not a horizontal placement.
     private void ApplyTerrainOrigin(SiteDef site)
     {
         if (targetTerrain == null) return;
@@ -261,76 +284,132 @@ public class WorldRenderer : MonoBehaviour
             tData.size = new Vector3(w, y, l);
     }
 
-    // Optional gentle elevation. With no grade points the terrain is flattened to the base plane
-    // (today's behavior). With grade points, a LOW-RES heightmap is interpolated from them (inverse-
-    // distance weighting) and baked once via SetHeights — objects (SampleHeight) and paths (heightAt)
-    // then drape onto it automatically. Kept cheap (≤65² samples) and one-shot for VR. Public so the
-    // editor can re-bake after an elevation edit. Call after ApplyTerrainSize.
-    public void ApplyHeightmap(SiteDef site)
+    // -----------------------------------------------------------------------
+    // Ground height (Shape ground brush)
+    //
+    // The heightmap contract: HeightBrush.RESOLUTION samples, HeightBrush.RANGE_METERS of range,
+    // flat ground at the normalized base HeightBrush.BASE_NORMALIZED, and the Terrain parked at
+    // HeightBrush.BASE_WORLD_Y so that base plane is world y = 0 (where every environment authored
+    // before sculpting already sits). Every "sit on the ground" query in this file goes through
+    // SampleTerrainSurfaceY, which adds the transform's Y, so the park is invisible to callers.
+    // -----------------------------------------------------------------------
+
+    private void Awake()
+    {
+        EnsureHeightSetup();
+        // Water surfaces are walked through, not on (see RenderWater).
+        Physics.IgnoreLayerCollision(WaterLayer, WalkerLayer, true);
+    }
+
+    // Applies the contract once per session. Setting heightmapResolution resets the heights AND
+    // the size, so the size is captured first and restored (with the fixed Y range) afterwards, and
+    // the reset zeros (15 m below the base) are refilled flat. This edits the shared TerrainData
+    // asset in the editor, the same way the previous grade bake did.
+    private void EnsureHeightSetup()
     {
         if (targetTerrain == null) return;
         var tData = targetTerrain.terrainData;
-        var pts = site?.gradePoints;
+        if (tData == null) return;
 
-        // No elevation ⇒ leave the scene terrain alone, UNLESS we previously baked a grade (e.g.
-        // switching from a graded env to a flat one), in which case flatten back to the base plane.
-        // This keeps a pristine, hand-authored scene heightmap untouched for flat environments.
-        if (pts == null || pts.Count == 0)
-        {
-            if (_heightmapBaked)
-            {
-                int flatRes = tData.heightmapResolution;
-                tData.SetHeights(0, 0, new float[flatRes, flatRes]);
-                _heightmapBaked = false;
-            }
-            return;
-        }
+        Vector3 size = tData.size;
+        bool resChanged = tData.heightmapResolution != HeightBrush.RESOLUTION;
+        if (resChanged) tData.heightmapResolution = HeightBrush.RESOLUTION;
 
-        // Keep the bake small for VR; a 65² heightmap is plenty for gentle, large-scale grade.
-        int res = Mathf.Min(65, tData.heightmapResolution);
-        if (res != tData.heightmapResolution) tData.heightmapResolution = res;
-        res = tData.heightmapResolution;
+        if (resChanged || !Mathf.Approximately(tData.size.y, HeightBrush.RANGE_METERS) ||
+            !Mathf.Approximately(tData.size.x, size.x) || !Mathf.Approximately(tData.size.z, size.z))
+            tData.size = new Vector3(size.x, HeightBrush.RANGE_METERS, size.z);
 
-        float maxH = site.maxGradeHeight > 0.01f ? site.maxGradeHeight : 30f;
-        if (!Mathf.Approximately(tData.size.y, maxH))
-            tData.size = new Vector3(tData.size.x, maxH, tData.size.z);
+        var p = targetTerrain.transform.position;
+        if (!Mathf.Approximately(p.y, HeightBrush.BASE_WORLD_Y))
+            targetTerrain.transform.position = new Vector3(p.x, HeightBrush.BASE_WORLD_Y, p.z);
 
-        float sizeX = tData.size.x, sizeZ = tData.size.z;
-        var heights = new float[res, res];
-        for (int zi = 0; zi < res; zi++)
-        {
-            float wz = (zi / (float)(res - 1)) * sizeZ;   // heightmap row index runs along Z
-            for (int xi = 0; xi < res; xi++)
-            {
-                float wx = (xi / (float)(res - 1)) * sizeX;
-                float h  = SampleGrade(pts, wx, wz);
-                heights[zi, xi] = Mathf.Clamp01(h / maxH);
-            }
-        }
-        tData.SetHeights(0, 0, heights);
-        _heightmapBaked = true;
+        if (resChanged) tData.SetHeights(0, 0, FlatHeights(tData.heightmapResolution));
     }
 
-    // Tracks whether we baked a non-flat heightmap, so a later flat env flattens back instead of
-    // stomping a pristine scene-authored terrain.
-    private bool _heightmapBaked;
-
-    // Inverse-distance-weighted elevation (meters) at world (x, z) from the sparse grade points.
-    private static float SampleGrade(List<GradePointDef> pts, float x, float z)
+    private static float[,] FlatHeights(int res)
     {
-        float wsum = 0f, hsum = 0f;
-        foreach (var p in pts)
-        {
-            if (p == null) continue;
-            float dx = x - p.x, dz = z - p.z;
-            float d2 = dx * dx + dz * dz;
-            if (d2 < 1e-4f) return p.height;       // sitting on a control point
-            float w = 1f / d2;
-            wsum += w;
-            hsum += w * p.height;
-        }
-        return wsum > 0f ? hsum / wsum : 0f;
+        var h = new float[res, res];
+        for (int z = 0; z < res; z++)
+            for (int x = 0; x < res; x++)
+                h[z, x] = HeightBrush.BASE_NORMALIZED;
+        return h;
     }
+
+    // Replays site.heightStrokes in order onto a flat base and pushes the whole heightmap once. Runs
+    // on every activation / undo whose site changed, so it is the authoritative ground; the live
+    // brush (StampHeightLive) previews exactly this. Objects, buildings, paths and fences drape via
+    // SampleTerrainSurfaceY, so callers render geometry after this. Site-fill overlays
+    // (_siteOverlays) composite surface paint only; a fill's height strokes are not applied.
+    // Call after ApplyTerrainSize.
+    public void ApplyHeightmap(SiteDef site)
+    {
+        if (targetTerrain == null) return;
+        EnsureHeightSetup();
+        var tData = targetTerrain.terrainData;
+        int res = tData.heightmapResolution;
+        var heights = FlatHeights(res);
+
+        Vector3 tPos = targetTerrain.transform.position, size = tData.size;
+        var win = new HeightWindow { heights = heights, x0 = 0, z0 = 0, res = res, sizeX = size.x, sizeZ = size.z };
+
+        var strokes = site?.heightStrokes;
+        if (strokes != null && strokes.Count > 0)
+            foreach (var s in strokes) ReplayHeightStroke(ref win, s, site, tPos);
+
+        // Water beds are derived, never stored: each body digs to `depth` below the flat base and
+        // shapes the shore around its surface height (both fields on the body, WaterCarve).
+        var water = site?.waterBodies;
+        if (water != null && water.Count > 0)
+            foreach (var body in water)
+                if (WaterGeometry.HasGeometry(body))
+                    WaterCarve.Carve(ref win, body, HeightClip(body.clipToLot, site), tPos.x, tPos.z);
+        tData.SetHeights(0, 0, heights);
+    }
+
+    private static void ReplayHeightStroke(ref HeightWindow win, HeightStrokeDef s, SiteDef site, Vector3 tPos)
+    {
+        if (s?.points == null) return;
+        var kind = HeightBrush.ParseKind(s.brush);
+        float radius = Mathf.Clamp(s.radius, 0.1f, 100f);
+        float target = HeightBrush.NormalizedFromMeters(s.targetHeight);
+        float[][] clip = HeightClip(s.clipToLot, site);
+        foreach (var p in s.points)
+        {
+            if (p == null || p.Length < 3) continue;
+            HeightBrush.Stamp(ref win, kind, p[0] - tPos.x, p[1] - tPos.z, radius, p[2], target, clip, tPos.x, tPos.z);
+        }
+    }
+
+    // The lot polygon a stroke clips to, or null when it does not clip or the site has no parcel.
+    private static float[][] HeightClip(bool clipToLot, SiteDef site) =>
+        clipToLot && site?.lotBoundary != null && site.lotBoundary.Length >= 3 ? site.lotBoundary : null;
+
+    // Stamps one brush sample into the LIVE heightmap during a drag: read the disc's sample window,
+    // stamp, write it back. Plain SetHeights keeps SampleHeight, the TerrainCollider and the LOD
+    // current every frame, and the window is only the disc, so it stays cheap. (If a 30 m brush
+    // ever stutters, switch to SetHeightsDelayLOD here and SyncHeightmap on release.) The stroke is
+    // also recorded in the data model, so ApplyHeightmap reproduces it on reload / undo.
+    public void StampHeightLive(Vector3 worldPos, HeightBrushKind kind, float radius, float amount,
+                                float targetHeightMeters, bool clipToLot, SiteDef site)
+    {
+        if (targetTerrain == null) return;
+        var tData = targetTerrain.terrainData;
+        Vector3 tPos = targetTerrain.transform.position, size = tData.size;
+        int res = tData.heightmapResolution;
+        float cx = worldPos.x - tPos.x, cz = worldPos.z - tPos.z;
+        if (!HeightBrush.SampleWindow(cx, cz, radius, size.x, size.z, res, out int x0, out int z0, out int w, out int h)) return;
+
+        float[,] block = tData.GetHeights(x0, z0, w, h);          // [h, w] = [z, x]
+        var win = new HeightWindow { heights = block, x0 = x0, z0 = z0, res = res, sizeX = size.x, sizeZ = size.z };
+        HeightBrush.Stamp(ref win, kind, cx, cz, radius, amount, HeightBrush.NormalizedFromMeters(targetHeightMeters),
+                          HeightClip(clipToLot, site), tPos.x, tPos.z);
+        tData.SetHeights(x0, z0, block);
+    }
+
+    // Ground height above the flat base plane at world (x, z), in meters. With the terrain parked
+    // at BASE_WORLD_Y the base plane is world y = 0, so this is the surface Y itself; named for the
+    // Flatten brush, whose target is sampled here at the press.
+    public float SampleHeightAboveBase(float x, float z) => SampleTerrainSurfaceY(x, z);
 
     // Removes one environment's geometry (e.g. on close/archive). If it was the active one,
     // the caller is responsible for choosing a new active env (or leaving none).
@@ -428,6 +507,33 @@ public class WorldRenderer : MonoBehaviour
         RefreshLockStates();
     }
 
+    // Editor "Low detail" preview: hides (SetActive false) every spawned GO whose def is marked
+    // optional, across every loaded env, backdrops and site fills included. Optional GOs stay in
+    // instanceToGO so their ids still resolve for the library rows, selection and delete; the
+    // selection code treats an inactive GO like an excluded instance (no gizmo). No rebuild.
+    // ApplyLockState gathered its caches with includeInactive:true, so they stay valid and this
+    // must NOT call InvalidateLockCache (that would trigger a full sweep for nothing).
+    public void SetOptionalHidden(bool hidden)
+    {
+        if (_optionalHidden == hidden) return;
+        _optionalHidden = hidden;
+        foreach (var er in _envRenders.Values)
+            foreach (var go in er.instanceToGO.Values)
+                if (go != null && go.TryGetComponent<InstanceMarker>(out var m) && m.isOptional)
+                    go.SetActive(!hidden);
+    }
+
+    // Cheap per-instance update after an optional-flag edit: re-stamps the marker and applies the
+    // current preview state. Nothing else about the GO changes, so no re-render. Works for env
+    // instances and for embedded decor (both live in instanceToGO).
+    public void SetInstanceOptional(string id, bool optional)
+    {
+        var go = GetInstanceGO(id);
+        if (go == null) return;
+        if (go.TryGetComponent<InstanceMarker>(out var m)) m.isOptional = optional;
+        go.SetActive(!(optional && _optionalHidden));
+    }
+
     private void ApplyLockState(EnvRender er, bool active)
     {
         if (er?.root == null) return;
@@ -469,8 +575,17 @@ public class WorldRenderer : MonoBehaviour
                 _dimBlock ??= new MaterialPropertyBlock();
                 _dimBlock.Clear();
                 rend.GetPropertyBlock(_dimBlock);
-                _dimBlock.SetColor(BaseColorProp, LOCKED_TINT);
-                _dimBlock.SetColor(ColorProp,     LOCKED_TINT);
+                // The tint is opaque; a translucent water surface keeps its own alpha so a backdrop
+                // pond dims without turning into a solid slab.
+                Color tint = LOCKED_TINT;
+                if (rend.GetComponent<WaterMarker>() != null && rend.sharedMaterial != null)
+                {
+                    var m = rend.sharedMaterial;
+                    if (m.HasProperty(BaseColorProp)) tint.a = m.GetColor(BaseColorProp).a;
+                    else if (m.HasProperty(ColorProp)) tint.a = m.GetColor(ColorProp).a;
+                }
+                _dimBlock.SetColor(BaseColorProp, tint);
+                _dimBlock.SetColor(ColorProp,     tint);
                 rend.SetPropertyBlock(_dimBlock);
             }
         }
@@ -897,7 +1012,7 @@ public class WorldRenderer : MonoBehaviour
     // incremental SpawnObjectInstance entry point used by the scatter brush.
     private void SpawnOneObject(ObjectInstance inst, EnvRender er)
     {
-        if (inst == null || !inst.included) return;
+        if (inst == null || !OptionalContent.ShouldRender(inst.included, inst.optional, skipOptional)) return;
         if (inst.position == null || inst.position.Length < 3) return;
 
         Transform root = er.root;
@@ -943,6 +1058,8 @@ public class WorldRenderer : MonoBehaviour
         var marker = go.AddComponent<InstanceMarker>();
         marker.instanceId = inst.instanceId;
         marker.isBuilding  = false;
+        marker.isOptional  = inst.optional;
+        if (inst.optional && _optionalHidden) go.SetActive(false);   // Low detail preview persists across rebuilds
         er.instanceToGO[inst.instanceId] = go;
         er.InvalidateLockCache();
     }
@@ -1126,6 +1243,58 @@ public class WorldRenderer : MonoBehaviour
     // Final world Y for a path vertex at world (x, z): terrain surface + z-fight lift. Public so the
     // edit-mode live preview drapes its ribbon exactly like the committed render does.
     public float SamplePathSurfaceY(float x, float z) => SampleTerrainSurfaceY(x, z) + pathYEpsilon;
+
+    // -----------------------------------------------------------------------
+    // Water bodies: one flat translucent mesh per WaterBodyDef at its surface height. The bed under
+    // it was carved by ApplyHeightmap, so the surface is never coplanar with the ground inside the
+    // outline and needs no z-fight lift. The mesh sits on Unity's built-in Water layer with a plain
+    // (non-trigger: PhysX refuses concave trigger meshes) MeshCollider; EditController's RaycastAll
+    // picks it, while the walkthrough walker (Ignore Raycast layer) is told not to collide with the
+    // Water layer, so it wades down into the bed instead of standing on the surface.
+    // -----------------------------------------------------------------------
+
+    public const int WaterLayer  = 4;   // Unity built-in "Water"
+    public const int WalkerLayer = 2;   // "Ignore Raycast": WalkthroughController's walker and ghost
+
+    private void RenderWater(List<WaterBodyDef> bodies, EnvRender er)
+    {
+        if (bodies == null || bodies.Count == 0 || er?.root == null) return;
+        var palette = WaterPalette;
+        foreach (var body in bodies)
+        {
+            if (!WaterGeometry.HasGeometry(body)) continue;
+            Mesh mesh = BuildWaterMesh(body, WaterGeometry.SurfaceY(body));
+            if (mesh == null) continue;
+
+            var go = new GameObject($"Water ({body.kind})") { layer = WaterLayer };
+            go.transform.SetParent(er.root, false);
+            go.AddComponent<MeshFilter>().sharedMesh = mesh;
+            var mr = go.AddComponent<MeshRenderer>();
+            Material mat = palette != null ? palette.GetMaterial(body.material) : null;
+            mr.sharedMaterial = mat != null ? mat : MissingMaterial;
+            mr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            mr.receiveShadows = false;
+            go.AddComponent<MeshCollider>().sharedMesh = mesh;
+            go.AddComponent<WaterMarker>().waterId = body.id;
+        }
+    }
+
+    // The committed water mesh for a body at surface height `y`, in world meters. Public so the
+    // editor's live preview builds the identical mesh and nothing changes on commit.
+    public Mesh BuildWaterMesh(WaterBodyDef body, float y)
+    {
+        var ctrl = WaterGeometry.ControlPoints(body?.points);
+        if (body == null || ctrl.Count < WaterGeometry.MinPoints(body.kind)) return null;
+        if (WaterGeometry.IsRiver(body.kind))
+            return WaterGeometry.BuildRiverMesh(WaterGeometry.RiverCenterline(ctrl, body.width, body.smoothing), body.width, y);
+        return WaterGeometry.BuildPondMesh(ctrl, y);
+    }
+
+    public Material GetWaterMaterial(string materialId)
+    {
+        var palette = WaterPalette;
+        return palette != null && palette.Has(materialId) ? palette.GetMaterial(materialId) : null;
+    }
 
     // Material a path of `materialId` renders with — shared with the live preview for WYSIWYG.
     public Material GetPathMaterial(string materialId) => pathMaterialPalette != null ? pathMaterialPalette.GetMaterial(materialId) : null;
@@ -1451,7 +1620,7 @@ public class WorldRenderer : MonoBehaviour
 
         foreach (var inst in instances)
         {
-            if (inst == null || !inst.included) continue;
+            if (inst == null || !OptionalContent.ShouldRender(inst.included, inst.optional, skipOptional)) continue;
             if (inst.position == null || inst.position.Length < 3) continue;
 
             if (!buildingDefs.TryGetValue(inst.buildingId, out BuildingDef bdef))
@@ -1508,11 +1677,15 @@ public class WorldRenderer : MonoBehaviour
                 var marker = bldgRoot.AddComponent<InstanceMarker>();
                 marker.instanceId = inst.instanceId;
                 marker.isBuilding  = true;
+                marker.isOptional  = inst.optional;
                 er.instanceToGO[inst.instanceId] = bldgRoot;
 
                 // M4: render embedded objects relative to this building instance
                 RenderEmbeddedObjects(bdef, worldPos,
                     Quaternion.Euler(inst.rotationX, inst.rotationY, inst.rotationZ), bldgRoot.transform, er);
+
+                // After the decor spawn so props instantiate under an active parent (Low detail preview).
+                if (inst.optional && _optionalHidden) bldgRoot.SetActive(false);
             }
         }
     }
@@ -1603,6 +1776,10 @@ public class WorldRenderer : MonoBehaviour
         return true;
     }
 
+    // Sub-cell fit per shape (pillar, slab), so reseated decor lands on the real tile surface.
+    private TileFit FitFor(string shapeId) =>
+        tileShapePalette != null ? tileShapePalette.GetFit(shapeId) : TileFit.Full;
+
     private void RenderEmbeddedObjects(BuildingDef bdef, Vector3 bldgWorldPos, Quaternion bldgRot, Transform parent, EnvRender er)
     {
         if (bdef.embeddedObjects == null || prefabRegistry == null) return;
@@ -1613,11 +1790,12 @@ public class WorldRenderer : MonoBehaviour
         // are fine. EditController.AfterBuildingSkew relies on this running before its PutBuilding
         // (render-then-PUT) so the reseated values persist to the server.
         float cellSize = bdef.gridCellSize > 0f ? bdef.gridCellSize : AuthoringConventions.DEFAULT_GRID_CELL_SIZE;
-        DecorPlacement.ReseatAll(bdef, cellSize, BasisFor);
+        DecorPlacement.ReseatAll(bdef, cellSize, BasisFor, FitFor);
 
         foreach (var emb in bdef.embeddedObjects)
         {
             if (emb?.localPos == null || emb.localPos.Length < 3) continue;
+            if (!OptionalContent.ShouldRender(true, emb.optional, skipOptional)) continue;   // VR viewer skips optional decor
             GameObject prefab = prefabRegistry.GetPrefab(emb.prefabType);
             Vector3 localPos = new Vector3(emb.localPos[0], emb.localPos[1], emb.localPos[2]);
             Vector3 worldPos = bldgWorldPos + bldgRot * localPos;
@@ -1646,6 +1824,8 @@ public class WorldRenderer : MonoBehaviour
             marker.instanceId = emb.instanceId;
             marker.isBuilding  = false;
             marker.isEmbedded  = true;   // lives on the BuildingDef, not in env.objectInstances
+            marker.isOptional  = emb.optional;
+            if (emb.optional && _optionalHidden) go.SetActive(false);
             er.instanceToGO[emb.instanceId] = go;
         }
     }

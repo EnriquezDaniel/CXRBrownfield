@@ -216,6 +216,9 @@ public class WalkthroughController : MonoBehaviour
         bool  found = false;
         foreach (var h in Physics.RaycastAll(ray, 1000f))
         {
+            // Water surfaces (Water layer) are walked through, not on, so the placement ghost lands
+            // on the bed under them, not on the surface.
+            if (h.collider.gameObject.layer == WorldRenderer.WaterLayer) continue;
             if (h.normal.y < 0.5f || h.distance >= best) continue;
             best = h.distance; point = h.point; found = true;
         }

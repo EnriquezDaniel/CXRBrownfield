@@ -20,28 +20,9 @@ public static class TileSpawner
             : Object.Instantiate(shapes.GetPrefab(tile.shapeId), parent);
         if (go == null) return null;
 
-        // Cells are true cubes of edge cellSize, so floors stack by the same pitch (cube edge) on Y —
-        // a tile sits exactly one cube above the one below it, seamless in all three dimensions.
-        // FitToCell re-anchors on the geometry CENTER, so the cell center (not its floor surface) is
-        // the placement point on every axis: X/Z use (grid+0.5)·cs and Y uses (floor+0.5)·cs. This
-        // seats floor 0 with its base on the building origin (the terrain) instead of sinking half a
-        // cell below it, and matches the cell-center convention the decor placer already uses
-        // (TileBuildingEditor.PlaceFaceDecor: cellCenter.y = (floor+0.5)·cs).
-        go.transform.localPosition = new Vector3(
-            (tile.gridX + 0.5f) * cellSize,
-            (tile.floor + 0.5f) * cellSize,
-            (tile.gridZ + 0.5f) * cellSize);
         if (tile.deform == null)
         {
-            // The tile's own rotation is composed on top of the shape's baseline orientation
-            // correction, so prefabs authored facing the wrong way (e.g. the curved corner) still
-            // end up correct. Then scale to exactly fill the cubic cell (cellSize on every axis) and
-            // re-anchor on the geometry center, so tiles tile seamlessly and stay centered at any
-            // rotation regardless of the prefab's authored size or pivot (shapes vary wildly:
-            // square/wedge authored at 3.5, curvedcorner at 175 with an off-center pivot).
-            go.transform.localRotation = Quaternion.Euler(tile.rotationX, tile.rotation, tile.rotationZ)
-                                         * shapes.GetDefaultRotation(tile.shapeId);
-            FitToCell(go, cellSize);
+            PlaceInCell(go, tile, shapes, cellSize);
         }
         else
         {
@@ -49,6 +30,7 @@ public static class TileSpawner
             // grid-aligned cell-local space (see SpawnDeformedTile), so the GameObject carries no
             // rotation: the deform cage is a grid-space field, and re-rotating it here would tear the
             // shared corner posts that keep skewed neighbours gap-free.
+            go.transform.localPosition = CellCenter(tile, cellSize);
             go.transform.localRotation = Quaternion.identity;
         }
         go.name = $"Tile_{tile.gridX}_{tile.gridZ}_F{tile.floor}";
@@ -60,26 +42,71 @@ public static class TileSpawner
         return go;
     }
 
-    // Scales and re-anchors the prefab so its geometry spans exactly cellSize on every axis (a true
-    // cube), with its geometry CENTER sitting on the tile's placement point. Fitting to a cube — rather
-    // than a cellSize×floorHeight×cellSize box — is what keeps a tile correctly sized at ANY rotation:
-    // a non-cubic target box stays cell-sized only while its local Y points up, so the instant a tile
-    // is tipped (any rotationX/rotationZ) the box's unequal axes swap into the footprint and height and
-    // the tile reads as "wider when tall". A cube is rotation-invariant, so all axes stay cellSize.
-    // Both values come from the combined mesh bounds measured in the GameObject's own local space
-    // (independent of the prefab's authored scale and pivot):
-    //   - localScale solves measuredSize · scale = cellSize, per-axis, so any shape fills the cube.
+    // Center of a tile's cell in building-local meters. Cells are true cubes of edge cellSize, so
+    // floors stack by the same pitch (cube edge) on Y — a tile sits exactly one cube above the one
+    // below it, seamless in all three dimensions. Placement re-anchors on the geometry CENTER, so the
+    // cell center (not its floor surface) is the placement point on every axis: X/Z use (grid+0.5)·cs
+    // and Y uses (floor+0.5)·cs. This seats floor 0 with its base on the building origin (the terrain)
+    // instead of sinking half a cell below it, and matches the cell-center convention the decor placer
+    // uses (TileFaceGeometry / TileBuildingEditor.PlaceFaceDecor: cellCenter.y = (floor+0.5)·cs).
+    public static Vector3 CellCenter(TileDef tile, float cellSize) => new Vector3(
+        (tile.gridX + 0.5f) * cellSize,
+        (tile.floor + 0.5f) * cellSize,
+        (tile.gridZ + 0.5f) * cellSize);
+
+    // Poses an (undeformed) tile GameObject in its cell: position, rotation, fit and anchor. The
+    // single owner of that math for the renderer, the editor's live tiles, its placement ghost and
+    // its rotate tools, so all of them agree by construction. Safe to re-run on a GameObject that was
+    // already placed (position and scale are recomputed from the mesh bounds each time).
+    //   1. Start at the cell center.
+    //   2. The tile's own rotation is composed on top of the shape's baseline orientation correction,
+    //      so prefabs authored facing the wrong way (e.g. the curved corner) still end up correct.
+    //   3. FitToBox scales the geometry to the shape's box (cellSize on every axis for a full cube,
+    //      the palette's cellExtents otherwise) and re-anchors on the geometry center, so tiles tile
+    //      seamlessly and turn about their own center regardless of the prefab's authored size or
+    //      pivot (shapes vary wildly: square/wedge authored at 3.5, curvedcorner at 175 with an
+    //      off-center pivot).
+    //   4. A sub-cell shape then slides to its anchor (TileFit.CenterOffset): a floor slab rests on
+    //      the floor even when tipped on its side, a pillar stays centered. Zero for full cubes.
+    public static void PlaceInCell(GameObject go, TileDef tile, TileShapePalette shapes, float cellSize)
+        => Pose(go, tile, shapes, cellSize, CellCenter(tile, cellSize));
+
+    private static void Pose(GameObject go, TileDef tile, TileShapePalette shapes, float cellSize, Vector3 origin)
+    {
+        Quaternion tileRot = Quaternion.Euler(tile.rotationX, tile.rotation, tile.rotationZ);
+        Quaternion defRot  = shapes != null ? shapes.GetDefaultRotation(tile.shapeId) : Quaternion.identity;
+        TileFit    fit     = shapes != null ? shapes.GetFit(tile.shapeId) : TileFit.Full;
+
+        go.transform.localPosition = origin;
+        go.transform.localRotation = tileRot * defRot;
+        FitToBox(go, fit.PrefabLocalSize(defRot, cellSize));
+        go.transform.localPosition += fit.CenterOffset(tileRot, cellSize);
+    }
+
+    // Fits a full-cube shape: see FitToBox. Fitting to a cube — rather than a cellSize×floorHeight×
+    // cellSize box — is what keeps a tile correctly sized at ANY rotation: a non-cubic target box stays
+    // cell-sized only while its local Y points up, so the instant a tile is tipped (any rotationX/
+    // rotationZ) the box's unequal axes swap into the footprint and height and the tile reads as
+    // "wider when tall". A cube is rotation-invariant, so all axes stay cellSize. (Sub-cell shapes
+    // are deliberately non-cubic and rotate as rigid boxes — a tipped pillar IS a beam.)
+    public static void FitToCell(GameObject go, float cellSize) => FitToBox(go, Vector3.one * cellSize);
+
+    // Scales and re-anchors the prefab so its geometry spans exactly targetSize (in the GameObject's
+    // own local axes), with its geometry CENTER sitting on the current localPosition. Both values
+    // come from the combined mesh bounds measured in the GameObject's own local space (independent of
+    // the prefab's authored scale and pivot):
+    //   - localScale solves measuredSize · scale = targetSize, per-axis, so any shape fills the box.
     //   - localPosition is shifted by the (scaled, rotated) bounds-center so rotation happens about
-    //     the geometry center: the tile stays centered in its cell at every rotation, even for
-    //     imported prefabs whose pivot isn't centered (the built-in cube already is, so it's a no-op).
+    //     the geometry center: the tile stays centered at every rotation, even for imported prefabs
+    //     whose pivot isn't centered (the built-in cube already is, so it's a no-op).
     // Must run after localPosition and localRotation are set, since it composes onto them.
-    public static void FitToCell(GameObject go, float cellSize)
+    public static void FitToBox(GameObject go, Vector3 targetSize)
     {
         if (!LocalGeometryBounds(go, out Bounds b)) return;  // no measurable mesh — leave as authored
         Vector3 size = b.size;
         if (size.x <= 0f || size.y <= 0f || size.z <= 0f) return;
 
-        var scale = new Vector3(cellSize / size.x, cellSize / size.y, cellSize / size.z);
+        var scale = new Vector3(targetSize.x / size.x, targetSize.y / size.y, targetSize.z / size.z);
         go.transform.localScale = scale;
         // Geometry center currently lands at localPosition + localRotation·(scale∘center); cancel that
         // offset so it lands on localPosition (the cell/floor center) for any rotation.
@@ -252,13 +279,12 @@ public static class TileSpawner
             return go;
         }
 
-        // Pose a throwaway copy of the prefab in the cell (shape + rotation + fit), bake it, warp it,
-        // then discard the copy — only the warped static mesh survives.
+        // Pose a throwaway copy of the prefab in the cell (shape + rotation + fit + anchor, exactly as
+        // PlaceInCell would, with the cell center at the origin), bake it, warp it, then discard the
+        // copy — only the warped static mesh survives. Because the pose is in cell-local space, a
+        // sub-cell shape (pillar, slab) sits inside the cage where it belongs before the warp.
         var temp = Object.Instantiate(prefab, go.transform);
-        temp.transform.localPosition = Vector3.zero;
-        temp.transform.localRotation = Quaternion.Euler(tile.rotationX, tile.rotation, tile.rotationZ)
-                                       * shapes.GetDefaultRotation(tile.shapeId);
-        FitToCell(temp, cellSize);   // centers the geometry on the origin, spanning the cube
+        Pose(temp, tile, shapes, cellSize, Vector3.zero);
 
         if (BakeWarpedMesh(temp, go.transform, tile.deform, cellSize, out Mesh mesh, out Material[] mats))
         {

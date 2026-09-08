@@ -17,6 +17,12 @@ public class SyncClient : MonoBehaviour
     [SerializeField] private float pollIntervalSeconds = 1.5f;
     [SerializeField] private bool  showStatusOverlay   = true;
 
+    [Header("Detail")]
+    // The viewer is the low-performance client: items the author marked optional are never
+    // spawned (WorldRenderer.skipOptional). Untick on a strong PCVR rig to render everything. This
+    // component exists only in the VRViewer scene, so the desktop editor is unaffected.
+    [SerializeField] private bool skipOptional = true;
+
     // env id → version last rendered, so only new/changed envs are rebuilt and
     // envs that drop out of the published set are unloaded.
     private readonly Dictionary<string, int> _appliedVersions = new();
@@ -39,6 +45,7 @@ public class SyncClient : MonoBehaviour
             enabled = false;
             return;
         }
+        worldRenderer.SetSkipOptional(skipOptional);   // before the first RenderEnvironment
         StartCoroutine(PollLoop());
     }
 

@@ -54,6 +54,12 @@ public static class UITips
     public const string InstanceName   = "Click to select this in the scene. Shift or Ctrl adds it to the selection.";
     public const string IncludeToggle  = "On means this item renders and counts as part of the place. Off hides it without deleting it.";
     public const string DeleteInstance = "Removes this from the place. Ctrl+Z brings it back.";
+    public const string LowDetail      = "Hides everything marked optional, which is what the VR viewer shows. Editing stays on and hidden items keep their rows in the lists.";
+    public const string OptionalToggle = "Marks this item optional. The VR viewer skips optional items to run faster. The desktop editor still shows them unless Low detail is on.";
+    public const string MarkOptional   = "Marks every selected item optional so the VR viewer skips it. Ctrl+Z reverts.";
+    public const string MarkRequired   = "Marks every selected item required so the VR viewer renders it again. Ctrl+Z reverts.";
+    public const string TypeOptional   = "Marks every object of the selected object's type optional, across the whole place. Ctrl+Z reverts.";
+    public const string TypeRequired   = "Marks every object of the selected object's type required, across the whole place. Ctrl+Z reverts.";
     public const string NewBuilding    = "Creates an empty 3 by 3 building with this name and opens the tile editor.";
     public const string RefreshBuildings = "Reloads the building list from the server.";
     public const string EditBuilding   = "Opens this building in the tile editor.";
@@ -97,7 +103,7 @@ public static class UITips
         $"Click, then click the ground to place {name}. Scroll to turn the ghost before you drop it.";
     public const string RefreshBuildingThumbs = RefreshBuildings;
 
-    // ---- Terrain rail: site / lot / elevation ----
+    // ---- Terrain rail: site / lot ----
     public const string SiteApply      = "Resizes the ground to the typed width and length in meters. Content stays where it is.";
     public const string EditLotHandles = "Shows drag handles in the scene for the ground rectangle or the parcel outline.";
     public const string DoneLot        = "Hides the handles. The shape is kept.";
@@ -106,9 +112,6 @@ public static class UITips
     public const string ResetParcel    = "Drops the custom outline so the lot is the plain rectangle again.";
     public const string FitTerrainToLot = "Shrinks or grows the ground rectangle to hug the parcel outline, plus a 2 m margin.";
     public const string FitLotToContent = "Grows or shrinks the ground so every placed item fits, with a 5 m margin.";
-    public const string ElevationFold  = "Shows the grade point controls. A few x, z, height points bake into a gentle slope.";
-    public const string AddGradePoint  = "Adds a point at the typed x and z with that height in meters, then rebakes the ground.";
-    public const string ClearElevation = "Removes every grade point so the ground is flat again.";
 
     // ---- Terrain rail: paths ----
     public const string DrawPaths      = "Draw a surfaced path on the ground. Click to drop points, or drag in freehand mode.";
@@ -132,6 +135,38 @@ public static class UITips
     public const string DeleteFence    = "Removes this fence from the place.";
     public const string FenceRow       = "Highlights this fence in the scene so you can find it. Click again to clear the highlight.";
 
+    // ---- Terrain rail: water ----
+    public const string DrawWater      = "Draw a pond or a river on the ground. The ground under it is dug out to hold the water, and fills back in if you delete it. Esc drops a half-drawn shape, then leaves the tool.";
+    public const string DoneDrawWater  = "Stops drawing. Finished water stays.";
+    public static readonly string[] WaterKindLabels = { "Pond", "River" };
+    public static readonly string[] WaterKindTips =
+    {
+        "A closed outline for ponds, lakes and puddles. Click each corner, then Enter or a double-click closes it. Backspace removes the last corner. Needs at least three corners.",
+        "A ribbon along a line for rivers, streams and canals. Click to drop points, or switch to freehand and drag. Enter or a double-click ends it. Backspace removes the last point.",
+    };
+    public static readonly string[] WaterPresetLabels = { "Puddle", "Pond", "River", "Lake" };
+    public static readonly string[] WaterPresetTips =
+    {
+        "Pond outline, 5 cm deep, 0.3 m bank, clear water. Good for wet spots on paving.",
+        "Pond outline, 1.5 m deep, 2 m bank, lake blue.",
+        "River ribbon 6 m wide, 1.2 m deep, 2 m bank, lake blue.",
+        "Pond outline, 4 m deep, 6 m bank, dark water. Wide banks read well from a distance.",
+    };
+    public const string WaterFreehand  = "Freehand traces the river while you drag and smooths the result. Straight drops a point per click, and Enter or a double-click ends it.";
+    public const string WaterDepth     = "How deep the bed is dug below the flat ground height, in meters. On flat ground that is the depth of the hole. The water level below cannot sink beneath this bed.";
+    public const string WaterLevel     = "Height of the water surface, in meters from the flat ground height. 0 is level with flat ground, negative sinks it into the hole, positive lifts it above. It stops just above the bed, so lowering Depth pushes it up. Ground above the surface around the edge is cut down to meet it.";
+    public const string WaterBank      = "How far the ground slopes on each side of the water's edge, in meters. Inside the outline it slopes from the edge down to the bed. Outside it slopes from the surrounding ground down to the edge. 0 makes a sheer step.";
+    public const string WaterWidth     = "Width of the river ribbon in meters, measured across the water.";
+    public const string WaterSmoothing = "0 keeps the corners you clicked. 1 bends the river into a flowing curve. Corners are always rounded to at least half the width.";
+    public const string WaterClipToLot = "Digs the bed only inside the parcel outline. Ground outside it stays as it is, so water crossing the parcel edge stops there.";
+    public const string WaterMaterial  = "Surface color for new water, and for the water being edited. Flat and see-through, no waves or reflections. Add more in the WaterPalette asset.";
+    public const string WaterMaterialLabel = "The color in use. Pick another from the list below.";
+    public const string DoneEditWater  = "Finishes editing this water body and shows the finished mesh. Esc does the same.";
+    public const string WaterEditHint  = "Drag a dot to move that corner. Click the outline to add a dot there. Delete removes the selected dot, or the whole body when no dot is selected. Slider changes apply when you release the mouse.";
+    public const string WaterFold      = "Lists every pond and river in this place. Clicking water in the scene opens it here too.";
+    public const string EditWater      = "Shows drag handles on this water body. You can also click the water in the scene.";
+    public const string DeleteWater    = "Removes this water body. The ground under it fills back in. Ctrl+Z brings it back.";
+
     // ---- Terrain rail: scatter brush ----
     public const string PaintObjects   = "Scatter brush. Hold the mouse and drag to sprinkle the chosen prefab over the ground.";
     public const string DonePaintObjects = "Leaves the brush. Painted objects stay.";
@@ -154,6 +189,19 @@ public static class UITips
     public const string SnapRunAngle   = "Snaps the run to the brush angle plus multiples of the step. Hold Shift while dragging to skip all snapping.";
     public static string SnapIncrement(float deg) => $"Snaps runs every {deg:0} degrees.";
 
+    // ---- Terrain rail: height brush ----
+    public const string ShapeGround     = "Height brush. Hold the mouse on the ground to raise, lower, smooth or flatten it. Objects and paths re-seat when you let go.";
+    public const string DoneShapeGround = "Leaves the brush. The shaped ground stays.";
+    public static readonly string[] SculptBrushLabels = { "Raise/Lower", "Smooth", "Flatten" };
+    public static readonly string[] SculptBrushTips =
+    {
+        "Raises the ground while you hold the mouse. A negative rate digs instead. Holding still keeps going.",
+        "Blends each spot toward its neighbors, softening bumps and steps.",
+        "Levels the ground toward the height under the cursor where you pressed.",
+    };
+    public const string SculptClipToLot = "Keeps the brush inside the parcel outline. Ground outside it stays as it is.";
+    public const string ResetGround     = "Removes every height stroke so the ground is flat again. Undo brings them back.";
+
     // ---- Terrain rail: measure ----
     public const string Measure        = "Click points on the ground to read distances and areas. The first two points can also calibrate the scale.";
     public const string DoneMeasure    = "Leaves the measure tool and clears the points.";
@@ -164,7 +212,7 @@ public static class UITips
     public static readonly string[] BuildTools =
     {
         "Pick tiles to rotate or delete. Drag to select several.",
-        "Click or drag on the grid to add tiles of the chosen shape.",
+        "Click a cell to add one tile. Drag to lay a run of them.",
         "Click a tile face to give it a material.",
         "Click a tile face to mount a door, window, or other prop.",
     };
@@ -173,7 +221,16 @@ public static class UITips
     public const string ClearFloorAsk  = "Asks before deleting every tile on this floor.";
     public const string ClearFloorConfirm = "Deletes every tile on this floor. Ctrl+Z undoes it.";
     public const string DuplicateFloor = "Copies this floor's tiles and props onto the floor above, then moves up to it.";
-    public static string TileShape(string name) => $"New tiles use the {name} shape.";
+    public static string TileShape(string name, string shapeId = null)
+    {
+        string hint = (shapeId ?? "").ToLowerInvariant() switch
+        {
+            "pillar" => " A 2 by 2 m post, 4 m tall, centered in its cell.",
+            "slab"   => " A 4 by 4 m plate, 2 m thick, resting on the floor of its cell.",
+            _        => "",
+        };
+        return $"New tiles use the {name} shape.{hint}";
+    }
     public static string TileYaw(int deg) => $"New tiles face {deg} degrees. Q and E turn this by 90.";
     public const string SelectFloor    = "Selects every tile on the current floor.";
     public const string SelectAll      = "Selects every tile in the building.";
@@ -188,6 +245,8 @@ public static class UITips
     public const string DecorPlace     = "Clicking faces adds the chosen prop.";
     public const string DecorErase     = "Click or drag across props to remove them, one per click.";
     public const string WholeFaceDecor = "One click puts the prop on every exposed tile of that building side.";
+    public const string DecorOptional  = "Clicking a prop flips it between optional and required. Optional props show tinted here and the VR viewer skips them.";
+    public const string WholeFaceOptional = "One click marks every prop on that building side optional. When they are all optional already it marks them required.";
     public static string Decor(string id) => $"Places {id} on the faces you click.";
     public const string SaveChanges    = "Saves the building to the server and keeps editing. Esc saves and exits.";
 

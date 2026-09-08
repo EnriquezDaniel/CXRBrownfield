@@ -10,4 +10,7 @@ public class InstanceMarker : MonoBehaviour
     // lives on the BuildingDef, NOT in env.objectInstances, so it must never become a scene
     // selection — EditController resolves the hit to the host building instead (see UpdateBrowse).
     public bool   isEmbedded;
+    // Mirrors the def's `optional` flag. WorldRenderer.SetOptionalHidden toggles these GOs for the
+    // editor's Low detail preview; the VR viewer never spawns them at all (skipOptional).
+    public bool   isOptional;
 }

@@ -85,6 +85,9 @@ public class EmbeddedObjectDef
     public float decorSurfaceOffset;    // z-fight push along the face normal (meters)
     public int   decorMountAxis;        // (int)DecorAlignment.MountAxis (Auto = 0)
     public bool  decorFlipMount;
+    // True = skipped by the low-performance VR viewer (WorldRenderer.skipOptional). Records saved
+    // before this field existed load as required (false).
+    public bool  optional;
 }
 
 [Serializable]
@@ -112,6 +115,9 @@ public class BuildingInstance
     public float rotationZ;
     public float scale;
     public bool included;
+    // True = skipped by the low-performance VR viewer (WorldRenderer.skipOptional). Records saved
+    // before this field existed load as required (false).
+    public bool optional;
 }
 
 [Serializable]
@@ -131,6 +137,9 @@ public class ObjectInstance
     // True only for instances scattered by the terrain editor's object brush. The eraser brush
     // deletes these and leaves layout-generated / pre-existing objects (default false) untouched.
     public bool brushPainted;
+    // True = skipped by the low-performance VR viewer (WorldRenderer.skipOptional). Records saved
+    // before this field existed load as required (false).
+    public bool optional;
 }
 
 [Serializable]
@@ -190,15 +199,45 @@ public class SurfaceStrokeDef
     public float angleDeg = -1f;
 }
 
-// One control point for the optional terrain heightmap: at world (x, z) meters the ground is raised
-// to `height` meters. WorldRenderer.ApplyHeightmap interpolates a low-res heightmap from the set.
-// Sparse — a few points describe a gentle grade; null/empty list ⇒ flat terrain (the default).
+// Height stroke: brush samples replayed in order onto the heightmap by WorldRenderer.ApplyHeightmap.
+// Each sample is [x, z, amount] in world meters. `amount` is signed meters for "raise" and a 0..1
+// blend weight for "smooth" / "flatten". Amounts are per sample (rate * dt, merged), so replay is
+// frame rate independent and the live brush preview equals what a reload rebuilds. Samples closer
+// than radius * HeightBrush.MERGE_FRACTION to the last stored one fold into it (HeightBrush.
+// MergeAmount), so a long hold stores one sample rather than hundreds.
 [Serializable]
-public class GradePointDef
+public class HeightStrokeDef
 {
-    public float x;        // world meters
-    public float z;        // world meters
-    public float height;   // target elevation in meters (0 = base plane)
+    public string id;                   // stable GUID
+    public string brush = "raise";      // "raise" | "smooth" | "flatten" (HeightBrush.KindKey)
+    public float radius;                // meters; smoothstep falloff from center to rim
+    public float targetHeight;          // flatten only: meters above the base plane, sampled at press
+    public bool clipToLot = true;       // stamp only inside site.lotBoundary (evaluated at replay)
+    // 3 decimals (1 mm): amounts from a single fast frame can be a few millimeters.
+    [JsonConverter(typeof(RoundedPointArrayConverter), 3)]
+    public float[][] points;            // [[x, z, amount], ...]
+}
+
+// A flat water body: a pond (closed ring) or a river (centerline ribbon). Rendered as one level
+// translucent mesh at surfaceY, with its bed carved into the shared heightmap at replay (never
+// stored as height strokes, so deleting the body removes the hole). Both heights are measured from
+// the flat ground height (world y = 0, HeightBrush's base plane): the bed sits `depth` below it and
+// the surface at `surfaceY`, which can never be below the bed. Points are world meters like
+// HeightStrokeDef.points. Records saved before the field carry null waterBodies.
+[Serializable]
+public class WaterBodyDef
+{
+    public string id;                   // stable GUID
+    public string kind = "pond";        // "pond" (closed ring) | "river" (centerline ribbon)
+    public string material = "lake";    // WaterPalette entry id
+    [JsonConverter(typeof(RoundedPointArrayConverter))]
+    public float[][] points;            // [[x, z], ...] world meters: ring (pond) or centerline (river)
+    public float width = 6f;            // river only, meters
+    public float smoothing = 0.5f;      // river only: 0 = crisp corners, 1 = flowing (PathGeometry.Smooth)
+    public float surfaceY = 0f;         // water surface, meters relative to the flat ground height (0 = level with it)
+    public float depth = 1.5f;          // bed below the flat ground height, meters (surfaceY >= -depth + MIN_DEPTH)
+    public float bankWidth = 2f;        // carve blend outside the outline, meters
+    public bool clipToLot = true;       // carve only inside site.lotBoundary (evaluated at replay)
 }
 
 [Serializable]
@@ -215,12 +254,12 @@ public class SiteDef
     public List<PathDef> paths;
     public List<FenceDef> fences;       // nullable: old JSON without the field still loads (consumers null-guard)
     public List<SurfaceStrokeDef> surfaceStrokes;
+    // Ground height sculpted with the Shape ground brush, replayed in order onto a flat base by
+    // WorldRenderer.ApplyHeightmap. null/empty ⇒ flat; records saved before the field load with null.
+    public List<HeightStrokeDef> heightStrokes;
+    // Ponds and rivers (WaterBodyDef). null ⇒ none; records saved before the field load with null.
+    public List<WaterBodyDef> waterBodies;
     public string scaleNote;
-    // Optional gentle elevation. null/empty ⇒ flat (today's behavior); the generation pipeline never
-    // sets it, so generated environments stay flat and JSON round-trips unchanged. WorldRenderer bakes
-    // a low-res heightmap from these once per load/edit (objects & paths then drape onto it for free).
-    public List<GradePointDef> gradePoints;
-    public float maxGradeHeight = 30f;  // terrain Y range (m) used when grade points exist; caps slope
     // Parcel outline in world meters: [[x,z], ...] (same convention as paths/rectMeters).
     // null or <3 points ⇒ full-rectangle terrain (legacy behavior). When set, WorldRenderer
     // masks the terrain to this polygon and paints everything outside it as outsideTerrainType.
@@ -290,12 +329,18 @@ public class BuildingSummary
     public bool favorite;               // server-managed; pins the row to the top of the list
 }
 
-// Serializes a [[x, z], ...] float point array with each value rounded to 2 decimals (~1 cm).
-// Reading is a plain array read, so the first serialize after loading old full-precision data
-// rounds it and every later round-trip is byte-identical (idempotent). Applied per-member via
-// [JsonConverter] (currently SurfaceStrokeDef.points) -- never registered globally.
+// Serializes a [[x, z], ...] float point array with each value rounded to `decimals` places
+// (default 2, ~1 cm). Reading is a plain array read, so the first serialize after loading old
+// full-precision data rounds it and every later round-trip is byte-identical (idempotent). Applied
+// per-member via [JsonConverter] (SurfaceStrokeDef.points at 2, HeightStrokeDef.points at 3) --
+// never registered globally.
 public class RoundedPointArrayConverter : JsonConverter
 {
+    private readonly int _decimals;
+
+    public RoundedPointArrayConverter() : this(2) { }
+    public RoundedPointArrayConverter(int decimals) { _decimals = Math.Max(0, decimals); }
+
     public override bool CanConvert(Type objectType) => objectType == typeof(float[][]);
 
     public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
@@ -307,7 +352,7 @@ public class RoundedPointArrayConverter : JsonConverter
         {
             if (p == null) { writer.WriteNull(); continue; }
             writer.WriteStartArray();
-            foreach (var v in p) writer.WriteValue((float)Math.Round(v, 2));
+            foreach (var v in p) writer.WriteValue((float)Math.Round(v, _decimals));
             writer.WriteEndArray();
         }
         writer.WriteEndArray();

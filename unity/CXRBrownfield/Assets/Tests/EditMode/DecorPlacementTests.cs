@@ -71,6 +71,81 @@ public class DecorPlacementTests
         Assert.IsFalse(f.isRoof);
     }
 
+    private static readonly TileFit PillarFit = new TileFit(new Vector3(0.5f, 1f, 0.5f), Vector3.zero);
+    private static readonly TileFit SlabFit   = new TileFit(new Vector3(1f, 0.5f, 1f), new Vector3(0f, -1f, 0f));
+
+    [Test]
+    public void FaceFrame_Pillar_NorthFaceOnThePostSurface()
+    {
+        // A 2×4×2 pillar centered in its cell: its north wall is 1 m out from the cell center (not 2),
+        // 2 m wide and the full 4 m tall.
+        var b = Grid(1, 1);
+        var t = Tile(b, 0, 0);
+        t.shapeId = "pillar";
+        Assert.IsTrue(TileFaceGeometry.TryGetFaceFrame(t, "north", CS, PillarFit, out var f));
+
+        Vector3 expectCenter = CellCenter(0, 0, 0) + new Vector3(0f, 0f, 1f);
+        Assert.Less((f.center - expectCenter).magnitude, 1e-4f, "center = cell center + n*1m");
+        Assert.Less((f.normal - Vector3.forward).magnitude, 1e-4f);
+        Assert.AreEqual(2f, f.width,  1e-4f);
+        Assert.AreEqual(4f, f.height, 1e-4f);
+        Assert.AreEqual(-2f, f.uBottom, 1e-4f);
+        Assert.AreEqual(+2f, f.uTop,    1e-4f);
+        Assert.IsFalse(f.isRoof);
+    }
+
+    [Test]
+    public void FaceFrame_Slab_TopAtHalfHeight_NorthIsTwoMetersTall()
+    {
+        // A 4×4×2 slab resting on the floor: its top is 2 m above the floor (= the cell center height),
+        // and its walls are 4 m wide but only 2 m tall, centered 1 m above the floor.
+        var b = Grid(1, 1);
+        var t = Tile(b, 0, 0);
+        t.shapeId = "slab";
+
+        Assert.IsTrue(TileFaceGeometry.TryGetFaceFrame(t, "top", CS, SlabFit, out var top));
+        Assert.Less((top.center - CellCenter(0, 0, 0)).magnitude, 1e-4f, "slab top at floor + 2 m");
+        Assert.Less((top.normal - Vector3.up).magnitude, 1e-4f);
+        Assert.AreEqual(4f, top.width,  1e-4f);
+        Assert.AreEqual(4f, top.height, 1e-4f);
+        Assert.IsTrue(top.isRoof);
+
+        Assert.IsTrue(TileFaceGeometry.TryGetFaceFrame(t, "north", CS, SlabFit, out var north));
+        Vector3 expectCenter = CellCenter(0, 0, 0) + new Vector3(0f, -1f, 2f);
+        Assert.Less((north.center - expectCenter).magnitude, 1e-4f, "north wall centered 1 m up, on the cell edge");
+        Assert.AreEqual(4f, north.width,  1e-4f);
+        Assert.AreEqual(2f, north.height, 1e-4f);
+        Assert.AreEqual(-1f, north.uBottom, 1e-4f);
+        Assert.AreEqual(+1f, north.uTop,    1e-4f);
+    }
+
+    [Test]
+    public void FaceFrame_FullFit_MatchesDefaultOverload()
+    {
+        var b = Grid(2, 2);
+        var t = Tile(b, 1, 1);
+        Assert.IsTrue(TileFaceGeometry.TryGetFaceFrame(t, "east", CS, out var a));
+        Assert.IsTrue(TileFaceGeometry.TryGetFaceFrame(t, "east", CS, TileFit.Full, out var f));
+        Assert.Less((a.center - f.center).magnitude, 1e-6f);
+        Assert.AreEqual(a.width,  f.width,  1e-6f);
+        Assert.AreEqual(a.height, f.height, 1e-6f);
+    }
+
+    [Test]
+    public void Reseat_Pillar_PropSeatsOnPostSurface()
+    {
+        // The reseat path must pass the fit through: a window on a pillar's north face lands 1 m from
+        // the cell center (plus its seat), not on the nominal 2 m cell face.
+        var b = Grid(1, 1);
+        var t = Tile(b, 0, 0);
+        t.shapeId = "pillar";
+        var emb = HostedDecor(0, 0, 0, "north");
+        Assert.IsTrue(DecorPlacement.TryReseat(t, emb, CS, WindowBasis(), _ => PillarFit));
+        float z = Pos(emb).z - CellCenter(0, 0, 0).z;
+        Assert.Greater(z, 1f - 1e-4f, "in front of the post face");
+        Assert.Less(z, 1.5f, "close to the post face, far from the cell face at 2 m");
+    }
+
     [Test]
     public void FaceFrame_CornerBend_WallPlanar_NormalYawsWithSkew()
     {

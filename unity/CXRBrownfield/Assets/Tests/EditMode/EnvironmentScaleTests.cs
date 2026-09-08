@@ -25,6 +25,13 @@ public class EnvironmentScaleTests
                 {
                     new SurfaceStrokeDef { radius = 2f, points = new[] { new[] { 5f, 5f } } },
                 },
+                heightStrokes = new List<HeightStrokeDef>
+                {
+                    new HeightStrokeDef { id = "hr", brush = "raise",   radius = 2f, targetHeight = 3f,
+                                          points = new[] { new[] { 5f, 5f, 2f } } },
+                    new HeightStrokeDef { id = "hf", brush = "flatten", radius = 3f, targetHeight = 4f,
+                                          points = new[] { new[] { 20f, 20f, 0.5f } } },
+                },
                 fences = new List<FenceDef>
                 {
                     new FenceDef { id = "f", fenceType = "chain_link", height = 3f,
@@ -211,5 +218,138 @@ public class EnvironmentScaleTests
         Assert.IsTrue(EnvironmentScale.ScaleEnvironmentXZ(env, 2f, 3f, Vector2.zero));
         Assert.IsTrue(EnvironmentScale.TranslateEnvironmentXZ(env, 5f, -7f));
         Assert.IsNull(env.site.terrainOrigin, "records without the field must round-trip unchanged");
+    }
+
+    // ---- Height strokes travel with the site ----
+    // The footprint (radius, x/z) scales like a surface stroke; raise amounts and the flatten target
+    // are heights, so only a uniform (calibration) scale touches them. Smooth/flatten weights never
+    // change: they are blend factors, not meters.
+
+    [Test]
+    public void ScaleXZ_MovesHeightStrokeFootprint_LeavesAmountsAndTarget()
+    {
+        var env = Env();
+        Assert.IsTrue(EnvironmentScale.ScaleEnvironmentXZ(env, 2f, 3f, new Vector2(10f, 10f)));
+
+        var raise = env.site.heightStrokes[0];
+        Assert.AreEqual(2f * Mathf.Sqrt(6f), raise.radius, 1e-4f, "radius is isotropic like a surface stroke");
+        Assert.AreEqual(0f,  raise.points[0][0], 1e-4f);   // 10 + (5-10)*2
+        Assert.AreEqual(-5f, raise.points[0][1], 1e-4f);   // 10 + (5-10)*3
+        Assert.AreEqual(2f,  raise.points[0][2], 1e-4f, "an XZ resize leaves heights alone");
+        Assert.AreEqual(3f,  raise.targetHeight, 1e-4f);
+    }
+
+    [Test]
+    public void ScaleUniform_ScalesRaiseAmountsAndFlattenTarget_NotWeights()
+    {
+        var env = Env();
+        Assert.IsTrue(EnvironmentScale.ScaleEnvironment(env, 2f, Vector2.zero));
+
+        var raise = env.site.heightStrokes[0];
+        Assert.AreEqual(4f, raise.points[0][2], 1e-4f, "raise amount is meters, so it scales");
+        Assert.AreEqual(6f, raise.targetHeight, 1e-4f);
+        Assert.AreEqual(10f, raise.points[0][0], 1e-4f);
+
+        var flatten = env.site.heightStrokes[1];
+        Assert.AreEqual(0.5f, flatten.points[0][2], 1e-4f, "a flatten weight is dimensionless");
+        Assert.AreEqual(8f,   flatten.targetHeight, 1e-4f);
+        Assert.AreEqual(6f,   flatten.radius, 1e-4f);
+    }
+
+    [Test]
+    public void Translate_MovesHeightStrokePoints_LeavesAmount()
+    {
+        var env = Env();
+        Assert.IsTrue(EnvironmentScale.TranslateEnvironmentXZ(env, 5f, -7f));
+        var raise = env.site.heightStrokes[0];
+        Assert.AreEqual(10f, raise.points[0][0], 1e-4f);
+        Assert.AreEqual(-2f, raise.points[0][1], 1e-4f);
+        Assert.AreEqual(2f,  raise.points[0][2], 1e-4f);
+        Assert.AreEqual(2f,  raise.radius, 1e-4f);
+    }
+
+    [Test]
+    public void NullHeightStrokes_AreLeftAlone()
+    {
+        var env = Env();
+        env.site.heightStrokes = null;
+        Assert.IsTrue(EnvironmentScale.ScaleEnvironmentXZ(env, 2f, 3f, Vector2.zero));
+        Assert.IsTrue(EnvironmentScale.TranslateEnvironmentXZ(env, 5f, -7f));
+        Assert.IsNull(env.site.heightStrokes, "records without the field must round-trip unchanged");
+    }
+
+    // ---- Water bodies ----
+
+    private static WaterBodyDef River() => new()
+    {
+        id = "r", kind = "river", width = 4f, depth = 2f, bankWidth = 3f, surfaceY = 0.5f,
+        points = new[] { new[] { 10f, 10f }, new[] { 30f, 10f } },
+    };
+
+    [Test]
+    public void ScaleXZ_MovesWaterFootprint_ScalesWidthAndBankIso_LeavesHeights()
+    {
+        var env = Env();
+        env.site.waterBodies = new List<WaterBodyDef> { River() };
+        Assert.IsTrue(EnvironmentScale.ScaleEnvironmentXZ(env, 4f, 1f, Vector2.zero));
+        var w = env.site.waterBodies[0];
+        Assert.AreEqual(40f, w.points[0][0], 1e-4f);
+        Assert.AreEqual(10f, w.points[0][1], 1e-4f);
+        Assert.AreEqual(4f * 2f, w.width, 1e-4f, "width scales by sqrt(fx * fz)");
+        Assert.AreEqual(3f * 2f, w.bankWidth, 1e-4f);
+        Assert.AreEqual(2f, w.depth, 1e-4f, "XZ resize leaves depth");
+        Assert.AreEqual(0.5f, w.surfaceY, 1e-4f, "XZ resize leaves the surface height");
+    }
+
+    [Test]
+    public void ScaleUniform_ScalesWaterDepthAndOffset()
+    {
+        var env = Env();
+        env.site.waterBodies = new List<WaterBodyDef> { River() };
+        Assert.IsTrue(EnvironmentScale.ScaleEnvironment(env, 2f, Vector2.zero));
+        var w = env.site.waterBodies[0];
+        Assert.AreEqual(4f, w.depth, 1e-4f);
+        Assert.AreEqual(1f, w.surfaceY, 1e-4f);
+        Assert.AreEqual(8f, w.width, 1e-4f);
+    }
+
+    [Test]
+    public void Translate_MovesWaterPoints_LeavesSizes()
+    {
+        var env = Env();
+        env.site.waterBodies = new List<WaterBodyDef> { River() };
+        Assert.IsTrue(EnvironmentScale.TranslateEnvironmentXZ(env, 5f, -7f));
+        var w = env.site.waterBodies[0];
+        Assert.AreEqual(15f, w.points[0][0], 1e-4f);
+        Assert.AreEqual(3f,  w.points[0][1], 1e-4f);
+        Assert.AreEqual(4f, w.width, 1e-4f);
+        Assert.AreEqual(2f, w.depth, 1e-4f);
+    }
+
+    [Test]
+    public void ContentBounds_IncludesWater_RiverPaddedByHalfWidth()
+    {
+        var env = new EnvironmentDef { site = new SiteDef { waterBodies = new List<WaterBodyDef> { River() } } };
+        Assert.IsTrue(EnvironmentScale.ContentBounds(env, null, out float minX, out float minZ, out float maxX, out float maxZ));
+        Assert.AreEqual(8f,  minX, 1e-4f);
+        Assert.AreEqual(8f,  minZ, 1e-4f);
+        Assert.AreEqual(32f, maxX, 1e-4f);
+        Assert.AreEqual(12f, maxZ, 1e-4f);
+
+        var pond = new EnvironmentDef { site = new SiteDef { waterBodies = new List<WaterBodyDef> {
+            new WaterBodyDef { kind = "pond", width = 99f, points = new[] { new[] { 0f, 0f }, new[] { 6f, 0f }, new[] { 6f, 6f } } } } } };
+        Assert.IsTrue(EnvironmentScale.ContentBounds(pond, null, out minX, out minZ, out maxX, out maxZ));
+        Assert.AreEqual(0f, minX, 1e-4f);
+        Assert.AreEqual(6f, maxX, 1e-4f, "a pond's ring is its edge; width is ignored");
+    }
+
+    [Test]
+    public void NullWaterBodies_AreLeftAlone()
+    {
+        var env = Env();
+        env.site.waterBodies = null;
+        Assert.IsTrue(EnvironmentScale.ScaleEnvironmentXZ(env, 2f, 3f, Vector2.zero));
+        Assert.IsTrue(EnvironmentScale.TranslateEnvironmentXZ(env, 5f, -7f));
+        Assert.IsNull(env.site.waterBodies);
     }
 }

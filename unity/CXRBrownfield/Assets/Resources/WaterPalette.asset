@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 425249b190d649a459108bf352494e01, type: 3}
+  m_Name: WaterPalette
+  m_EditorClassIdentifier: Assembly-CSharp::WaterPalette
+  entries:
+  - id: clear
+    material: {fileID: 2100000, guid: eb8ce956fca80e546b3ef0b10b583b93, type: 2}
+  - id: lake
+    material: {fileID: 2100000, guid: b3d7da2db44736b49870f5fa4251a373, type: 2}
+  - id: murky
+    material: {fileID: 2100000, guid: 6df2bcc237e811445ae4d735e21ef065, type: 2}
+  - id: dark
+    material: {fileID: 2100000, guid: 5c697799e655eec42b21ae11a6c60199, type: 2}

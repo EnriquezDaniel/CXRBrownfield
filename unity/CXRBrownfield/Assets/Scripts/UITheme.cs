@@ -423,7 +423,12 @@ public static class UITheme
     public static int Segmented(int selected, string[] options, string[] tips)
     {
         Ensure();
-        return GUILayout.Toolbar(selected, C(options, tips), _segment, GUILayout.Height(RowH + 4));
+        // GUILayout.Toolbar pins its minimum width to the summed label widths, so inside a scroll
+        // view the moment the vertical scrollbar appears the toolbar keeps its full width and the
+        // whole column is clipped on the right. MinWidth(0) lets it shrink with the viewport; the
+        // buttons then share the width evenly, exactly as they do when there is room.
+        return GUILayout.Toolbar(selected, C(options, tips), _segment,
+                                 GUILayout.Height(RowH + 4), GUILayout.MinWidth(0f), GUILayout.ExpandWidth(true));
     }
 
     // Standard button (the skin's default look). The `tip` overload is the one to use.
@@ -620,13 +625,38 @@ public static class UITheme
 
     // Labelled slider with a trailing mono readout (e.g. "Radius … 5.0 m").
     public static float SliderRow(string caption, float value, float min, float max, string fmt = "0.0", string unit = "")
+        => Slider(caption, value, min, max, null, fmt, unit);
+
+    // SliderRow with a tooltip on the caption, the readout and the slider track itself.
+    public static float Slider(string caption, float value, float min, float max, string tip,
+                               string fmt = "0.0", string unit = "")
     {
         Ensure();
         GUILayout.BeginHorizontal();
-        GUILayout.Label(caption, _sub, GUILayout.ExpandWidth(true));
-        GUILayout.Label(value.ToString(fmt) + unit, _num, GUILayout.Width(60));
+        GUILayout.Label(C(caption, tip), _sub, GUILayout.ExpandWidth(true));
+        GUILayout.Label(C(value.ToString(fmt) + unit, tip), _num, GUILayout.Width(60));
         GUILayout.EndHorizontal();
-        return GUILayout.HorizontalSlider(value, min, max);
+        float v = GUILayout.HorizontalSlider(value, min, max);
+        TipOverLastRect(tip);
+        return v;
+    }
+
+    // A plain text line that shows `tip` on hover (a Note with help attached).
+    public static void Label(string text, string tip)
+    {
+        Ensure();
+        GUILayout.Label(C(text, tip), _sub, GUILayout.MinWidth(0f), GUILayout.ExpandWidth(true));
+    }
+
+    // Publishes `tip` for the control just laid out. A slider has no GUIContent of its own, so it
+    // never sets GUI.tooltip; on Repaint, with the mouse over its rect, set it the way a labelled
+    // control would and CaptureTooltip picks it up unchanged.
+    static void TipOverLastRect(string tip)
+    {
+        if (string.IsNullOrEmpty(tip)) return;
+        var e = Event.current;
+        if (e != null && e.type == EventType.Repaint && GUILayoutUtility.GetLastRect().Contains(e.mousePosition))
+            GUI.tooltip = tip;
     }
 
     // A list row washed with the active-tint when `active`: a title plus an optional state line.

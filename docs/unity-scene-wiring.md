@@ -9,16 +9,17 @@ Every `// USER WIRES THIS IN INSPECTOR:` comment marks a `[SerializeField]` that
 
 | GameObject | Component | Required assignments |
 |---|---|---|
-| `WorldRenderer` | `WorldRenderer` | `Terrain`, `PrefabRegistry`, `TerrainRegistry`, `TileShapePalette`, `MaterialPalette` (tile-based building rendering), `PathMaterialPalette` (path ribbons), `FencePalette` (fence runs), `BuildingGenerator` (legacy bay massing — used only when a def has tiles but `TileShapePalette` is unassigned; a def with **no** tiles renders as a neutral translucent pad over cell (0,0) instead, still selectable / double-click-editable) |
+| `WorldRenderer` | `WorldRenderer` | `Terrain`, `PrefabRegistry`, `TerrainRegistry`, `TileShapePalette`, `MaterialPalette` (tile-based building rendering), `PathMaterialPalette` (path ribbons), `FencePalette` (fence runs), `WaterPalette` (water surfaces; optional, falls back to `Resources/WaterPalette`), `BuildingGenerator` (legacy bay massing — used only when a def has tiles but `TileShapePalette` is unassigned; a def with **no** tiles renders as a neutral translucent pad over cell (0,0) instead, still selectable / double-click-editable). The `Terrain` must share its `TerrainData` with the scene's `TerrainCollider` (true in `BasicModel`; `VRViewer`'s collider still points at `New Terrain.asset` and needs re-pointing for VR walking on shaped ground). `WorldRenderer.EnsureHeightSetup` forces that asset to a 257 heightmap, 30 m height range and parks the Terrain at y = -15, so it shows as modified once after the first run. `skipOptional` (Detail header) is the spawn gate for `optional` items; leave it false in `BasicModel`, `SyncClient` sets it at runtime in `VRViewer` |
 | `LibraryBrowser` | `LibraryBrowser` | `LibraryClient`, `WorldRenderer` |
 | `LibraryClient` | `LibraryClient` | `serverBaseUrl = http://localhost:5002` (a headset needs the host PC's LAN IP) |
 | `EditController` | `EditController` | `LibraryBrowser`, `LibraryClient`, `WorldRenderer`, `TileBuildingEditor`, `PrefabRegistry`, `PathMaterialPalette` (path tool), `FencePalette` (fence tool — borrowed from `WorldRenderer` if unset), `TerrainRegistry` (ground-surface tool); optional: camera |
 | `TileBuildingEditor` | `TileBuildingEditor` | `TileShapePalette`, `MaterialPalette`, main camera; `PrefabRegistry` + `DecorPalette` (Decorate tool) |
 | `ModelRequesterUI` | `ModelRequesterUI` | `ModelRequester`, `WorldGenerator` (legacy), `WorldRenderer`, `LibraryClient`, `LibraryBrowser`; layout-source buttons: `uploadImageButton`, `refreshInputsButton`, `inputDropdown`, `generateFromImageButton`, `testLocalSampleButton`, `testServerSampleButton` |
 | `BakePass` | `BakePass` | `WorldRenderer` |
+| `GameManager` (`VRViewer` only) | `SyncClient` | `LibraryClient`, `WorldRenderer`; `pollIntervalSeconds`, `showStatusOverlay`, `skipOptional` (default on: the viewer never spawns items marked optional) |
 | `Main Camera` | `WalkthroughController` | optional (all auto-resolve): `EditController`, `WorldRenderer`, main camera. Tunables: `walkSpeed` 1.4 m/s, `runSpeed` 3.0 m/s, `lookSens`, `stepOffset`, `slopeLimit`, `solidBackdrops` |
 
-## The seven ScriptableObject assets
+## The eight ScriptableObject assets
 
 All live in `Assets/Resources/` and are **guarded** — read `.claude/rules/palette-assets.md`
 before editing any of them. Keys are the string ids the LLM JSON and the editors use.
@@ -32,6 +33,7 @@ before editing any of them. Keys are the string ids the LLM JSON and the editors
 | **PathMaterialPalette** | `Assets → Create → CXR → PathMaterialPalette` | path surface id (`path_material`; canonical: `"pavement_dark"`, `"pavement_light"`, `"brick"`, `"dirt"`, `"asphalt"`) | Used by the path tool and generation. Ships all five canonical ids plus the two tool-facing aliases `"street"` and `"sidewalk"`; several share one material, since the project has no separate brick or asphalt surface yet. |
 | **FencePalette** | `Assets → Create → CXR → FencePalette` | fence type (`fence_type`; canonical: `"picket"`, `"lattice"`, `"chain_link"`, `"wood_privacy"`, `"wrought_iron"`) | Entry fields below. Ships all five canonical types plus the original `"Fence"` that existing saved runs reference; all six share one panel/post pair today and differ only in default height. Unknown type → warning, fence skipped (same as a missing path material). |
 | **DecorPalette** | `Assets → Create → CXR → DecorPalette` | decor preset for the tile editor's Decorate tool (`"door"`, `"window"`, `"vent"`, …) | The prop analogue of MaterialPalette. Entry fields below; every field has a `[Tooltip]`. |
+| **WaterPalette** | `Tools → CXR → Palettes → Create Water Palette (seeded)` (or `Assets → Create → CXR → WaterPalette`) | water surface id (`WaterBodyDef.material`: `"clear"`, `"lake"`, `"murky"`, `"dark"`) | Entry = `id` + `material`. The seeding menu creates four flat URP Unlit transparent materials in `Assets/Materials/Water/` and appends any missing seed id; it never rewrites existing entries. `WorldRenderer` loads it from `Resources` when its slot is empty, so `VRViewer` needs no wiring. Unknown id → error, magenta placeholder material. |
 
 ### FencePalette entry
 
@@ -53,7 +55,8 @@ dedup): decors **stack** — different decors coexist on one face, only re-paint
 replaces it, so drags never pile up duplicates. `replacesOtherDecor` makes an entry own the whole
 face: it clears other decor there, but only decor that *also* has the flag; a stacking decor is never
 displaced. Painted decor persists as `BuildingDef.embeddedObjects` (`hostGridX/Z/Floor`, `hostFace`,
-`fillsFace`) and renders via `WorldRenderer.RenderEmbeddedObjects`.
+`fillsFace`, `optional`) and renders via `WorldRenderer.RenderEmbeddedObjects`, which skips
+`optional` entries when `skipOptional` is on (the VR viewer).
 
 ## TileShapePalette: per-face tile prefabs are generated
 
@@ -82,4 +85,30 @@ Face names follow `TileFaceGeometry.BaselineDir` in the *cell frame* (after `def
 `north`(+Z) `east`(+X) `south`(−Z) `west`(−X) `top` `bottom`, then non-axis faces (`curve`,
 `diagonal`); duplicates are suffixed `_2`. Current results: square `[north,east,south,west,top,bottom]`;
 wedge (a gable prism — the slopes are `east`/`west`) `[north,east,south,west,bottom]`; quartercurve
-(a rounded-corner block) `[north,east,south,west,top,bottom,curve]`.
+(a rounded-corner block) `[north,east,south,west,top,bottom,curve]`; pillar and slab (cubes)
+`[north,east,south,west,top,bottom]`.
+
+### Sub-cell shapes (`cellExtents` / `cellAnchor`)
+
+A shape may fill only part of its 4 m cell. Two extra fields on each `TileShapePalette` entry describe
+how (read through `TileFit` in `Assets/Scripts/Authoring/`):
+
+| Entry | `cellExtents` (fraction of the cell, X Y Z) | `cellAnchor` (-1 min side · 0 centered · +1 max side) | Result |
+|---|---|---|---|
+| `square`, `wedge`, `quartercurve` | (0,0,0) = full cube | (0,0,0) | unchanged |
+| `pillar` | (0.5, 1, 0.5) | (0, 0, 0) | 2×2 m post, 4 m tall, centered in the cell |
+| `slab` | (1, 0.5, 1) | (0, -1, 0) | 4×4 m plate, 2 m thick, resting on the floor of the cell |
+
+`TileSpawner.PlaceInCell` owns the placement math for the renderer, the editor's tiles, its placement
+ghost and its rotate tools: fit the prefab to the extents box, rotate about the box's own center, then
+slide the rotated bounds to the anchor. So a slab tipped 90° on X still rests on the floor and a tipped
+pillar becomes a centered beam. `TileFaceGeometry.TryGetFaceFrame` takes the same `TileFit`, so decor
+seats on the real pillar or slab surface, and `TileFit.FaceCovered` decides which faces the whole-face
+tools treat as hidden (only a face that reaches the shared boundary against a neighbour that fills its
+side). A pillar or slab still claims its whole cell key: one tile per cell.
+
+Source prefabs for cube-based shapes (`pillar.prefab`, `slab.prefab`) keep the scale on a **child**
+GameObject under an identity root. `TileFaceSetup.GatherGeometry` flattens geometry relative to the
+root and drops the root's own scale, so a scaled root would bake a unit cube and the thumbnail and
+placement ghost would read as a cube. `Tools → CXR → Palettes → Validate` warns when an extents
+component is above 1 or an anchor is outside -1..1.

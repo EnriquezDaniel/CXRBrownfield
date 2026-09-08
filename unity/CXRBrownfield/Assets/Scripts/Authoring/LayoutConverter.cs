@@ -94,6 +94,7 @@ public static class LayoutConverter
                 paths          = ConvertPaths(src, canvasW, canvasH, terrainWidthM, terrainHeightM),
                 fences         = ConvertFences(src, canvasW, canvasH, terrainWidthM, terrainHeightM),
                 surfaceStrokes = new List<SurfaceStrokeDef>(),
+                heightStrokes  = new List<HeightStrokeDef>(),
                 scaleNote      = src.site_scale.scale_note,
                 lotBoundary    = lotBoundary,
                 outsideTerrainType = "water",

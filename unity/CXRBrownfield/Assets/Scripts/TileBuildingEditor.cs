@@ -97,9 +97,11 @@ public class TileBuildingEditor : MonoBehaviour
     // Pick a decor, click a tile face: one prop auto-centers, fits, and seats flush (like the Paint
     // tool assigning a face material). Dragging paints each face under the cursor; re-painting a face
     // with the SAME decor replaces that prop, while different decors stack on one face (unless an entry
-    // is marked replacesOtherDecor). Erase removes painted decorations, one per click.
-    private string  _activeDecorId;
-    private bool    _decorErase;
+    // is marked replacesOtherDecor). Erase removes painted decorations, one per click. Optional flips a
+    // prop's `optional` flag (the VR viewer skips optional decor), one per click or a whole side.
+    private enum DecorMode { Place, Erase, Optional }
+    private string    _activeDecorId;
+    private DecorMode _decorMode = DecorMode.Place;
     private string  _decorLastTileKey;         // last tile decorated this stroke (one per tile per drag)
     // Used when a DecorPalette entry's width/heightFraction is 0 — mirrors DecorPalette.Entry's own
     // field initializers, which Unity does NOT apply to assets serialized before the fields existed.
@@ -162,7 +164,7 @@ public class TileBuildingEditor : MonoBehaviour
         rootGO.transform.rotation = Quaternion.Euler(0f, rotY, 0f);
         _tileRoot = rootGO.transform;
 
-        _decorErase       = false;
+        _decorMode        = DecorMode.Place;
         _wholeFace        = false;
 
         RebuildVisuals();
@@ -214,6 +216,22 @@ public class TileBuildingEditor : MonoBehaviour
         if (lDown && !overUI) _isDragging = true;
         if (lUp)              _isDragging = false;
 
+        // Add tool: the release is resolved here, ahead of the overUI early-out below, so a press
+        // that ends over a panel disarms the gate instead of staying armed for the next release. A
+        // click (no drag) commits exactly one tile, at the cell hovered when the button went down.
+        Vector2 mousePos = mouse.position.ReadValue();
+        if (lUp)
+        {
+            bool click = _addGate.Release();
+            if (click && !overUI && _subTool == SubTool.Add && _addPressKey != null)
+            {
+                History?.RecordBefore(EditHistory.Scope.Building, "Add tile");
+                AddTileAt(_addPressKey);
+            }
+            _addPressKey = null;
+            _strokeKeys.Clear();
+        }
+
         // Keyboard tile shortcuts are suppressed while a panel text field/slider has focus, so
         // typing never rotates, re-axes, or deletes a tile. UITheme.TypingInUI is the OnGUI-side
         // sample of the same state (see EditController.TypingInUI).
@@ -250,21 +268,41 @@ public class TileBuildingEditor : MonoBehaviour
 
             case SubTool.Decorate:
                 if (lDown) _decorLastTileKey = null;   // reset the per-stroke one-per-tile gate
+                // Optional: click only (a drag would flip the same prop every frame). Each toggle
+                // records its own undo entry after resolving a target, so a missed click leaves none.
+                if (_decorMode == DecorMode.Optional)
+                {
+                    if (lDown) { if (_wholeFace) ToggleOptionalWholeFace(); else ToggleOptionalAt(); }
+                    break;
+                }
                 // Whole-face (place only): a single click fills every exposed face on the clicked
                 // building side with one prop each. Erase and per-face placement stay drag-driven.
-                if (_wholeFace && !_decorErase) { if (lDown) { History?.RecordBefore(EditHistory.Scope.Building, "Decorate side"); TryDecorateWholeFace(); } }
+                if (_wholeFace && _decorMode == DecorMode.Place) { if (lDown) { History?.RecordBefore(EditHistory.Scope.Building, "Decorate side"); TryDecorateWholeFace(); } }
                 else if (lDown || (_isDragging && lHeld))
                 {
-                    History?.BeginGesture(EditHistory.Scope.Building, _decorErase ? "Erase decor" : "Decorate");
+                    History?.BeginGesture(EditHistory.Scope.Building, _decorMode == DecorMode.Erase ? "Erase decor" : "Decorate");
                     HandleDecorate(lDown);
                 }
                 break;
 
             default: // Add
-                if ((lDown || (_isDragging && lHeld)) && _hoveredKey != null)
+                // Press arms only; the tile lands on release (see the lUp block above) or, once
+                // the cursor moves past the drag threshold, at the press cell and every cell
+                // hovered after that until release. Nothing is placed on the press frame itself.
+                if (lDown && _hoveredKey != null)
                 {
-                    History?.BeginGesture(EditHistory.Scope.Building, "Add tiles");
-                    AddTileAt(_hoveredKey);
+                    _addGate.Press(mousePos);
+                    _addPressKey = _hoveredKey;
+                    _strokeKeys.Clear();
+                }
+                else if (lHeld && _addGate.Armed)
+                {
+                    if (_addGate.Update(mousePos))
+                    {
+                        History?.BeginGesture(EditHistory.Scope.Building, "Add tiles");
+                        AddStrokeTile(_addPressKey);
+                    }
+                    if (_addGate.Dragging) AddStrokeTile(_hoveredKey);
                 }
                 break;
         }
@@ -462,9 +500,21 @@ public class TileBuildingEditor : MonoBehaviour
 
     private void ApplyTileRotationToGO(string key, TileDef t)
     {
-        if (_tileGOs.TryGetValue(key, out var go) && go != null)
+        if (!_tileGOs.TryGetValue(key, out var go) || go == null) return;
+        // A plain tile is re-posed in full: rotation changes where a sub-cell shape's anchor puts it
+        // (a slab tipped on its side still rests on the floor). Deformed tiles carry their rotation
+        // baked into the warped mesh, so only the transform is turned, as before.
+        if (t.deform == null && tileShapePalette != null)
+            TileSpawner.PlaceInCell(go, t, tileShapePalette, CellSize());
+        else
             go.transform.localRotation = Quaternion.Euler(t.rotationX, t.rotation, t.rotationZ);
     }
+
+    private static Quaternion TileRot(TileDef t) => Quaternion.Euler(t.rotationX, t.rotation, t.rotationZ);
+
+    // Sub-cell fit of a shape (pillar, slab); a full cube when the palette is unwired.
+    private TileFit FitFor(string shapeId) =>
+        tileShapePalette != null ? tileShapePalette.GetFit(shapeId) : TileFit.Full;
 
     // Returns the tile key under the cursor (via collider raycast), or null.
     private string RaycastTileKey()
@@ -535,17 +585,27 @@ public class TileBuildingEditor : MonoBehaviour
     // Tile operations
     // -----------------------------------------------------------------------
 
-    private void AddTileAt(string key)
+    // True when a tile was actually placed (false for a bad key or an occupied cell).
+    private bool AddTileAt(string key)
     {
-        if (!TryParseKey(key, out int gx, out int gz, out int gf)) return;
+        if (!TryParseKey(key, out int gx, out int gz, out int gf)) return false;
         if (_bdef.tiles == null) _bdef.tiles = new List<TileDef>();
 
         foreach (var t in _bdef.tiles)
-            if (t.gridX == gx && t.gridZ == gz && t.floor == gf) return;   // already exists
+            if (t.gridX == gx && t.gridZ == gz && t.floor == gf) return false;   // already exists
 
         var tile = new TileDef { gridX = gx, gridZ = gz, floor = gf, shapeId = _activeShapeId, rotation = _activeTileRotation };
         _bdef.tiles.Add(tile);
         SpawnTileGO(tile);
+        return true;
+    }
+
+    // Add-tool drag: place a tile and remember the cell so the hover guard ignores it for the rest
+    // of the stroke. Only cells this stroke actually filled are remembered, so pointing at a wall
+    // that was there before the drag still extends the floor outward as usual.
+    private void AddStrokeTile(string key)
+    {
+        if (key != null && AddTileAt(key)) _strokeKeys.Add(key);
     }
 
     private void RemoveTileAt(string key)
@@ -681,7 +741,9 @@ public class TileBuildingEditor : MonoBehaviour
     }
 
     // A tile face is part of the building's outer skin when no tile occupies the neighbouring cell
-    // in that direction (walls = same-floor neighbour; top/bottom = the floor above/below).
+    // in that direction (walls = same-floor neighbour; top/bottom = the floor above/below), or when
+    // either side leaves a gap at the shared boundary: a pillar beside a square, or a slab under a
+    // square, keeps its face across the gap (TileFit.FaceCovered).
     private bool FaceExposed(TileDef t, Vector3 dirLocal)
     {
         if (_bdef?.tiles == null) return true;
@@ -689,7 +751,9 @@ public class TileBuildingEditor : MonoBehaviour
         int nf = t.floor + Mathf.RoundToInt(dirLocal.y);
         int nz = t.gridZ + Mathf.RoundToInt(dirLocal.z);
         foreach (var o in _bdef.tiles)
-            if (o.gridX == nx && o.gridZ == nz && o.floor == nf) return false;
+            if (o.gridX == nx && o.gridZ == nz && o.floor == nf)
+                return !TileFit.FaceCovered(FitFor(t.shapeId), TileRot(t), FitFor(o.shapeId), TileRot(o),
+                                            dirLocal, CellSize());
         return true;
     }
 
@@ -795,6 +859,32 @@ public class TileBuildingEditor : MonoBehaviour
     // Hover detection (projects mouse onto floor plane in building-local space)
     // -----------------------------------------------------------------------
 
+    // Nearest raycast hit for the hover guard, ignoring this stroke's own tiles. Identical to a plain
+    // Physics.Raycast while no Add stroke is in progress (the common case, and the cheap one).
+    private static readonly RaycastHit[] _hoverHits = new RaycastHit[64];
+
+    private bool TryNearestHitOutsideStroke(Ray ray, out RaycastHit best)
+    {
+        if (_strokeKeys.Count == 0) return Physics.Raycast(ray, out best, 500f);
+
+        int   n        = Physics.RaycastNonAlloc(ray, _hoverHits, 500f);
+        float bestDist = float.MaxValue;
+        best = default;
+        for (int i = 0; i < n; i++)
+        {
+            var h = _hoverHits[i];
+            if (h.distance >= bestDist) continue;
+            if (h.collider.transform.IsChildOf(_tileRoot))
+            {
+                var m = h.collider.GetComponentInParent<TileInstanceMarker>();
+                if (m != null && _strokeKeys.Contains(MakeKey(m.gridX, m.gridZ, m.floor))) continue;
+            }
+            best     = h;
+            bestDist = h.distance;
+        }
+        return bestDist < float.MaxValue;
+    }
+
     private void UpdateHover()
     {
         _hoveredKey = null;
@@ -816,7 +906,9 @@ public class TileBuildingEditor : MonoBehaviour
         // Pointing at a lower roof then stacks a tile on top; pointing at a side wall extends the
         // active floor one cell outward along the hit face. (Restricted to _tileRoot's own tiles so
         // other scene geometry never hijacks the grid coordinates.)
-        if (Physics.Raycast(ray, out RaycastHit hit, 500f)
+        // Tiles placed in the current Add stroke are skipped (see _strokeKeys), so a drag paints
+        // the cells the cursor sweeps rather than chaining off the tile it just placed.
+        if (TryNearestHitOutsideStroke(ray, out RaycastHit hit)
             && (!hasPlane || hit.distance < planeDist - 0.01f)
             && hit.collider.transform.IsChildOf(_tileRoot))
         {
@@ -1028,7 +1120,7 @@ public class TileBuildingEditor : MonoBehaviour
         // first click in Extras used to plaster the active decor over every exposed face of a whole
         // building side (dozens of props from one click). Each tool now opts in explicitly.
         _wholeFace  = false;
-        _decorErase = false;
+        _decorMode  = DecorMode.Place;
         if (dimChanged) RebuildVisuals();
     }
 
@@ -1076,7 +1168,7 @@ public class TileBuildingEditor : MonoBehaviour
             foreach (var e in tileShapePalette.entries)
             {
                 bool on = e.shapeId == _activeShapeId;
-                if (UITheme.ThumbCell(ThumbnailCache.GetPrefab(e.prefab), UITheme.PrettyId(e.shapeId), on, UITips.TileShape(UITheme.PrettyId(e.shapeId)))) _activeShapeId = e.shapeId;
+                if (UITheme.ThumbCell(ThumbnailCache.GetPrefab(e.prefab), UITheme.PrettyId(e.shapeId), on, UITips.TileShape(UITheme.PrettyId(e.shapeId), e.shapeId))) _activeShapeId = e.shapeId;
             }
             UITheme.EndThumbGrid();
         }
@@ -1228,7 +1320,7 @@ public class TileBuildingEditor : MonoBehaviour
         Ray ray = mainCamera.ScreenPointToRay((Vector2)Mouse.current.position.ReadValue());
         if (!Physics.Raycast(ray, out RaycastHit hit, 500f)) return;
 
-        if (_decorErase) { EraseDecorAt(hit); return; }
+        if (_decorMode == DecorMode.Erase) { EraseDecorAt(hit); return; }
 
         var entry = ActiveDecor();
         if (entry == null) return;
@@ -1336,7 +1428,7 @@ public class TileBuildingEditor : MonoBehaviour
             decorFlipMount     = entry.flipMount,
         };
 
-        if (!DecorPlacement.TryReseat(FindTile(MakeKey(gx, gz, gf)), emb, cs, basis))
+        if (!DecorPlacement.TryReseat(FindTile(MakeKey(gx, gz, gf)), emb, cs, basis, FitFor))
         {
             // Unresolvable face name (the "wall" fallback) or a missing tile: place with the legacy
             // cell formula against the raycast normal, and clear the rules so the def honestly stays
@@ -1417,14 +1509,21 @@ public class TileBuildingEditor : MonoBehaviour
     // One prop per click, so a face holding a stack can be peeled one decor at a time.
     private void EraseDecorAt(RaycastHit hit)
     {
+        string id = ResolveDecorAt(hit);
+        if (id != null) RemoveEmbedded(id);
+    }
+
+    // The ONE decoration a click means: the prop actually hit, else the nearest within a small radius
+    // of the hit point (props stack, so never sweep them all). Null when nothing is close enough.
+    private string ResolveDecorAt(RaycastHit hit)
+    {
         float radius = 1.5f;
 
         // Direct hit on a decoration GameObject.
         var marker = hit.collider.GetComponentInParent<InstanceMarker>();
-        if (marker != null && _embGOs.ContainsKey(marker.instanceId)) { RemoveEmbedded(marker.instanceId); return; }
+        if (marker != null && _embGOs.ContainsKey(marker.instanceId)) return marker.instanceId;
 
-        // Otherwise remove the closest decoration to the hit point (props stack, so never sweep them all).
-        if (_bdef?.embeddedObjects == null || _tileRoot == null) return;
+        if (_bdef?.embeddedObjects == null || _tileRoot == null) return null;
         Vector3 localHit = _tileRoot.InverseTransformPoint(hit.point);
         float  bestSq    = radius * radius;
         string bestId    = null;
@@ -1434,7 +1533,46 @@ public class TileBuildingEditor : MonoBehaviour
             Vector3 d = localHit - new Vector3(e.localPos[0], e.localPos[1], e.localPos[2]);
             if (d.sqrMagnitude <= bestSq) { bestSq = d.sqrMagnitude; bestId = e.instanceId; }
         }
-        if (bestId != null) RemoveEmbedded(bestId);
+        return bestId;
+    }
+
+    // Optional mode, single click: flip the clicked prop's `optional` flag. The undo entry is
+    // recorded only once a prop resolved, so a click on bare wall leaves no empty entry.
+    private void ToggleOptionalAt()
+    {
+        if (Mouse.current == null || mainCamera == null) return;
+        Ray ray = mainCamera.ScreenPointToRay((Vector2)Mouse.current.position.ReadValue());
+        if (!Physics.Raycast(ray, out RaycastHit hit, 500f)) return;
+        string id = ResolveDecorAt(hit);
+        var emb = id != null ? _bdef?.embeddedObjects?.Find(e => e != null && e.instanceId == id) : null;
+        if (emb == null) return;
+
+        History?.RecordBefore(EditHistory.Scope.Building, emb.optional ? "Mark decor required" : "Mark decor optional");
+        emb.optional = !emb.optional;
+        RespawnEmbedded(emb);
+    }
+
+    // Optional mode, whole face: every prop hosted on the clicked building side flips together
+    // (any required -> all optional; all optional -> all required, see OptionalContent).
+    private void ToggleOptionalWholeFace()
+    {
+        if (!RaycastFaceDir(out Vector3 dir)) return;
+        var decor = new List<EmbeddedObjectDef>();
+        foreach (var (t, face) in CollectFaceTiles(dir))
+            decor.AddRange(OptionalContent.DecorOnFace(_bdef, t.gridX, t.gridZ, t.floor, face));
+        if (decor.Count == 0) return;
+
+        History?.RecordBefore(EditHistory.Scope.Building, "Mark side optional");
+        OptionalContent.SetFaceOptional(decor);
+        foreach (var emb in decor) RespawnEmbedded(emb);
+    }
+
+    // ApplyTranslucent clones materials one way, so an optional flip re-spawns the prop's GO to
+    // pick up (or drop) the tint. SpawnEmbeddedGO owns the _embGOs write, so the map stays in sync.
+    private void RespawnEmbedded(EmbeddedObjectDef emb)
+    {
+        if (_embGOs.TryGetValue(emb.instanceId, out var go)) { DestroyObject(go); _embGOs.Remove(emb.instanceId); }
+        SpawnEmbeddedGO(emb);
     }
 
     private void RemoveEmbedded(string instanceId)
@@ -1483,6 +1621,8 @@ public class TileBuildingEditor : MonoBehaviour
         marker.instanceId = emb.instanceId;
         marker.isBuilding = false;
         marker.isEmbedded = true;   // matches WorldRenderer: not an env object instance
+        marker.isOptional = emb.optional;
+        if (emb.optional) ApplyTranslucent(go, OPTIONAL_TINT);   // persistent "the VR viewer skips this" cue
         _embGOs[emb.instanceId] = go;
     }
 
@@ -1493,7 +1633,7 @@ public class TileBuildingEditor : MonoBehaviour
         if (_bdef?.embeddedObjects == null) return;
         // Reseat hosted decor against the tiles' current deform before spawning (covers Enter,
         // ReloadDef, and undo/redo of skew edits); SpawnEmbeddedGO then replays the fresh values.
-        DecorPlacement.ReseatAll(_bdef, CellSize(), TryAnalyzeProp);
+        DecorPlacement.ReseatAll(_bdef, CellSize(), TryAnalyzeProp, FitFor);
         foreach (var emb in _bdef.embeddedObjects) SpawnEmbeddedGO(emb);
     }
 
@@ -1505,16 +1645,25 @@ public class TileBuildingEditor : MonoBehaviour
         if (decorPalette == null || decorPalette.entries == null || decorPalette.entries.Count == 0)
         { UITheme.Note("DecorPalette is empty / not wired."); return; }
 
-        // Place / Erase
+        // Place / Erase / Optional
         GUILayout.BeginHorizontal();
-        if (UITheme.ToggleButton(!_decorErase, "Place", UITips.DecorPlace, GUILayout.Height(UITheme.RowH)) && _decorErase) _decorErase = false;
-        if (UITheme.ToggleButton(_decorErase,  "Erase", UITips.DecorErase, GUILayout.Height(UITheme.RowH)) && !_decorErase) _decorErase = true;
+        if (UITheme.ToggleButton(_decorMode == DecorMode.Place,    "Place",    UITips.DecorPlace,    GUILayout.Height(UITheme.RowH))) _decorMode = DecorMode.Place;
+        if (UITheme.ToggleButton(_decorMode == DecorMode.Erase,    "Erase",    UITips.DecorErase,    GUILayout.Height(UITheme.RowH))) _decorMode = DecorMode.Erase;
+        if (UITheme.ToggleButton(_decorMode == DecorMode.Optional, "Optional", UITips.DecorOptional, GUILayout.Height(UITheme.RowH))) _decorMode = DecorMode.Optional;
         GUILayout.EndHorizontal();
 
-        if (!_decorErase)
+        if (_decorMode != DecorMode.Erase)
             // Whole-face: one click places the active decor on every exposed face of the clicked
-            // building side (e.g. windows across a whole wall).
-            _wholeFace = UITheme.ToggleButton(_wholeFace, "Whole face", UITips.WholeFaceDecor, GUILayout.Height(UITheme.RowH));
+            // building side (e.g. windows across a whole wall), or flips that side's props optional.
+            _wholeFace = UITheme.ToggleButton(_wholeFace, "Whole face",
+                _decorMode == DecorMode.Optional ? UITips.WholeFaceOptional : UITips.WholeFaceDecor,
+                GUILayout.Height(UITheme.RowH));
+
+        if (_decorMode == DecorMode.Optional)
+        {
+            UITheme.Note("Click a prop to flip it. Tinted props are optional and the VR viewer skips them.");
+            return;
+        }
 
         // Decor picker
         UITheme.Header("Decor");
@@ -1531,7 +1680,7 @@ public class TileBuildingEditor : MonoBehaviour
             UITheme.Note($"{active.widthFraction:0.##}×{active.heightFraction:0.##} of cell • anchor {active.anchor}"
                          + (active.replacesOtherDecor ? " • clears face" : " • stacks"));
 
-        if (_decorErase)
+        if (_decorMode == DecorMode.Erase)
             UITheme.Note("Click or drag across props to remove them (one per click).");
     }
 
@@ -1574,6 +1723,16 @@ public class TileBuildingEditor : MonoBehaviour
     private GameObject _addGhostGO;
     private string     _addGhostShapeId;   // shape the current ghost prefab was built from
     private bool       _addGhostInvalid;   // last tint applied: true = red (occupied cell)
+
+    // Add tool press state. A press arms the gate and remembers the hovered cell; release commits
+    // that one cell unless the cursor crossed the drag threshold first, in which case the held
+    // press paints every cell it is dragged over. _strokeKeys holds the cells placed in the current
+    // stroke so UpdateHover's occlusion guard ignores them: the tile just placed sits right under the
+    // cursor, and from a shallow orbit its camera-facing wall would steer the hover one cell outward
+    // every frame, laying a chain of tiles toward the camera off a single click.
+    private readonly ClickDragGate   _addGate    = new();
+    private string                   _addPressKey;
+    private readonly HashSet<string> _strokeKeys = new();
     private static readonly Color GHOST_TINT         = new(0.4f, 0.8f, 1f, 0.45f);
     private static readonly Color GHOST_INVALID_TINT = new(1f, 0.35f, 0.3f, 0.5f);
 
@@ -1615,15 +1774,11 @@ public class TileBuildingEditor : MonoBehaviour
             _addGhostInvalid = invalid;
         }
 
-        float cs = CellSize();
-        // Cell center on every axis, matching TileSpawner.Spawn (Y = (floor+0.5)·cs).
-        _addGhostGO.transform.localPosition = new Vector3((gx + 0.5f) * cs, (gf + 0.5f) * cs, (gz + 0.5f) * cs);
-        // Match the committed tile (TileSpawner.Spawn): the tile yaw is composed on top of the shape's
-        // baseline orientation, then FitToCell applies the same cell-fitting scale and geometry-center
-        // re-anchoring, so the preview is exactly the size, facing, and placement a click will produce.
-        _addGhostGO.transform.localRotation = Quaternion.Euler(0f, _activeTileRotation, 0f)
-                                              * tileShapePalette.GetDefaultRotation(_activeShapeId);
-        TileSpawner.FitToCell(_addGhostGO, cs);
+        // Pose the ghost exactly as the committed tile would be (TileSpawner.PlaceInCell: cell center,
+        // yaw over the shape's baseline orientation, box fit, sub-cell anchor), so the preview is the
+        // size, facing, footprint and placement a click will produce, pillar and slab included.
+        var preview = new TileDef { gridX = gx, gridZ = gz, floor = gf, shapeId = _activeShapeId, rotation = _activeTileRotation };
+        TileSpawner.PlaceInCell(_addGhostGO, preview, tileShapePalette, CellSize());
     }
 
     private void DestroyAddGhost()
@@ -1649,6 +1804,8 @@ public class TileBuildingEditor : MonoBehaviour
 
     // Dim, translucent tint for floors that aren't being edited (cool grey, low alpha).
     private static readonly Color FLOOR_GHOST_TINT = new(0.55f, 0.6f, 0.7f, 0.22f);
+    // Decor marked optional (skipped by the VR viewer): see-through blue so it reads as "not guaranteed".
+    private static readonly Color OPTIONAL_TINT = new(0.6f, 0.75f, 1f, 0.45f);
 
     // Clones each renderer's materials and switches them to alpha-blended transparency, tinted to
     // `tint`, so the object reads as see-through on both the Standard and URP Lit shaders. Shared by
@@ -1697,6 +1854,9 @@ public class TileBuildingEditor : MonoBehaviour
         _primaryKey    = null;
         _highlightedGOs.Clear();
         _dragSelecting = false;
+        _addGate.Cancel();
+        _addPressKey   = null;
+        _strokeKeys.Clear();
         IsActive       = false;
     }
 

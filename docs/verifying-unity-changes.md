@@ -4,8 +4,9 @@
 
 `Assets/Tests/EditMode/` (asmdef `EditModeTests`, references `CXRAuthoring` + NUnit + Newtonsoft,
 `UNITY_INCLUDE_TESTS`). They cover the pure-logic assembly `Assets/Scripts/Authoring/` —
-`BrushGeometry`, `DecorAlignment`, `DecorPlacement`, `FenceBuilder`, `FenceLinker`, `LayoutConverter`,
-`PathGeometry`, `PathMesh`, `TileDeform`, `TileFaceSplitter`. Run them with **Window → General →
+`BrushGeometry`, `DecorAlignment`, `DecorPlacement`, `FenceBuilder`, `FenceLinker`, `HeightBrush`, `LayoutConverter`,
+`OptionalContent`, `PathGeometry`, `PathMesh`, `PolygonTriangulator`, `TileDeform`, `TileFaceSplitter`,
+`WaterCarve`, `WaterGeometry`. Run them with **Window → General →
 Test Runner → EditMode** in the editor, or the MCP `tests-run` tool (`mcp__ai-game-developer__tests-run`).
 Put new pure logic in `Authoring/` (no MonoBehaviours) so it stays testable.
 

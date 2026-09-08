@@ -20,10 +20,11 @@ public static class DecorPlacement
     // them back into the def. False (def untouched) when the face frame can't be derived — unknown
     // face name, degenerate face, or a legacy def.
     public static bool TryReseat(TileDef host, EmbeddedObjectDef emb, float cellSize,
-                                 DecorAlignment.PropBasis basis)
+                                 DecorAlignment.PropBasis basis, FitProvider fitFor = null)
     {
         if (host == null || !IsReseatable(emb)) return false;
-        if (!TileFaceGeometry.TryGetFaceFrame(host, emb.hostFace, cellSize, out var f)) return false;
+        TileFit fit = fitFor != null ? fitFor(host.shapeId) : TileFit.Full;
+        if (!TileFaceGeometry.TryGetFaceFrame(host, emb.hostFace, cellSize, fit, out var f)) return false;
 
         float heightFrac = emb.decorHeightFrac > 0f ? emb.decorHeightFrac : emb.decorWidthFrac;
         float scale      = DecorAlignment.FitScaleBox(basis, f.width, f.height,
@@ -48,10 +49,14 @@ public static class DecorPlacement
     public delegate bool BasisProvider(string prefabType, DecorAlignment.MountAxis axis,
                                        bool flip, out DecorAlignment.PropBasis basis);
 
+    // Resolves a shape's sub-cell fit (TileShapePalette.GetFit). Null = every shape is a full cube.
+    public delegate TileFit FitProvider(string shapeId);
+
     // Reseats every hosted decor on the def against the tiles' current deform. Deterministic and
     // idempotent, so re-running it per building instance is harmless. Silent no-op per item when
     // the host tile is gone, the prefab is missing, or the def is legacy.
-    public static void ReseatAll(BuildingDef bdef, float cellSize, BasisProvider basisFor)
+    public static void ReseatAll(BuildingDef bdef, float cellSize, BasisProvider basisFor,
+                                 FitProvider fitFor = null)
     {
         if (bdef?.embeddedObjects == null || bdef.tiles == null || basisFor == null) return;
         foreach (var emb in bdef.embeddedObjects)
@@ -64,7 +69,7 @@ public static class DecorPlacement
             if (host == null) continue;
             if (basisFor(emb.prefabType, (DecorAlignment.MountAxis)emb.decorMountAxis,
                          emb.decorFlipMount, out var basis))
-                TryReseat(host, emb, cellSize, basis);
+                TryReseat(host, emb, cellSize, basis, fitFor);
         }
     }
 

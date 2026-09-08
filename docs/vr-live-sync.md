@@ -35,6 +35,14 @@ first so edited buildings refresh); the host's active env is applied via `SetAct
 (paints terrain, dims backdrops). Falls back to the single-env contract if the payload has no
 `loaded` list. Strictly fetch-and-render: no editing, no undo.
 
+**Optional content.** `SyncClient.skipOptional` (default on, Inspector-tunable) calls
+`WorldRenderer.SetSkipOptional(true)` before the first render, so objects, building instances and
+face decor the author marked `optional` are never spawned on the viewer: no GameObjects, colliders
+or draw calls. A mark on the host bumps the env version through the normal save / Live-share path
+and the viewer re-fetches and re-renders with the gate applied. Untick it on a strong PCVR rig to
+render everything. The host previews the same result with the library's **Low detail** toggle
+(details in [editing-controls.md](editing-controls.md#optional-content-vr-detail-level)).
+
 ## Scene `Assets/Scenes/VRViewer.unity`
 
 A duplicate of `BasicModel` (keeps all `WorldRenderer` registry wiring) with the editing components

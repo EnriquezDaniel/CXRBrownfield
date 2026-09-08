@@ -184,6 +184,23 @@ public static class EnvironmentScale
                     ScalePointsXZ(s.points, pivot, fx, fz);
                 }
 
+            // Height strokes: the footprint scales like a surface stroke. The raise amounts and the
+            // flatten target are heights, so they follow fy like every other Y (unchanged on an
+            // XZ-only resize, scaled on a uniform calibration). Smooth/flatten weights are
+            // dimensionless and stay. ScalePointsXZ only touches [0] and [1], leaving the amount.
+            if (site.heightStrokes != null)
+                foreach (var hs in site.heightStrokes)
+                {
+                    if (hs == null) continue;
+                    hs.radius       *= iso;
+                    hs.targetHeight *= fy;
+                    ScalePointsXZ(hs.points, pivot, fx, fz);
+                    if (hs.points != null && !Mathf.Approximately(fy, 1f) &&
+                        HeightBrush.ParseKind(hs.brush) == HeightBrushKind.Raise)
+                        foreach (var p in hs.points)
+                            if (p != null && p.Length >= 3) p[2] *= fy;
+                }
+
             // Fences move and resize exactly like paths: a polyline plus one isotropic scalar.
             // height 0 means "use the FencePalette default", so leave that sentinel alone.
             if (site.fences != null)
@@ -192,6 +209,19 @@ public static class EnvironmentScale
                     if (f == null) continue;
                     if (f.height > 0f) f.height *= iso;
                     ScalePointsXZ(f.points, pivot, fx, fz);
+                }
+
+            // Water: footprint like a path (width and bank are horizontal extents, so iso); depth and
+            // the surface height are heights from the flat base, so they follow fy like a raise amount.
+            if (site.waterBodies != null)
+                foreach (var w in site.waterBodies)
+                {
+                    if (w == null) continue;
+                    w.width     *= iso;
+                    w.bankWidth *= iso;
+                    w.depth     *= fy;
+                    w.surfaceY  *= fy;
+                    ScalePointsXZ(w.points, pivot, fx, fz);
                 }
 
             ScalePointsXZ(site.lotBoundary, pivot, fx, fz);
@@ -262,8 +292,12 @@ public static class EnvironmentScale
                 foreach (var p in site.paths) TranslatePointsXZ(p?.points, dx, dz);
             if (site.surfaceStrokes != null)
                 foreach (var s in site.surfaceStrokes) TranslatePointsXZ(s?.points, dx, dz);
+            if (site.heightStrokes != null)
+                foreach (var hs in site.heightStrokes) TranslatePointsXZ(hs?.points, dx, dz);
             if (site.fences != null)
                 foreach (var f in site.fences) TranslatePointsXZ(f?.points, dx, dz);
+            if (site.waterBodies != null)
+                foreach (var w in site.waterBodies) TranslatePointsXZ(w?.points, dx, dz);
             TranslatePointsXZ(site.lotBoundary, dx, dz);
             if (site.terrainOrigin != null && site.terrainOrigin.Length >= 2)
             {
@@ -398,6 +432,17 @@ public static class EnvironmentScale
         if (site?.surfaceStrokes != null)
             foreach (var s in site.surfaceStrokes)
                 ExpandPoints(s?.points, Mathf.Max(0f, s?.radius ?? 0f), ref minX, ref minZ, ref maxX, ref maxZ);
+        if (site?.heightStrokes != null)
+            foreach (var hs in site.heightStrokes)
+                ExpandPoints(hs?.points, Mathf.Max(0f, hs?.radius ?? 0f), ref minX, ref minZ, ref maxX, ref maxZ);
+        // A river's ribbon reaches half its width past the centerline; a pond's ring is its edge.
+        if (site?.waterBodies != null)
+            foreach (var w in site.waterBodies)
+            {
+                if (w == null) continue;
+                float pad = WaterGeometry.IsRiver(w.kind) ? Mathf.Max(0f, w.width) * 0.5f : 0f;
+                ExpandPoints(w.points, pad, ref minX, ref minZ, ref maxX, ref maxZ);
+            }
 
         return maxX >= minX && maxZ >= minZ;
     }

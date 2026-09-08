@@ -34,6 +34,7 @@ public static class PaletteValidator
         { "PathMaterialPalette", new Spec { Key = "id",         Refs = new[] { "material" } } },
         { "FencePalette",        new Spec { Key = "fenceType",  Refs = new[] { "panelPrefab" } } },
         { "DecorPalette",        new Spec { Key = "decorId",    Refs = new string[0] } },
+        { "WaterPalette",        new Spec { Key = "id",         Refs = new[] { "material" } } },
     };
 
     // Not wired into OnValidate: it would spam the console on every import and domain reload, and it
@@ -219,6 +220,24 @@ public static class PaletteValidator
         if (prefab.GetComponentInChildren<MeshCollider>(true) == null)
             Debug.LogWarning($"[PaletteValidator] TileShapePalette[{i}] '{key}': no MeshCollider — clicks " +
                              $"fall back to the surface normal, so only axis-aligned faces can be detected.{fix}", obj);
+
+        // Sub-cell fit (TileFit): extents are cell fractions in (0, 1]; anchors are -1..1 per axis.
+        var extents = entry.FindPropertyRelative("cellExtents");
+        var anchor  = entry.FindPropertyRelative("cellAnchor");
+        if (extents != null)
+        {
+            Vector3 e = extents.vector3Value;
+            if (e.x > 1f || e.y > 1f || e.z > 1f)
+                Debug.LogWarning($"[PaletteValidator] TileShapePalette[{i}] '{key}': cellExtents {e} has a " +
+                                 "component above 1 — the shape would overflow its cell.", obj);
+        }
+        if (anchor != null)
+        {
+            Vector3 a = anchor.vector3Value;
+            if (Mathf.Abs(a.x) > 1f || Mathf.Abs(a.y) > 1f || Mathf.Abs(a.z) > 1f)
+                Debug.LogWarning($"[PaletteValidator] TileShapePalette[{i}] '{key}': cellAnchor {a} is outside " +
+                                 "-1..1 — the shape would sit outside its cell.", obj);
+        }
     }
 
     private static string ReadString(SerializedProperty entry, string field)
