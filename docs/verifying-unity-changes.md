@@ -54,6 +54,14 @@ bundled Roslyn. Unity 6000.3.10f1 lives at `C:\Program Files\Unity\Hub\Editor\60
 and `-define:UNITY_EDITOR`; exclude only `Assembly-CSharp-Editor.dll` / `EditModeTests.dll` from the
 ScriptAssemblies references (keep `Assembly-CSharp.dll` — editor code references runtime types).
 
+**EditModeTests** (`Assets/Tests/EditMode/**`): sources are the test files only; references are
+`Library\ScriptAssemblies\{CXRAuthoring,UnityEngine.TestRunner,UnityEditor.TestRunner}.dll`,
+`nunit.framework.dll` from `Library\PackageCache\com.unity.ext.nunit@*\net40\unity-custom\`,
+Newtonsoft, `UnityEngine*.dll`, `UnityEditor.dll`, `netstandard.dll`, **plus every dll in
+`<Data>\NetStandard\compat\2.1.0\shims\netfx\`** (NUnit is a net40 build; without the mscorlib
+facade every `[Test]` attribute fails with CS0012). Define `UNITY_EDITOR` and `UNITY_INCLUDE_TESTS`.
+This only proves the tests compile; running them still needs the Test Runner or MCP `tests-run`.
+
 Gotchas:
 
 - In Git Bash `$(pwd)` yields `/c/...`, which csc reads as a relative path (CS2001). Use `$(pwd -W)`

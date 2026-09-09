@@ -50,7 +50,145 @@ public class EnvironmentScaleTests
             {
                 new ObjectInstance { instanceId = "o", position = new[] { 40f, 2f, 30f }, scale = 1f },
             },
+            sites = new List<SitePlotDef>
+            {
+                new SitePlotDef { id = "s1", name = "Site 1",
+                                  boundary = new[] { new[] { 60f, 10f }, new[] { 90f, 10f }, new[] { 90f, 40f }, new[] { 60f, 40f } } },
+            },
         };
+    }
+
+    // ---- Drawn site plots travel with the environment ----
+    // Regression: sites were the one polygon the scale/translate pass skipped, so moving a host
+    // left its site outlines (and the fills fitted into them) behind at the old coordinates.
+
+    [Test]
+    public void Translate_MovesSiteBoundaries()
+    {
+        var env = Env();
+        Assert.IsTrue(EnvironmentScale.TranslateEnvironmentXZ(env, 5f, -7f));
+        var b = env.sites[0].boundary;
+        Assert.AreEqual(65f, b[0][0], 1e-4f);
+        Assert.AreEqual(3f,  b[0][1], 1e-4f);
+        Assert.AreEqual(95f, b[2][0], 1e-4f);
+        Assert.AreEqual(33f, b[2][1], 1e-4f);
+    }
+
+    [Test]
+    public void ScaleXZ_ScalesSiteBoundariesAboutPivot()
+    {
+        var env = Env();
+        Assert.IsTrue(EnvironmentScale.ScaleEnvironmentXZ(env, 2f, 3f, new Vector2(10f, 10f)));
+        var b = env.sites[0].boundary;
+        // (60,10): x' = 10 + (60-10)*2 = 110; z' = 10 + (10-10)*3 = 10.
+        Assert.AreEqual(110f, b[0][0], 1e-4f);
+        Assert.AreEqual(10f,  b[0][1], 1e-4f);
+        // (90,40): x' = 10 + 80*2 = 170; z' = 10 + 30*3 = 100.
+        Assert.AreEqual(170f, b[2][0], 1e-4f);
+        Assert.AreEqual(100f, b[2][1], 1e-4f);
+    }
+
+    [Test]
+    public void NullSites_AndNullBoundary_AreLeftAlone()
+    {
+        var env = Env();
+        env.sites = null;
+        Assert.IsTrue(EnvironmentScale.ScaleEnvironmentXZ(env, 2f, 3f, Vector2.zero));
+        Assert.IsTrue(EnvironmentScale.TranslateEnvironmentXZ(env, 5f, -7f));
+        Assert.IsNull(env.sites, "records without the field must round-trip unchanged");
+
+        env = Env();
+        env.sites.Add(null);
+        env.sites.Add(new SitePlotDef { id = "empty", boundary = null });
+        Assert.IsTrue(EnvironmentScale.ScaleEnvironmentXZ(env, 2f, 3f, Vector2.zero));
+        Assert.IsTrue(EnvironmentScale.TranslateEnvironmentXZ(env, 5f, -7f));
+        Assert.IsNull(env.sites[2].boundary);
+    }
+
+    // ---- Site placement: the terrain corner ----
+
+    [Test]
+    public void TerrainCorner_ReadsOriginOrFallsBackToZero()
+    {
+        EnvironmentScale.TerrainCorner(Env().site, out float ox, out float oz);
+        Assert.AreEqual(4f, ox, 1e-4f); Assert.AreEqual(6f, oz, 1e-4f);
+
+        EnvironmentScale.TerrainCorner(null, out ox, out oz);
+        Assert.AreEqual(0f, ox); Assert.AreEqual(0f, oz);
+
+        var site = new SiteDef { terrainOrigin = null };
+        EnvironmentScale.TerrainCorner(site, out ox, out oz);
+        Assert.AreEqual(0f, ox); Assert.AreEqual(0f, oz);
+
+        site.terrainOrigin = new[] { 7f };
+        EnvironmentScale.TerrainCorner(site, out ox, out oz);
+        Assert.AreEqual(0f, ox, "a short array counts as unset");
+
+        site.terrainOrigin = new[] { float.NaN, 3f };
+        EnvironmentScale.TerrainCorner(site, out ox, out oz);
+        Assert.AreEqual(0f, ox); Assert.AreEqual(0f, oz);
+    }
+
+    [Test]
+    public void EffectiveLotPolygon_RectangleStartsAtTerrainOrigin()
+    {
+        var env = Env();
+        env.site.lotBoundary = null;
+        var poly = EnvironmentScale.EffectiveLotPolygon(env.site);
+        Assert.AreEqual(4, poly.Length);
+        Assert.AreEqual(4f,   poly[0][0], 1e-4f); Assert.AreEqual(6f,  poly[0][1], 1e-4f);
+        Assert.AreEqual(104f, poly[1][0], 1e-4f); Assert.AreEqual(6f,  poly[1][1], 1e-4f);
+        Assert.AreEqual(104f, poly[2][0], 1e-4f); Assert.AreEqual(56f, poly[2][1], 1e-4f);
+        Assert.AreEqual(4f,   poly[3][0], 1e-4f); Assert.AreEqual(56f, poly[3][1], 1e-4f);
+    }
+
+    [Test]
+    public void EffectiveLotPolygon_NullOriginStartsAtZero_ExplicitBoundaryWins()
+    {
+        var env = Env();
+        env.site.lotBoundary = null;
+        env.site.terrainOrigin = null;
+        var poly = EnvironmentScale.EffectiveLotPolygon(env.site);
+        Assert.AreEqual(0f,   poly[0][0], 1e-4f); Assert.AreEqual(0f,  poly[0][1], 1e-4f);
+        Assert.AreEqual(100f, poly[2][0], 1e-4f); Assert.AreEqual(50f, poly[2][1], 1e-4f);
+
+        env = Env();
+        Assert.AreSame(env.site.lotBoundary, EnvironmentScale.EffectiveLotPolygon(env.site));
+    }
+
+    [Test]
+    public void SnapCornerDelta_LandsCornerOnWholeMeters()
+    {
+        EnvironmentScale.SnapCornerDelta(4.3f, 6.5f, 2.5f, -1.2f, snap: true, out float dx, out float dz);
+        Assert.AreEqual(2.7f, dx, 1e-4f, "4.3 + 2.5 = 6.8 rounds to 7, so the delta is 2.7");
+        Assert.AreEqual(-1.5f, dz, 1e-4f, "6.5 - 1.2 = 5.3 rounds to 5, so the delta is -1.5");
+    }
+
+    [Test]
+    public void SnapCornerDelta_FreeWhenOff_ZeroWhenNonFinite()
+    {
+        EnvironmentScale.SnapCornerDelta(4.3f, 6.5f, 2.5f, -1.2f, snap: false, out float dx, out float dz);
+        Assert.AreEqual(2.5f, dx, 1e-4f); Assert.AreEqual(-1.2f, dz, 1e-4f);
+        EnvironmentScale.SnapCornerDelta(0f, 0f, float.NaN, float.PositiveInfinity, snap: true, out dx, out dz);
+        Assert.AreEqual(0f, dx); Assert.AreEqual(0f, dz);
+    }
+
+    [Test]
+    public void FitTerrainRect_OriginIsMinMinusMargin_SizeIsExtentPlusTwoMargins()
+    {
+        Assert.IsTrue(EnvironmentScale.FitTerrainRect(-10f, 20f, 30f, 50f, 2f,
+                                                      out float ox, out float oz, out float w, out float l));
+        Assert.AreEqual(-12f, ox, 1e-4f); Assert.AreEqual(18f, oz, 1e-4f);
+        Assert.AreEqual(44f,  w,  1e-4f); Assert.AreEqual(34f, l,  1e-4f);
+    }
+
+    [Test]
+    public void FitTerrainRect_RejectsDegenerate()
+    {
+        Assert.IsFalse(EnvironmentScale.FitTerrainRect(10f, 0f, 10f, 5f, 2f, out _, out _, out _, out _));
+        Assert.IsFalse(EnvironmentScale.FitTerrainRect(0f, 5f, 10f, 5f, 2f, out _, out _, out _, out _));
+        Assert.IsFalse(EnvironmentScale.FitTerrainRect(float.NaN, 0f, 10f, 5f, 2f, out _, out _, out _, out _));
+        Assert.IsFalse(EnvironmentScale.FitTerrainRect(0f, 0f, float.PositiveInfinity, 5f, 2f, out _, out _, out _, out _));
     }
 
     // ---- ScaleEnvironmentXZ ----

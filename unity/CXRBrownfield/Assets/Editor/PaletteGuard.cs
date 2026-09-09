@@ -5,7 +5,7 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
-// Editor-only safety net for the eight CXR registry / palette ScriptableObjects, which have silently
+// Editor-only safety net for the nine CXR registry / palette ScriptableObjects, which have silently
 // lost entries before (a DecorPalette entry was overwritten in place at its list slot rather than a new
 // one being appended). Three defences, none of which touch a runtime script:
 //
@@ -33,6 +33,7 @@ public static class PaletteGuard
         "Assets/Resources/FencePalette.asset",
         "Assets/Resources/DecorPalette.asset",
         "Assets/Resources/WaterPalette.asset",
+        "Assets/Resources/BuildingStylePalette.asset",
     };
 
     public static bool IsGuardedPath(string path)
@@ -45,7 +46,7 @@ public static class PaletteGuard
         return AssetDatabase.LoadAssetAtPath<ScriptableObject>(path);
     }
 
-    // Type-agnostic entry count — all eight expose `public List<Entry> entries`, so one
+    // Type-agnostic entry count — all nine expose `public List<Entry> entries`, so one
     // SerializedProperty walk covers every palette without a per-type switch. -1 = unknown.
     public static int EntryCount(UnityEngine.Object obj)
     {
@@ -58,7 +59,7 @@ public static class PaletteGuard
 // Flushes dirty palettes to disk so an edit can never be lost to a crash, a domain reload, or an
 // AssetDatabase.Refresh that reimports the file out from under the in-memory version.
 //
-// Deliberately NOT an OnValidate() on the eight ScriptableObject classes: OnValidate fires during
+// Deliberately NOT an OnValidate() on the nine ScriptableObject classes: OnValidate fires during
 // deserialization/import, so saving from it means writing an asset from inside the import pipeline.
 // Polling also catches edits from EVERY route — Inspector, MCP assets-modify, script-execute —
 // which Undo.postprocessModifications would not.

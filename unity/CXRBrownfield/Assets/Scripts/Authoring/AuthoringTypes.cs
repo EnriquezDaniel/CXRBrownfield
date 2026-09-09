@@ -102,6 +102,18 @@ public class BuildingDef
     public float floorHeight;
     public List<TileDef> tiles;
     public List<EmbeddedObjectDef> embeddedObjects;
+    // Facade style letter, "A" to "F" (BuildingStyles), or null for none. Resolved when the tiles
+    // spawn: BuildingStylePalette maps it to a MaterialPalette id painted on every wall face that
+    // has no entry in TileDef.faceMaterials, so hand paint always wins. Records saved before this
+    // field existed load as null.
+    public string style;
+    // LEGACY sign fields, read only. Signs now live on the placed building (BuildingInstance.sign*)
+    // so two copies of one def can carry different signs. Records saved before that change still
+    // carry the word here and the building-local wall it hung on ("north" / "east" / "south" /
+    // "west", TileFaceGeometry.BaselineDir); BuildingSigns.SpecFor reads them for an instance that
+    // has never been edited (signCompass null). Nothing writes them any more.
+    public string signText;
+    public string signFace;
 }
 
 [Serializable]
@@ -118,6 +130,20 @@ public class BuildingInstance
     // True = skipped by the low-performance VR viewer (WorldRenderer.skipOptional). Records saved
     // before this field existed load as required (false).
     public bool optional;
+    // The building's sign (BuildingSigns), owned by the placed instance. signText is the normalized
+    // uppercase word (null = none). signCompass is the world direction the sign faces ("north" /
+    // "east" / "south" / "west", north = +X); BuildingSigns.SpecFor turns it into the building-local
+    // wall through rotationY. Null signCompass = this instance was never edited, so the def's legacy
+    // signText / signFace apply; a cleared sign keeps its compass with a null word so the legacy
+    // sign stays gone. signPinned = the plate sits on the pair whose first tile is
+    // (signHostX, signHostZ, signHostFloor); false = the centred spot on the wall. Records saved
+    // before these fields existed load as never edited.
+    public string signText;
+    public string signCompass;
+    public bool   signPinned;
+    public int    signHostX;
+    public int    signHostZ;
+    public int    signHostFloor;
 }
 
 [Serializable]
@@ -200,11 +226,12 @@ public class SurfaceStrokeDef
 }
 
 // Height stroke: brush samples replayed in order onto the heightmap by WorldRenderer.ApplyHeightmap.
-// Each sample is [x, z, amount] in world meters. `amount` is signed meters for "raise" and a 0..1
-// blend weight for "smooth" / "flatten". Amounts are per sample (rate * dt, merged), so replay is
-// frame rate independent and the live brush preview equals what a reload rebuilds. Samples closer
-// than radius * HeightBrush.MERGE_FRACTION to the last stored one fold into it (HeightBrush.
-// MergeAmount), so a long hold stores one sample rather than hundreds.
+// Each sample is [x, z, amount] in world meters: signed meters for "raise", a composed 0..1 blend
+// weight for "flatten". A "smooth" sample is [x, z, weightSum, passes], the number of frames it
+// stands for, replayed as that many blur passes. Amounts are per sample (rate * dt, merged), so
+// replay is frame rate independent and the live brush preview equals what a reload rebuilds.
+// Samples closer than radius * HeightBrush.MERGE_FRACTION to the last stored one fold into it
+// (HeightBrush.MergeSample), so a long hold stores one sample rather than hundreds.
 [Serializable]
 public class HeightStrokeDef
 {
@@ -215,7 +242,7 @@ public class HeightStrokeDef
     public bool clipToLot = true;       // stamp only inside site.lotBoundary (evaluated at replay)
     // 3 decimals (1 mm): amounts from a single fast frame can be a few millimeters.
     [JsonConverter(typeof(RoundedPointArrayConverter), 3)]
-    public float[][] points;            // [[x, z, amount], ...]
+    public float[][] points;            // [[x, z, amount], ...] or [[x, z, weightSum, passes], ...] for smooth
 }
 
 // A flat water body: a pond (closed ring) or a river (centerline ribbon). Rendered as one level
@@ -281,6 +308,21 @@ public class SitePlotDef
     public string fillEnvironmentId;  // generated child env record id; null = empty site
 }
 
+// Provenance for a generated environment: what produced it. Stamped by ModelRequesterUI right
+// after LayoutConverter runs, from the generate response. Null on hand-authored places and on
+// records saved before the field existed. The server ignores it for dedup (a volatile key).
+[Serializable]
+public class GenerationDef
+{
+    public string sketch;           // uploaded sketch file name the layout came from
+    public string notes;            // designer notes sent with it, "" or null when none
+    public string briefJson;        // structured brief the server parsed from the notes; null when none
+    public string briefReportJson;  // what the layout satisfied or missed against that brief; null when none
+    public string model;            // layout model id
+    public string briefModel;       // brief model id; null when no brief ran
+    public string created;          // ISO 8601 UTC timestamp of the generation
+}
+
 [Serializable]
 public class EnvironmentDef
 {
@@ -300,6 +342,8 @@ public class EnvironmentDef
     // Drawn plots that generated child environments can fill (see SitePlotDef). nullable: old JSON
     // without the field still loads (consumers null-guard, same precedent as SiteDef.fences).
     public List<SitePlotDef> sites;
+    // What generated this place (GenerationDef); null for hand-authored places and old records.
+    public GenerationDef generation;
 }
 
 // Lightweight summary returned by GET /api/environments (list endpoint)

@@ -2,8 +2,9 @@ using System.Collections.Generic;
 using UnityEngine;
 
 // The bed a water body digs into the heightmap. Derived from the WaterBodyDef every time
-// WorldRenderer.ApplyHeightmap rebuilds the ground (after the height strokes replay), never
-// stored: delete the body and the hole goes with it, change its depth and the bed follows. Both
+// WorldRenderer.ApplyHeightmap rebuilds the ground (on the flat base, before the height strokes
+// replay, so a brush stroke over a bank or bed is kept), never stored: delete the body and the
+// hole goes with it, change its depth and the bed follows. Both
 // heights come straight from the body, measured from the flat ground height (world y = 0): the bed
 // is `depth` below it, the surface at `surfaceY` (WaterGeometry.SurfaceY keeps it above the bed).
 // Same HeightWindow / normalized-height contract as HeightBrush. Pure/static so the replay and the

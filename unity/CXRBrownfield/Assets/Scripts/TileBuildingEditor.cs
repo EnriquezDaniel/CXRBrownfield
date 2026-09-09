@@ -11,6 +11,7 @@ public class TileBuildingEditor : MonoBehaviour
     [Header("References")]
     [SerializeField] private TileShapePalette tileShapePalette; // USER WIRES THIS IN INSPECTOR
     [SerializeField] private MaterialPalette  materialPalette;  // USER WIRES THIS IN INSPECTOR
+    [SerializeField] private BuildingStylePalette buildingStylePalette; // USER WIRES THIS IN INSPECTOR (style letter → wall material; falls back to Resources/BuildingStylePalette)
     [SerializeField] private Camera           mainCamera;       // USER WIRES THIS IN INSPECTOR
     [SerializeField] private PrefabRegistry   prefabRegistry;   // USER WIRES THIS IN INSPECTOR (Decorate tool)
     [SerializeField] private DecorPalette     decorPalette;     // USER WIRES THIS IN INSPECTOR (Decorate tool)
@@ -27,6 +28,9 @@ public class TileBuildingEditor : MonoBehaviour
 
     public bool        IsActive    { get; private set; }
     public BuildingDef CurrentDef  => _bdef;
+
+    private BuildingStylePalette StylePalette =>
+        buildingStylePalette != null ? buildingStylePalette : (buildingStylePalette = BuildingStyleResolver.LoadDefault());
 
     // World anchor the editor was opened at (corner-pivot origin / yaw). Lets a caller place the
     // edited building as an instance exactly where the live preview sat, with no visual jump.
@@ -84,6 +88,12 @@ public class TileBuildingEditor : MonoBehaviour
     // _tileGOs (decorations are not floor-specific and survive floor switches / RebuildVisuals).
     private readonly Dictionary<string, GameObject> _embGOs = new();
 
+    // The building's sign (BuildingSignSpawner), respawned with the tiles. Null when there is none.
+    // The sign belongs to the placed instance, so it shows only when Enter got one; a def opened
+    // from the library has no sign here. Editing it is the selection panel's job (EditController).
+    private GameObject       _signGO;
+    private BuildingInstance _signInst;
+
     // Sub-tools inside the building editor. Add = paint tiles onto the grid; Select = pick a
     // placed tile and rotate it on any axis (snap 15°); Paint = assign a material to a clicked face;
     // Decorate = "smart paint" decorative prefabs (windows/doors/vents/greenery) onto tile faces.
@@ -105,7 +115,7 @@ public class TileBuildingEditor : MonoBehaviour
     private string  _decorLastTileKey;         // last tile decorated this stroke (one per tile per drag)
     // Used when a DecorPalette entry's width/heightFraction is 0 — mirrors DecorPalette.Entry's own
     // field initializers, which Unity does NOT apply to assets serialized before the fields existed.
-    private const float DEFAULT_DECOR_FRACTION = 0.8f;
+    private const float DEFAULT_DECOR_FRACTION = BuildingWindows.DefaultFraction;
 
     private int    _activeFloor       = 0;
     private string _activeShapeId     = "square";
@@ -138,7 +148,9 @@ public class TileBuildingEditor : MonoBehaviour
     // `startInAddTool` opens straight into the Add tool (grid + placement ghost visible at once) —
     // used for a freshly created building. A building with no tiles at all also opens in Add, since
     // there is nothing to Select and the Add grid is the only thing that shows where it sits.
-    public void Enter(BuildingDef bdef, Vector3 worldPos, float rotY, bool startInAddTool = false)
+    // `inst` is the placed instance being edited (its sign is drawn along with the tiles); null for
+    // a def opened straight from the library.
+    public void Enter(BuildingDef bdef, Vector3 worldPos, float rotY, bool startInAddTool = false, BuildingInstance inst = null)
     {
         if (IsActive) ExitAndDiscard();
 
@@ -147,6 +159,7 @@ public class TileBuildingEditor : MonoBehaviour
         _bdef               = bdef;
         _bldgWorldPos       = worldPos;
         _bldgRotY           = rotY;
+        _signInst           = inst;
         _activeFloor        = 0;
         _activeTileRotation = 0;
         _activeMaterialId   = null;
@@ -696,8 +709,6 @@ public class TileBuildingEditor : MonoBehaviour
     // Whole-face selection — act on every exposed tile face on a building side
     // -----------------------------------------------------------------------
 
-    private static readonly string[] FaceNames = { "north", "south", "east", "west", "top", "bottom" };
-
     // Building-local outward direction each named face points to in the tile's unrotated frame.
     // Convention matches FaceFromNormal: +Z=north, +X=east, -Z=south, -X=west, +Y=top, -Y=bottom.
     // Single owner of the convention: TileFaceGeometry (shared with deform-aware decor placement).
@@ -725,37 +736,15 @@ public class TileBuildingEditor : MonoBehaviour
         return dirLocal.sqrMagnitude > 0.5f;
     }
 
-    // Named face of this tile that points the given building-local direction (accounts for the
-    // tile's full rotation), or null if none lines up — e.g. a wedge with no axis-aligned face there.
-    private static string FacePointing(TileDef t, Vector3 dirLocal)
-    {
-        Quaternion rot = Quaternion.Euler(t.rotationX, t.rotation, t.rotationZ);
-        string best = null;
-        float bestDot = 0.9f;
-        foreach (var name in FaceNames)
-        {
-            float dot = Vector3.Dot(rot * FaceBaselineDir(name), dirLocal);
-            if (dot > bestDot) { bestDot = dot; best = name; }
-        }
-        return best;
-    }
+    // Named face of this tile that points the given building-local direction, or null if none lines
+    // up. Owned by TileFaces (shared with the sign placer, BuildingSigns).
+    private static string FacePointing(TileDef t, Vector3 dirLocal) => TileFaces.FacePointing(t, dirLocal);
 
     // A tile face is part of the building's outer skin when no tile occupies the neighbouring cell
-    // in that direction (walls = same-floor neighbour; top/bottom = the floor above/below), or when
-    // either side leaves a gap at the shared boundary: a pillar beside a square, or a slab under a
-    // square, keeps its face across the gap (TileFit.FaceCovered).
-    private bool FaceExposed(TileDef t, Vector3 dirLocal)
-    {
-        if (_bdef?.tiles == null) return true;
-        int nx = t.gridX + Mathf.RoundToInt(dirLocal.x);
-        int nf = t.floor + Mathf.RoundToInt(dirLocal.y);
-        int nz = t.gridZ + Mathf.RoundToInt(dirLocal.z);
-        foreach (var o in _bdef.tiles)
-            if (o.gridX == nx && o.gridZ == nz && o.floor == nf)
-                return !TileFit.FaceCovered(FitFor(t.shapeId), TileRot(t), FitFor(o.shapeId), TileRot(o),
-                                            dirLocal, CellSize());
-        return true;
-    }
+    // in that direction, or when either side leaves a gap at the shared boundary (TileFit.FaceCovered).
+    // Owned by TileFaces (shared with the sign placer, BuildingSigns).
+    private bool FaceExposed(TileDef t, Vector3 dirLocal) =>
+        TileFaces.IsExposed(_bdef?.tiles, t, dirLocal, CellSize(), FitFor);
 
     // Every (tile, faceName) on the building side facing dirLocal whose face is exposed — i.e. the
     // whole flat side of the building (across all floors) that the user clicked.
@@ -1081,6 +1070,7 @@ public class TileBuildingEditor : MonoBehaviour
 
         UITheme.Title("Building editor");
         UITheme.Note($"{_bdef?.name}   •   {_bdef?.tiles?.Count ?? 0} tiles");
+        DrawStyleRow();
 
         // Tool selector — one active sub-tool at a time; labels must stay aligned with SubTool order.
         int ts = UITheme.Segmented((int)_subTool, new[] { "Select", "Add", "Paint", "Decorate" }, UITips.BuildTools);
@@ -1125,6 +1115,39 @@ public class TileBuildingEditor : MonoBehaviour
     }
 
     private Vector2 _panelScroll;   // thumbnail grids (shape + material pickers) use UITheme.BeginThumbGrid / ThumbCell
+
+    // Facade style (BuildingDef.style): None or a letter A to F, tool-independent so it sits above
+    // the tool selector. Switching re-spawns every tile with the letter's wall material behind any
+    // hand paint; one undo step. Labels stay aligned with BuildingStyles.Ids (index - 1).
+    private static readonly string[] StyleRowLabels = { "None", "A", "B", "C", "D", "E", "F" };
+
+    private void DrawStyleRow()
+    {
+        if (_bdef == null) return;
+        string current = BuildingStyles.Normalize(_bdef.style);
+        int cur = BuildingStyles.IndexOf(current) + 1;
+
+        GUILayout.BeginHorizontal();
+        UITheme.Label("Style", UITips.BuildingStyle, GUILayout.Width(40f));
+        int pick = UITheme.Segmented(cur, StyleRowLabels, UITips.BuildingStyleTips);
+        GUILayout.EndHorizontal();
+
+        if (pick != cur)
+        {
+            History?.RecordBefore(EditHistory.Scope.Building, "Set style");
+            _bdef.style = pick == 0 ? null : BuildingStyles.Ids[pick - 1];
+            RebuildVisuals();
+            current = _bdef.style;
+        }
+
+        // Say why a chosen letter shows nothing, rather than leaving a white building unexplained.
+        if (current == null) return;
+        var pal = StylePalette;
+        if (pal == null || !pal.Has(current))
+            UITheme.Note($"Style {current} has no entry in BuildingStylePalette, so walls keep the default material.");
+        else if (materialPalette == null || !materialPalette.Has(pal.GetWallMaterialId(current)))
+            UITheme.Note($"Style {current} points at '{pal.GetWallMaterialId(current)}', which MaterialPalette does not have.");
+    }
 
     // Floor selector (Add tool only). Clearing a floor is destructive, so it's de-emphasised (a small
     // red text link, not a button) and asks for confirmation before wiping the floor's tiles.
@@ -1696,12 +1719,25 @@ public class TileBuildingEditor : MonoBehaviour
         if (_bdef?.tiles == null) return;
         foreach (var t in _bdef.tiles) SpawnTileGO(t);
         if (_selectedKeys.Count > 0) ApplySelectionHighlight();   // re-tint the surviving selection
+        RebuildSign();
+    }
+
+    // The sign depends on which tiles are exposed, so any tile change respawns it whole (one plate
+    // and one text mesh, cheap). Same spawner and spec as WorldRenderer, so the editor shows the
+    // instance's sign exactly as the world does, fallbacks included.
+    private void RebuildSign()
+    {
+        if (_signGO != null) DestroyObject(_signGO);
+        _signGO = null;
+        if (_bdef == null || _tileRoot == null || _signInst == null) return;
+        _signGO = BuildingSignSpawner.Spawn(_bdef, BuildingSigns.SpecFor(_signInst, _bdef), _tileRoot, CellSize(), FitFor, _signInst.instanceId);
     }
 
     private void SpawnTileGO(TileDef tile)
     {
         if (tileShapePalette == null) return;
-        var go = TileSpawner.Spawn(tile, _tileRoot, tileShapePalette, materialPalette, CellSize());
+        string styleWallId = BuildingStyleResolver.WallMaterialId(_bdef, StylePalette, materialPalette);
+        var go = TileSpawner.Spawn(tile, _tileRoot, tileShapePalette, materialPalette, CellSize(), styleWallId);
         if (go == null) return;
 
         var marker = go.AddComponent<TileInstanceMarker>();
@@ -1849,6 +1885,8 @@ public class TileBuildingEditor : MonoBehaviour
         _embGOs.Clear();
         if (_tileRoot != null) DestroyObject(_tileRoot.gameObject);
         _tileRoot      = null;
+        _signGO        = null;   // went down with the root
+        _signInst      = null;
         _bdef          = null;
         _selectedKeys.Clear();
         _primaryKey    = null;

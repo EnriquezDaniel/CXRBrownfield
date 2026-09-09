@@ -1,7 +1,7 @@
 {
   "site_scale": {
-    "site_width_ft": 286,
-    "site_height_ft": 133,
+    "site_width_ft": 459,
+    "site_height_ft": 66,
     "normalized_canvas": [
       0,
       0,
@@ -10,103 +10,154 @@
     ],
     "lot_boundary": [
       [
-        1000,
-        208
-      ],
-      [
-        7,
-        4
+        0,
+        0
       ],
       [
         0,
-        300
-      ],
-      [
-        64,
-        302
-      ],
-      [
-        46,
         1000
+      ],
+      [
+        1000,
+        1000
+      ],
+      [
+        1000,
+        0
       ]
     ],
-    "scale_note": "Home Longfellow parcel: a wedge tapering to a north tip, with a stepped south-east corner. All placements must fall within lot_boundary. Bounding boxes define placement. Real-world dimensions define scale."
+    "scale_note": "All placements must fall within lot_boundary. Bounding boxes define placement. Real-world dimensions define scale."
   },
   "terrain_zones": [
     {
-      "area_name": "Soccer Pitch",
-      "semantic_tag": "sports_field",
-      "terrain_type": "grass",
+      "area_name": "Sidewalk Strip Ground",
+      "semantic_tag": "sidewalk_pavement",
+      "terrain_type": "pavement",
       "bounding_box": [
-        366,
-        148,
-        595,
-        450
+        20,
+        20,
+        990,
+        121
       ],
-      "approx_sq_ft": 2630,
+      "approx_sq_ft": 2968,
       "unity_strategy": "paint_terrain"
     },
     {
-      "area_name": "North Open Area",
-      "semantic_tag": "open_space",
-      "terrain_type": "plaza",
+      "area_name": "Courts Ground",
+      "semantic_tag": "court_pavement",
+      "terrain_type": "pavement",
       "bounding_box": [
-        627,
-        200,
-        763,
-        400
+        40,
+        180,
+        320,
+        670
       ],
-      "approx_sq_ft": 1030,
+      "approx_sq_ft": 4154,
+      "unity_strategy": "paint_terrain"
+    },
+    {
+      "area_name": "North Pickleball Court",
+      "semantic_tag": "pickleball_court",
+      "terrain_type": "asphalt",
+      "bounding_box": [
+        50,
+        200,
+        180,
+        654
+      ],
+      "approx_sq_ft": 1789,
+      "unity_strategy": "paint_terrain"
+    },
+    {
+      "area_name": "South Pickleball Court",
+      "semantic_tag": "pickleball_court",
+      "terrain_type": "asphalt",
+      "bounding_box": [
+        185,
+        200,
+        315,
+        654
+      ],
+      "approx_sq_ft": 1789,
+      "unity_strategy": "paint_terrain"
+    },
+    {
+      "area_name": "Court-Building Buffer Grass",
+      "semantic_tag": "grass_gap",
+      "terrain_type": "grass",
+      "bounding_box": [
+        320,
+        130,
+        340,
+        888
+      ],
+      "approx_sq_ft": 573,
       "unity_strategy": "paint_terrain"
     }
   ],
   "paths": [
     {
-      "area_name": "South Walkway",
+      "area_name": "Street Sidewalk",
       "semantic_tag": "sidewalk",
       "path_material": "pavement_light",
-      "width_ft": 14,
+      "width_ft": 8,
       "points": [
         [
-          105,
-          940
+          25,
+          70
         ],
         [
-          93,
-          500
+          500,
+          70
         ],
         [
-          76,
-          30
+          985,
+          70
+        ]
+      ]
+    },
+    {
+      "area_name": "Courts Connector Walkway",
+      "semantic_tag": "walkway",
+      "path_material": "pavement_light",
+      "width_ft": 6,
+      "points": [
+        [
+          185,
+          70
+        ],
+        [
+          185,
+          200
         ]
       ]
     }
   ],
   "fences": [
     {
-      "area_name": "Pitch Enclosure",
-      "semantic_tag": "sports_fence",
+      "area_name": "Pickleball Court Enclosure",
+      "semantic_tag": "court_fence",
       "fence_type": "chain_link",
       "points": [
         [
-          595,
-          450
+          40,
+          185
         ],
         [
-          595,
-          148
+          40,
+          665
         ],
         [
-          366,
-          148
+          320,
+          665
         ],
         [
-          366,
-          450
+          320,
+          185
         ],
         [
-          595,
-          450
+          40,
+          185
         ]
       ],
       "height_ft": 10
@@ -114,61 +165,46 @@
   ],
   "generated_buildings": [
     {
-      "area_name": "Apt West Wing",
-      "semantic_tag": "residential_apartment",
+      "area_name": "Movie Theater",
+      "semantic_tag": "mixed_use_theater",
       "bounding_box": [
-        308,
-        456,
-        512,
-        610
+        340,
+        130,
+        842,
+        888
       ],
       "center_point": [
-        410,
-        533
+        591,
+        509
       ],
       "rotation_y_deg": 0,
-      "floors": 3,
-      "approx_sq_ft": 1200,
-      "unity_strategy": "modular_prefab"
+      "floors": 7,
+      "approx_sq_ft": 11527,
+      "unity_strategy": "modular_prefab",
+      "style": "B",
+      "sign": "THEATER"
     },
     {
-      "area_name": "Apt South Wing",
-      "semantic_tag": "residential_apartment",
+      "area_name": "Ice Cream Shop",
+      "semantic_tag": "mixed_use_retail",
       "bounding_box": [
-        172,
-        168,
-        316,
-        770
+        842,
+        130,
+        998,
+        888
       ],
       "center_point": [
-        244,
-        469
+        920,
+        509
       ],
       "rotation_y_deg": 0,
-      "floors": 3,
-      "approx_sq_ft": 3300,
-      "unity_strategy": "modular_prefab"
+      "floors": 7,
+      "approx_sq_ft": 3582,
+      "unity_strategy": "modular_prefab",
+      "style": "A",
+      "sign": "ICECREAM"
     }
   ],
   "generated_objects": [],
-  "prefab_instances": [
-    {
-      "area_name": "North Tree",
-      "semantic_tag": "vegetation_tree",
-      "prefab_type": "tree",
-      "center_point": [
-        852,
-        278
-      ],
-      "footprint_box": [
-        832,
-        246,
-        872,
-        310
-      ],
-      "rotation_deg": 0,
-      "scale_multiplier": 1.0,
-      "unity_strategy": "place_prefab"
-    }
-  ]
+  "prefab_instances": []
 }

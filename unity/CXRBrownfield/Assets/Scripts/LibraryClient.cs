@@ -85,6 +85,8 @@ public class LibraryClient : MonoBehaviour
     private class FavoriteResponse { public string status; public string id; public bool favorite; }
     private class InputListWrapper { public List<string> inputs; }
     private class UploadResponse  { public string status; public string name; }
+    private class InputNotesResponse { public string status; public string name; public string notes; }
+    private class InputNotesBody     { public string notes; }
 
     // --- Coroutine helpers ---
 
@@ -242,6 +244,18 @@ public class LibraryClient : MonoBehaviour
     // Upload a local image file to the server's input/ folder. Returns the stored name.
     public void UploadInput(string localPath, Action<string> onSuccess = null, Action<string> onError = null)
         => StartCoroutine(CoUploadInput(localPath, onSuccess, onError));
+
+    // Designer notes saved beside a sketch (input/<stem>.notes.txt): "" when none. Stored names can
+    // hold spaces and parentheses ("plan (2).png"), so the path segment is percent-encoded
+    // (EscapeDataString, not EscapeURL: a '+' for a space is not decoded in a URL path).
+    public void GetInputNotes(string name, Action<string> onSuccess, Action<string> onError = null)
+        => StartCoroutine(CoGet<InputNotesResponse>($"{serverBaseUrl}/api/inputs/{Uri.EscapeDataString(name)}/notes",
+                                                    r => onSuccess?.Invoke(r.notes ?? ""), onError));
+
+    // Save notes for a sketch without generating. An empty string clears them.
+    public void PutInputNotes(string name, string notes, Action onSuccess = null, Action<string> onError = null)
+        => StartCoroutine(CoPut($"{serverBaseUrl}/api/inputs/{Uri.EscapeDataString(name)}/notes",
+                                new InputNotesBody { notes = notes ?? "" }, onSuccess, onError));
 
     private IEnumerator CoUploadInput(string localPath, Action<string> onSuccess, Action<string> onError)
     {

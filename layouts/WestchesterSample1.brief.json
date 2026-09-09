@@ -1,0 +1,91 @@
+{
+  "buildings": [
+    {
+      "ref": "b1",
+      "name": "Cafe",
+      "use": "cafe",
+      "style": null,
+      "floors": null,
+      "size_hint": null,
+      "where": null,
+      "group": "g1"
+    },
+    {
+      "ref": "b2",
+      "name": "Rite Aid",
+      "use": "pharmacy",
+      "style": "C",
+      "floors": 4,
+      "size_hint": null,
+      "where": null,
+      "group": "g1"
+    },
+    {
+      "ref": "b3",
+      "name": "Bakery",
+      "use": "bakery",
+      "style": null,
+      "floors": null,
+      "size_hint": null,
+      "where": null,
+      "group": "g1"
+    }
+  ],
+  "splits": [
+    {
+      "group": "g1",
+      "where": "the long block",
+      "count": 3
+    }
+  ],
+  "program_totals": [
+    {
+      "use": "housing",
+      "quantity": 40,
+      "unit": "units",
+      "across": [
+        "g1"
+      ]
+    }
+  ],
+  "paths": [
+    {
+      "ref": "p1",
+      "where": "along the avenue",
+      "material": "brick",
+      "width_ft": 8,
+      "exclude": false
+    }
+  ],
+  "fences": [
+    {
+      "ref": "f1",
+      "where": "east edge",
+      "type": "chain_link",
+      "height_ft": null,
+      "exclude": false
+    }
+  ],
+  "props": [
+    {
+      "ref": "x1",
+      "type": "tree",
+      "where": "beside the sidewalk",
+      "arrangement": "row",
+      "count": null,
+      "exclude": false
+    },
+    {
+      "ref": "x2",
+      "type": "bench",
+      "where": null,
+      "arrangement": null,
+      "count": null,
+      "exclude": true
+    }
+  ],
+  "ignored": [
+    "Grass in the open area."
+  ],
+  "unparsed": []
+}

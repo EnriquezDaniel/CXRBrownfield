@@ -179,4 +179,70 @@ public class AuthoringSerializationTests
         Assert.AreEqual("a", back.waterBodies[0].id);
         Assert.AreEqual(3, back.waterBodies[0].points.Length);
     }
+
+    // ---- BuildingInstance.sign* ----
+
+    [Test]
+    public void BuildingInstance_MissingSignKeys_LoadAsNeverEdited()
+    {
+        // Every record saved before signs moved to the instance: no word, no compass (so the def's
+        // legacy sign applies), not pinned.
+        var inst = JsonConvert.DeserializeObject<BuildingInstance>(
+            "{\"instanceId\":\"i1\",\"buildingId\":\"b1\",\"position\":[0,0,0],\"rotationY\":180,\"scale\":1,\"included\":true}");
+        Assert.IsNull(inst.signText);
+        Assert.IsNull(inst.signCompass);
+        Assert.IsFalse(inst.signPinned);
+        Assert.AreEqual(0, inst.signHostFloor);
+    }
+
+    [Test]
+    public void BuildingInstance_SignFields_RoundTrip()
+    {
+        var inst = new BuildingInstance
+        {
+            instanceId = "i1", buildingId = "b1", position = new[] { 1f, 0f, 2f }, rotationY = 90f, scale = 1f,
+            signText = "CAFE", signCompass = "north", signPinned = true, signHostX = 3, signHostZ = 0, signHostFloor = 1,
+        };
+        var back = JsonConvert.DeserializeObject<BuildingInstance>(JsonConvert.SerializeObject(inst));
+        Assert.AreEqual("CAFE", back.signText);
+        Assert.AreEqual("north", back.signCompass);
+        Assert.IsTrue(back.signPinned);
+        Assert.AreEqual(3, back.signHostX);
+        Assert.AreEqual(0, back.signHostZ);
+        Assert.AreEqual(1, back.signHostFloor);
+    }
+
+    // ---- EnvironmentDef.generation (provenance) ----
+
+    [Test]
+    public void EnvironmentDef_WithoutGeneration_LoadsNull()
+    {
+        var env = JsonConvert.DeserializeObject<EnvironmentDef>("{\"id\":\"e1\",\"name\":\"Plan\",\"version\":1}");
+        Assert.IsNull(env.generation, "records saved before the field existed load with no provenance");
+        StringAssert.Contains("\"generation\":null", JsonConvert.SerializeObject(env));
+    }
+
+    [Test]
+    public void EnvironmentDef_Generation_RoundTrips()
+    {
+        var env = new EnvironmentDef
+        {
+            id = "e1", name = "Plan", version = 1,
+            generation = new GenerationDef
+            {
+                sketch = "plan.png", notes = "Rite Aid style C",
+                briefJson = "{\"buildings\":[{\"ref\":\"b1\",\"name\":\"Rite Aid\"}]}",
+                briefReportJson = "{\"satisfied\":[\"b1\"],\"missing\":[]}",
+                model = "layout-model", briefModel = "brief-model", created = "2026-09-09T12:00:00Z",
+            },
+        };
+        var back = JsonConvert.DeserializeObject<EnvironmentDef>(JsonConvert.SerializeObject(env));
+        Assert.AreEqual("plan.png", back.generation.sketch);
+        Assert.AreEqual("Rite Aid style C", back.generation.notes);
+        StringAssert.Contains("Rite Aid", back.generation.briefJson);
+        StringAssert.Contains("satisfied", back.generation.briefReportJson);
+        Assert.AreEqual("layout-model", back.generation.model);
+        Assert.AreEqual("brief-model", back.generation.briefModel);
+        Assert.AreEqual("2026-09-09T12:00:00Z", back.generation.created);
+    }
 }

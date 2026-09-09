@@ -41,6 +41,15 @@ public class GeneratedBuilding
     // single straight slant). Negative = acute, positive = obtuse. Only emit when the sketch clearly
     // shows an angled corner.
     public float[] corner_angles;
+    // Optional facade style letter, "A" to "F" (BuildingStyles). Present only when the designer
+    // notes assigned one to this building; the model never infers it. Unity maps the letter to a
+    // wall material through BuildingStylePalette. Null / unknown = no style.
+    public string style;
+    // Optional sign word for a named building ("ICECREAM", "THEATER"): the label the sketch or the
+    // designer notes give it, short and uppercase. Unity normalizes it (BuildingSigns.NormalizeText)
+    // and hangs it on the building's east side when that side is at least two tiles wide.
+    // Null / blank = no sign. The model never invents one.
+    public string sign;
 }
 
 [System.Serializable]

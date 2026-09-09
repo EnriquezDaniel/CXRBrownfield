@@ -21,6 +21,7 @@ public class WorldRenderer : MonoBehaviour
     [SerializeField] private PathMaterialPalette pathMaterialPalette; // USER WIRES THIS IN INSPECTOR (path ribbon materials)
     [SerializeField] private FencePalette fencePalette;           // USER WIRES THIS IN INSPECTOR (fence segment prefabs)
     [SerializeField] private WaterPalette waterPalette;           // USER WIRES THIS IN INSPECTOR (water surface materials; falls back to Resources/WaterPalette)
+    [SerializeField] private BuildingStylePalette buildingStylePalette; // USER WIRES THIS IN INSPECTOR (style letter → wall material; falls back to Resources/BuildingStylePalette)
 
     [Header("Path rendering")]
     [SerializeField] private float pathYEpsilon = 0.05f;          // lift above terrain to avoid z-fighting
@@ -99,6 +100,9 @@ public class WorldRenderer : MonoBehaviour
     // resolves; the inspector slot only overrides it.
     public WaterPalette        WaterPalette        =>
         waterPalette != null ? waterPalette : (waterPalette = Resources.Load<WaterPalette>("WaterPalette"));
+    // Same Resources fallback: BuildingDef.style resolves in the VR viewer without any wiring.
+    public BuildingStylePalette BuildingStylePalette =>
+        buildingStylePalette != null ? buildingStylePalette : (buildingStylePalette = BuildingStyleResolver.LoadDefault());
     public TerrainRegistry     TerrainRegistry     => terrainRegistry;
     public PrefabRegistry      PrefabRegistry      => prefabRegistry;
 
@@ -114,6 +118,7 @@ public class WorldRenderer : MonoBehaviour
                                   bool skipTerrainPaint = false)
     {
         if (env == null) { Debug.LogError("[WorldRenderer] RenderEnvironment: env is null."); return; }
+        ClearPreviewOffsets();   // never rebuild children into a root a move preview has offset
 
         var sw = System.Diagnostics.Stopwatch.StartNew();
         long lapMark = 0;
@@ -246,9 +251,16 @@ public class WorldRenderer : MonoBehaviour
     // Moves the terrain's min corner to site.terrainOrigin (null ⇒ the world origin, which is where
     // every environment authored before that field sits). Sizing alone is not enough for an
     // environment projected into a host's site: its content is out at the site's coordinates, so a
-    // terrain left at the origin would sit entirely beside it. Terrain-relative math throughout this
-    // file already reads targetTerrain.transform.position, so moving it is safe. Y is preserved —
-    // EnsureHeightSetup parks it at the height range's base, not a horizontal placement.
+    // terrain left at the origin would sit entirely beside it.
+    //
+    // Coordinate contract: every stored XZ (instance positions, path/fence/stroke points, zone
+    // rects, lot and water polygons) is in WORLD meters, never relative to this corner. The corner
+    // only says where the ground is. So placement uses the stored XZ as is, and only the splat /
+    // heightmap rasterizers subtract the terrain position to reach alphamap cells. Adding the
+    // corner to a stored position doubled it: an env installed while the host's ground was still at
+    // the origin rendered right, then re-grounded a moved building at corner + world position.
+    // Y is preserved — EnsureHeightSetup parks it at the height range's base, not a horizontal
+    // placement.
     private void ApplyTerrainOrigin(SiteDef site)
     {
         if (targetTerrain == null) return;
@@ -270,6 +282,75 @@ public class WorldRenderer : MonoBehaviour
     // any environment data — used by the editor's Lot tool while dragging a rectangle handle so the
     // ground plane tracks the drag. The committed size is written through ApplyTerrainSize on release.
     public void PreviewTerrainSize(float width, float length) => SetTerrainSizeClamped(width, length);
+
+    // -----------------------------------------------------------------------
+    // Whole-environment move preview (Move site tool)
+    //
+    // While the user drags, nothing in the data moves: the env's root, the roots of its site fills
+    // and (for the active env) the shared Terrain are offset as transforms, which is cheap and
+    // needs no rebuild. On release the editor bakes the delta into the data
+    // (EnvironmentScale.TranslateEnvironmentXZ) and re-renders. Roots are identity children of
+    // this renderer (GetOrCreateEnvRender), and RenderEnvironment reuses a root without resetting
+    // it, so every rebuild path clears the preview first: an offset root would shift every child
+    // spawned into it at its stored world position.
+    // -----------------------------------------------------------------------
+
+    private readonly HashSet<string> _previewOffsetIds = new();
+    private bool _previewTerrainOffset;
+
+    // Offsets the rendered env `envId`, its site fills and (when it is the active env) the terrain
+    // by `delta` from their data positions. Absolute, not cumulative: pass the full drag delta each
+    // frame. Y is ignored (a move is on the ground plane).
+    public void PreviewEnvironmentOffset(string envId, Vector3 delta)
+    {
+        if (envId == null || !_envRenders.TryGetValue(envId, out var host) || host.root == null) return;
+        var offset = new Vector3(delta.x, 0f, delta.z);
+        host.root.localPosition = offset;
+        _previewOffsetIds.Add(envId);
+
+        // Fills render as their own envs keyed childId + "@" + siteId (LibraryBrowser), so a host's
+        // fills are the renders whose id ends with one of its site ids.
+        var sites = host.env?.sites;
+        if (sites != null)
+            foreach (var kv in _envRenders)
+            {
+                if (kv.Key == envId || kv.Value.root == null) continue;
+                foreach (var s in sites)
+                {
+                    if (s?.id == null || !kv.Key.EndsWith("@" + s.id, System.StringComparison.Ordinal)) continue;
+                    kv.Value.root.localPosition = offset;
+                    _previewOffsetIds.Add(kv.Key);
+                    break;
+                }
+            }
+
+        if (envId == _activeEnvId && targetTerrain != null)
+        {
+            EnvironmentScale.TerrainCorner(host.env?.site, out float ox, out float oz);
+            var p = targetTerrain.transform.position;
+            targetTerrain.transform.position = new Vector3(ox + offset.x, p.y, oz + offset.z);
+            _previewTerrainOffset = true;
+        }
+    }
+
+    // Puts every previewed root back at identity and the terrain back on its data corner. Cheap
+    // no-op when nothing is previewed; safe to call from any rebuild or unload path.
+    public void ClearPreviewOffsets()
+    {
+        if (_previewOffsetIds.Count > 0)
+        {
+            foreach (var id in _previewOffsetIds)
+                if (_envRenders.TryGetValue(id, out var er) && er.root != null)
+                    er.root.localPosition = Vector3.zero;
+            _previewOffsetIds.Clear();
+        }
+        if (_previewTerrainOffset)
+        {
+            _previewTerrainOffset = false;
+            if (_activeEnvId != null && _envRenders.TryGetValue(_activeEnvId, out var active))
+                ApplyTerrainOrigin(active.env?.site);
+        }
+    }
 
     // Shared resize core: clamps to the sane band, preserves the height range, no-ops on no change.
     private void SetTerrainSizeClamped(float width, float length)
@@ -352,17 +433,20 @@ public class WorldRenderer : MonoBehaviour
         Vector3 tPos = targetTerrain.transform.position, size = tData.size;
         var win = new HeightWindow { heights = heights, x0 = 0, z0 = 0, res = res, sizeX = size.x, sizeZ = size.z };
 
-        var strokes = site?.heightStrokes;
-        if (strokes != null && strokes.Count > 0)
-            foreach (var s in strokes) ReplayHeightStroke(ref win, s, site, tPos);
-
         // Water beds are derived, never stored: each body digs to `depth` below the flat base and
-        // shapes the shore around its surface height (both fields on the body, WaterCarve).
+        // shapes the shore around its surface height (both fields on the body, WaterCarve). They
+        // are carved FIRST, so the height strokes win: the brush is the last word on the ground,
+        // and a stroke laid over a bank or a bed keeps what the live preview showed. (Carving last
+        // re-dug the bed on release and snapped the brush rim back wherever it touched water.)
         var water = site?.waterBodies;
         if (water != null && water.Count > 0)
             foreach (var body in water)
                 if (WaterGeometry.HasGeometry(body))
                     WaterCarve.Carve(ref win, body, HeightClip(body.clipToLot, site), tPos.x, tPos.z);
+
+        var strokes = site?.heightStrokes;
+        if (strokes != null && strokes.Count > 0)
+            foreach (var s in strokes) ReplayHeightStroke(ref win, s, site, tPos);
         tData.SetHeights(0, 0, heights);
     }
 
@@ -376,7 +460,7 @@ public class WorldRenderer : MonoBehaviour
         foreach (var p in s.points)
         {
             if (p == null || p.Length < 3) continue;
-            HeightBrush.Stamp(ref win, kind, p[0] - tPos.x, p[1] - tPos.z, radius, p[2], target, clip, tPos.x, tPos.z);
+            HeightBrush.ReplaySample(ref win, kind, p, p[0] - tPos.x, p[1] - tPos.z, radius, target, clip, tPos.x, tPos.z);
         }
     }
 
@@ -416,6 +500,7 @@ public class WorldRenderer : MonoBehaviour
     public void UnloadEnvironment(string envId)
     {
         if (envId == null || !_envRenders.TryGetValue(envId, out var er)) return;
+        ClearPreviewOffsets();
         DestroyRoot(er);
         _envRenders.Remove(envId);
         if (_activeEnvId == envId) _activeEnvId = null;
@@ -424,6 +509,7 @@ public class WorldRenderer : MonoBehaviour
     // Clears every rendered environment.
     public void ClearRendered()
     {
+        ClearPreviewOffsets();
         foreach (var er in _envRenders.Values) DestroyRoot(er);
         _envRenders.Clear();
         _activeEnvId = null;
@@ -603,6 +689,8 @@ public class WorldRenderer : MonoBehaviour
         TerrainData tData = targetTerrain.terrainData;
         int res = tData.alphamapResolution;
         Vector3 terrainSize = tData.size;
+        // Site data is world meters; alphamap cells start at the terrain's corner (site.terrainOrigin).
+        Vector3 terrainPos  = targetTerrain.transform.position;
 
         int layerCount = terrainRegistry.entries.Count;
         var layers     = new TerrainLayer[layerCount];
@@ -621,8 +709,8 @@ public class WorldRenderer : MonoBehaviour
 
         // Rectangular zones (from generation) first, then freehand strokes (from the editor) on
         // top — both are pure functions of the data, so a reload reproduces the same splatmap.
-        PaintZonesIntoMap(site.terrainZones, map, res, layerCount, terrainSize, keyToIndex, null);
-        PaintStrokesIntoMap(site.surfaceStrokes, map, res, layerCount, terrainSize, keyToIndex, null);
+        PaintZonesIntoMap(site.terrainZones, map, res, layerCount, terrainSize, terrainPos, keyToIndex, null);
+        PaintStrokesIntoMap(site.surfaceStrokes, map, res, layerCount, terrainSize, terrainPos, keyToIndex, null);
 
         // Parcel mask LAST so the lot edge wins over zones/strokes: every cell whose center falls
         // outside site.lotBoundary is repainted with outsideTerrainType (water/void). null or <3
@@ -634,10 +722,10 @@ public class WorldRenderer : MonoBehaviour
             {
                 for (int y = 0; y < res; y++)
                 {
-                    float zMeters = ((y + 0.5f) / res) * terrainSize.z;
+                    float zMeters = terrainPos.z + ((y + 0.5f) / res) * terrainSize.z;
                     for (int x = 0; x < res; x++)
                     {
-                        float xMeters = ((x + 0.5f) / res) * terrainSize.x;
+                        float xMeters = terrainPos.x + ((x + 0.5f) / res) * terrainSize.x;
                         if (EnvironmentScale.PointInPolygon(xMeters, zMeters, site.lotBoundary)) continue;
                         for (int l = 0; l < layerCount; l++) map[y, x, l] = 0f;
                         map[y, x, outIdx] = 1f;
@@ -660,8 +748,8 @@ public class WorldRenderer : MonoBehaviour
             foreach (var ov in overlays)
             {
                 if (ov.site == null || ov.clip == null || ov.clip.Length < 3) continue;
-                PaintZonesIntoMap(ov.site.terrainZones, map, res, layerCount, terrainSize, keyToIndex, ov.clip);
-                PaintStrokesIntoMap(ov.site.surfaceStrokes, map, res, layerCount, terrainSize, keyToIndex, ov.clip);
+                PaintZonesIntoMap(ov.site.terrainZones, map, res, layerCount, terrainSize, terrainPos, keyToIndex, ov.clip);
+                PaintStrokesIntoMap(ov.site.surfaceStrokes, map, res, layerCount, terrainSize, terrainPos, keyToIndex, ov.clip);
             }
 
         tData.SetAlphamaps(0, 0, map);
@@ -672,7 +760,8 @@ public class WorldRenderer : MonoBehaviour
     // ground into the host splat. The rect scan is already bounded to the zone, so the clip test
     // only runs over that window.
     private void PaintZonesIntoMap(List<TerrainZoneDef> zones, float[,,] map, int res, int layerCount,
-                                   Vector3 terrainSize, Dictionary<string, int> keyToIndex, float[][] clip)
+                                   Vector3 terrainSize, Vector3 terrainPos,
+                                   Dictionary<string, int> keyToIndex, float[][] clip)
     {
         if (zones == null) return;
         foreach (var zone in zones)
@@ -686,17 +775,19 @@ public class WorldRenderer : MonoBehaviour
                 continue;
             }
 
-            // rectMeters is in world meters; normalize against actual terrain dimensions.
-            int xStart = Mathf.Clamp(Mathf.RoundToInt((zone.rectMeters[0] / terrainSize.x) * res), 0, res);
-            int yStart = Mathf.Clamp(Mathf.RoundToInt((zone.rectMeters[1] / terrainSize.z) * res), 0, res);
-            int xEnd   = Mathf.Clamp(Mathf.RoundToInt((zone.rectMeters[2] / terrainSize.x) * res), 0, res);
-            int yEnd   = Mathf.Clamp(Mathf.RoundToInt((zone.rectMeters[3] / terrainSize.z) * res), 0, res);
+            // rectMeters is in world meters; shift to the terrain's corner, then normalize against
+            // the actual terrain dimensions.
+            int xStart = Mathf.Clamp(Mathf.RoundToInt(((zone.rectMeters[0] - terrainPos.x) / terrainSize.x) * res), 0, res);
+            int yStart = Mathf.Clamp(Mathf.RoundToInt(((zone.rectMeters[1] - terrainPos.z) / terrainSize.z) * res), 0, res);
+            int xEnd   = Mathf.Clamp(Mathf.RoundToInt(((zone.rectMeters[2] - terrainPos.x) / terrainSize.x) * res), 0, res);
+            int yEnd   = Mathf.Clamp(Mathf.RoundToInt(((zone.rectMeters[3] - terrainPos.z) / terrainSize.z) * res), 0, res);
 
             for (int y = yStart; y < yEnd; y++)
                 for (int x = xStart; x < xEnd; x++)
                 {
                     if (clip != null && !EnvironmentScale.PointInPolygon(
-                            ((x + 0.5f) / res) * terrainSize.x, ((y + 0.5f) / res) * terrainSize.z, clip)) continue;
+                            terrainPos.x + ((x + 0.5f) / res) * terrainSize.x,
+                            terrainPos.z + ((y + 0.5f) / res) * terrainSize.z, clip)) continue;
                     for (int l = 0; l < layerCount; l++) map[y, x, l] = 0f;
                     map[y, x, idx] = 1f;
                 }
@@ -705,7 +796,8 @@ public class WorldRenderer : MonoBehaviour
 
     // Stroke stamping for one stroke list; same optional clip as PaintZonesIntoMap.
     private void PaintStrokesIntoMap(List<SurfaceStrokeDef> strokes, float[,,] map, int res, int layerCount,
-                                     Vector3 terrainSize, Dictionary<string, int> keyToIndex, float[][] clip)
+                                     Vector3 terrainSize, Vector3 terrainPos,
+                                     Dictionary<string, int> keyToIndex, float[][] clip)
     {
         if (strokes == null) return;
         foreach (var stroke in strokes)
@@ -723,8 +815,9 @@ public class WorldRenderer : MonoBehaviour
             bool square = IsSquareShape(stroke.shape);
             float angleDeg = stroke.angleDeg;
             WalkStroke(stroke.points, radius * 0.5f, (center, dirRad) =>
-                StampIntoMap(map, res, layerCount, terrainSize, center, radius, idx, square,
-                             BrushGeometry.ResolveStampAngleRad(angleDeg, dirRad), clip));
+                StampIntoMap(map, res, layerCount, terrainSize,
+                             new Vector3(center.x - terrainPos.x, 0f, center.z - terrainPos.z), radius, idx, square,
+                             BrushGeometry.ResolveStampAngleRad(angleDeg, dirRad), clip, terrainPos));
         }
     }
 
@@ -736,7 +829,7 @@ public class WorldRenderer : MonoBehaviour
         string.Equals(shape, "square", StringComparison.OrdinalIgnoreCase);
 
     // True when alphamap cell (x, y) falls inside the brush footprint centered at `centerMeters`
-    // (whatever space the caller stamps in — world meters offline, terrain-local meters live).
+    // (terrain-local meters: the caller has already subtracted the terrain's corner).
     // Circles keep the normalized-index ellipse test so existing strokes rasterize bit-identically;
     // squares test an axis-box in meters, rotated by `dirRad`, giving a run clean parallel edges.
     private static bool InBrush(int x, int y, int cx, int cy, int rx, int ry, int res,
@@ -761,21 +854,24 @@ public class WorldRenderer : MonoBehaviour
     }
 
     // Sets one filled brush footprint of `idx`'s layer (others zeroed) into a whole in-memory
-    // alphamap. Center is in world meters; radius in meters. Used by the rasterizer in PaintTerrain.
+    // alphamap. Center is in terrain-local meters; radius in meters. Used by the rasterizer in
+    // PaintTerrain. `clip` is a world-meter polygon, so `terrainPos` is needed to test cells against it.
     private static void StampIntoMap(float[,,] map, int res, int layerCount, Vector3 terrainSize,
                                      Vector3 centerMeters, float radius, int idx,
-                                     bool square = false, float dirRad = 0f, float[][] clip = null) =>
+                                     bool square = false, float dirRad = 0f, float[][] clip = null,
+                                     Vector3 terrainPos = default) =>
         StampIntoBlock(map, 0, 0, res, res, res, layerCount, terrainSize,
-                       centerMeters, radius, idx, square, dirRad, clip);
+                       centerMeters, radius, idx, square, dirRad, clip, terrainPos);
 
     // Sets one filled brush footprint into a *sub-block* of the alphamap: `bx0/by0` locate the
     // block's origin in alphamap cells and `bw/bh` are its dims, so the partial-update paths can
-    // rasterize into a small window and push it with one SetAlphamaps. `centerMeters` must be in the
-    // same space the block's indices were derived from (world meters offline, terrain-local live).
+    // rasterize into a small window and push it with one SetAlphamaps. `centerMeters` is terrain-local
+    // (the space the block's indices are derived from); `clip` is world meters, hence `terrainPos`.
     private static void StampIntoBlock(float[,,] block, int bx0, int by0, int bw, int bh,
                                        int res, int layerCount, Vector3 terrainSize,
                                        Vector3 centerMeters, float radius, int idx,
-                                       bool square, float dirRad, float[][] clip = null)
+                                       bool square, float dirRad, float[][] clip = null,
+                                       Vector3 terrainPos = default)
     {
         float reach = square ? radius * SQUARE_REACH : radius;
         int cx = Mathf.RoundToInt((centerMeters.x / terrainSize.x) * res);
@@ -794,7 +890,8 @@ public class WorldRenderer : MonoBehaviour
             {
                 if (!InBrush(x, y, cx, cy, erx, ery, res, terrainSize, centerMeters, radius, square, dirRad)) continue;
                 if (clip != null && !EnvironmentScale.PointInPolygon(
-                        ((x + 0.5f) / res) * terrainSize.x, ((y + 0.5f) / res) * terrainSize.z, clip)) continue;
+                        terrainPos.x + ((x + 0.5f) / res) * terrainSize.x,
+                        terrainPos.z + ((y + 0.5f) / res) * terrainSize.z, clip)) continue;
                 for (int l = 0; l < layerCount; l++) block[y - by0, x - bx0, l] = 0f;
                 block[y - by0, x - bx0, idx] = 1f;
             }
@@ -1099,8 +1196,6 @@ public class WorldRenderer : MonoBehaviour
             return;
         }
 
-        Vector3 terrainPos = targetTerrain != null ? targetTerrain.transform.position : Vector3.zero;
-
         var built = new List<(List<Vector2> dense, float width, string material, int stack)>();
         int stack = 0;   // per-path stack index: each rendered path lifts a hair more (see PathStackStep)
         foreach (var path in paths)
@@ -1113,7 +1208,7 @@ public class WorldRenderer : MonoBehaviour
             foreach (var p in path.points)
             {
                 if (p == null || p.Length < 2) continue;
-                ctrl.Add(new Vector2(terrainPos.x + p[0], terrainPos.z + p[1]));
+                ctrl.Add(new Vector2(p[0], p[1]));
             }
             if (ctrl.Count < 2) continue;
 
@@ -1312,8 +1407,6 @@ public class WorldRenderer : MonoBehaviour
             return;
         }
 
-        Vector3 terrainPos = targetTerrain != null ? targetTerrain.transform.position : Vector3.zero;
-
         foreach (var fence in fences)
         {
             if (fence?.points == null || fence.points.Length < 2) continue;
@@ -1325,7 +1418,7 @@ public class WorldRenderer : MonoBehaviour
             foreach (var p in fence.points)
             {
                 if (p == null || p.Length < 2) continue;
-                ctrl.Add(new Vector2(terrainPos.x + p[0], terrainPos.z + p[1]));
+                ctrl.Add(new Vector2(p[0], p[1]));
             }
             if (ctrl.Count < 2) continue;
 
@@ -1457,10 +1550,9 @@ public class WorldRenderer : MonoBehaviour
     {
         if (poly == null || poly.Length < 3 || er?.root == null) return;
 
-        Vector3 terrainPos = targetTerrain != null ? targetTerrain.transform.position : Vector3.zero;
         var corners = new List<Vector2>(poly.Length);
         foreach (var p in poly)
-            if (p != null && p.Length >= 2) corners.Add(new Vector2(terrainPos.x + p[0], terrainPos.z + p[1]));
+            if (p != null && p.Length >= 2) corners.Add(new Vector2(p[0], p[1]));
         if (corners.Count < 3) return;
 
         Mesh mesh = BuildPolygonFrameMesh(corners, closed: true, lift: lotFrameLift);
@@ -1562,8 +1654,7 @@ public class WorldRenderer : MonoBehaviour
     {
         if (go == null || position == null || position.Length < 3) return;
 
-        Vector3 terrainPos = targetTerrain != null ? targetTerrain.transform.position : Vector3.zero;
-        Vector3 worldXZ    = terrainPos + new Vector3(position[0], 0f, position[2]);
+        Vector3 worldXZ = new Vector3(position[0], 0f, position[2]);   // stored XZ is world meters
         float   groundY    = SampleTerrainSurfaceY(worldXZ.x, worldXZ.z);
 
         go.transform.position = new Vector3(worldXZ.x, groundY, worldXZ.z);
@@ -1595,8 +1686,7 @@ public class WorldRenderer : MonoBehaviour
     {
         if (go == null || position == null || position.Length < 3) return;
 
-        Vector3 terrainPos = targetTerrain != null ? targetTerrain.transform.position : Vector3.zero;
-        Vector3 worldXZ    = terrainPos + new Vector3(position[0], 0f, position[2]);
+        Vector3 worldXZ = new Vector3(position[0], 0f, position[2]);   // stored XZ is world meters
 
         // position[1] is a vertical offset above the terrain surface, as for objects.
         go.transform.position = new Vector3(worldXZ.x,
@@ -1612,7 +1702,6 @@ public class WorldRenderer : MonoBehaviour
                                           IReadOnlyDictionary<string, BuildingDef> buildingDefs, EnvRender er)
     {
         Transform root     = er.root;
-        Vector3 terrainPos = targetTerrain != null ? targetTerrain.transform.position : Vector3.zero;
         // Legacy bay-massing renderer, resolved lazily: only the palette-misconfiguration branch below
         // needs it, and BuildingGenerator.GetRenderer() logs on every call.
         Renderer bayRend   = null;
@@ -1630,11 +1719,9 @@ public class WorldRenderer : MonoBehaviour
             }
 
             float posY   = inst.position[1];   // vertical offset above the terrain surface
-            // Terrain height must be sampled at the instance's *world* XZ (SampleHeight takes world
-            // coordinates), not at the raw stored offsets — those are terrain-relative, so a Terrain
-            // that isn't at the world origin would read the height from the wrong spot.
-            float worldX = terrainPos.x + inst.position[0];
-            float worldZ = terrainPos.z + inst.position[2];
+            // Stored XZ is world meters (see ApplyTerrainOrigin), which is also what SampleHeight takes.
+            float worldX = inst.position[0];
+            float worldZ = inst.position[2];
             var worldPos = new Vector3(worldX, SampleTerrainSurfaceY(worldX, worldZ) + posY, worldZ);
 
             bool hasTiles = bdef.tiles != null && bdef.tiles.Count > 0;
@@ -1706,10 +1793,13 @@ public class WorldRenderer : MonoBehaviour
         // whole building read as enormous — every bounds-derived size (framing, selection, massing
         // span) tracks tile min/max. Warn loudly so corrupted defs get noticed and repaired instead
         // of silently rendering kilometers wide.
+        // The style letter resolves once per building; each tile paints it on its unpainted walls.
+        string styleWallId = BuildingStyleResolver.WallMaterialId(bdef, BuildingStylePalette, materialPalette);
+
         int minX = int.MaxValue, maxX = int.MinValue, minZ = int.MaxValue, maxZ = int.MinValue;
         foreach (var tile in bdef.tiles)
         {
-            TileSpawner.Spawn(tile, rootGO.transform, tileShapePalette, materialPalette, cs);
+            TileSpawner.Spawn(tile, rootGO.transform, tileShapePalette, materialPalette, cs, styleWallId);
             if (tile.gridX < minX) minX = tile.gridX;
             if (tile.gridX > maxX) maxX = tile.gridX;
             if (tile.gridZ < minZ) minZ = tile.gridZ;
@@ -1721,7 +1811,28 @@ public class WorldRenderer : MonoBehaviour
                              $"{maxX - minX + 1}×{maxZ - minZ + 1} cells — it likely contains a stray " +
                              $"tile far from the footprint (tile extent X {minX}..{maxX}, Z {minZ}..{maxZ}).");
 
+        // The sign the placed instance carries (BuildingSigns.SpecFor: instance fields, else the
+        // def's legacy sign) hangs on its wall; the tile editor draws the same one.
+        BuildingSignSpawner.Spawn(bdef, BuildingSigns.SpecFor(inst, bdef), rootGO.transform, cs, FitFor, inst.instanceId);
+
         return rootGO;
+    }
+
+    // Replaces just the sign under a rendered building (a Sign panel edit or one drag step), so the
+    // world is not rebuilt for one plate. No-op for an empty def: its root is the placeholder pad.
+    public void RespawnBuildingSign(BuildingInstance inst, BuildingDef bdef)
+    {
+        if (inst == null || bdef?.tiles == null || bdef.tiles.Count == 0) return;
+        var go = GetInstanceGO(inst.instanceId);
+        if (go == null) return;
+        var old = go.transform.Find(BuildingSignSpawner.RootName);
+        if (old != null)
+        {
+            old.name = BuildingSignSpawner.RootName + " (old)";   // Destroy is deferred; keep Find honest
+            if (Application.isPlaying) Destroy(old.gameObject); else DestroyImmediate(old.gameObject);
+        }
+        float cs = bdef.gridCellSize > 0f ? bdef.gridCellSize : AuthoringConventions.DEFAULT_GRID_CELL_SIZE;
+        BuildingSignSpawner.Spawn(bdef, BuildingSigns.SpecFor(inst, bdef), go.transform, cs, FitFor, inst.instanceId);
     }
 
     // Neutral stand-in for a BuildingDef with no tiles: the same corner-pivot root as a tiled building
@@ -1777,7 +1888,8 @@ public class WorldRenderer : MonoBehaviour
     }
 
     // Sub-cell fit per shape (pillar, slab), so reseated decor lands on the real tile surface.
-    private TileFit FitFor(string shapeId) =>
+    // Public for EditController's Sign section, which resolves the plate the same way.
+    public TileFit FitFor(string shapeId) =>
         tileShapePalette != null ? tileShapePalette.GetFit(shapeId) : TileFit.Full;
 
     private void RenderEmbeddedObjects(BuildingDef bdef, Vector3 bldgWorldPos, Quaternion bldgRot, Transform parent, EnvRender er)

@@ -6,9 +6,11 @@ using UnityEngine;
 // Convention: building-local corner pivot; a tile occupies [(gridX)·cs, (gridX+1)·cs] on X.
 public static class TileSpawner
 {
+    // defaultWallMaterialId: the building's style material (BuildingStyleResolver.WallMaterialId),
+    // painted on every wall face the tile has not been hand-painted on. Null = no style.
     public static GameObject Spawn(TileDef tile, Transform parent,
                                    TileShapePalette shapes, MaterialPalette materials,
-                                   float cellSize)
+                                   float cellSize, string defaultWallMaterialId = null)
     {
         if (tile == null || shapes == null) return null;
 
@@ -38,6 +40,17 @@ public static class TileSpawner
         if (tile.faceMaterials != null)
             foreach (var kv in tile.faceMaterials)
                 ApplyFaceMaterial(go, tile, kv.Key, kv.Value, shapes, materials);
+
+        // The style fills in behind the hand paint. Applied here, inside Spawn, so anything the
+        // caller does to the renderer afterwards (the editor's translucent floor ghosting clones
+        // sharedMaterials) sees the styled slots.
+        if (!string.IsNullOrEmpty(defaultWallMaterialId))
+        {
+            var entry = shapes.GetEntry(tile.shapeId);
+            if (entry != null)
+                foreach (var face in BuildingStyles.UnpaintedWallFaces(entry.faceNames, tile))
+                    ApplyFaceMaterial(go, tile, face, defaultWallMaterialId, shapes, materials);
+        }
 
         return go;
     }

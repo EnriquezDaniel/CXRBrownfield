@@ -101,10 +101,12 @@ public class SiteFitTests
         var canvas = SiteFit.BoundaryToCanvas(Boundary());
         Assert.IsNotNull(canvas);
         Assert.AreEqual(4, canvas.Length);
-        Assert.AreEqual(0f,    canvas[0][0], 0.5f);   // (200,300) -> (0,0)
-        Assert.AreEqual(0f,    canvas[0][1], 0.5f);
-        Assert.AreEqual(1000f, canvas[2][0], 0.5f);   // (320,380) -> (1000,1000)
-        Assert.AreEqual(1000f, canvas[2][1], 0.5f);
+        // Half turn: the bbox max corner is canvas 0, the min corner canvas 1000 (LayoutConverter
+        // puts canvas 0, the top-left of the sketch, at the world max).
+        Assert.AreEqual(1000f, canvas[0][0], 0.5f);   // (200,300) -> (1000,1000)
+        Assert.AreEqual(1000f, canvas[0][1], 0.5f);
+        Assert.AreEqual(0f,    canvas[2][0], 0.5f);   // (320,380) -> (0,0)
+        Assert.AreEqual(0f,    canvas[2][1], 0.5f);
         foreach (var p in canvas)
         {
             Assert.GreaterOrEqual(p[0], 0f); Assert.LessOrEqual(p[0], 1000f);
@@ -221,5 +223,121 @@ public class SiteFitTests
         Assert.IsFalse(SiteFit.ProjectIntoSite(null, Boundary()));
         Assert.IsFalse(SiteFit.ProjectIntoSite(new EnvironmentDef(), Boundary()));
         Assert.IsFalse(SiteFit.ProjectIntoSite(SmallChild(), null));
+    }
+
+    // ---- Child frame: fit by the child's own parcel, not its terrain ----
+
+    [Test]
+    public void TryComputeFit_ChildFrameOffCorner_LandsCornerOnCorner()
+    {
+        // Child content lives in [10,70] x [5,45]; that rect, not the origin, must map onto the bbox.
+        Assert.IsTrue(SiteFit.TryComputeFit(Boundary(), 10f, 5f, 70f, 45f, out var fit));
+        Assert.AreEqual(200f, fit.offsetX + 10f * fit.scaleX, 1e-3f);
+        Assert.AreEqual(300f, fit.offsetZ + 5f  * fit.scaleZ, 1e-3f);
+        Assert.AreEqual(320f, fit.offsetX + 70f * fit.scaleX, 1e-3f);
+        Assert.AreEqual(380f, fit.offsetZ + 45f * fit.scaleZ, 1e-3f);
+        Assert.IsFalse(SiteFit.TryComputeFit(Boundary(), 10f, 5f, 10f, 45f, out _));
+    }
+
+    [Test]
+    public void ChildFrame_PrefersLotBoundary_FallsBackToTerrain()
+    {
+        var child = SmallChild();
+        child.site.terrainSize = new[] { 122f, 82f };   // margin past the parcel must be ignored
+        Assert.IsTrue(SiteFit.ChildFrame(child, out float minX, out float minZ, out float maxX, out float maxZ));
+        Assert.AreEqual(0f,   minX, 1e-4f); Assert.AreEqual(0f,  minZ, 1e-4f);
+        Assert.AreEqual(120f, maxX, 1e-4f); Assert.AreEqual(80f, maxZ, 1e-4f);
+
+        child.site.lotBoundary = null;
+        Assert.IsTrue(SiteFit.ChildFrame(child, out minX, out minZ, out maxX, out maxZ));
+        Assert.AreEqual(122f, maxX, 1e-4f); Assert.AreEqual(82f, maxZ, 1e-4f);
+
+        Assert.IsFalse(SiteFit.ChildFrame(null, out _, out _, out _, out _));
+    }
+
+    // ---- Long thin strip: Westchester Bronx River "Site A", 114.03 x 19.40 m (about 5.9:1) ----
+
+    private const float STRIP_MIN_X = 105.456993f, STRIP_MIN_Z = 163.165924f;
+    private const float STRIP_W = 114.030235f, STRIP_L = 19.400376f;
+
+    private static float[][] StripBoundary() => new[]
+    {
+        new[] { STRIP_MIN_X,           STRIP_MIN_Z },
+        new[] { STRIP_MIN_X + STRIP_W, STRIP_MIN_Z },
+        new[] { STRIP_MIN_X + STRIP_W, STRIP_MIN_Z + STRIP_L },
+        new[] { STRIP_MIN_X,           STRIP_MIN_Z + STRIP_L },
+    };
+
+    // What LayoutConverter produces for that strip: the parcel at the origin plus its 2 m terrain margin.
+    private static EnvironmentDef StripChild()
+    {
+        return new EnvironmentDef
+        {
+            id = "strip", name = "strip",
+            site = new SiteDef
+            {
+                terrainSize    = new[] { STRIP_W + 2f, STRIP_L + 2f },
+                terrainZones   = new List<TerrainZoneDef>(),
+                paths          = new List<PathDef>(),
+                surfaceStrokes = new List<SurfaceStrokeDef>(),
+                lotBoundary    = new[] { new[] { 0f, 0f }, new[] { STRIP_W, 0f }, new[] { STRIP_W, STRIP_L }, new[] { 0f, STRIP_L } },
+            },
+            buildingInstances = new List<BuildingInstance>
+            {
+                new BuildingInstance { instanceId = "b1", buildingId = "def1", position = new[] { 100f, 0f, 4f }, scale = 1f },
+            },
+            objectInstances = new List<ObjectInstance>(),
+        };
+    }
+
+    [Test]
+    public void BoundaryToCanvas_Strip_ArrivesAsTheFullSquare()
+    {
+        // Each axis is normalized by its own extent, so the parcel's shape reaches the model only
+        // through site_width_ft / site_height_ft (the prompt's axis note explains those).
+        var canvas = SiteFit.BoundaryToCanvas(StripBoundary());
+        Assert.AreEqual(1000f, canvas[0][0], 0.5f); Assert.AreEqual(1000f, canvas[0][1], 0.5f);
+        Assert.AreEqual(0f,    canvas[1][0], 0.5f); Assert.AreEqual(1000f, canvas[1][1], 0.5f);
+        Assert.AreEqual(0f,    canvas[2][0], 0.5f); Assert.AreEqual(0f,    canvas[2][1], 0.5f);
+        Assert.AreEqual(1000f, canvas[3][0], 0.5f); Assert.AreEqual(0f,    canvas[3][1], 0.5f);
+    }
+
+    [Test]
+    public void SiteDimsFeet_Strip_LongSideIsWidth()
+    {
+        // X extent (the sketch's vertical axis) is site_width_ft: 374 ft tall on the page, 64 ft across.
+        Assert.IsTrue(SiteFit.SiteDimsFeet(StripBoundary(), out float wFt, out float hFt));
+        Assert.AreEqual(374.1f, wFt, 0.2f);
+        Assert.AreEqual(63.65f, hFt, 0.2f);
+        Assert.Greater(wFt / hFt, 5.5f);
+    }
+
+    [Test]
+    public void ProjectIntoSite_Strip_IsAPureTranslation()
+    {
+        // The generated child's terrain is 2 m larger than its parcel on each axis. Fitting by the
+        // terrain would squeeze the 19.4 m axis by 9% while the 114 m axis barely moved; fitting by
+        // the parcel keeps both scales at exactly 1.
+        var child = StripChild();
+        Assert.IsTrue(SiteFit.ChildFrame(child, out float cMinX, out float cMinZ, out float cMaxX, out float cMaxZ));
+        Assert.IsTrue(SiteFit.TryComputeFit(StripBoundary(), cMinX, cMinZ, cMaxX, cMaxZ, out var fit));
+        Assert.AreEqual(1f, fit.scaleX, 1e-4f);
+        Assert.AreEqual(1f, fit.scaleZ, 1e-4f);
+
+        Assert.IsTrue(SiteFit.ProjectIntoSite(child, StripBoundary()));
+        var b = child.buildingInstances[0];
+        Assert.AreEqual(STRIP_MIN_X + 100f, b.position[0], 1e-3f);
+        Assert.AreEqual(STRIP_MIN_Z + 4f,   b.position[2], 1e-3f);
+        Assert.AreEqual(1f, b.scale, 1e-4f);
+
+        var lot = child.site.lotBoundary;
+        Assert.AreEqual(STRIP_MIN_X,           lot[0][0], 1e-3f); Assert.AreEqual(STRIP_MIN_Z,           lot[0][1], 1e-3f);
+        Assert.AreEqual(STRIP_MIN_X + STRIP_W, lot[2][0], 1e-3f); Assert.AreEqual(STRIP_MIN_Z + STRIP_L, lot[2][1], 1e-3f);
+
+        // Terrain keeps its margin (scale 1) and its corner rides along with the parcel.
+        Assert.AreEqual(STRIP_W + 2f, child.site.terrainSize[0], 1e-3f);
+        Assert.AreEqual(STRIP_L + 2f, child.site.terrainSize[1], 1e-3f);
+        Assert.AreEqual(STRIP_MIN_X, child.site.terrainOrigin[0], 1e-3f);
+        Assert.AreEqual(STRIP_MIN_Z, child.site.terrainOrigin[1], 1e-3f);
     }
 }

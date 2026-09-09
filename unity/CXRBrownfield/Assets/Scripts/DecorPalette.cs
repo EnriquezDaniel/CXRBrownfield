@@ -95,8 +95,51 @@ public class DecorPalette : ScriptableObject
     }
 
     [Tooltip("One entry per decor. Order sets the button order in the Decorate panel, and the FIRST " +
-             "entry is the fallback the tool selects when nothing else is active.")]
+             "entry is the fallback the tool selects when nothing else is active. The entry named " +
+             "WindowPair also sizes and seats the windows the layout generator puts on upper floors.")]
     public List<Entry> entries = new();
+
+    public const string ResourceName = "DecorPalette";
+
+    // The palette lives in Resources so a caller with no serialized slot (the layout converter's
+    // window pass) still resolves it. Same precedent as BuildingStyleResolver.LoadDefault.
+    public static DecorPalette LoadDefault() => Resources.Load<DecorPalette>(ResourceName);
+
+    private static readonly HashSet<string> _warned = new();
+
+    // The rule the layout generator follows for upper-floor window pairs (BuildingWindows): the
+    // WindowPair entry's prefab, size fractions, anchor and offsets, always marked optional so the
+    // VR low-detail viewer skips them. Falls back to BuildingWindows.DefaultRule, warning once, when
+    // the palette or the entry is missing, so generation never silently loses its windows.
+    public static BuildingWindows.Rule GeneratedWindowRule(DecorPalette palette)
+    {
+        var rule = BuildingWindows.DefaultRule;
+        if (palette == null)
+        {
+            WarnOnce("palette", "[DecorPalette] No DecorPalette in Resources; generated windows use built-in defaults.");
+            return rule;
+        }
+        var e = palette.Get(BuildingWindows.DefaultPrefabKey);
+        if (e == null || string.IsNullOrEmpty(e.prefabKey))
+        {
+            WarnOnce("entry", $"[DecorPalette] No '{BuildingWindows.DefaultPrefabKey}' entry; generated windows use built-in defaults.");
+            return rule;
+        }
+        rule.prefabKey     = e.prefabKey;
+        rule.widthFrac     = e.widthFraction  > 0f ? e.widthFraction  : BuildingWindows.DefaultFraction;
+        rule.heightFrac    = e.heightFraction > 0f ? e.heightFraction : BuildingWindows.DefaultFraction;
+        rule.surfaceOffset = e.surfaceOffset;
+        rule.anchor        = (int)e.anchor;
+        rule.mountAxis     = (int)e.mountAxis;
+        rule.flipMount     = e.flipMount;
+        rule.optional      = true;
+        return rule;
+    }
+
+    private static void WarnOnce(string key, string message)
+    {
+        if (_warned.Add(key)) Debug.LogWarning(message);
+    }
 
     public Entry Get(string id)
     {

@@ -21,4 +21,12 @@ public class MaterialPalette : ScriptableObject
         Debug.LogError($"[MaterialPalette] Material '{materialId}' not found.");
         return null;
     }
+
+    // Quiet presence check, for callers that want to report a miss once themselves.
+    public bool Has(string materialId)
+    {
+        foreach (var e in entries)
+            if (e != null && string.Equals(e.materialId, materialId, StringComparison.OrdinalIgnoreCase)) return true;
+        return false;
+    }
 }

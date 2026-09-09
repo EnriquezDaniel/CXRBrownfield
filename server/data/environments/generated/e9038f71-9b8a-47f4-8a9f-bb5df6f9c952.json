@@ -1,0 +1,193 @@
+{
+  "id": "e9038f71-9b8a-47f4-8a9f-bb5df6f9c952",
+  "name": "WestchesterSample1",
+  "version": 3,
+  "tags": [
+    "generated"
+  ],
+  "locked": false,
+  "site": {
+    "terrainSize": [
+      141.9,
+      22.12
+    ],
+    "terrainOrigin": [
+      79.0,
+      162.0
+    ],
+    "terrainZones": [
+      {
+        "terrainType": "pavement",
+        "rectMeters": [
+          80.39903,
+          179.682663,
+          216.105133,
+          181.714462
+        ]
+      },
+      {
+        "terrainType": "pavement",
+        "rectMeters": [
+          174.134186,
+          168.63855,
+          213.307068,
+          178.495773
+        ]
+      },
+      {
+        "terrainType": "asphalt",
+        "rectMeters": [
+          193.720612,
+          168.960419,
+          211.908035,
+          178.093445
+        ]
+      },
+      {
+        "terrainType": "asphalt",
+        "rectMeters": [
+          174.8337,
+          168.960419,
+          193.0211,
+          178.093445
+        ]
+      },
+      {
+        "terrainType": "grass",
+        "rectMeters": [
+          171.336121,
+          164.253082,
+          174.134186,
+          179.501617
+        ]
+      }
+    ],
+    "paths": [
+      {
+        "id": "b812eeb3-9a82-4862-8c3d-4cfd185238f9",
+        "material": "pavement_light",
+        "width": 2.4384,
+        "points": [
+          [
+            215.405624,
+            180.708618
+          ],
+          [
+            148.9516,
+            180.708618
+          ],
+          [
+            81.09855,
+            180.708618
+          ]
+        ],
+        "smoothing": 0.2
+      },
+      {
+        "id": "5730bf94-1d21-4dec-9aaf-24ac69c85d11",
+        "material": "pavement_light",
+        "width": 1.8288,
+        "points": [
+          [
+            193.0211,
+            180.708618
+          ],
+          [
+            193.0211,
+            178.093445
+          ]
+        ],
+        "smoothing": 0.2
+      }
+    ],
+    "fences": [
+      {
+        "id": "aea4710e-1e41-4d63-8c37-c2c2aeea0f05",
+        "fenceType": "chain_link",
+        "points": [
+          [
+            213.307068,
+            178.395187
+          ],
+          [
+            213.307068,
+            168.739136
+          ],
+          [
+            174.134186,
+            168.739136
+          ],
+          [
+            174.134186,
+            178.395187
+          ],
+          [
+            213.307068,
+            178.395187
+          ]
+        ],
+        "smoothing": 0.0,
+        "height": 3.048
+      }
+    ],
+    "surfaceStrokes": [],
+    "heightStrokes": [],
+    "waterBodies": null,
+    "scaleNote": "All placements must fall within lot_boundary. Bounding boxes define placement. Real-world dimensions define scale.",
+    "lotBoundary": [
+      [
+        218.9032,
+        182.1168
+      ],
+      [
+        218.9032,
+        162.0
+      ],
+      [
+        79.0,
+        162.0
+      ],
+      [
+        79.0,
+        182.1168
+      ]
+    ],
+    "outsideTerrainType": "water"
+  },
+  "buildingInstances": [
+    {
+      "instanceId": "fefe83dd-87fe-40dc-909a-60f044081a6b",
+      "buildingId": "06d32706-985e-49b3-904a-5f30ceb50160",
+      "position": [
+        172.220413,
+        0.0,
+        179.87735
+      ],
+      "rotationX": 0.0,
+      "rotationY": 180.0,
+      "rotationZ": 0.0,
+      "scale": 1.0,
+      "included": true,
+      "optional": false
+    },
+    {
+      "instanceId": "338e4d30-fc28-4452-939c-75927046b483",
+      "buildingId": "e09bdb41-c43c-491c-8e79-a030805321a0",
+      "position": [
+        100.192261,
+        0.0,
+        179.87735
+      ],
+      "rotationX": 0.0,
+      "rotationY": 180.0,
+      "rotationZ": 0.0,
+      "scale": 1.0,
+      "included": true,
+      "optional": false
+    }
+  ],
+  "objectInstances": [],
+  "sites": null,
+  "generation": null,
+  "favorite": false
+}

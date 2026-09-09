@@ -9,6 +9,16 @@ using UnityEngine;
 // ground at BASE_NORMALIZED (0.5) so the brush can dig as far as it can build. WorldRenderer parks
 // the Terrain at BASE_WORLD_Y so that base plane sits at world y = 0, where every environment
 // authored before sculpting existed already sits.
+//
+// Stroke samples. A stroke is a list of samples; frames laid close together fold into one sample
+// (MergeSample), and the replay must reproduce every frame that folded in:
+//   Raise    [x, z, meters]           frames sum; one stamp of the sum is the same as the frames.
+//   Flatten  [x, z, weight]           weight in [0, 1) composes as 1 - (1-a)(1-b). Per cell the
+//                                     stamp lerps by 1 - (1-weight)^falloff, which composes the same
+//                                     way, so one merged stamp equals the frames it came from.
+//   Smooth   [x, z, weightSum, passes] a 3x3 blur has no closed form, so the sample keeps the
+//                                     number of frames and the replay runs that many passes of
+//                                     weightSum / passes. Legacy 3-element samples replay one pass.
 
 public enum HeightBrushKind { Raise, Smooth, Flatten }
 
@@ -36,9 +46,15 @@ public static class HeightBrush
     public const float BASE_WORLD_Y    = -RANGE_METERS * BASE_NORMALIZED;   // -15: Terrain transform y
     public const float MIN_RADIUS      = 0.5f;
     public const float MAX_RADIUS      = 30f;
-    // Samples laid closer than radius * this fold into the previous stored sample (MergeAmount), so
+    // Samples laid closer than radius * this fold into the previous stored sample (MergeSample), so
     // holding still stores one sample and a drag stores about four per radius of travel.
     public const float MERGE_FRACTION  = 0.25f;
+    // A flatten sample's composed weight never reaches 1: samples are saved at 3 decimals, and a
+    // weight that rounded up to exactly 1 would snap the whole disc to the target with a hard edge.
+    // At this cap the remaining gap at the center is 0.1% (3 cm over the full range), which is flat.
+    public const float FLATTEN_MAX_WEIGHT = 0.999f;
+    // The most one frame of Smooth or Flatten may blend (a weight above 1 has no meaning).
+    public const float MAX_FRAME_WEIGHT = 1f;
 
     public static float NormalizedFromMeters(float metersAboveBase) =>
         Mathf.Clamp01(BASE_NORMALIZED + metersAboveBase / RANGE_METERS);
@@ -70,10 +86,77 @@ public static class HeightBrush
         return u * u * (3f - 2f * u);
     }
 
-    // Combines two samples laid at (nearly) the same spot. Raise is additive, so amounts sum. Smooth
-    // and Flatten lerp toward a target, so two weights compose as 1 - (1 - a)(1 - b), clamped.
-    public static float MergeAmount(HeightBrushKind kind, float a, float b) =>
-        kind == HeightBrushKind.Raise ? a + b : Mathf.Clamp01(1f - (1f - a) * (1f - b));
+    // ---- Stroke samples ----
+
+    // A fresh sample for one frame laid at (x, z). Smooth carries its pass count.
+    public static float[] NewSample(HeightBrushKind kind, float x, float z, float amount)
+    {
+        amount = ClampFrameAmount(kind, amount);
+        return kind == HeightBrushKind.Smooth
+            ? new[] { x, z, amount, 1f }
+            : new[] { x, z, kind == HeightBrushKind.Flatten ? Mathf.Min(amount, FLATTEN_MAX_WEIGHT) : amount };
+    }
+
+    // Folds one more frame into `sample` and returns the amount the live stamp must apply THIS frame
+    // so the terrain lands exactly where the replay of the merged sample will. Raise and Smooth sum,
+    // so that is the frame's own amount; Flatten composes and caps at FLATTEN_MAX_WEIGHT, so it is
+    // the increment that takes the composed weight from its old value to the new one (0 at the cap).
+    public static float MergeSample(HeightBrushKind kind, float[] sample, float amount)
+    {
+        if (sample == null || sample.Length < 3) return 0f;
+        amount = ClampFrameAmount(kind, amount);
+        switch (kind)
+        {
+            case HeightBrushKind.Smooth:
+                sample[2] += amount;
+                if (sample.Length >= 4) sample[3] += 1f;
+                return amount;
+            case HeightBrushKind.Flatten:
+            {
+                float before = Mathf.Clamp(sample[2], 0f, FLATTEN_MAX_WEIGHT);
+                float after  = Mathf.Min(FLATTEN_MAX_WEIGHT, 1f - (1f - before) * (1f - amount));
+                sample[2] = after;
+                // (1 - before) * (1 - inc) == (1 - after)  =>  inc = 1 - (1 - after) / (1 - before)
+                return Mathf.Clamp01(1f - (1f - after) / (1f - before));
+            }
+            default:
+                sample[2] += amount;
+                return amount;
+        }
+    }
+
+    // Combines two amounts laid at (nearly) the same spot: Raise sums; Flatten composes two weights
+    // as 1 - (1 - a)(1 - b), capped. Smooth also keeps a pass count, so it merges via MergeSample.
+    public static float MergeAmount(HeightBrushKind kind, float a, float b) => kind switch
+    {
+        HeightBrushKind.Flatten => Mathf.Min(FLATTEN_MAX_WEIGHT, Mathf.Clamp01(1f - (1f - a) * (1f - b))),
+        _                       => a + b,
+    };
+
+    // Number of blur passes a stored sample stands for (Smooth only; anything else is one stamp).
+    public static int SamplePasses(HeightBrushKind kind, float[] sample)
+    {
+        if (kind != HeightBrushKind.Smooth || sample == null || sample.Length < 4) return 1;
+        return Mathf.Max(1, Mathf.RoundToInt(sample[3]));
+    }
+
+    // Replays one stored sample at terrain-local (cx, cz): the stamp(s) that reproduce every frame
+    // folded into it. Callers convert the sample's world x/z to terrain-local before calling.
+    public static void ReplaySample(ref HeightWindow win, HeightBrushKind kind, float[] sample, float cx, float cz,
+                                    float radius, float targetNormalized, float[][] clip, float clipOffX, float clipOffZ)
+    {
+        if (sample == null || sample.Length < 3) return;
+        int passes = SamplePasses(kind, sample);
+        float amount = passes > 1 ? sample[2] / passes : sample[2];
+        for (int i = 0; i < passes; i++)
+            Stamp(ref win, kind, cx, cz, radius, amount, targetNormalized, clip, clipOffX, clipOffZ);
+    }
+
+    // Raise amounts are signed meters; Smooth and Flatten weights are one frame's blend in [0, 1].
+    private static float ClampFrameAmount(HeightBrushKind kind, float amount) =>
+        kind == HeightBrushKind.Raise ? amount : Mathf.Clamp(amount, 0f, MAX_FRAME_WEIGHT);
+
+    // ---- Stamps ----
 
     // Sample box a disc at terrain-local (cx, cz) touches, plus one sample of padding so Smooth's
     // 3x3 reads stay inside, clamped to [0, res). False when the disc misses the terrain entirely.
@@ -130,12 +213,17 @@ public static class HeightBrush
         }
     }
 
-    // h = lerp(h, target, weight * falloff). Repeated stamps converge on the target.
+    // h = lerp(h, target, 1 - (1 - weight)^falloff). At the center that is the weight itself; toward
+    // the rim it eases to 0. Written this way so stamps compose exactly: two stamps a then b equal
+    // one stamp of 1 - (1-a)(1-b), which is how MergeSample folds frames. Repeated stamps converge
+    // on the target.
     public static void Flatten(ref HeightWindow win, float cx, float cz, float radius, float targetNormalized,
                                float weight, float[][] clip, float ox, float oz)
     {
         if (win.heights == null || radius <= 0f) return;
         targetNormalized = Mathf.Clamp01(targetNormalized);
+        // Fraction of the gap a center cell keeps; the cap means a stamp never snaps a disc hard.
+        float keep = 1f - Mathf.Clamp(weight, 0f, FLATTEN_MAX_WEIGHT);
         if (!DiscBox(ref win, cx, cz, radius, out int xa, out int xb, out int za, out int zb)) return;
 
         for (int z = za; z <= zb; z++)
@@ -146,14 +234,15 @@ public static class HeightBrush
                 float mx = win.MetersX(x);
                 float f  = Weight(mx, mz, cx, cz, radius, clip, ox, oz);
                 if (f <= 0f) continue;
-                win.heights[z, x] = Mathf.Lerp(win.heights[z, x], targetNormalized, Mathf.Clamp01(weight * f));
+                win.heights[z, x] = Mathf.Lerp(win.heights[z, x], targetNormalized, 1f - Mathf.Pow(keep, f));
             }
         }
     }
 
-    // h = lerp(h, avg3x3(h), weight * falloff). The average is read from a copy taken before any
-    // write, so the result does not depend on scan order. Neighbor indices clamp to the window
-    // edge, so the terrain border never pulls toward zero and a flat field stays flat.
+    // h = lerp(h, avg3x3(h), weight * falloff). The average is read from a copy of the disc box
+    // (plus one sample of margin) taken before any write, so the result does not depend on scan
+    // order. Neighbor indices clamp to the window edge, so the terrain border never pulls toward
+    // zero and a flat field stays flat.
     public static void Smooth(ref HeightWindow win, float cx, float cz, float radius, float weight,
                               float[][] clip, float ox, float oz)
     {
@@ -161,7 +250,12 @@ public static class HeightBrush
         if (!DiscBox(ref win, cx, cz, radius, out int xa, out int xb, out int za, out int zb)) return;
 
         int w = win.Width, h = win.Height;
-        var src = (float[,])win.heights.Clone();
+        int sx0 = Mathf.Max(0, xa - 1), sx1 = Mathf.Min(w - 1, xb + 1);
+        int sz0 = Mathf.Max(0, za - 1), sz1 = Mathf.Min(h - 1, zb + 1);
+        var src = new float[sz1 - sz0 + 1, sx1 - sx0 + 1];
+        for (int z = sz0; z <= sz1; z++)
+            for (int x = sx0; x <= sx1; x++)
+                src[z - sz0, x - sx0] = win.heights[z, x];
 
         for (int z = za; z <= zb; z++)
         {
@@ -175,11 +269,11 @@ public static class HeightBrush
                 float sum = 0f;
                 for (int dz = -1; dz <= 1; dz++)
                 {
-                    int zz = Mathf.Clamp(z + dz, 0, h - 1);
+                    int zz = Mathf.Clamp(z + dz, 0, h - 1) - sz0;
                     for (int dx = -1; dx <= 1; dx++)
-                        sum += src[zz, Mathf.Clamp(x + dx, 0, w - 1)];
+                        sum += src[zz, Mathf.Clamp(x + dx, 0, w - 1) - sx0];
                 }
-                win.heights[z, x] = Mathf.Lerp(src[z, x], sum / 9f, Mathf.Clamp01(weight * f));
+                win.heights[z, x] = Mathf.Lerp(src[z - sz0, x - sx0], sum / 9f, Mathf.Clamp01(weight * f));
             }
         }
     }

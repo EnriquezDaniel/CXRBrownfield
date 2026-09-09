@@ -1,8 +1,8 @@
 # Guarded palette / registry assets
 
-The eight guarded assets, all in `unity/CXRBrownfield/Assets/Resources/`:
+The nine guarded assets, all in `unity/CXRBrownfield/Assets/Resources/`:
 `PrefabRegistry` · `TerrainRegistry` · `TileShapePalette` · `MaterialPalette` ·
-`PathMaterialPalette` · `FencePalette` · `DecorPalette` · `WaterPalette`.
+`PathMaterialPalette` · `FencePalette` · `DecorPalette` · `WaterPalette` · `BuildingStylePalette`.
 
 Entries have been silently lost from these before (confirmed: the `DecorPalette` `AC` entry was
 overwritten **in place at slot [2]** instead of appended). Rules:
@@ -15,7 +15,7 @@ overwritten **in place at slot [2]** instead of appended). Rules:
    through MCP `assets-modify` (live AssetDatabase) or ask the user to edit in the Inspector.
 3. Run **`Tools → CXR → Palettes → Snapshot Now`** before a palette change and
    **`Tools → CXR → Palettes → Validate`** after; paste the console output into your reply.
-4. **Never remove or rename a field** on one of the eight ScriptableObject classes without an
+4. **Never remove or rename a field** on one of the nine ScriptableObject classes without an
    explicit request plus a snapshot — the next save drops that column for every entry. *Adding* a
    field is safe (serializes as its default).
 5. **Never `AssetDatabase.FindAssets("t:MaterialPalette")`** — it also matches

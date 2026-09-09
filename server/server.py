@@ -36,14 +36,26 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 try:
-    from layout_prompt import process_sketch
+    from layout_prompt import process_sketch, NOTES_MAX_CHARS, CLAUDE_MODEL_ID as LAYOUT_MODEL_ID
+    from sketch_prep import normalize_rotation_request
+    from brief_prompt import parse_brief, is_empty_brief
     _LAYOUT_AVAILABLE = True
 except Exception as _layout_import_err:
     _LAYOUT_AVAILABLE = False
+    NOTES_MAX_CHARS = 2000   # mirrors layout_prompt.NOTES_MAX_CHARS so the notes endpoints still work
+    LAYOUT_MODEL_ID = None
+    parse_brief = None
     print(f"[server] layout_prompt not loaded ({_layout_import_err}). "
           "POST /api/layout/generate will return 503.")
 
 from site_presets import get_site_preset, list_site_presets, AUTO as AUTO_SITE
+# Pure modules (no model SDKs): the brief reconcile step and the layout JSON schema.
+from layout_reconcile import reconcile_brief, strip_null_fields
+from layout_schema import LAYOUT_SCHEMA
+try:
+    import jsonschema
+except Exception:  # optional: the schema check is warn-only
+    jsonschema = None
 
 app = Flask(__name__)
 CORS(app)
@@ -293,8 +305,10 @@ def _unique_name(kinds: dict, base: str) -> str:
 # so environment equality correctly depends on which (canonical) buildings are referenced.
 # 'name' is deliberately KEPT: it is part of a record's identity, so Save As (same content,
 # new name) creates a real new record instead of deduping back onto the original id.
-# 'favorite' and 'locked' are server/user-managed flags, not content.
-_VOLATILE_KEYS = {"id", "version", "tags", "kind", "updated", "instanceId", "favorite", "locked"}
+# 'favorite' and 'locked' are server/user-managed flags, not content. 'generation' is provenance
+# (sketch, notes, brief, timestamp) that Unity stamps on every generated environment; it carries a
+# per-run timestamp, so leaving it in would make every generation look unique.
+_VOLATILE_KEYS = {"id", "version", "tags", "kind", "updated", "instanceId", "favorite", "locked", "generation"}
 
 
 def _canonical_signature(data: dict) -> str:
@@ -531,6 +545,12 @@ def list_sites():
 _LAYOUT_TOP_KEYS = ("site_scale", "terrain_zones", "paths", "fences",
                     "generated_buildings", "generated_objects", "prefab_instances")
 
+# The style letters a generated building may carry (prompts/site_parsing.md, "style"). Unity maps
+# each to a wall material through its BuildingStylePalette; the model only ever sees the letter.
+BUILDING_STYLE_IDS = ("A", "B", "C", "D", "E", "F")
+# Longest sign word a generated building may carry (mirrors BuildingSigns.MaxChars in Unity).
+BUILDING_SIGN_MAX_CHARS = 16
+
 
 def _point_in_polygon(pt, polygon) -> bool:
     """Ray-cast containment test on [y, x] pairs (the prompt's 0-1000 canvas)."""
@@ -546,8 +566,8 @@ def _point_in_polygon(pt, polygon) -> bool:
     return inside
 
 
-def _validate_layout(site_data: dict, requested_boundary) -> tuple[str | None, list[str], bool]:
-    """Sanity-check the model's layout JSON. Returns (fatal_error, warnings, patched).
+def _normalize_layout(site_data: dict, requested_boundary) -> tuple[str | None, list[str], bool]:
+    """Shape the model's layout JSON before anything reads it. Returns (fatal_error, warnings, patched).
 
     Warn-first: imperfect layouts still flow to Unity (whose converter null-guards
     each category). Two exceptions:
@@ -555,14 +575,17 @@ def _validate_layout(site_data: dict, requested_boundary) -> tuple[str | None, l
         or mangled it, the boundary is patched back in (patched=True).
       - A missing boundary with nothing to patch from (auto mode) is fatal, because
         Unity sizes the terrain from it.
-    Containment is checked on center points only — bounding-box corners would flag
-    every building that correctly hugs the parcel edge.
+    Also drops null-valued fields (optional layout fields are omitted, never null, on
+    Unity's typed parse) and fills a missing category with an empty list.
     """
     warnings, patched = [], False
+    strip_null_fields(site_data)
 
     for key in _LAYOUT_TOP_KEYS:
         if key not in site_data:
             warnings.append(f"Missing top-level key '{key}'.")
+            if key != "site_scale":
+                site_data[key] = []
 
     site_scale = site_data.get("site_scale")
     if not isinstance(site_scale, dict):
@@ -573,12 +596,24 @@ def _validate_layout(site_data: dict, requested_boundary) -> tuple[str | None, l
     if not (isinstance(boundary, list) and len(boundary) >= 3):
         if requested_boundary and len(requested_boundary) >= 3:
             site_scale["lot_boundary"] = requested_boundary
-            boundary = requested_boundary
             patched = True
             warnings.append("Model omitted/mangled lot_boundary; patched back from the requested site boundary.")
         else:
             return ("Layout has no usable lot_boundary and none was supplied in the "
                     "request (auto mode); Unity terrain sizing depends on it."), warnings, patched
+
+    return None, warnings, patched
+
+
+def _check_layout(site_data: dict) -> list[str]:
+    """Warn-only checks, run after the brief reconcile so synthesized pieces are covered too.
+
+    Containment is checked on center points only — bounding-box corners would flag
+    every building that correctly hugs the parcel edge. The schema check catches a
+    wrong type or enum whichever path produced the JSON (structured output or extract_json).
+    """
+    warnings = []
+    boundary = (site_data.get("site_scale") or {}).get("lot_boundary")
 
     def _center(item):
         pt = item.get("center_point")
@@ -589,28 +624,60 @@ def _validate_layout(site_data: dict, requested_boundary) -> tuple[str | None, l
             return [(bb[0] + bb[2]) / 2.0, (bb[1] + bb[3]) / 2.0]
         return None
 
-    for category in ("generated_buildings", "generated_objects", "prefab_instances"):
-        items = site_data.get(category)
-        if not isinstance(items, list):
-            continue
-        for idx, item in enumerate(items):
-            if not isinstance(item, dict):
+    if isinstance(boundary, list) and len(boundary) >= 3:
+        for category in ("generated_buildings", "generated_objects", "prefab_instances"):
+            items = site_data.get(category)
+            if not isinstance(items, list):
                 continue
-            pt = _center(item)
-            if pt is None:
-                continue
-            try:
-                outside = not _point_in_polygon(pt, boundary)
-            except (TypeError, ValueError, IndexError, ZeroDivisionError):
-                warnings.append(f"{category}[{idx}]: unreadable center/boundary geometry.")
-                continue
-            if outside:
-                label = (item.get("building_type") or item.get("object_type")
-                         or item.get("prefab_type") or "?")
-                warnings.append(f"{category}[{idx}] ({label}) center {list(pt[:2])} "
-                                "is outside the lot boundary.")
+            for idx, item in enumerate(items):
+                if not isinstance(item, dict):
+                    continue
+                pt = _center(item)
+                if pt is None:
+                    continue
+                try:
+                    outside = not _point_in_polygon(pt, boundary)
+                except (TypeError, ValueError, IndexError, ZeroDivisionError):
+                    warnings.append(f"{category}[{idx}]: unreadable center/boundary geometry.")
+                    continue
+                if outside:
+                    label = (item.get("area_name") or item.get("object_type")
+                             or item.get("prefab_type") or "?")
+                    warnings.append(f"{category}[{idx}] ({label}) center {list(pt[:2])} "
+                                    "is outside the lot boundary.")
 
-    return None, warnings, patched
+    # Optional per-building style letter (A-F, from the designer brief). Warn-only: Unity
+    # normalizes the case and drops anything it cannot read, so a bad value never blocks a layout.
+    buildings = site_data.get("generated_buildings")
+    if isinstance(buildings, list):
+        for idx, item in enumerate(buildings):
+            if not isinstance(item, dict) or item.get("style") is None:
+                continue
+            style = item.get("style")
+            if not (isinstance(style, str) and style.strip().upper() in BUILDING_STYLE_IDS):
+                warnings.append(f"generated_buildings[{idx}] ({item.get('area_name') or '?'}): "
+                                f"style {style!r} is not one of A-F; Unity will ignore it.")
+        # Optional per-building sign word (prompts/site_parsing.md, "sign"). Warn-only for the same
+        # reason: Unity normalizes it (BuildingSigns.NormalizeText) and drops what it cannot read.
+        for idx, item in enumerate(buildings):
+            if not isinstance(item, dict) or item.get("sign") is None:
+                continue
+            sign = item.get("sign")
+            if not (isinstance(sign, str) and 1 <= len(sign.strip()) <= BUILDING_SIGN_MAX_CHARS):
+                warnings.append(f"generated_buildings[{idx}] ({item.get('area_name') or '?'}): "
+                                f"sign {sign!r} is not a word of 1-{BUILDING_SIGN_MAX_CHARS} characters; "
+                                "Unity will ignore it.")
+
+    if jsonschema is not None:
+        try:
+            jsonschema.validate(site_data, LAYOUT_SCHEMA)
+        except jsonschema.ValidationError as exc:
+            where = "/".join(str(p) for p in exc.absolute_path) or "root"
+            warnings.append(f"Layout schema: {exc.message} (at {where}).")
+        except Exception as exc:  # a broken schema must never block a layout
+            warnings.append(f"Layout schema check skipped: {exc}")
+
+    return warnings
 
 
 @app.route('/api/layout/generate', methods=['POST'])
@@ -650,16 +717,61 @@ def generate_layout_from_sketch():
         site_width_ft  = body.get("site_width_ft",  preset.get("site_width_ft"))
         site_height_ft = body.get("site_height_ft", preset.get("site_height_ft"))
 
-        # One raw layout JSON per source image, archived under layouts/.
-        layout_output_path = LAYOUTS_DIR / f"{Path(selected_sketch_path).stem}.json"
+        # Sketch orientation: "auto" rotates a sketch whose long side disagrees with
+        # the site's; 0/90/180/270 force it (degrees counter-clockwise).
+        try:
+            sketch_rotation = normalize_rotation_request(body.get("sketch_rotation", "auto"))
+        except ValueError as exc:
+            return jsonify({"status": "error", "message": str(exc)}), 400
 
-        output = process_sketch(
-            output_path    = layout_output_path,
-            sketch_path    = selected_sketch_path,
-            lot_boundary   = lot_boundary,
-            site_width_ft  = site_width_ft,
-            site_height_ft = site_height_ft,
+        # Optional designer notes (program, floor counts, names) appended to the
+        # model's runtime context. Free text only; anything else is a 400.
+        notes = body.get("notes")
+        if notes is not None and not isinstance(notes, str):
+            return jsonify({"status": "error", "message": "'notes' must be a string."}), 400
+
+        # Notes persist per sketch (input/<stem>.notes.txt). A body that carries the key, even as
+        # an empty string, is the new saved text (that is how Unity clears notes); a body without
+        # the key (curl / CLI callers) reuses whatever was saved. Written before generation so the
+        # text survives a failed run.
+        if "notes" in body:
+            _write_input_notes(selected_sketch_path, notes)
+        else:
+            notes = _read_input_notes(selected_sketch_path)
+
+        # Brief pass (brief_prompt.py): the notes as a structured contract the layout model reads
+        # and the reconcile step enforces. Skipped without notes; a failure never blocks generation.
+        brief_info = {"brief": None, "error": None, "model": None}
+        if notes and notes.strip() and parse_brief is not None:
+            brief_info = parse_brief(notes, {"site_width_ft": site_width_ft, "site_height_ft": site_height_ft})
+            if brief_info.get("error"):
+                print(f"[brief] {brief_info['error']}")
+            elif is_empty_brief(brief_info.get("brief")):
+                brief_info["brief"] = None
+        brief = brief_info.get("brief")
+
+        # One raw layout JSON per source image, archived under layouts/, plus the brief beside it.
+        layout_output_path = LAYOUTS_DIR / f"{Path(selected_sketch_path).stem}.json"
+        brief_output_path = LAYOUTS_DIR / f"{Path(selected_sketch_path).stem}.brief.json"
+        if brief is not None:
+            brief_output_path.write_text(json.dumps(brief, indent=2), encoding="utf-8")
+        elif brief_output_path.exists():
+            brief_output_path.unlink()
+
+        output, sketch_info = process_sketch(
+            output_path     = layout_output_path,
+            sketch_path     = selected_sketch_path,
+            lot_boundary    = lot_boundary,
+            site_width_ft   = site_width_ft,
+            site_height_ft  = site_height_ft,
+            sketch_rotation = sketch_rotation,
+            notes           = notes,
+            brief           = brief,
         )
+        if sketch_info:
+            print(f"[sketch prep] rotation {sketch_info.get('rotation_deg')} deg"
+                  f"{' (auto)' if sketch_info.get('auto_rotated') else ''}, "
+                  f"prepared {sketch_info.get('prepared_px')} px, resampled={sketch_info.get('resampled')}")
 
         if output is None:
             return jsonify({"status": "error", "message": "Layout generation failed."}), 502
@@ -672,11 +784,20 @@ def generate_layout_from_sketch():
         except json.JSONDecodeError as exc:
             return jsonify({"status": "error", "message": f"Invalid JSON output: {exc.msg}"}), 500
 
-        fatal, warnings, patched = _validate_layout(site_data, lot_boundary)
+        # normalize -> reconcile against the brief -> warn-only checks. The archive is rewritten
+        # whenever anything changed so layouts/<stem>.json equals what Unity receives.
+        fatal, warnings, patched = _normalize_layout(site_data, lot_boundary)
         if fatal:
             return jsonify({"status": "error", "message": fatal, "warnings": warnings}), 502
+        brief_report = None
+        if brief is not None:
+            brief_report = reconcile_brief(site_data, brief, site_width_ft, site_height_ft)
+            warnings.extend(brief_report.get("warnings") or [])
+            patched = patched or bool(brief_report.get("changed"))
+        elif brief_info.get("error"):
+            brief_report = {"error": brief_info["error"]}
+        warnings.extend(_check_layout(site_data))
         if patched:
-            # Keep the archived raw layout consistent with what we hand to Unity.
             layout_output_path.write_text(json.dumps(site_data, indent=2), encoding="utf-8")
         for w in warnings:
             print(f"[layout warning] {w}")
@@ -688,6 +809,12 @@ def generate_layout_from_sketch():
             "output_path":     str(layout_output_path),
             "selected_sketch": Path(selected_sketch_path).name,
             "warnings":        warnings,
+            "sketch_prep":     sketch_info,
+            "notes":           notes,
+            "brief":           brief,
+            "brief_report":    brief_report,
+            "brief_model":     brief_info.get("model") if brief is not None else None,
+            "layout_model":    LAYOUT_MODEL_ID,
         }
         print(json.dumps(response, indent=4))
         return jsonify(response)
@@ -758,6 +885,69 @@ def get_input(name):
     if INPUT_DIR.resolve() not in path.parents or not path.is_file():
         return jsonify({"status": "error", "message": f"Input '{name}' not found"}), 404
     return send_file(str(path))
+
+
+# --- Designer notes per sketch (input/<stem>.notes.txt) ---
+#
+# The sidecar keeps the notes that produced a layout next to the sketch itself, so re-generating
+# the same sketch (from Unity or curl) starts from the same text. Keyed by the image stem, so
+# `plan.png` and `plan.jpg` share one file. The `.txt` suffix keeps it out of the image listing.
+
+def _resolve_input(name: str):
+    """Path of an uploaded sketch by its stored name, or None. Uses the stored name verbatim
+    (upload names may contain spaces and parentheses) with the same containment check the
+    generate endpoint applies; never _sanitize_filename, which would mangle 'plan (2).png'."""
+    path = (INPUT_DIR / os.path.basename(name or "")).resolve()
+    if INPUT_DIR.resolve() not in path.parents or not path.is_file():
+        return None
+    return path
+
+
+def _notes_path(sketch_path: Path) -> Path:
+    return sketch_path.with_name(f"{sketch_path.stem}.notes.txt")
+
+
+def _read_input_notes(sketch_path: Path) -> str:
+    try:
+        return _notes_path(sketch_path).read_text(encoding="utf-8")
+    except FileNotFoundError:
+        return ""
+
+
+def _write_input_notes(sketch_path: Path, notes) -> str:
+    text = (notes or "").strip()
+    if len(text) > NOTES_MAX_CHARS:
+        text = text[:NOTES_MAX_CHARS].rstrip()
+    target = _notes_path(sketch_path)
+    if text:
+        target.write_text(text, encoding="utf-8")
+    elif target.exists():
+        target.unlink()
+    return text
+
+
+@app.route('/api/inputs/<name>/notes', methods=['GET'])
+def get_input_notes(name):
+    """Designer notes saved for a sketch; empty string when none."""
+    path = _resolve_input(name)
+    if path is None:
+        return jsonify({"status": "error", "message": f"Input '{name}' not found"}), 404
+    return jsonify({"status": "success", "name": path.name, "notes": _read_input_notes(path)})
+
+
+@app.route('/api/inputs/<name>/notes', methods=['PUT'])
+def put_input_notes(name):
+    """Save designer notes for a sketch without generating. Body {"notes": "..."}; an empty
+    string clears them. Capped at NOTES_MAX_CHARS like the generate request."""
+    path = _resolve_input(name)
+    if path is None:
+        return jsonify({"status": "error", "message": f"Input '{name}' not found"}), 404
+    body = request.get_json(silent=True) or {}
+    notes = body.get("notes", "")
+    if not isinstance(notes, str):
+        return jsonify({"status": "error", "message": "'notes' must be a string."}), 400
+    saved = _write_input_notes(path, notes)
+    return jsonify({"status": "success", "name": path.name, "notes": saved})
 
 
 # ---------------------------------------------------------------------------

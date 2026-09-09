@@ -61,6 +61,25 @@ SITE_PRESETS = {
             "area outside the parcel is water."
         ),
     },
+
+    # Westchester Avenue — a long, thin street-front strip, about 140 x 20 m.
+    # The full canvas is the parcel: the long side runs down the sketch (north
+    # at the top), so site_width_ft carries the 140 m and site_height_ft the 20 m.
+    "westchester_avenue": {
+        "label": "Westchester Avenue — 140 x 20 m strip",
+        "lot_boundary": [
+            [0, 0],        # northwest corner
+            [0, 1000],     # northeast corner
+            [1000, 1000],  # southeast corner
+            [1000, 0],     # southwest corner
+        ],
+        "site_width_ft": 459,    # long side: sketch vertical / Unity X (140 m)
+        "site_height_ft": 66,    # short side: sketch across / Unity Z (20 m)
+        "scale_note": (
+            "Westchester Avenue strip, 459 x 66 ft, north at the top of the sketch. "
+            "All placements must fall within lot_boundary."
+        ),
+    },
 }
 
 

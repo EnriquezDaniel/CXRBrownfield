@@ -250,6 +250,10 @@ public static class EnvironmentScale
                 b.scale *= iso;
             }
 
+        // Drawn site plots are host-meter polygons like the lot boundary, so they scale with it.
+        if (env.sites != null)
+            foreach (var s in env.sites) ScalePointsXZ(s?.boundary, pivot, fx, fz);
+
         return true;
     }
 
@@ -265,10 +269,14 @@ public static class EnvironmentScale
         if (pos.Length >= 3) pos[2] = ScalarAbout(pos[2], pivot.y, fz);
     }
 
-    // Translates every world-meter position in the environment by (dx, dz) on the ground plane.
-    // Sizes, widths, radii, scales and terrainSize are untouched (a translation changes no extent).
-    // Companion to ScaleEnvironmentXZ; SiteFit.ProjectIntoSite runs the pair to fit a generated
-    // child environment into a host site's bounding box. Returns false only for a null env.
+    // Translates every world-meter position in the environment by (dx, dz) on the ground plane:
+    // instances, every site polyline and polygon, the drawn site plots, and the terrain corner
+    // (only when it is set; a null terrainOrigin stays null so old records round-trip unchanged,
+    // callers that need the ground to follow seed it to [0, 0] first). Sizes, widths, radii,
+    // scales and terrainSize are untouched (a translation changes no extent). Companion to
+    // ScaleEnvironmentXZ; SiteFit.ProjectIntoSite runs the pair to fit a generated child
+    // environment into a host site's bounding box, and the Terrain rail's Move site tool runs it
+    // alone. Returns false only for a null env or a non-finite delta.
     public static bool TranslateEnvironmentXZ(EnvironmentDef env, float dx, float dz)
     {
         if (env == null) return false;
@@ -310,6 +318,8 @@ public static class EnvironmentScale
             foreach (var o in env.objectInstances) TranslatePosition(o?.position, dx, dz);
         if (env.buildingInstances != null)
             foreach (var b in env.buildingInstances) TranslatePosition(b?.position, dx, dz);
+        if (env.sites != null)
+            foreach (var s in env.sites) TranslatePointsXZ(s?.boundary, dx, dz);
 
         return true;
     }
@@ -347,26 +357,77 @@ public static class EnvironmentScale
     }
 
     // -------------------------------------------------------------------------
+    // Site placement — where the ground rectangle sits. Shared by the renderer
+    // (terrain transform), the lot tool (handles, preview) and the Move site tool.
+    // -------------------------------------------------------------------------
+
+    // World XZ of the terrain's min corner: site.terrainOrigin when it is set and finite, else the
+    // world origin (where every environment authored before the field sits). The validity test
+    // matches the renderer's, so the editor's handles and the ground agree.
+    public static void TerrainCorner(SiteDef site, out float ox, out float oz)
+    {
+        ox = 0f; oz = 0f;
+        var o = site?.terrainOrigin;
+        if (o == null || o.Length < 2) return;
+        if (float.IsNaN(o[0]) || float.IsInfinity(o[0]) || float.IsNaN(o[1]) || float.IsInfinity(o[1])) return;
+        ox = o[0]; oz = o[1];
+    }
+
+    // The drag delta that lands the terrain corner (ox, oz) on whole meters when `snap` is on
+    // (Round(corner + delta) - corner), or the delta untouched when it is off. A non-finite delta
+    // becomes zero so a bad cursor sample never moves anything.
+    public static void SnapCornerDelta(float ox, float oz, float dx, float dz, bool snap,
+                                       out float sdx, out float sdz)
+    {
+        if (float.IsNaN(dx) || float.IsInfinity(dx)) dx = 0f;
+        if (float.IsNaN(dz) || float.IsInfinity(dz)) dz = 0f;
+        if (!snap) { sdx = dx; sdz = dz; return; }
+        sdx = Mathf.Round(ox + dx) - ox;
+        sdz = Mathf.Round(oz + dz) - oz;
+    }
+
+    // Ground rectangle that encloses [minX, maxX] × [minZ, maxZ] with `margin` on every side: the
+    // corner sits at min - margin, the size is the extent plus two margins. Used by the Fit
+    // buttons, so a parcel or content in negative space gets ground under it instead of a
+    // rectangle pinned to the world origin. False for a degenerate or non-finite box. Sizes are
+    // not clamped here (the editor clamps when it writes terrainSize).
+    public static bool FitTerrainRect(float minX, float minZ, float maxX, float maxZ, float margin,
+                                      out float ox, out float oz, out float w, out float l)
+    {
+        ox = oz = w = l = 0f;
+        if (float.IsNaN(minX) || float.IsNaN(minZ) || float.IsNaN(maxX) || float.IsNaN(maxZ)) return false;
+        if (float.IsInfinity(minX) || float.IsInfinity(minZ) || float.IsInfinity(maxX) || float.IsInfinity(maxZ)) return false;
+        if (float.IsNaN(margin) || float.IsInfinity(margin)) return false;
+        if (maxX <= minX || maxZ <= minZ) return false;
+        ox = minX - margin;
+        oz = minZ - margin;
+        w  = (maxX - minX) + 2f * margin;
+        l  = (maxZ - minZ) + 2f * margin;
+        return true;
+    }
+
+    // -------------------------------------------------------------------------
     // Lot / parcel geometry — shared by the renderer (mask + frame), the editor
     // (lot tool, fit/clamp), and the generation pipeline so they agree on shape.
     // -------------------------------------------------------------------------
 
     // The parcel polygon to use for masking/framing/containment: the explicit lotBoundary when it has
-    // ≥3 vertices, otherwise the four corners of the terrainSize rectangle [0,0]..[w,l]. Returns null
-    // only when there is no usable rectangle either.
+    // ≥3 vertices, otherwise the four corners of the terrainSize rectangle from the terrain corner
+    // (TerrainCorner) to corner + [w, l]. Returns null only when there is no usable rectangle either.
     public static float[][] EffectiveLotPolygon(SiteDef site)
     {
         if (site == null) return null;
         if (site.lotBoundary != null && site.lotBoundary.Length >= 3) return site.lotBoundary;
         var ts = site.terrainSize;
         if (ts == null || ts.Length < 2 || ts[0] <= 0f || ts[1] <= 0f) return null;
+        TerrainCorner(site, out float ox, out float oz);
         float w = ts[0], l = ts[1];
         return new[]
         {
-            new[] { 0f, 0f },
-            new[] { w,  0f },
-            new[] { w,  l  },
-            new[] { 0f, l  },
+            new[] { ox,     oz     },
+            new[] { ox + w, oz     },
+            new[] { ox + w, oz + l },
+            new[] { ox,     oz + l },
         };
     }
 

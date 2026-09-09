@@ -1,0 +1,98 @@
+{
+  "site_scale": {
+    "site_width_ft": 459,
+    "site_height_ft": 66,
+    "normalized_canvas": [0, 0, 1000, 1000],
+    "lot_boundary": [[0, 0], [0, 1000], [1000, 1000], [1000, 0]],
+    "scale_note": "Westchester Avenue strip, 459 x 66 ft, north at the top of the sketch. All placements must fall within lot_boundary."
+  },
+  "terrain_zones": [
+    {
+      "area_name": "Bike Storage Lot",
+      "semantic_tag": "bike_storage",
+      "terrain_type": "asphalt",
+      "bounding_box": [5, 10, 40, 990],
+      "approx_sq_ft": 1040,
+      "unity_strategy": "paint_terrain"
+    },
+    {
+      "area_name": "Community Garden",
+      "semantic_tag": "community_garden",
+      "terrain_type": "planting_bed",
+      "bounding_box": [70, 90, 375, 885],
+      "approx_sq_ft": 7350,
+      "unity_strategy": "paint_terrain"
+    }
+  ],
+  "paths": [],
+  "fences": [],
+  "generated_buildings": [
+    {
+      "area_name": "Puerto Rican Restaurant",
+      "semantic_tag": "mixed_use_restaurant",
+      "bounding_box": [406, 102, 664, 898],
+      "center_point": [535, 500],
+      "rotation_y_deg": 0,
+      "floors": 3,
+      "approx_sq_ft": 6220,
+      "unity_strategy": "modular_prefab",
+      "style": "A",
+      "sign": "RESTAURANT"
+    },
+    {
+      "area_name": "Workshop for Rent",
+      "semantic_tag": "mixed_use_workshop",
+      "bounding_box": [664, 102, 950, 898],
+      "center_point": [807, 500],
+      "rotation_y_deg": 0,
+      "floors": 3,
+      "approx_sq_ft": 6890,
+      "unity_strategy": "modular_prefab",
+      "style": "A",
+      "sign": "WORKSHOP"
+    }
+  ],
+  "generated_objects": [],
+  "prefab_instances": [
+    {
+      "area_name": "Garden Plant NW",
+      "semantic_tag": "garden_plant",
+      "prefab_type": "bush",
+      "center_point": [112, 184],
+      "footprint_box": [102, 174, 122, 194],
+      "rotation_deg": 0,
+      "scale_multiplier": 1.0,
+      "unity_strategy": "place_prefab"
+    },
+    {
+      "area_name": "Garden Plant NE",
+      "semantic_tag": "garden_plant",
+      "prefab_type": "bush",
+      "center_point": [112, 701],
+      "footprint_box": [102, 691, 122, 711],
+      "rotation_deg": 0,
+      "scale_multiplier": 1.0,
+      "unity_strategy": "place_prefab"
+    },
+    {
+      "area_name": "Garden Plant SW",
+      "semantic_tag": "garden_plant",
+      "prefab_type": "bush",
+      "center_point": [303, 207],
+      "footprint_box": [293, 197, 313, 217],
+      "rotation_deg": 0,
+      "scale_multiplier": 1.0,
+      "unity_strategy": "place_prefab"
+    },
+    {
+      "area_name": "Garden Plant SE",
+      "semantic_tag": "garden_plant",
+      "prefab_type": "bush",
+      "center_point": [314, 747],
+      "footprint_box": [304, 737, 324, 757],
+      "rotation_deg": 0,
+      "scale_multiplier": 1.0,
+      "unity_strategy": "place_prefab"
+    }
+  ]
+}

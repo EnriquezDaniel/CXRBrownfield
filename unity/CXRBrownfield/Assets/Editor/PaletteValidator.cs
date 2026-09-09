@@ -35,6 +35,8 @@ public static class PaletteValidator
         { "FencePalette",        new Spec { Key = "fenceType",  Refs = new[] { "panelPrefab" } } },
         { "DecorPalette",        new Spec { Key = "decorId",    Refs = new string[0] } },
         { "WaterPalette",        new Spec { Key = "id",         Refs = new[] { "material" } } },
+        // wallMaterialId is a string id into MaterialPalette, cross-checked below like DecorPalette's prefabKey.
+        { "BuildingStylePalette", new Spec { Key = "styleId",   Refs = new string[0] } },
     };
 
     // Not wired into OnValidate: it would spam the console on every import and domain reload, and it
@@ -45,6 +47,7 @@ public static class PaletteValidator
     {
         var errors        = 0;
         var registryKeys  = RegistryKeys();
+        var materialIds   = MaterialIds();
 
         foreach (var path in PaletteGuard.Paths)
         {
@@ -118,6 +121,30 @@ public static class PaletteValidator
                     {
                         Debug.LogError($"[PaletteValidator] DecorPalette[{i}] '{key}': prefabKey " +
                                        $"'{prefabKey}' is not in PrefabRegistry.", obj);
+                        errors++;
+                    }
+                }
+
+                if (name == "BuildingStylePalette")
+                {
+                    // The letter must be one the prompt and BuildingStyles know, and its material id
+                    // must resolve in MaterialPalette or the style silently renders as default.
+                    if (BuildingStyles.Normalize(key) == null)
+                    {
+                        Debug.LogError($"[PaletteValidator] BuildingStylePalette[{i}]: styleId '{key}' " +
+                                       "is not one of A to F.", obj);
+                        errors++;
+                    }
+                    var wallId = ReadString(entry, "wallMaterialId");
+                    if (string.IsNullOrWhiteSpace(wallId))
+                    {
+                        Debug.LogError($"[PaletteValidator] BuildingStylePalette[{i}] '{key}': wallMaterialId is BLANK.", obj);
+                        errors++;
+                    }
+                    else if (materialIds != null && !materialIds.Contains(wallId))
+                    {
+                        Debug.LogError($"[PaletteValidator] BuildingStylePalette[{i}] '{key}': wallMaterialId " +
+                                       $"'{wallId}' is not in MaterialPalette.", obj);
                         errors++;
                     }
                 }
@@ -243,6 +270,20 @@ public static class PaletteValidator
     private static string ReadString(SerializedProperty entry, string field)
     {
         return entry.FindPropertyRelative(field)?.stringValue;
+    }
+
+    // Material ids of the CXR MaterialPalette, by path (PaletteGuard.Paths) so ProBuilder's
+    // "Material Palette.asset" in the same folder is never picked up.
+    private static HashSet<string> MaterialIds()
+    {
+        var palette = PaletteGuard.Load("Assets/Resources/MaterialPalette.asset");
+        if (palette == null) return null;
+
+        var ids     = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var entries = new SerializedObject(palette).FindProperty("entries");
+        for (var i = 0; entries != null && i < entries.arraySize; i++)
+            ids.Add(entries.GetArrayElementAtIndex(i).FindPropertyRelative("materialId")?.stringValue ?? "");
+        return ids;
     }
 
     private static HashSet<string> RegistryKeys()

@@ -41,6 +41,20 @@ CLAUDE_MAX_TOKENS = 16000
 # regardless of the caller's working directory (e.g. the server runs from
 # server/, where a relative "prompts/..." path would not exist).
 _MODULE_DIR = Path(__file__).resolve().parent
+if str(_MODULE_DIR) not in sys.path:
+    sys.path.insert(0, str(_MODULE_DIR))
+from sketch_prep import prepare_sketch, normalize_rotation_request, AUTO as AUTO_ROTATION  # noqa: E402
+from brief_prompt import BRIEF_MODEL_ID, parse_brief, is_empty_brief, _transform as _transform_schema  # noqa: E402,F401
+from layout_schema import LAYOUT_SCHEMA, LAYOUT_OUTPUT_SCHEMA  # noqa: E402,F401
+
+# Explicit so an SDK default change can never silently alter the layout call.
+CLAUDE_EFFORT = "high"
+# Structured output on the layout call is OFF: the full layout schema exceeds the API's grammar
+# size limit, and the accepted subset (layout_schema.LAYOUT_OUTPUT_SCHEMA) made the model return
+# a near-empty layout in testing (2026-09-09). The prompt plus the server's jsonschema check keep
+# the JSON in shape instead. Flip this to experiment; a rejected schema still falls back cleanly.
+LAYOUT_STRUCTURED_OUTPUT = False
+
 PROMPT_PATH = _MODULE_DIR / "prompts" / "site_parsing.md"
 OUTPUT_PATH = _MODULE_DIR / "sample_output.json"
 MAX_RETRIES = 3
@@ -87,7 +101,114 @@ def normalize_lot_boundary(lot_boundary):
     return normalized
 
 
-def build_runtime_site_context(site_width_ft=None, site_height_ft=None, lot_boundary=None):
+def build_axis_note(site_width_ft=None, site_height_ft=None, sketch_info=None):
+    """
+    Spells out which image axis each real dimension spans, plus what was done to
+    the image, so the model lays out for the parcel's true proportions. Empty
+    when no dimensions are known (auto-trace mode estimates them itself).
+    """
+    if not site_width_ft or not site_height_ft:
+        return ""
+    ft_y = site_width_ft / 1000.0
+    ft_x = site_height_ft / 1000.0
+    lines = [
+        f"Axes: the first coordinate y runs down the image and spans site_width_ft = {site_width_ft:g} ft "
+        f"({ft_y:.3f} ft per canvas unit). The second coordinate x runs across the image and spans "
+        f"site_height_ft = {site_height_ft:g} ft ({ft_x:.3f} ft per canvas unit)."
+    ]
+    if sketch_info and sketch_info.get("rotation_deg"):
+        lines.append(
+            f"The sketch was rotated {sketch_info['rotation_deg']} degrees counter-clockwise before you "
+            "received it so its long side matches the parcel. Read labels in that rotated frame."
+        )
+    if sketch_info and sketch_info.get("resampled"):
+        lines.append(
+            f"The image was resampled to the parcel's true proportions ({site_width_ft:g} ft tall by "
+            f"{site_height_ft:g} ft across), so every pixel covers the same distance in feet on both "
+            "axes: a square in the image is a square on the ground. Use the sketch for arrangement and "
+            "adjacency; size each footprint so it is buildable at these real dimensions."
+        )
+    else:
+        lines.append(
+            "The image is NOT to scale: canvas units differ in feet between the two axes. "
+            "Size every bounding box from the feet per unit above, not from how square it looks."
+        )
+    long_ft = max(site_width_ft, site_height_ft)
+    short_ft = min(site_width_ft, site_height_ft)
+    if short_ft > 0 and long_ft / short_ft >= 2.0:
+        along = "y (down the image)" if site_width_ft >= site_height_ft else "x (across the image)"
+        lines.append(
+            f"This parcel is long and narrow ({long_ft:g} by {short_ft:g} ft). Arrange the program along "
+            f"the long axis {along}. Keep buildings at least 20 ft deep across the short axis, leave room "
+            "for a path along the long axis, and keep every box inside the boundary."
+        )
+    return "\n".join(lines)
+
+
+# Free-text designer notes are capped so a pasted document cannot crowd out the prompt.
+NOTES_MAX_CHARS = 2000
+
+
+BRIEF_RULES = """The brief below is the authoritative reading of those notes (brief_prompt.py parsed them). \
+Follow it exactly:
+- buildings: each entry is one building the designer wants. Emit it exactly once in generated_buildings \
+(generated_objects only for a kiosk-like structure) with "area_name" equal to its "name" and "brief_ref" \
+equal to its "ref". Use "where" to pick which drawn block it is. Copy "style" when given and leave style \
+out otherwise. Use "floors" when given. Never draw a block the sketch does not show; if no drawn block \
+fits, leave the entry out and the server will report it.
+- splits: a group with count N is ONE drawn block that becomes N buildings. Emit N generated_buildings \
+entries that divide that block into N equal shares along its longer side, touching (neighbours share an \
+edge), in member order starting at the end with the lowest coordinate. Each carries its member's \
+brief_ref, name, style and floors.
+- program_totals: spread the quantity over the blocks listed in "across" (every drawn block when empty) \
+by adjusting floors and uses. Never change the block count to meet a total.
+- paths and fences: each entry with "exclude": false is a drawn walkway, road or fence the designer \
+describes; emit it with "brief_ref" equal to its "ref" and the given material or type, width or height. \
+For an entry with "exclude": true, emit nothing that matches it.
+- props: for each entry with "exclude": false emit prefab_instances of that type in the arrangement and \
+count given, each with "brief_ref" equal to its "ref". An excluded type is not emitted at all.
+- ignored and unparsed sentences need no action.
+"""
+
+
+def build_brief_block(notes, brief=None):
+    """
+    Optional designer notes about the sketch (program, floor counts, names, sizes)
+    appended after the site context, followed by the structured brief when one was
+    parsed from them. Empty string when there is nothing usable.
+    """
+    if not isinstance(notes, str):
+        return ""
+    text = notes.strip()
+    if not text:
+        return ""
+    if len(text) > NOTES_MAX_CHARS:
+        text = text[:NOTES_MAX_CHARS].rstrip() + " [truncated]"
+    block = (
+        "\nDesigner notes for this sketch. Where they conflict with visual massing cues "
+        "(floor counts, uses, names, sizes) the notes win. Still keep every placement inside "
+        "lot_boundary and follow the output schema as documented. If the notes assign a style "
+        "letter A to F to a building (matched by the name or use they give), emit "
+        "\"style\": \"<LETTER>\" on that generated_buildings entry; leave style out of every "
+        "other building and never choose a letter yourself. If the notes or the sketch name a "
+        "building (a shop, a theater), emit \"sign\": \"<WORD>\" on its entry, one uppercase "
+        "word of at most 16 letters; leave sign out of unnamed buildings:\n"
+        f"{text}\n"
+    )
+    if isinstance(brief, dict) and not is_empty_brief(brief):
+        block += (
+            "\n" + BRIEF_RULES +
+            "\n```json\n" + json.dumps(brief, indent=2) + "\n```\n"
+        )
+    return block
+
+
+# Kept for callers that only have notes.
+build_notes_block = build_brief_block
+
+
+def build_runtime_site_context(site_width_ft=None, site_height_ft=None, lot_boundary=None, sketch_info=None,
+                               notes=None, brief=None):
     site_scale = {
         "site_width_ft": site_width_ft,
         "site_height_ft": site_height_ft,
@@ -106,6 +227,9 @@ def build_runtime_site_context(site_width_ft=None, site_height_ft=None, lot_boun
             "The lot_boundary above is AUTHORITATIVE. Echo it verbatim into "
             "site_scale.lot_boundary and keep every placement inside it."
         )
+        axis_note = build_axis_note(site_width_ft, site_height_ft, sketch_info)
+        if axis_note:
+            directive += "\n" + axis_note
     else:
         # Auto-derive: no boundary given, so the model traces the parcel from the
         # sketch. Unity shapes the terrain to whatever polygon comes back, painting
@@ -129,6 +253,7 @@ def build_runtime_site_context(site_width_ft=None, site_height_ft=None, lot_boun
         "```json\n"
         f"{json.dumps(site_scale, indent=2)}\n"
         "```\n"
+        + build_brief_block(notes, brief)
     )
 
 def visualize_output(site_data):
@@ -415,50 +540,64 @@ def _call_model(prompt_text, runtime_context, image_bytes):
                 "Add it to your .env file."
             )
 
-        text_parts = [prompt_text]
-        if runtime_context:
-            text_parts.append(runtime_context)
-        combined_text = "\n".join(text_parts)
-
         media_type = detect_image_media_type(image_bytes)
         image_b64 = base64.standard_b64encode(image_bytes).decode("utf-8")
+
+        # The prompt file is identical on every call, so it goes in `system` behind a cache
+        # breakpoint; everything that varies (image, site context, notes, brief) is the user turn.
+        system_blocks = [{"type": "text", "text": prompt_text, "cache_control": {"type": "ephemeral"}}]
+        user_content = [
+            {"type": "image", "source": {"type": "base64", "media_type": media_type, "data": image_b64}},
+            {"type": "text", "text": runtime_context or "Produce the layout JSON for this sketch."},
+        ]
 
         # Vision + spatial-reasoning task with a large structured-JSON output, so
         # we turn on adaptive thinking and stream the response. Streaming keeps us
         # clear of the SDK's non-streaming HTTP timeout guard at high max_tokens,
-        # and get_final_message() reassembles the full message for us.
-        with claude_client.messages.stream(
-            model=CLAUDE_MODEL_ID,
-            max_tokens=CLAUDE_MAX_TOKENS,
-            thinking={"type": "adaptive"},
-            messages=[
-                {
-                    "role": "user",
-                    "content": [
-                        {
-                            "type": "image",
-                            "source": {
-                                "type": "base64",
-                                "media_type": media_type,
-                                "data": image_b64,
-                            },
-                        },
-                        {
-                            "type": "text",
-                            "text": combined_text,
-                        },
-                    ],
-                }
-            ],
-        ) as stream:
-            response = stream.get_final_message()
+        # and get_final_message() reassembles the full message for us. The output
+        # schema (site_scale + buildings typed, the rest free; the full schema is too
+        # large for the grammar compiler, see layout_schema.py) constrains the output;
+        # if the API rejects it, one retry without the schema keeps generation working
+        # and extract_json takes over either way.
+        def _stream(output_config):
+            with claude_client.messages.stream(
+                model=CLAUDE_MODEL_ID,
+                max_tokens=CLAUDE_MAX_TOKENS,
+                thinking={"type": "adaptive"},
+                output_config=output_config,
+                system=system_blocks,
+                messages=[{"role": "user", "content": user_content}],
+            ) as stream:
+                return stream.get_final_message()
 
+        if LAYOUT_STRUCTURED_OUTPUT:
+            structured = {"effort": CLAUDE_EFFORT,
+                          "format": {"type": "json_schema", "schema": _transform_schema(LAYOUT_OUTPUT_SCHEMA)}}
+            try:
+                response = _stream(structured)
+            except anthropic.BadRequestError as exc:
+                msg = str(exc)
+                if not any(k in msg for k in ("output_config", "format", "schema")):
+                    raise
+                print(f"⚠️ Structured output rejected ({msg[:200]}); retrying without a schema.")
+                response = _stream({"effort": CLAUDE_EFFORT})
+        else:
+            response = _stream({"effort": CLAUDE_EFFORT})
+
+        if response.stop_reason == "refusal":
+            raise RuntimeError("Claude declined to produce a layout for this sketch (stop_reason=refusal).")
         if response.stop_reason == "max_tokens":
             raise ResponseTruncatedError(
                 f"Claude's response was truncated at the {CLAUDE_MAX_TOKENS}-token "
                 "limit before it finished the JSON. Increase CLAUDE_MAX_TOKENS and "
                 "try again."
             )
+
+        usage = getattr(response, "usage", None)
+        if usage is not None:
+            print(f"📊 tokens: in {getattr(usage, 'input_tokens', '?')}, "
+                  f"cache read {getattr(usage, 'cache_read_input_tokens', 0) or 0}, "
+                  f"out {getattr(usage, 'output_tokens', '?')}")
 
         return "".join(
             block.text for block in response.content if getattr(block, "type", None) == "text"
@@ -513,11 +652,24 @@ def process_sketch(
     sketch_path=None,
     prompt_path=PROMPT_PATH,
     output_path=OUTPUT_PATH,
+    sketch_rotation=AUTO_ROTATION,
+    notes=None,
+    brief=None,
 ):
+    """
+    Runs one sketch through the layout model. Returns (json_text_or_None, sketch_info).
+
+    notes is optional free text from the designer (program, floors, names) that is
+    appended to the runtime context; brief is the structured reading of those notes
+    from brief_prompt.parse_brief (None to send the notes alone); see build_brief_block.
+
+    sketch_info describes what sketch_prep did to the image (rotation, resample)
+    and is None when the image was sent untouched or nothing ran.
+    """
 
     if sketch_path is None:
         print("No sketch path was provided")
-        return
+        return None, None
 
     sketch_path = Path(sketch_path)
     prompt_path = Path(prompt_path)
@@ -525,26 +677,53 @@ def process_sketch(
 
     if not sketch_path.exists():
         print(f"{sketch_path} does not exist")
-        return
-    
+        return None, None
+
     if not prompt_path.exists():
         print(f"{prompt_path} does not exist")
-        return
+        return None, None
 
     try:
         normalized_boundary = normalize_lot_boundary(lot_boundary)
     except ValueError as exc:
         print(f"Invalid lot boundary: {exc}")
-        return
+        return None, None
+
+    image_bytes = sketch_path.read_bytes()
+
+    # Orient and resample the sketch to the parcel's real proportions when we know
+    # them (Unity's site-targeted requests). Auto-trace requests keep the image as
+    # drawn unless an explicit rotation was asked for.
+    try:
+        sketch_rotation = normalize_rotation_request(sketch_rotation)
+    except ValueError as exc:
+        print(f"Invalid sketch rotation: {exc}")
+        return None, None
+
+    sketch_info = None
+    try:
+        image_bytes, sketch_info = prepare_sketch(
+            image_bytes, site_width_ft, site_height_ft, requested=sketch_rotation
+        )
+    except Exception as exc:  # unreadable image: send the original bytes, the model may still cope
+        print(f"Sketch prep skipped ({exc}); sending the image as uploaded.")
+        image_bytes = sketch_path.read_bytes()
+    if sketch_info is not None:
+        print(f"Sketch prep: rotation {sketch_info['rotation_deg']} deg"
+              f"{' (auto)' if sketch_info['auto_rotated'] else ''}, "
+              f"{sketch_info['original_px']} -> {sketch_info['prepared_px']} px"
+              f"{', resampled to site proportions' if sketch_info['resampled'] else ''}")
 
     runtime_context = build_runtime_site_context(
         site_width_ft=site_width_ft,
         site_height_ft=site_height_ft,
         lot_boundary=normalized_boundary,
+        sketch_info=sketch_info,
+        notes=notes,
+        brief=brief,
     )
 
     prompt_text = prompt_path.read_text(encoding="utf-8")
-    image_bytes = sketch_path.read_bytes()
 
     print(f"🔄 [Processing {sketch_path}...")
     output = call_model_with_retries(prompt_text, runtime_context, image_bytes)
@@ -555,7 +734,7 @@ def process_sketch(
         if normalized_boundary is not None:
             print(f"Applied lot boundary with {len(normalized_boundary)} points")
 
-    return output
+    return output, sketch_info
 
 
 def choose_sketch_path():

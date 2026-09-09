@@ -7,6 +7,29 @@ Everything here runs in Play mode in `BasicModel`. Panels are IMGUI: `LibraryBro
 
 1. `python server/server.py`
 2. Play mode → **Generate Layout** → select sketch → layout converts and saves to the library.
+   The **Notes** box under the sketch list is plain prose. The server first reads it into a
+   structured brief (`brief_prompt.py`), hands both to the layout model, then enforces the brief on
+   the result and reports what it missed (the Output text shows `Notes: 3 of 4 named building(s)
+   placed, missing …`; the names also go to the Console). Notes can steer buildings (a name that
+   becomes the library name, a style letter A to F, floors, a use, a position phrase), split one
+   drawn block into several buildings, set path and fence materials, widths and types, and ask for
+   or exclude props. Ground and water sentences are ignored on purpose. Examples:
+   `The long block is three shops: a cafe, Rite Aid style C 4 floors, and a bakery.`
+   `Brick sidewalk 8 ft along the avenue with a row of trees. Chain-link fence on the east edge. No benches.`
+   The letters A to F map to wall materials in `BuildingStylePalette`; the model only ever sees
+   the letter and never picks one on its own. A building the sketch or the notes name also gets a
+   sign word (`sign`, e.g. `ICECREAM`) that Unity hangs on the wall facing east (see the **Sign**
+   section under "Edit-mode controls" below; you can rename, re-aim and move it after generation);
+   the model chooses the word. A split block becomes equal touching pieces along its long
+   side, in the order the notes list them. Notes are saved beside the sketch on the server when
+   you generate, so they come back the next time you pick that sketch, and the notes, the brief
+   and its report are stored on the generated place (`EnvironmentDef.generation`).
+   Every generated building also arrives with a **window pair on each outward-facing wall face
+   from the second storey up** (`BuildingWindows`, one per tile face, none on the ground floor or on
+   faces that touch a neighbouring tile). They are ordinary Decorate props saved in
+   `BuildingDef.embeddedObjects` from the `DecorPalette` **WindowPair** entry, marked `optional` so
+   the low-detail VR viewer skips them. Erase or repaint them one face at a time with **Decorate**,
+   or a whole side with **Whole face**. Tiles and floors you add later get no windows on their own.
 3. **LibraryBrowser** → **Load** an environment.
 4. **EditController** → place objects, transform, double-click a building to tile-edit.
    **Buildings tab → New** seeds the def with a 3×3 floor-0 block of `square` tiles centered on the
@@ -18,11 +41,22 @@ Everything here runs in Play mode in `BasicModel`. Panels are IMGUI: `LibraryBro
 6. **BakePass → Bake** to combine meshes for VR / lightweight play.
 
 No server or API key handy? **Generate rail → Samples → Local sample** loads
-`Assets/Resources/DummyLayout.json`, a hand-authored reading of the Home Longfellow sketch
-(`samples/HomeLongfellowSample1.jpg`) on the real 286 × 133 ft parcel. It arrives as an editable,
+`Assets/Resources/DummyLayout.json`, the model's reading of the Westchester Avenue sketch
+(`samples/WestchesterSample1.jpg`, raw output in `layouts/WestchesterSample1.json`) on the real
+459 × 66 ft strip: two fenced pickleball courts at the north end, then a 7-floor mixed-use
+building split into a Movie Theater block (style B) and an Ice Cream Shop block (style A). It arrives as an editable,
 unsaved environment in the Loaded list, so steps 3 to 6 work on it like any other. It honours the
 same **Sites** target Generate uses: pick a site and the sample is projected into that plot
 (`SiteFit.ProjectIntoSite`) instead of loading at the origin.
+
+**Generate rail → Samples → Server sample** loads the most recently updated library place whose name
+contains "sample". Today that is `WestchesterSample2` (sketch `samples/WestchesterSample2.jpg`,
+hand-authored `layouts/WestchesterSample2.json`, no model call): a bike storage lot at the north end,
+a community garden on a `planting_bed` ground zone with the four drawn plants as bushes, then a
+Puerto Rican restaurant and a workshop for rent as two touching 3-floor style A blocks with
+apartments above. It loads as its own editable place at the origin. Site A in the user place
+"Westchester Bronx River Site" was reshaped to the same 459 × 66 ft preset, so either sample can be
+generated or projected into it on request; nothing fills it by default.
 
 `Assets/Tests/EditMode/DummyLayoutSampleTests.cs` pins the sample's geometry, its orientation, and
 its fit into a site, and keeps it a valid reference for what a layout response should look like.
@@ -35,10 +69,28 @@ applied by `WorldRenderer.ApplyTerrainSize` whenever an environment becomes acti
 with the environment through `EnvironmentScale` — the size scales directly while the origin, being a
 position, scales about the pivot and shifts on a translate.
 
+Every stored XZ (instance positions, path, fence, stroke and water points, zone rects, lot and site
+polygons) is in world meters, never relative to that corner. `WorldRenderer` places geometry at the
+stored XZ as is; only the splat and heightmap rasterizers subtract the terrain position to reach
+alphamap cells. Adding the corner to a stored position is how a moved building used to jump by the
+site offset a second time.
+
 `SiteFit.ProjectIntoSite` seeds `terrainOrigin` with the site's corner, so an environment fitted into
 a host's drawn site brings its ground with it. Only one environment owns the terrain at a time, so
 while such an environment is active the ground sits over its site and the host is a backdrop without
 ground under it; make the host active again and the terrain returns to it.
+
+**Moving a place.** The corner is editable from the Terrain rail's **Site** block: type it into the
+**Origin (m)** fields and Apply, or turn on **Move site** and drag anywhere on the ground. Both bake
+the move into the data through `EnvironmentScale.TranslateEnvironmentXZ` (instances, paths, fences,
+water, strokes, the lot, the drawn site plots and `terrainOrigin`, which is seeded to 0,0 first when
+the record predates it), so nothing new is stored and the VR viewer, the server and undo see an
+ordinary edit. While the drag is held only transforms move (`WorldRenderer.PreviewEnvironmentOffset`
+offsets the place's root, its site fills' roots and the Terrain); the release commits, re-renders and
+re-fits the fills. Every rebuild path clears that preview first, so an undo mid-drag can never bake an
+offset root. The rectangle lot handles, `EnvironmentScale.EffectiveLotPolygon`, the out-of-lot checks
+and the two **Fit** buttons all honour the corner: a fit sets both origin and size, so a parcel or
+content in negative space gets ground under it.
 
 The terrain's Y is not a site field: `WorldRenderer.EnsureHeightSetup` always parks the `Terrain` at
 y = -15 with a 30 m height range, so the flat base plane (normalized 0.5) sits at world y = 0 and the
@@ -58,8 +110,9 @@ y = -15 with a 30 m height range, so the flat base plane (normalized 0.5) sits a
 | Shift (during any rotate) | Snap rotation to 15° (R-drag, gizmo ring, panel Y slider are free otherwise) |
 | Gizmo handles | Arrows = move on X/Z, center pad = free move, ring = rotate, top cube = scale (works without G/R/T) |
 | Right-panel sliders | Rotation (0–360°) and scale (0.1–5) of the selected instance |
-| Right-panel **Pivot** (Rotate tool, multi-selection) | **Each object** (default; every instance spins about its own pivot) or **selection center** (yaw orbits positions around the group's XZ centroid — same math as whole-env rotate). Applies to R-drag, gizmo ring, Y slider; X/Z rotation stays per-instance |
+| Right-panel **Pivot** (Rotate tool, multi-selection) | **Each object** (default; every instance spins about its own pivot) or **selection center** (yaw orbits positions around the group's XZ centroid). Applies to R-drag, gizmo ring, Y slider; X/Z rotation stays per-instance |
 | Right-panel **Skew shape** (selected building) | Whole-building deform of the `BuildingDef`: **Bend corner** (acute/obtuse footprint corner) or **Slope edge** (shed roof). **Apply** stacks onto the current shape, **Reset** clears all deform; both re-render, `PutBuilding`, and are undoable. Writes `TileDeform` via the shared `TileDeformField` (same field AI generation uses), so it round-trips like a tile edit |
+| Right-panel **Sign** (selected building, open by default) | The sign the placed building carries (`BuildingInstance.signText`, `signCompass`, `signPinned`, `signHostX/Z/Floor`; two copies of one def can differ). Type a word and **Apply** (uppercased, 16 characters max, "Set sign"), **Clear** removes it, **Use name** copies the building's name in. **North / East / South / West** is the world direction the sign faces; `BuildingSigns.SpecFor` turns it into the building-local wall through the instance yaw, so a turned building still picks the right wall ("Aim sign", drops any pin). **Move sign** arms a drag on that wall: the plate snaps to the nearest pair of open tiles, one tile at a time, and can move up or down a floor; Esc leaves. **Left / Right / Up / Down** nudge one tile or one floor (right = the viewer's right facing the wall), **Reset spot** returns to the centred pair. Every edit is one Environment-scope undo step saved with the place (never `PutBuilding`), and only the sign GO is respawned (`WorldRenderer.RespawnBuildingSign`). The plate is two tiles wide in the top band of its floor (`BuildingSignSpawner`). A pinned pair whose tiles are gone falls back to the centred spot, a wall with no room falls back to the first other wall that has one, and the section says which happened; only a building with no two open tiles side by side on any wall shows nothing. Undo while the section is open deselects the building (as with Transform); click it again to continue. Records saved before this feature keep the def's legacy `signText` / `signFace` until the first edit moves the sign onto the instance |
 | Arrow keys | Nudge (Transform mode) |
 | Ctrl+C / Ctrl+V | Copy selected instance(s) / paste at the cursor (see below) |
 | Delete / Backspace | Remove selected instance or tile. While editing a fence: removes the selected control dot, or with no dot selected (the state right after clicking a fence) **deletes the whole fence**; a 2-point fence always deletes. Undoable |
@@ -122,7 +175,9 @@ Details:
 | Shift/Ctrl + click | **Select** tool: toggle a tile in/out of a multi-selection (or use "Select floor / Select all") |
 | Left-click | **Add** places one tile in the hovered cell, on release |
 | Left-drag | **Add** paints each cell dragged over once the cursor moves a few pixels, **Select** keeps adding hovered tiles, **Paint** paints each face dragged over, **Decorate** places the active decor on each face dragged over |
-| **Paint** | Assign a `MaterialPalette` material to a tile face |
+| **Style** row (above the tools) | Facade style for the whole building: **None** or **A** to **F** (`BuildingDef.style`). Each letter's `BuildingStylePalette` wall material covers every wall face you have not painted; tops and bottoms keep the default. Switching re-skins at once, one undo step ("Set style"). Painted faces stay painted, and there is no way yet to hand a painted face back to the style. The layout generator sets the letter from the sketch notes |
+| Sign | Drawn here exactly as in the world (same spawner, same fallbacks) so you see it while shaping tiles, but edited only from the selection panel's **Sign** section (it belongs to the placed instance, not the def). A building opened from the library has no placed instance, so it shows no sign |
+| **Paint** | Assign a `MaterialPalette` material to a tile face. Paint sits on top of the building's style |
 | **Decorate** | Place props (doors/windows/vents) from a `DecorPalette` decor onto tile faces — the prop analogue of Paint. Each prop auto-centers, fits to `widthFraction`×`heightFraction` of the cell (aspect preserved), seats flush at its `anchor`. Decors stack; only re-painting the same decor replaces it; a `replacesOtherDecor` decor clears other face-claiming decor instead. The panel summary shows `• stacks` / `• clears face`. **Erase** drags remove painted props **one per click** (the nearest), so a stack peels off a prop at a time. The decor's `surface` filter keeps walls and roofs to the right prop types. Saved as `BuildingDef.embeddedObjects` (field glossary in [unity-scene-wiring.md](unity-scene-wiring.md)) |
 | **Optional** (Decorate) | Third Decorate mode next to Place / Erase. Click a prop to flip its `optional` flag (the VR viewer skips optional decor, see [Optional content](#optional-content-vr-detail-level)). Optional props show a translucent blue tint in the editor. One flip per click, no drag. Undo: "Mark decor optional" / "Mark decor required" |
 | **Whole face** (Paint & Decorate) | Act on the **entire building side**: resolve the clicked face's building-local axis, then process every exposed (un-occluded) tile face pointing that way across all floors — Paint assigns the material to the whole side, Decorate places the decor on each exposed face, Optional flips every prop hosted on that side (any required → all optional; all optional → all required) |
@@ -141,9 +196,11 @@ box (+ margin). Geometry helpers: `EnvironmentScale` in `Assets/Scripts/Authorin
 
 | Control | Use |
 |---|---|
+| **Origin (m) fields + Apply** | World position of the ground's min corner (`site.terrainOrigin`). Apply moves the **whole place** so the corner lands there: everything on it comes along, one undo step ("Move site") |
 | **Size (m) fields + Apply** | Type width × length and Apply. Content stays at its world coordinates (fitting a layout into a region is the site-fill pipeline's job, `SiteFit`) |
-| **Edit lot (handles)** | `EditMode.EditLot`. **Rectangle** sub-mode: drag the far corner / far-edge handles to resize from the origin corner. **Parcel** sub-mode: drag vertices, click an edge to insert one, Delete removes the selected one (min 3); **Reset parcel to rectangle** drops the boundary. A draped amber "Lot frame" line shows the parcel; a live preview tracks the drag |
-| **Fit terrain to lot** / **Fit lot to content** | Snap `terrainSize` to the parcel's extent, or grow it to enclose all placed content (+ margin) |
+| **Move site** | `EditMode.MoveSite`. Press and drag anywhere on the ground; the place, its ground and its site fills follow as a live preview and the release bakes the move. The corner snaps to whole meters, Shift moves freely. Esc drops a drag in progress, Esc again leaves the tool. Refused on a locked place |
+| **Edit lot (handles)** | `EditMode.EditLot`. **Rectangle** sub-mode: drag the far corner / far-edge handles to resize from the ground's corner (`terrainOrigin`). **Parcel** sub-mode: drag vertices, click an edge to insert one, Delete removes the selected one (min 3); **Reset parcel to rectangle** drops the boundary. A draped amber "Lot frame" line shows the parcel; a live preview tracks the drag |
+| **Fit terrain to lot** / **Fit lot to content** | Move and resize the ground rectangle to hug the parcel's extent (+ 2 m), or to enclose all placed content (+ 5 m): `terrainOrigin` lands at the min corner minus the margin (`EnvironmentScale.FitTerrainRect`). Content stays where it is |
 | **Clamp items to lot** | Appears when instances fall outside the parcel; projects each back just inside (`ClampInsidePolygon`) |
 
 ## Sites (Generate tab → "Sites")
@@ -177,9 +234,20 @@ environment (same as the placement tools). The selected site shows a real-world 
 
 **Filling a site**: in the Generate rail, pick the site in the **Sites** list, then Generate. Unity sends the drawn boundary and its real dimensions with the sketch
 (`lot_boundary` + `site_width_ft`/`site_height_ft`, see [server-api.md](server-api.md)), so the LLM
-lays out for that parcel. The result is saved as its own generated environment, linked to the site,
-and rendered inside it: a deep copy is scaled + translated into the site's bounding box
-(`SiteFit.ProjectIntoSite`) and shown as a locked backdrop; its ground paint composites into the
+lays out for that parcel. **Orientation**: the sketch's vertical axis lands on Unity X and its
+horizontal axis on Unity Z, turned half a turn so the top of the sketch (north) is +X and its left
+edge (west) is +Z (`LayoutConverter`), so a site whose X extent is the longer one (`site_width_ft` >
+`site_height_ft`) wants its long side drawn *up the page*. The rail shows this as a note under the
+Sites list ("Draw the long side up the page: 374 ft tall by 64 ft across") plus a **Sketch**
+selector: **Auto** (default) lets the server give a sketch a quarter turn when its long side runs the
+other way from the site's, **As drawn** sends it untouched, **90 / 180 / 270** force a
+counter-clockwise turn (`sketch_rotation` in the request). The server then resamples the image to the
+parcel's true proportions so the model sees the real lot shape, and tells it the feet per canvas unit
+on each axis. The result is saved as its own generated environment, linked to the site,
+and rendered inside it: a deep copy is translated so its own parcel bbox sits on the site's bounding
+box (`SiteFit.ProjectIntoSite`; the fit is by the child's `lotBoundary`, not its terrain, so the
+2 m terrain margin never squeezes the content and the scale is exactly 1 for a generated child)
+and shown as a locked backdrop; its ground paint composites into the
 host terrain clipped to the site polygon. Generating into an occupied site replaces the link (the
 old scene survives in the library). To edit a fill's content, open its record from the library like
 any generated environment; the fill re-fits next time the host loads. Site fills are not published
@@ -224,11 +292,18 @@ Shape ground details:
   is 257 × 257; `WorldRenderer.EnsureHeightSetup` enforces all three once per session (editing the
   shared `New TerrainAlt` asset the first time, 65 → 257).
 - **Time based**: every frame the button is held stamps `rate × dt` (Raise/Lower) or
-  `strength × dt` (Smooth/Flatten) at the cursor with a smoothstep falloff to the rim. Frames
-  within `radius × 0.25` of the last stored sample fold into it (`HeightBrush.MergeAmount`: raise
-  sums, weights compose as `1 - (1-a)(1-b)`), so a hold stores one `[x, z, amount]` sample and a
-  drag about four per radius. The live stamp lands at the stored sample's center, so the preview
-  matches the replay.
+  `strength × dt` (Smooth/Flatten, strength 0.1 to 20, one frame capped at a weight of 1) at the
+  cursor with a smoothstep falloff to the rim. Frames within `radius × 0.25` of the last stored
+  sample fold into it (`HeightBrush.MergeSample`), so a hold stores one sample and a drag about
+  four per radius. The live stamp lands at the stored sample's center, so the preview matches
+  the replay.
+- **Folding frames without changing the ground**: raise amounts sum. A flatten sample stores the
+  composed weight `1 - (1-a)(1-b)` (capped at 0.999) and the stamp lerps each cell by
+  `1 - (1-weight)^falloff`, which composes the same way, so one merged stamp equals the frames it
+  came from all the way to the rim. A smooth sample is `[x, z, weightSum, passes]`: a 3×3 blur has
+  no closed form, so the replay runs `passes` blur passes of `weightSum / passes` (a 3-element
+  sample from before this format replays as one pass). Without this the replay of a held smooth
+  collapsed to a single pass and most of the smoothing vanished on release.
 - **Replay**: `WorldRenderer.ApplyHeightmap` fills the base and replays `site.heightStrokes` in
   order on load, undo, active-env switch, and after each stroke commits (`HeightStrokeDef`: brush,
   radius, `targetHeight` for flatten, `clipToLot`, points at 1 mm). Math lives in
@@ -254,13 +329,16 @@ Draw water details:
   negative sinks it into the hole, positive lifts it (up to the heightmap's 15 m headroom). The
   level is held at least 2 cm above the bed (`WaterGeometry.ClampSurfaceY`), so lowering Depth
   pushes it up. Ground above the surface around the edge is cut down to meet it.
-- **Bed**: `WorldRenderer.ApplyHeightmap` replays the height strokes, then shapes the ground for
-  each body so the outline *is* the shoreline: at the outline the ground sits 3 cm below the
+- **Bed**: `WorldRenderer.ApplyHeightmap` shapes the ground for each body on the flat base, then
+  replays the height strokes over it, so the brush always has the last word: a raise can fill a
+  bed, a flatten can level a bank, and what the live preview showed next to water is what stays
+  on release. The outline *is* the shoreline: at the outline the ground sits 3 cm below the
   surface; inward it slopes down to the bed over `bankWidth`; outward it slopes from the
   surrounding ground down to the shore over `bankWidth` (smoothstep both ways, `min` semantics, so
-  ground is never raised and a deeper hand-dug spot inside is kept). Nothing is stored: delete the
-  body and the hole fills in, change the depth and the bed follows. **Stay inside lot** clips the
-  carve to the parcel like a height stroke. Only the active env carves (backdrops render their
+  the carve never raises ground). Nothing is stored: delete the body and the hole fills in, change
+  the depth and the bed follows. Strokes made before a body was drawn replay over it too, so a
+  flatten laid where a river is later drawn will partly fill that river. **Stay inside lot** clips
+  the carve to the parcel like a height stroke. Only the active env carves (backdrops render their
   water at the live ground height).
 - **Preview while drawing** drapes on the ground (a river ribbon hugs the terrain, a pond fill
   floats just above the highest point of its outline) because the true surface sits below the

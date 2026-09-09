@@ -1,0 +1,177 @@
+{
+  "id": "577d6949-14b9-4c05-a70d-71505efe4622",
+  "name": "WestchesterSample2",
+  "version": 2,
+  "tags": [
+    "generated"
+  ],
+  "locked": false,
+  "site": {
+    "terrainSize": [
+      141.9032,
+      22.1168
+    ],
+    "terrainOrigin": [
+      80.0,
+      162.0
+    ],
+    "terrainZones": [
+      {
+        "terrainType": "asphalt",
+        "rectMeters": [
+          214.307068,
+          162.201172,
+          219.20369,
+          181.915634
+        ]
+      },
+      {
+        "terrainType": "planting_bed",
+        "rectMeters": [
+          167.4395,
+          164.313431,
+          210.10997,
+          180.30629
+        ]
+      }
+    ],
+    "paths": [],
+    "fences": [],
+    "surfaceStrokes": [],
+    "heightStrokes": [],
+    "waterBodies": null,
+    "scaleNote": "Westchester Avenue strip, 459 x 66 ft, north at the top of the sketch. All placements must fall within lot_boundary.",
+    "lotBoundary": [
+      [
+        219.9032,
+        182.1168
+      ],
+      [
+        219.9032,
+        162.0
+      ],
+      [
+        80.0,
+        162.0
+      ],
+      [
+        80.0,
+        182.1168
+      ]
+    ],
+    "outsideTerrainType": "water"
+  },
+  "buildingInstances": [
+    {
+      "instanceId": "8de95767-1635-4a89-b7a6-5338006adf36",
+      "buildingId": "ec9d0618-a092-4ad3-b2a2-faad762faf65",
+      "position": [
+        163.055,
+        0.0,
+        180.0584
+      ],
+      "rotationX": 0.0,
+      "rotationY": 180.0,
+      "rotationZ": 0.0,
+      "scale": 1.0,
+      "included": true,
+      "optional": false
+    },
+    {
+      "instanceId": "0942d0cb-b123-40ff-a777-2828ee50a221",
+      "buildingId": "18268ebe-9027-42a6-b5d2-955f7c8dc4d0",
+      "position": [
+        127.00132,
+        0.0,
+        180.0584
+      ],
+      "rotationX": 0.0,
+      "rotationY": 180.0,
+      "rotationZ": 0.0,
+      "scale": 1.0,
+      "included": true,
+      "optional": false
+    }
+  ],
+  "objectInstances": [
+    {
+      "instanceId": "bd043e31-0682-482f-956d-b59b381f2582",
+      "prefabType": "bush",
+      "position": [
+        204.234039,
+        0.0,
+        178.415314
+      ],
+      "rotationX": 0.0,
+      "rotationY": 180.0,
+      "rotationZ": 0.0,
+      "scale": 1.0,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": false,
+      "optional": false
+    },
+    {
+      "instanceId": "8dea46d1-ad52-4ab5-9736-db7fc5be2673",
+      "prefabType": "bush",
+      "position": [
+        204.234039,
+        0.0,
+        168.014923
+      ],
+      "rotationX": 0.0,
+      "rotationY": 180.0,
+      "rotationZ": 0.0,
+      "scale": 1.0,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": false,
+      "optional": false
+    },
+    {
+      "instanceId": "1da18191-9776-4aef-a6cd-185f5ba64ca3",
+      "prefabType": "bush",
+      "position": [
+        177.512527,
+        0.0,
+        177.952621
+      ],
+      "rotationX": 0.0,
+      "rotationY": 180.0,
+      "rotationZ": 0.0,
+      "scale": 1.0,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": false,
+      "optional": false
+    },
+    {
+      "instanceId": "0656db2e-4fd8-4e91-b325-d246bdeafc7b",
+      "prefabType": "bush",
+      "position": [
+        175.9736,
+        0.0,
+        167.089554
+      ],
+      "rotationX": 0.0,
+      "rotationY": 180.0,
+      "rotationZ": 0.0,
+      "scale": 1.0,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": false,
+      "optional": false
+    }
+  ],
+  "sites": null,
+  "generation": {
+    "sketch": "WestchesterSample2.jpg",
+    "notes": "Bike storage lot at the north end, then a community garden with four plants, then a Puerto Rican restaurant, then a workshop area for rent at the south end. The restaurant and the workshop are two touching blocks, 3 floors each, style A, apartments above the ground floor.",
+    "briefJson": null,
+    "briefReportJson": null,
+    "model": "hand-authored",
+    "briefModel": null,
+    "created": "2026-09-09T15:09:17.8773474Z"
+  },
+  "favorite": false
+}

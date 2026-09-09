@@ -6,7 +6,7 @@ using UnityEngine.Rendering;
 // Creates the guarded WaterPalette asset and its seed materials. Idempotent: existing materials
 // are left alone, an existing palette only gains the seed ids it is missing (appended, never a
 // whole-array rewrite, per .claude/rules/palette-assets.md). Run once per project from the menu;
-// PaletteGuard snapshots the asset on import like the other seven.
+// PaletteGuard snapshots the asset on import like the other eight.
 public static class WaterPaletteSetup
 {
     public const string PalettePath = "Assets/Resources/WaterPalette.asset";

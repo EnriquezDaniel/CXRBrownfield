@@ -43,7 +43,7 @@ public partial class EditController : MonoBehaviour, EditHistory.IHost
     // State
     // -----------------------------------------------------------------------
 
-    private enum EditMode { Browse, PlaceObject, PlaceBuilding, Transform, EditBuilding, DrawPath, EditPath, DrawFence, EditFence, PaintObjects, PaintSurface, SculptGround, Measure, EditLot, DrawSite, EditSite, DrawWater, EditWater }
+    private enum EditMode { Browse, PlaceObject, PlaceBuilding, Transform, EditBuilding, DrawPath, EditPath, DrawFence, EditFence, PaintObjects, PaintSurface, SculptGround, Measure, EditLot, DrawSite, EditSite, DrawWater, EditWater, MoveSite, MoveSign }
     private enum Tool { Move, Rotate, Scale }
 
     private EditMode _mode = EditMode.Browse;
@@ -52,7 +52,7 @@ public partial class EditController : MonoBehaviour, EditHistory.IHost
     private Tool _tool = Tool.Move;
     // Multi-selection rotation pivot: false = each instance spins about its own pivot (default);
     // true = yaw also orbits each instance's XZ position around the selection's centroid, so the
-    // group rotates rigidly as one (same math as EnvRotateYaw, scoped to the selection). Toggled
+    // group rotates rigidly as one (OrbitXZ about the selection centroid). Toggled
     // from the Rotate panel; sticky across selections.
     private bool _rotateGroupPivot;
     private const float MOVE_STEP      = 1f;     // Ctrl-held drag snap step (meters); typed values are free
@@ -82,10 +82,6 @@ public partial class EditController : MonoBehaviour, EditHistory.IHost
         public BuildingDef      def;    // shared ref for cross-env injection (may be null)
     }
     private readonly List<ClipEntry> _clipboard = new();
-    // Whole-environment group selection: when set, the gizmo frames every instance and
-    // move/rotate/scale transform the entire environment rigidly about its center (see
-    // Env* handlers). Mutually exclusive with the per-instance selection (_selId/_extraSel).
-    private bool       _envSelected;
     private float      _lastClickTime;
     private const float DOUBLE_CLICK_INTERVAL = 0.3f;
 
@@ -228,6 +224,14 @@ public partial class EditController : MonoBehaviour, EditHistory.IHost
     private bool _lotDragging;
     private bool _lotMoved;                                // did the active drag actually change anything
     private float _lotW = 100f, _lotL = 100f;             // working rectangle size during a rect drag
+    private float _lotOX, _lotOZ;                          // the rectangle's corner (site.terrainOrigin), seeded with the size
+
+    // Move site: press-drag anywhere on the ground slides the whole active environment (ground,
+    // content, site plots and their fills). The drag only offsets rendered roots
+    // (WorldRenderer.PreviewEnvironmentOffset); the release bakes the delta into the data.
+    private bool    _moveSiteDragging;
+    private Vector3 _moveSiteStart;                        // flat-plane ground point at the press
+    private float   _moveSiteDX, _moveSiteDZ;              // snapped delta of the current drag
     private readonly List<GameObject> _lotHandles = new();
     private GameObject _lotPreviewGO;
     private MeshFilter _lotPreviewMF;
@@ -304,6 +308,7 @@ public partial class EditController : MonoBehaviour, EditHistory.IHost
     // from the active environment whenever it changes (tracked by _siteFieldsEnvId) so the fields
     // always show the live values until the user edits + Applies.
     private string _siteWidthStr = "", _siteLenStr = "";
+    private string _siteOriginXStr = "", _siteOriginZStr = "";   // terrain corner, world meters
     private string _siteFieldsEnvId;
 
     // Dimension entry — exact W×D×H (meters) for a selected massing-box object. Buffers re-sync when
@@ -318,6 +323,7 @@ public partial class EditController : MonoBehaviour, EditHistory.IHost
     private float _sculptRate      = 5f;                 // m/s at the brush center, signed: negative digs
     private const float SCULPT_RATE_MAX = 25f;           // the full 15 m range in under a second at the top
     private float _sculptStrength  = 1f;                 // per second blend for Smooth / Flatten
+    private const float SCULPT_STRENGTH_MAX = 20f;       // a third of the gap per frame at 60 fps: near instant
     private bool  _sculptClipToLot = true;
     private readonly List<float[]> _sculptPts = new();   // in-flight stroke samples [x, z, amount]
     private Vector3 _sculptLastCenter;                   // center of the last stored sample
@@ -480,6 +486,8 @@ public partial class EditController : MonoBehaviour, EditHistory.IHost
             case EditMode.EditSite:      UpdateEditSite();      break;
             case EditMode.DrawWater:     UpdateDrawWater();     break;
             case EditMode.EditWater:     UpdateEditWater();     break;
+            case EditMode.MoveSite:      UpdateMoveSite();      break;
+            case EditMode.MoveSign:      UpdateMoveSign();      break;
         }
 
         // World-space dot for the skew panel's Corner picker (hides itself when not applicable).
@@ -498,7 +506,7 @@ public partial class EditController : MonoBehaviour, EditHistory.IHost
         if (_gizmo != null)
         {
             _gizmo.SetMode(GizmoMode());
-            _gizmo.enabled = (_selGO != null || _envSelected) && !ActiveLocked &&
+            _gizmo.enabled = _selGO != null && !ActiveLocked &&
                              (_mode == EditMode.Browse || _mode == EditMode.Transform);
         }
     }
@@ -583,8 +591,6 @@ public partial class EditController : MonoBehaviour, EditHistory.IHost
     private void UpdateBrowse()
     {
         if (KB == null) return;
-
-        if (_envSelected) { UpdateEnvSelected(); return; }
 
         // Re-renders (place, include-toggle, library load) replace the instantiated
         // GOs — re-resolve the selected instance so highlight/gizmo follow it.
@@ -757,173 +763,13 @@ public partial class EditController : MonoBehaviour, EditHistory.IHost
         return null;
     }
 
-    // -----------------------------------------------------------------------
-    // Whole-environment selection — group move/rotate/scale of every instance
-    // -----------------------------------------------------------------------
-
-    // Selects the whole active environment as a transform group. The gizmo frames every rendered
-    // instance; the Move/Rotate/Scale tools then transform them all rigidly about the env center.
-    private void SelectEnvironment()
-    {
-        var env = libraryBrowser?.CurrentEnvironment;
-        if (env == null) return;
-        Deselect();                 // drop any per-instance selection first
-        _envSelected = true;
-        _tool        = Tool.Move;
-        _mode        = EditMode.Browse;
-        RefreshEnvGizmoTargets();
-    }
-
-    private void DeselectEnv()
-    {
-        _envSelected = false;
-        _tool        = Tool.Move;
-        _gizmoGOs.Clear();
-        _gizmo?.Clear();
-    }
-
-    // Re-resolves every instance's live GameObject (rebuilt on each re-render) and frames the
-    // whole set with the gizmo. The gizmo centers on the combined bounds.
-    private void RefreshEnvGizmoTargets()
-    {
-        _gizmoGOs.Clear();
-        var env = libraryBrowser?.CurrentEnvironment;
-        if (env != null)
-        {
-            if (env.buildingInstances != null)
-                foreach (var b in env.buildingInstances)
-                { var go = worldRenderer?.GetInstanceGO(b.instanceId); if (go != null) _gizmoGOs.Add(go); }
-            if (env.objectInstances != null)
-                foreach (var o in env.objectInstances)
-                { var go = worldRenderer?.GetInstanceGO(o.instanceId); if (go != null) _gizmoGOs.Add(go); }
-        }
-        if (_gizmoGOs.Count == 0) { _gizmo?.Clear(); return; }
-        _gizmo?.SetTargets(_gizmoGOs, mainCamera);
-    }
-
-    private void UpdateEnvSelected()
-    {
-        // Live GOs are destroyed/recreated on re-render — re-frame when the cached set goes stale.
-        if (_gizmoGOs.Count == 0 || _gizmoGOs[0] == null) RefreshEnvGizmoTargets();
-
-        _gizmo?.Tick();
-
-        if (!TypingInUI)
-        {
-            if (KB.escapeKey.wasPressedThisFrame) { DeselectEnv(); return; }
-            if (KB.gKey.wasPressedThisFrame) _tool = Tool.Move;
-            if (KB.rKey.wasPressedThisFrame) _tool = Tool.Rotate;
-            if (KB.tKey.wasPressedThisFrame) _tool = Tool.Scale;
-        }
-
-        if (_gizmo != null && _gizmo.IsInteracting) return;  // drag belongs to a gizmo handle
-        if (!LMBDown || IsMouseOverUI()) return;
-
-        // A bare click on an instance leaves env mode and selects that instance; clicking empty
-        // space keeps the whole environment selected (Esc or the panel button deselects).
-        if (TryPickInstance(out var marker, out var go))
-        {
-            DeselectEnv();
-            SetSelection(marker.instanceId, marker.isBuilding, go);
-        }
-    }
-
-    // XZ centroid of every instance — the pivot for group rotate/scale. It is invariant under
-    // rotation/scale about itself, so recomputing it each step is stable; under a group move it
-    // shifts with everything. Y is ignored (yaw/footprint-scale operate in the ground plane).
-    private Vector3 EnvPivot(EnvironmentDef env)
-    {
-        Vector3 sum = Vector3.zero; int n = 0;
-        if (env.buildingInstances != null)
-            foreach (var b in env.buildingInstances)
-                if (b.position != null && b.position.Length >= 3) { sum += new Vector3(b.position[0], 0f, b.position[2]); n++; }
-        if (env.objectInstances != null)
-            foreach (var o in env.objectInstances)
-                if (o.position != null && o.position.Length >= 3) { sum += new Vector3(o.position[0], 0f, o.position[2]); n++; }
-        return n > 0 ? sum / n : Vector3.zero;
-    }
-
-    // Translate the entire environment. Data is updated for every instance (incl. excluded ones
-    // with no GO); live GOs shift by the same world delta for immediate feedback.
-    private void EnvMove(EnvironmentDef env, Vector3 delta)
-    {
-        _history?.RecordBefore(EditHistory.Scope.Environment, "Move environment");
-        if (env.buildingInstances != null)
-            foreach (var b in env.buildingInstances) OffsetPos(b.position, delta);
-        if (env.objectInstances != null)
-            foreach (var o in env.objectInstances) OffsetPos(o.position, delta);
-        foreach (var go in _gizmoGOs) if (go != null) go.transform.position += delta;
-    }
-
-    // Yaw the whole environment about its center: orbit each instance's XZ and add the yaw to its
-    // own rotationY. `deg` arrives as emitted (gizmo snaps to 15° steps only while Shift is held;
-    // the panel uses ±15° buttons).
-    private void EnvRotateYaw(EnvironmentDef env, float deg)
-    {
-        if (Mathf.Abs(deg) < 0.0001f) return;
-        _history?.RecordBefore(EditHistory.Scope.Environment, "Rotate environment");
-        Vector3 P = EnvPivot(env);
-        Quaternion q = Quaternion.Euler(0f, deg, 0f);
-
-        if (env.buildingInstances != null)
-            foreach (var b in env.buildingInstances) { OrbitXZ(b.position, P, q); b.rotationY += deg; }
-        if (env.objectInstances != null)
-            foreach (var o in env.objectInstances) { OrbitXZ(o.position, P, q); o.rotationY += deg; }
-
-        // RotateAround orbits the GO about P and spins its facing by deg in one step — matching the
-        // data update above (Unity composes world-Y yaw outermost, so it equals rotationY + deg).
-        foreach (var go in _gizmoGOs) if (go != null) go.transform.RotateAround(P, Vector3.up, deg);
-    }
-
-    // Scale the whole environment about its center by a multiplicative factor: each instance's XZ
-    // distance from the center and its own scale are multiplied by `factor`.
-    private void EnvScale(EnvironmentDef env, float factor)
-    {
-        factor = Mathf.Clamp(factor, 0.5f, 2f);   // per-step guard; drags emit factors near 1
-        if (Mathf.Abs(factor - 1f) < 0.0001f) return;
-        _history?.RecordBefore(EditHistory.Scope.Environment, "Scale environment");
-        Vector3 P = EnvPivot(env);
-
-        if (env.buildingInstances != null)
-            foreach (var b in env.buildingInstances) { ScaleXZ(b.position, P, factor); b.scale = Mathf.Max(0.1f, b.scale * factor); }
-        if (env.objectInstances != null)
-            foreach (var o in env.objectInstances) { ScaleXZ(o.position, P, factor); o.scale = Mathf.Max(0.1f, o.scale * factor); }
-
-        foreach (var go in _gizmoGOs)
-        {
-            if (go == null) continue;
-            Vector3 p = go.transform.position;
-            go.transform.position   = new Vector3(P.x + (p.x - P.x) * factor, p.y, P.z + (p.z - P.z) * factor);
-            go.transform.localScale *= factor;
-        }
-    }
-
-    private static void OffsetPos(float[] p, Vector3 d)
-    {
-        if (p == null || p.Length < 3) return;
-        p[0] += d.x; p[1] += d.y; p[2] += d.z;
-    }
+    // Orbits a stored [x, y, z] position about `pivot` in XZ by `q` (group rotate about the
+    // selection centroid; y is untouched).
     private static void OrbitXZ(float[] p, Vector3 pivot, Quaternion q)
     {
         if (p == null || p.Length < 3) return;
         Vector3 off = q * new Vector3(p[0] - pivot.x, 0f, p[2] - pivot.z);
         p[0] = pivot.x + off.x; p[2] = pivot.z + off.z;
-    }
-    private static void ScaleXZ(float[] p, Vector3 pivot, float f)
-    {
-        if (p == null || p.Length < 3) return;
-        p[0] = pivot.x + (p[0] - pivot.x) * f;
-        p[2] = pivot.z + (p[2] - pivot.z) * f;
-    }
-
-    // Commit a discrete (panel-button) env edit: re-render so objects re-ground onto the terrain,
-    // then re-frame the gizmo on the rebuilt GOs. Gizmo drags defer this to OnGizmoDragEnd.
-    private void AfterEnvEdit(EnvironmentDef env)
-    {
-        if (env == null) return;
-        libraryBrowser?.MarkDirty();
-        worldRenderer?.RenderEnvironment(env, libraryBrowser?.CurrentBuildingDefs);
-        RefreshEnvGizmoTargets();
     }
 
     // -----------------------------------------------------------------------
@@ -1124,7 +970,7 @@ public partial class EditController : MonoBehaviour, EditHistory.IHost
     // used at render/save time.
     // Pivot: each instance spins about its own pivot; with the group-pivot toggle on and a
     // multi-selection, the yaw component also orbits each instance's XZ position around the
-    // selection centroid (OrbitXZ, same math as EnvRotateYaw) so the group turns rigidly.
+    // selection centroid (OrbitXZ) so the group turns rigidly.
     private void ApplyRotDelta(EnvironmentDef env, Vector3 d)
     {
         bool group = _rotateGroupPivot && _extraSel.Count > 0 && Mathf.Abs(d.y) > 0.0001f;
@@ -1153,9 +999,8 @@ public partial class EditController : MonoBehaviour, EditHistory.IHost
         }
     }
 
-    // XZ centroid of the selected instances' stored positions — the group-rotate pivot. Like
-    // EnvPivot but scoped to the selection; invariant under rotation about itself, so
-    // recomputing it every emitted step is stable.
+    // XZ centroid of the selected instances' stored positions — the group-rotate pivot.
+    // Invariant under rotation about itself, so recomputing it every emitted step is stable.
     private Vector3 SelectionPivot(EnvironmentDef env)
     {
         Vector3 sum = Vector3.zero; int n = 0;
@@ -2577,8 +2422,8 @@ public partial class EditController : MonoBehaviour, EditHistory.IHost
     // ---- EditLot: resize the terrain rectangle / reshape the parcel polygon with in-scene handles ----
     //
     // Two sub-modes share one tool. Rectangle mode shows three handles on the far corner & far edges
-    // (the lot is anchored at world origin, like the Terrain) and drives site.terrainSize; content
-    // keeps its world coordinates. Polygon mode drags/inserts/deletes vertices
+    // (the lot is anchored at site.terrainOrigin, like the Terrain) and drives site.terrainSize;
+    // content keeps its world coordinates. Polygon mode drags/inserts/deletes vertices
     // of site.lotBoundary (the parcel that PaintTerrain masks the water against). A draped LineRenderer
     // preview is the live truth while editing; the committed "Lot frame" is hidden until commit.
 
@@ -2604,6 +2449,7 @@ public partial class EditController : MonoBehaviour, EditHistory.IHost
         var ts = env.site.terrainSize;
         _lotW = ts != null && ts.Length > 0 && ts[0] > 0f ? ts[0] : 100f;
         _lotL = ts != null && ts.Length > 1 && ts[1] > 0f ? ts[1] : 100f;
+        EnvironmentScale.TerrainCorner(env.site, out _lotOX, out _lotOZ);
         if (_lotPolygonMode)
         {
             var poly = env.site.lotBoundary;
@@ -2657,9 +2503,9 @@ public partial class EditController : MonoBehaviour, EditHistory.IHost
             else
             {
                 float nw = _lotW, nl = _lotL;
-                if      (_lotSel == 0) { nw = g.x; nl = g.z; }   // far corner
-                else if (_lotSel == 1)   nw = g.x;               // +X edge
-                else                     nl = g.z;               // +Z edge
+                if      (_lotSel == 0) { nw = g.x - _lotOX; nl = g.z - _lotOZ; }   // far corner
+                else if (_lotSel == 1)   nw = g.x - _lotOX;                        // +X edge
+                else                     nl = g.z - _lotOZ;                        // +Z edge
                 nw = Mathf.Clamp(nw, 1f, 4000f);
                 nl = Mathf.Clamp(nl, 1f, 4000f);
                 if (!Mathf.Approximately(nw, _lotW) || !Mathf.Approximately(nl, _lotL)) _lotMoved = true;
@@ -2731,7 +2577,8 @@ public partial class EditController : MonoBehaviour, EditHistory.IHost
             var ts = env.site.terrainSize;
             float w = ts != null && ts.Length > 0 ? ts[0] : 100f;
             float l = ts != null && ts.Length > 1 ? ts[1] : 100f;
-            env.site.lotBoundary = new[] { new[] { 0f, 0f }, new[] { w, 0f }, new[] { w, l }, new[] { 0f, l } };
+            EnvironmentScale.TerrainCorner(env.site, out float ox, out float oz);
+            env.site.lotBoundary = new[] { new[] { ox, oz }, new[] { ox + w, oz }, new[] { ox + w, oz + l }, new[] { ox, oz + l } };
             libraryBrowser?.MarkDirty();
             worldRenderer?.RenderEnvironment(env, libraryBrowser?.CurrentBuildingDefs);
         }
@@ -2759,15 +2606,16 @@ public partial class EditController : MonoBehaviour, EditHistory.IHost
 
     private int LotHandleCount() => _lotPolygonMode ? _lotPts.Count : 3;
 
-    // Rect handles: 0 = far corner (w,l), 1 = +X edge (w, l/2), 2 = +Z edge (w/2, l). Polygon: vertex i.
+    // Rect handles, measured from the rectangle's corner: 0 = far corner (w,l), 1 = +X edge (w, l/2),
+    // 2 = +Z edge (w/2, l). Polygon: vertex i.
     private Vector2 LotHandleXZ(int i)
     {
         if (_lotPolygonMode) return new Vector2(_lotPts[i].x, _lotPts[i].z);
         return i switch
         {
-            0 => new Vector2(_lotW, _lotL),
-            1 => new Vector2(_lotW, _lotL * 0.5f),
-            _ => new Vector2(_lotW * 0.5f, _lotL),
+            0 => new Vector2(_lotOX + _lotW, _lotOZ + _lotL),
+            1 => new Vector2(_lotOX + _lotW, _lotOZ + _lotL * 0.5f),
+            _ => new Vector2(_lotOX + _lotW * 0.5f, _lotOZ + _lotL),
         };
     }
 
@@ -2832,10 +2680,10 @@ public partial class EditController : MonoBehaviour, EditHistory.IHost
         if (_lotPolygonMode) { foreach (var p in _lotPts) corners.Add(new Vector2(p.x, p.z)); }
         else
         {
-            corners.Add(new Vector2(0f, 0f));
-            corners.Add(new Vector2(_lotW, 0f));
-            corners.Add(new Vector2(_lotW, _lotL));
-            corners.Add(new Vector2(0f, _lotL));
+            corners.Add(new Vector2(_lotOX,         _lotOZ));
+            corners.Add(new Vector2(_lotOX + _lotW, _lotOZ));
+            corners.Add(new Vector2(_lotOX + _lotW, _lotOZ + _lotL));
+            corners.Add(new Vector2(_lotOX,         _lotOZ + _lotL));
         }
         UpdateOutlinePreview(_lotPreviewMF, corners, loop: true);
     }
@@ -2870,11 +2718,131 @@ public partial class EditController : MonoBehaviour, EditHistory.IHost
         env.site.terrainSize[1] = Mathf.Clamp(l, 1f, 4000f);
     }
 
+    // ---- Move site: slide the whole active environment on the ground plane ----
+    //
+    // Press anywhere on the ground and drag: the rendered roots, the ground and the site fills
+    // follow the cursor (WorldRenderer.PreviewEnvironmentOffset, transforms only). The release
+    // bakes the delta into every stored coordinate (EnvironmentScale.TranslateEnvironmentXZ) and
+    // re-renders, one undo step. The tool stays armed for the next drag; Esc cancels a drag, and
+    // Esc again leaves. The corner snaps to whole meters unless Shift is held.
+
+    private void StartMoveSite()
+    {
+        ExitCurrentMode();
+        var env = libraryBrowser?.CurrentEnvironment;
+        if (env?.site == null) { _mode = EditMode.Browse; return; }
+        _mode = EditMode.MoveSite;
+        _moveSiteDragging = false;
+        _moveSiteDX = _moveSiteDZ = 0f;
+    }
+
+    private void UpdateMoveSite()
+    {
+        var env = libraryBrowser?.CurrentEnvironment;
+        if (env?.site == null) { StopMoveSite(); return; }
+
+        if (KB != null && !TypingInUI && KB.escapeKey.wasPressedThisFrame)
+        {
+            if (_moveSiteDragging) { CancelMoveSiteDrag(); return; }
+            StopMoveSite();
+            return;
+        }
+
+        // A release anywhere ends the drag, even over the rail (the press is what the UI gates).
+        if (_moveSiteDragging && LMBUp)
+        {
+            _moveSiteDragging = false;
+            if (Mathf.Abs(_moveSiteDX) > 1e-4f || Mathf.Abs(_moveSiteDZ) > 1e-4f)
+                CommitSiteMove(env, _moveSiteDX, _moveSiteDZ);
+            else
+                worldRenderer?.ClearPreviewOffsets();
+            return;
+        }
+
+        if (IsMouseOverUI() || ActiveLocked) return;
+
+        // The flat plane, never the terrain surface: the ground itself moves under the cursor
+        // during the preview, so a terrain hit would chase its own offset.
+        if (LMBDown)
+        {
+            _moveSiteStart = GroundPoint();
+            _moveSiteDragging = true;
+            _moveSiteDX = _moveSiteDZ = 0f;
+        }
+
+        if (_moveSiteDragging && LMBHeld)
+        {
+            Vector3 g = GroundPoint();
+            EnvironmentScale.TerrainCorner(env.site, out float ox, out float oz);
+            EnvironmentScale.SnapCornerDelta(ox, oz, g.x - _moveSiteStart.x, g.z - _moveSiteStart.z,
+                                             snap: !ShiftHeld, out _moveSiteDX, out _moveSiteDZ);
+            worldRenderer?.PreviewEnvironmentOffset(env.id, new Vector3(_moveSiteDX, 0f, _moveSiteDZ));
+        }
+    }
+
+    private void CancelMoveSiteDrag()
+    {
+        _moveSiteDragging = false;
+        _moveSiteDX = _moveSiteDZ = 0f;
+        worldRenderer?.ClearPreviewOffsets();
+    }
+
+    private void StopMoveSite()
+    {
+        if (_moveSiteDragging) CancelMoveSiteDrag();
+        _mode = EditMode.Browse;
+    }
+
+    // Bakes an XZ move of the whole active environment into its data: instances, paths, fences,
+    // water, strokes, the lot, the drawn site plots and the terrain corner. Shared by the drag and
+    // the Origin fields. Pattern follows ApplyCalibration: one Environment-scope snapshot, then
+    // re-apply the terrain, mark dirty, re-render, and re-fit the site fills (their boundaries
+    // moved, so LibraryBrowser re-projects them).
+    private void CommitSiteMove(EnvironmentDef env, float dx, float dz)
+    {
+        if (env?.site == null || ActiveLocked) return;
+        if (Mathf.Abs(dx) < 1e-4f && Mathf.Abs(dz) < 1e-4f) { worldRenderer?.ClearPreviewOffsets(); return; }
+
+        worldRenderer?.ClearPreviewOffsets();   // roots back at identity before the data moves
+        _history?.RecordBefore(EditHistory.Scope.Environment, "Move site");
+        // A record that predates terrainOrigin sits at the world origin; seed the field so the
+        // translate carries the ground along (SiteFit.ProjectIntoSite does the same).
+        if (env.site.terrainOrigin == null || env.site.terrainOrigin.Length < 2)
+            env.site.terrainOrigin = new[] { 0f, 0f };
+        if (!EnvironmentScale.TranslateEnvironmentXZ(env, dx, dz)) return;
+
+        worldRenderer?.ApplyTerrainSize(env.site);   // also moves the Terrain to the new corner
+        libraryBrowser?.MarkDirty();
+        worldRenderer?.RenderEnvironment(env, libraryBrowser?.CurrentBuildingDefs);
+        libraryBrowser?.ResyncSiteFills();
+        SyncSiteFields(env);
+    }
+
+    // Origin fields: move the whole environment so the terrain corner lands at (ox, oz).
+    private void ApplySiteOrigin(EnvironmentDef env, float ox, float oz)
+    {
+        EnvironmentScale.TerrainCorner(env.site, out float cx, out float cz);
+        CommitSiteMove(env, ox - cx, oz - cz);
+    }
+
+    // Writes the terrain's min corner (world meters). Allocates the field when the record predates it.
+    private void SetTerrainOrigin(EnvironmentDef env, float ox, float oz)
+    {
+        if (env.site.terrainOrigin == null || env.site.terrainOrigin.Length < 2) env.site.terrainOrigin = new float[2];
+        env.site.terrainOrigin[0] = ox;
+        env.site.terrainOrigin[1] = oz;
+    }
+
+    // Re-syncs the Site rail's text buffers (origin and size) from the live data.
     private void SyncSiteFields(EnvironmentDef env)
     {
-        if (env?.site?.terrainSize == null || env.site.terrainSize.Length < 2) return;
-        _siteWidthStr = env.site.terrainSize[0].ToString("0.##");
-        _siteLenStr   = env.site.terrainSize[1].ToString("0.##");
+        if (env?.site == null) return;
+        EnvironmentScale.TerrainCorner(env.site, out float ox, out float oz);
+        _siteOriginXStr = ox.ToString("0.##");
+        _siteOriginZStr = oz.ToString("0.##");
+        var ts = env.site.terrainSize;
+        _siteWidthStr = ts != null && ts.Length > 0 ? ts[0].ToString("0.##") : "";
+        _siteLenStr   = ts != null && ts.Length > 1 ? ts[1].ToString("0.##") : "";
     }
 
     // ---- Sites: draw / reshape SitePlotDef polygons. A site is a plot inside this environment
@@ -3721,18 +3689,22 @@ public partial class EditController : MonoBehaviour, EditHistory.IHost
 
         if (LMBHeld && _sculptStroking)
         {
-            float amount = (_sculptKind == HeightBrushKind.Raise ? _sculptRate : _sculptStrength) * Time.deltaTime;
+            float amount = _sculptKind == HeightBrushKind.Raise
+                ? _sculptRate * Time.deltaTime
+                : Mathf.Min(HeightBrush.MAX_FRAME_WEIGHT, _sculptStrength * Time.deltaTime);
             if (Mathf.Abs(amount) < 1e-6f) return;
-            Vector3 stampAt = AccumulateSculptSample(center, amount);
-            worldRenderer?.StampHeightLive(stampAt, _sculptKind, _sculptRadius, amount, _sculptTargetHeight,
+            Vector3 stampAt = AccumulateSculptSample(center, amount, out float liveAmount);
+            if (Mathf.Abs(liveAmount) < 1e-6f) return;   // a flatten hold that has reached its cap
+            worldRenderer?.StampHeightLive(stampAt, _sculptKind, _sculptRadius, liveAmount, _sculptTargetHeight,
                                            _sculptClipToLot, libraryBrowser?.CurrentEnvironment?.site);
         }
     }
 
     // Merge rule shared with replay: a frame within radius * MERGE_FRACTION of the last stored sample
-    // folds into it (HeightBrush.MergeAmount); otherwise a new sample starts. Returns the center the
-    // live stamp must use: the stored sample's, so raise and flatten previews match replay exactly.
-    private Vector3 AccumulateSculptSample(Vector3 center, float amount)
+    // folds into it (HeightBrush.MergeSample); otherwise a new sample starts. Returns the center the
+    // live stamp must use (the stored sample's) and, in liveAmount, what the live stamp applies this
+    // frame, so the terrain under the cursor lands exactly where the replay of the stored sample will.
+    private Vector3 AccumulateSculptSample(Vector3 center, float amount, out float liveAmount)
     {
         if (_sculptPts.Count > 0)
         {
@@ -3740,13 +3712,14 @@ public partial class EditController : MonoBehaviour, EditHistory.IHost
                                        new Vector2(_sculptLastCenter.x, _sculptLastCenter.z));
             if (d < _sculptRadius * HeightBrush.MERGE_FRACTION)
             {
-                var last = _sculptPts[_sculptPts.Count - 1];
-                last[2] = HeightBrush.MergeAmount(_sculptKind, last[2], amount);
+                liveAmount = HeightBrush.MergeSample(_sculptKind, _sculptPts[_sculptPts.Count - 1], amount);
                 return _sculptLastCenter;
             }
         }
-        _sculptPts.Add(new[] { center.x, center.z, amount });
+        var sample = HeightBrush.NewSample(_sculptKind, center.x, center.z, amount);
+        _sculptPts.Add(sample);
         _sculptLastCenter = center;
+        liveAmount = sample[2];
         return center;
     }
 
@@ -4053,7 +4026,7 @@ public partial class EditController : MonoBehaviour, EditHistory.IHost
 
         Vector3 pos = inst.position != null && inst.position.Length >= 3
             ? new Vector3(inst.position[0], inst.position[1], inst.position[2]) : Vector3.zero;
-        tileBuildingEditor.Enter(bdef, pos, inst.rotationY);
+        tileBuildingEditor.Enter(bdef, pos, inst.rotationY, inst: inst);
 
         // Hide the already-rendered instance: the tile editor renders its own editable copy at
         // the same place, so leaving the original visible duplicates the geometry and its
@@ -4238,8 +4211,7 @@ public partial class EditController : MonoBehaviour, EditHistory.IHost
         var env = libraryBrowser?.CurrentEnvironment;
         if (env == null || ActiveLocked) return;
         _history?.BeginGesture(EditHistory.Scope.Environment, "Move");   // one entry per gizmo drag
-        if (_envSelected) EnvMove(env, delta);
-        else              ApplyPosDelta(env, delta);
+        ApplyPosDelta(env, delta);
     }
 
     private void OnGizmoRotate(Vector3 deltaEuler)
@@ -4247,8 +4219,7 @@ public partial class EditController : MonoBehaviour, EditHistory.IHost
         var env = libraryBrowser?.CurrentEnvironment;
         if (env == null || ActiveLocked) return;
         _history?.BeginGesture(EditHistory.Scope.Environment, "Rotate");
-        if (_envSelected) EnvRotateYaw(env, deltaEuler.y);   // env rotation is yaw-only
-        else              ApplyRotDelta(env, deltaEuler);
+        ApplyRotDelta(env, deltaEuler);
     }
 
     private void OnGizmoScale(float delta)
@@ -4256,16 +4227,13 @@ public partial class EditController : MonoBehaviour, EditHistory.IHost
         var env = libraryBrowser?.CurrentEnvironment;
         if (env == null || ActiveLocked) return;
         _history?.BeginGesture(EditHistory.Scope.Environment, "Scale");
-        if (_envSelected) EnvScale(env, 1f + delta);   // additive drag delta → multiplicative factor
-        else              ApplyScaleDelta(env, delta);
+        ApplyScaleDelta(env, delta);
     }
 
     private void OnGizmoDragEnd()
     {
         _history?.EndGesture();
         libraryBrowser?.MarkDirty();
-        // Re-render so objects re-ground after a group move/rotate/scale, then re-frame the gizmo.
-        if (_envSelected) AfterEnvEdit(libraryBrowser?.CurrentEnvironment);
     }
 
     // -----------------------------------------------------------------------
@@ -4570,11 +4538,11 @@ public partial class EditController : MonoBehaviour, EditHistory.IHost
             case EditMode.EditLot:       StopEditLot();               break;
             case EditMode.DrawSite:      StopDrawSite();              break;
             case EditMode.EditSite:      StopEditSite();              break;
+            case EditMode.MoveSite:      StopMoveSite();              break;
         }
         _mode = EditMode.Browse;
         _siteSel = null; _siteRenameStr = null;
         _marqueeArmed = false; _marqueeActive = false;
-        DeselectEnv();
         Deselect();
         ClearHistory();   // undo history is per active environment (in-memory, per-session)
     }
@@ -4679,7 +4647,6 @@ public partial class EditController : MonoBehaviour, EditHistory.IHost
         if (tileBuildingEditor != null && tileBuildingEditor.IsActive) ExitEditBuilding(save: false);
         if (!keepTool && _mode != EditMode.Browse) _mode = EditMode.Browse;
         Deselect();     // safe: Deselect() only forces Transform->Browse, never a preserved tool mode
-        DeselectEnv();
 
         libraryBrowser.ReplaceActiveEnvironment(env, sitesChanged);
         worldRenderer?.RenderEnvironment(env, libraryBrowser.CurrentBuildingDefs,
@@ -4697,7 +4664,8 @@ public partial class EditController : MonoBehaviour, EditHistory.IHost
         m == EditMode.DrawPath     || m == EditMode.DrawFence     ||
         m == EditMode.Measure      || m == EditMode.EditLot        ||
         m == EditMode.DrawSite     || m == EditMode.EditSite       ||
-        m == EditMode.DrawWater    || m == EditMode.EditWater;
+        m == EditMode.DrawWater    || m == EditMode.EditWater      ||
+        m == EditMode.MoveSite;
 
     // Re-sync a preserved tool's transient view to the just-restored env. Most tools only need their
     // in-progress point buffer cleared so no stale rubber-band references a pre-undo point; EditLot
@@ -4720,6 +4688,11 @@ public partial class EditController : MonoBehaviour, EditHistory.IHost
             case EditMode.DrawPath:     _pathPts.Clear();  break;   // preview goes inactive next Update
             case EditMode.DrawFence:    _fencePts.Clear(); break;
             case EditMode.Measure:      _measurePts.Clear(); UpdateMeasureOverlay(); break;
+            case EditMode.MoveSite:
+                // The re-render already cleared any preview offset; drop the drag so the next
+                // release cannot bake a delta measured against pre-undo positions.
+                _moveSiteDragging = false; worldRenderer?.ClearPreviewOffsets();
+                break;
             case EditMode.DrawSite:
                 ResetSiteDrawing(rerender: false);
                 break;
@@ -5020,7 +4993,6 @@ public partial class EditController : MonoBehaviour, EditHistory.IHost
 
     private void ExitCurrentMode()
     {
-        if (_envSelected) DeselectEnv();
         switch (_mode)
         {
             case EditMode.PlaceObject:   StopPlaceObject();          break;
@@ -5040,6 +5012,8 @@ public partial class EditController : MonoBehaviour, EditHistory.IHost
             case EditMode.EditSite:      StopEditSite();             break;
             case EditMode.DrawWater:     StopDrawWater();            break;
             case EditMode.EditWater:     StopEditWater();            break;
+            case EditMode.MoveSite:      StopMoveSite();             break;
+            case EditMode.MoveSign:      StopMoveSign();             break;
         }
     }
 
@@ -5113,8 +5087,8 @@ public partial class EditController : MonoBehaviour, EditHistory.IHost
         UITheme.Note("This place is read-only. Use Save As in the library to make an editable copy, or unlock it from the Loaded list.");
     }
 
-    // Browse — selection inspector (panel 4 in the spec). Shows the whole-environment transform
-    // entry and, when an instance is selected, its move/rotate/scale + delete controls.
+    // Browse — selection inspector (panel 4 in the spec). When an instance is selected, shows its
+    // move/rotate/scale + delete controls.
     private void DrawBrowseRail()
     {
         UITheme.Title(string.IsNullOrEmpty(_selId) ? "Inspector" : (_selIsBuilding ? "Selected building" : "Selected object"));
@@ -5170,10 +5144,23 @@ public partial class EditController : MonoBehaviour, EditHistory.IHost
         if (_siteFieldsEnvId != env.id)
         {
             _siteFieldsEnvId = env.id;
-            var ts = env.site.terrainSize;
-            _siteWidthStr = ts != null && ts.Length > 0 ? ts[0].ToString("0.##") : "";
-            _siteLenStr   = ts != null && ts.Length > 1 ? ts[1].ToString("0.##") : "";
+            SyncSiteFields(env);
         }
+
+        // Origin: world position of the ground's min corner. Apply moves the whole place there.
+        GUILayout.BeginHorizontal();
+        GUILayout.Label("Origin (m)", GUILayout.ExpandWidth(false));
+        GUILayout.Label("X", GUILayout.ExpandWidth(false));
+        _siteOriginXStr = GUILayout.TextField(_siteOriginXStr ?? "", GUILayout.Width(46f));
+        GUILayout.Label("Z", GUILayout.ExpandWidth(false));
+        _siteOriginZStr = GUILayout.TextField(_siteOriginZStr ?? "", GUILayout.Width(46f));
+        bool okX = float.TryParse(_siteOriginXStr, out float ox) && !float.IsInfinity(ox);
+        bool okZ = float.TryParse(_siteOriginZStr, out float oz) && !float.IsInfinity(oz);
+        GUI.enabled = okX && okZ && !ActiveLocked;
+        if (UITheme.Button("Apply", UITips.SiteOriginApply, GUILayout.Height(UITheme.RowH)))
+            ApplySiteOrigin(env, ox, oz);
+        GUI.enabled = true;
+        GUILayout.EndHorizontal();
 
         GUILayout.BeginHorizontal();
         GUILayout.Label("Size (m)", GUILayout.ExpandWidth(false));
@@ -5187,6 +5174,16 @@ public partial class EditController : MonoBehaviour, EditHistory.IHost
             ApplySiteSettings(env, w, l, env.site.scaleNote);
         GUI.enabled = true;
         GUILayout.EndHorizontal();
+
+        // Move site: a pure toggle (the drag commits itself), same shape as the New site toggle.
+        // The hint draws before the mode switches so this pass's control count matches `moving`.
+        bool moving = _mode == EditMode.MoveSite;
+        GUI.enabled = !ActiveLocked;
+        bool wantMove = UITheme.ToggleButton(moving, "Move site", UITips.MoveSite, GUILayout.Height(UITheme.RowH));
+        GUI.enabled = true;
+        if (moving) UITheme.Note("Drag anywhere on the ground to slide the whole place. The corner snaps to whole meters. Hold Shift to move freely. Esc cancels.");
+        if (wantMove && !moving) StartMoveSite();
+        else if (!wantMove && moving) StopMoveSite();
 
         DrawLotToolSection(env);
     }
@@ -5353,50 +5350,41 @@ public partial class EditController : MonoBehaviour, EditHistory.IHost
             ClampItemsToLot(env);
     }
 
-    // Shrinks/grows the terrain rectangle so it hugs the parcel polygon's extent (+ small margin).
+    // Moves and resizes the terrain rectangle so it hugs the parcel polygon's extent (+ small margin).
     private void FitTerrainToLot(EnvironmentDef env)
     {
         var poly = env?.site?.lotBoundary;
-        if (poly == null || poly.Length < 3) { UITheme.Note("No parcel polygon to fit to."); return; }
-        float minX = float.MaxValue, minZ = float.MaxValue, maxX = 0f, maxZ = 0f;
-        foreach (var p in poly)
-        {
-            if (p == null || p.Length < 2) continue;
-            if (p[0] < minX) minX = p[0];
-            if (p[1] < minZ) minZ = p[1];
-            if (p[0] > maxX) maxX = p[0];
-            if (p[1] > maxZ) maxZ = p[1];
-        }
-        if (maxX <= 0f || maxZ <= 0f) return;
-        // The terrain rectangle is origin-anchored: a parcel past the origin corner keeps dead
-        // space (or loses coverage) on the negative side. Flag it instead of silently mis-fitting.
-        if (minX < -0.01f || minZ < -0.01f)
-            Debug.LogWarning("[EditController] Parcel extends past the origin corner; the ground rectangle only covers the positive side.");
-        const float margin = 2f;
-        _history?.RecordBefore(EditHistory.Scope.Environment, "Fit terrain to lot");
-        SetTerrainSize(env, maxX + margin, maxZ + margin);
-        worldRenderer?.ApplyTerrainSize(env.site);
-        libraryBrowser?.MarkDirty();
-        worldRenderer?.RenderEnvironment(env, libraryBrowser?.CurrentBuildingDefs);
-        SyncSiteFields(env);
+        if (!SiteFit.BoundaryBounds(poly, out float minX, out float minZ, out float maxX, out float maxZ))
+        { UITheme.Note("No parcel polygon to fit to."); return; }
+        FitTerrainRectTo(env, minX, minZ, maxX, maxZ, margin: 2f, "Fit terrain to lot");
     }
 
-    // Grows/shrinks the terrain rectangle to enclose all placed content (+ margin).
+    // Moves and resizes the terrain rectangle to enclose all placed content (+ margin).
     private void FitLotToContent(EnvironmentDef env)
     {
         if (env == null) return;
         if (!EnvironmentScale.ContentBounds(env, libraryBrowser?.CurrentBuildingDefs,
                                             out float minX, out float minZ, out float maxX, out float maxZ))
         { UITheme.Note("Nothing placed to fit to."); return; }
-        if (minX < -0.01f || minZ < -0.01f)
-            Debug.LogWarning("[EditController] Some content sits past the origin corner; the ground rectangle only covers the positive side.");
-        const float margin = 5f;
-        _history?.RecordBefore(EditHistory.Scope.Environment, "Fit lot to content");
-        SetTerrainSize(env, maxX + margin, maxZ + margin);
+        FitTerrainRectTo(env, minX, minZ, maxX, maxZ, margin: 5f, "Fit lot to content");
+    }
+
+    // Shared tail of the two Fit buttons: the corner lands at min - margin and the size covers the
+    // extent plus two margins (EnvironmentScale.FitTerrainRect), so a parcel or content anywhere
+    // in the world gets ground under it. Content keeps its world coordinates. One undo step.
+    private void FitTerrainRectTo(EnvironmentDef env, float minX, float minZ, float maxX, float maxZ,
+                                  float margin, string undoLabel)
+    {
+        if (!EnvironmentScale.FitTerrainRect(minX, minZ, maxX, maxZ, margin,
+                                             out float ox, out float oz, out float w, out float l)) return;
+        _history?.RecordBefore(EditHistory.Scope.Environment, undoLabel);
+        SetTerrainOrigin(env, ox, oz);
+        SetTerrainSize(env, w, l);
         worldRenderer?.ApplyTerrainSize(env.site);
         libraryBrowser?.MarkDirty();
         worldRenderer?.RenderEnvironment(env, libraryBrowser?.CurrentBuildingDefs);
         SyncSiteFields(env);
+        if (_mode == EditMode.EditLot) { SeedLotWorking(env); RebuildLotHandles(); }   // open handles jump to the new rectangle
     }
 
     // Counts building + object instances whose origin falls outside the effective parcel polygon.
@@ -5777,7 +5765,7 @@ public partial class EditController : MonoBehaviour, EditHistory.IHost
             else
             {
                 GUILayout.Label($"Strength: {_sculptStrength:0.0}");
-                _sculptStrength = GUILayout.HorizontalSlider(_sculptStrength, 0.1f, 4f);
+                _sculptStrength = GUILayout.HorizontalSlider(_sculptStrength, 0.1f, SCULPT_STRENGTH_MAX);
             }
             _sculptClipToLot = UITheme.Checkbox(_sculptClipToLot, "  Stay inside lot", UITips.SculptClipToLot);
 
@@ -5988,8 +5976,10 @@ public partial class EditController : MonoBehaviour, EditHistory.IHost
 
         DrawTransformControls(env);
 
-        // Whole-building shape skew sits right under the move/rotate/scale controls (buildings only).
+        // Whole-building shape skew sits right under the move/rotate/scale controls (buildings only),
+        // then the sign the placed building carries.
         if (_selIsBuilding && total == 1) DrawBuildingSkewSection(env);
+        if (_selIsBuilding && total == 1) DrawSignSection(env);
 
         GUILayout.Space(4);
         // Optional = the VR viewer skips it. Same action as the library rail's button.
@@ -6104,15 +6094,11 @@ public partial class EditController : MonoBehaviour, EditHistory.IHost
     }
 
     // Move / Rotate / Scale as a segmented control (spec panel 4). Selecting enters Transform mode
-    // for an instance, or just swaps the tool for a whole-environment selection.
+    // for the selected instance.
     private void DrawToolSegmented()
     {
         int ts = UITheme.Segmented((int)_tool, new[] { "Move", "Rotate", "Scale" }, UITips.TransformTools);
-        if (ts != (int)_tool)
-        {
-            if (_envSelected) _tool = (Tool)ts;
-            else              EnterTransform((Tool)ts);
-        }
+        if (ts != (int)_tool) EnterTransform((Tool)ts);
     }
 
     // Numeric transform interface: only the active tool's controls show, a drag-free
@@ -6340,6 +6326,255 @@ public partial class EditController : MonoBehaviour, EditHistory.IHost
         libraryClient?.PutBuilding(bdef,
             ()  => Debug.Log($"[EditController] Building '{bdef.name}' skewed & saved."),
             err => Debug.LogError($"[EditController] Save skewed building failed: {err}"));
+    }
+
+    // -----------------------------------------------------------------------
+    // Sign (selected building): the word, the compass it faces, the spot on the wall. The sign
+    // belongs to the placed instance (BuildingInstance.sign*), so two copies of one def can differ
+    // and every edit is an Environment-scope undo step saved with the place, never a PutBuilding.
+    // BuildingSigns resolves the plate; WorldRenderer.RespawnBuildingSign swaps only the sign GO.
+    // -----------------------------------------------------------------------
+
+    private bool   _showSign = true;
+    private string _signDraft = "";
+    private string _signDraftFor;        // instance id the draft was seeded from
+    private bool   _moveSignDragging;
+    private bool   _moveSignChanged;     // something moved during the drag, so the place is dirty
+
+    private static readonly string[] SignCompassLabels = { "North", "East", "South", "West" };
+
+    private Func<string, TileFit> SignFitFor => worldRenderer != null ? worldRenderer.FitFor : (Func<string, TileFit>)null;
+
+    private static float SignCellSize(BuildingDef bdef) =>
+        bdef != null && bdef.gridCellSize > 0f ? bdef.gridCellSize : AuthoringConventions.DEFAULT_GRID_CELL_SIZE;
+
+    private void DrawSignSection(EnvironmentDef env)
+    {
+        var inst = FindBI(env, _selId);
+        var bdef = SelectedBuildingDef(env);
+        if (inst == null || bdef?.tiles == null || bdef.tiles.Count == 0) return;
+
+        UITheme.Divider();
+        _showSign = UITheme.ToggleButton(_showSign, _showSign ? "▾  Sign" : "▸  Sign", UITips.SignFoldout);
+        if (!_showSign) return;
+
+        var spec = BuildingSigns.SpecFor(inst, bdef);
+        if (_signDraftFor != inst.instanceId) { _signDraft = spec.text ?? ""; _signDraftFor = inst.instanceId; }
+        bool hasText = spec.text != null;
+
+        // Word. IMGUI text fields carry no tooltip; the buttons beside it do.
+        GUI.enabled = !ActiveLocked;
+        GUILayout.BeginHorizontal();
+        _signDraft = GUILayout.TextField(_signDraft ?? "", BuildingSigns.MaxChars, GUILayout.ExpandWidth(true), GUILayout.Height(UITheme.RowH));
+        bool apply = UITheme.GhostButton("Apply", UITips.SignApply, GUILayout.Width(56f), GUILayout.Height(UITheme.RowH));
+        GUI.enabled = !ActiveLocked && hasText;
+        bool clear = UITheme.GhostButton("Clear", UITips.SignClear, GUILayout.Width(56f), GUILayout.Height(UITheme.RowH));
+        GUILayout.EndHorizontal();
+        GUI.enabled = !ActiveLocked && !string.IsNullOrWhiteSpace(bdef.name);
+        bool useName = UITheme.GhostButton("Use name", UITips.SignUseName, GUILayout.Height(UITheme.RowH));
+        GUI.enabled = true;
+        if (apply)        ApplySignText(env, inst, bdef, _signDraft);
+        else if (clear)   ApplySignText(env, inst, bdef, null);
+        else if (useName) ApplySignText(env, inst, bdef, bdef.name);
+
+        // Compass: which way the sign faces on the site. Re-read after a text edit above.
+        spec    = BuildingSigns.SpecFor(inst, bdef);
+        hasText = spec.text != null;
+        string compass = BuildingSigns.EffectiveCompass(inst, bdef);
+        int ci = Array.IndexOf(BuildingSigns.Compass, compass);
+        if (ci < 0) ci = Array.IndexOf(BuildingSigns.Compass, BuildingSigns.DefaultCompass);
+        GUI.enabled = !ActiveLocked && hasText;
+        int nci = UITheme.Segmented(ci, SignCompassLabels, UITips.SignCompass);
+        GUI.enabled = true;
+        if (nci != ci) SetSignCompass(env, inst, bdef, BuildingSigns.Compass[nci]);
+
+        // Spot: a drag toggle plus one-tile nudges. The hint draws before the mode switches so this
+        // pass's control count matches `moving` (same shape as Move site).
+        bool moving = _mode == EditMode.MoveSign;
+        GUI.enabled = !ActiveLocked && hasText;
+        bool wantMove = UITheme.ToggleButton(moving, "Move sign", UITips.MoveSign, GUILayout.Height(UITheme.RowH));
+        GUILayout.BeginHorizontal();
+        bool left  = UITheme.GhostButton("Left",  UITips.SignLeft,  GUILayout.Height(UITheme.RowH));
+        bool right = UITheme.GhostButton("Right", UITips.SignRight, GUILayout.Height(UITheme.RowH));
+        bool up    = UITheme.GhostButton("Up",    UITips.SignUp,    GUILayout.Height(UITheme.RowH));
+        bool down  = UITheme.GhostButton("Down",  UITips.SignDown,  GUILayout.Height(UITheme.RowH));
+        GUILayout.EndHorizontal();
+        GUI.enabled = !ActiveLocked && hasText && spec.pinned;
+        bool reset = UITheme.GhostButton("Reset spot", UITips.SignReset, GUILayout.Height(UITheme.RowH));
+        GUI.enabled = true;
+        if (moving) UITheme.Note("Drag on the wall to slide the sign along it or onto another floor. Esc leaves.");
+        if (wantMove && !moving) StartMoveSign();
+        else if (!wantMove && moving) StopMoveSign();
+        if (left)       NudgeSign(env, inst, bdef, -1, 0);
+        else if (right) NudgeSign(env, inst, bdef, +1, 0);
+        else if (up)    NudgeSign(env, inst, bdef, 0, +1);
+        else if (down)  NudgeSign(env, inst, bdef, 0, -1);
+        else if (reset) ResetSignSpot(env, inst, bdef);
+
+        // Say where the sign is, and why it is not where it was asked to be.
+        spec = BuildingSigns.SpecFor(inst, bdef);
+        if (spec.text == null) return;
+        var skip = BuildingSigns.TryPlace(bdef, spec, SignCellSize(bdef), SignFitFor, out var p);
+        if (skip == BuildingSigns.Skip.TooNarrow)
+            UITheme.Note($"The sign needs {BuildingSigns.SignTiles} open tiles side by side on a wall. No wall has room, so nothing shows.");
+        else if (skip == BuildingSigns.Skip.None)
+        {
+            string shown = BuildingSigns.CompassOfFace(p.face, inst.rotationY);
+            if (p.faceFallback)  UITheme.Note($"No room on the {compass} wall. Showing the sign on the {shown} wall.");
+            else if (p.pinLost)  UITheme.Note("The saved spot is gone. Showing the sign at the centred spot.");
+            else                 UITheme.Note($"Sign faces {shown}, floor {p.floor + 1}.");
+        }
+    }
+
+    private void ApplySignText(EnvironmentDef env, BuildingInstance inst, BuildingDef bdef, string raw)
+    {
+        string text = BuildingSigns.NormalizeText(raw);
+        var spec = BuildingSigns.SpecFor(inst, bdef);
+        if (text == spec.text) { _signDraft = text ?? ""; return; }
+        _history?.RecordBefore(EditHistory.Scope.Environment, text == null ? "Clear sign" : "Set sign");
+        AdoptLegacySign(inst, bdef);
+        inst.signText = text;
+        _signDraft    = text ?? "";
+        AfterSignEdit(env, inst, bdef);
+    }
+
+    private void SetSignCompass(EnvironmentDef env, BuildingInstance inst, BuildingDef bdef, string compass)
+    {
+        _history?.RecordBefore(EditHistory.Scope.Environment, "Aim sign");
+        AdoptLegacySign(inst, bdef);
+        inst.signCompass = compass;
+        inst.signPinned  = false;   // a pin belongs to one wall
+        AfterSignEdit(env, inst, bdef);
+    }
+
+    private void NudgeSign(EnvironmentDef env, BuildingInstance inst, BuildingDef bdef, int dRight, int dFloor)
+    {
+        if (!TryCurrentSignSlot(inst, bdef, out var slot, out var placed)) return;
+        var next = BuildingSigns.Step(bdef, placed.face, slot, dRight, dFloor, SignCellSize(bdef), SignFitFor);
+        if (BuildingSigns.SameSlot(next, slot) && inst.signPinned && !placed.pinLost) return;
+        _history?.RecordBefore(EditHistory.Scope.Environment, "Move sign");
+        PinSign(inst, bdef, placed, next);
+        AfterSignEdit(env, inst, bdef);
+    }
+
+    private void ResetSignSpot(EnvironmentDef env, BuildingInstance inst, BuildingDef bdef)
+    {
+        if (!inst.signPinned) return;
+        _history?.RecordBefore(EditHistory.Scope.Environment, "Reset sign");
+        inst.signPinned = false;
+        AfterSignEdit(env, inst, bdef);
+    }
+
+    // First edit on an instance still showing its def's legacy sign: carry the word and the compass
+    // over so the instance owns the sign from here on (and a later Clear stays cleared).
+    private static void AdoptLegacySign(BuildingInstance inst, BuildingDef bdef)
+    {
+        if (BuildingSigns.NormalizeCompass(inst.signCompass) != null) return;
+        var legacy = BuildingSigns.SpecFor(inst, bdef);
+        inst.signCompass = BuildingSigns.EffectiveCompass(inst, bdef);
+        inst.signText    = legacy.text;
+        inst.signPinned  = false;
+    }
+
+    // Pins the instance's sign to `slot` on the wall it is currently shown on. A sign shown on a
+    // fallback wall adopts that wall's compass, or the pin would name tiles the chosen wall lacks.
+    private static void PinSign(BuildingInstance inst, BuildingDef bdef, BuildingSigns.Placement placed, BuildingSigns.Slot slot)
+    {
+        AdoptLegacySign(inst, bdef);
+        if (placed.faceFallback) inst.signCompass = BuildingSigns.CompassOfFace(placed.face, inst.rotationY);
+        inst.signPinned    = true;
+        inst.signHostX     = slot.a.gridX;
+        inst.signHostZ     = slot.a.gridZ;
+        inst.signHostFloor = slot.floor;
+    }
+
+    // The slot the sign is shown on right now (pinned, auto or fallback), plus the placement.
+    private bool TryCurrentSignSlot(BuildingInstance inst, BuildingDef bdef, out BuildingSigns.Slot slot, out BuildingSigns.Placement placed)
+    {
+        slot = default;
+        var spec = BuildingSigns.SpecFor(inst, bdef);
+        if (BuildingSigns.TryPlace(bdef, spec, SignCellSize(bdef), SignFitFor, out placed) != BuildingSigns.Skip.None) return false;
+        var slots = BuildingSigns.Slots(bdef, placed.face, SignCellSize(bdef), SignFitFor);
+        return BuildingSigns.TryFindSlot(slots, placed.floor, placed.tileA.gridX, placed.tileA.gridZ, out slot);
+    }
+
+    private void AfterSignEdit(EnvironmentDef env, BuildingInstance inst, BuildingDef bdef)
+    {
+        worldRenderer?.RespawnBuildingSign(inst, bdef);
+        libraryBrowser?.MarkDirty();
+    }
+
+    // Move sign: a drag on the wall plane picks the nearest open pair, one tile at a time. Not a
+    // preserved tool mode: it needs a selection, and an undo deselects (RestoreEnvironment), so it
+    // drops back to Browse the way Transform does.
+
+    private void StartMoveSign()
+    {
+        ExitCurrentMode();
+        if (!_selIsBuilding || string.IsNullOrEmpty(_selId)) { _mode = EditMode.Browse; return; }
+        _mode = EditMode.MoveSign;
+        _moveSignDragging = false;
+        _moveSignChanged  = false;
+    }
+
+    private void UpdateMoveSign()
+    {
+        var env  = libraryBrowser?.CurrentEnvironment;
+        var inst = env != null ? FindBI(env, _selId) : null;
+        var bdef = SelectedBuildingDef(env);
+        if (!_selIsBuilding || inst == null || bdef == null) { StopMoveSign(); return; }
+
+        if (KB != null && !TypingInUI && KB.escapeKey.wasPressedThisFrame) { StopMoveSign(); return; }
+
+        // A release anywhere ends the drag, even over the rail (the press is what the UI gates).
+        if (_moveSignDragging && LMBUp) { EndMoveSignDrag(); return; }
+        if (IsMouseOverUI() || ActiveLocked) return;
+
+        if (LMBDown)
+        {
+            _history?.BeginGesture(EditHistory.Scope.Environment, "Move sign");
+            _moveSignDragging = true;
+            _moveSignChanged  = false;
+        }
+        if (_moveSignDragging && LMBHeld) DragSignTo(env, inst, bdef);
+    }
+
+    private void DragSignTo(EnvironmentDef env, BuildingInstance inst, BuildingDef bdef)
+    {
+        var rootGO = _selGO != null ? _selGO : worldRenderer?.GetInstanceGO(inst.instanceId);
+        if (rootGO == null || mainCamera == null) return;
+        var root = rootGO.transform;
+        if (!TryCurrentSignSlot(inst, bdef, out var current, out var placed)) return;
+
+        // The wall plane through the plate, in world space; the hit goes back to building-local
+        // through the root so a scaled or turned instance still measures in its own metres.
+        var   plane = new Plane(root.TransformDirection(placed.normal).normalized, root.TransformPoint(placed.center));
+        Ray   ray   = mainCamera.ScreenPointToRay(MousePos);
+        if (!plane.Raycast(ray, out float d)) return;
+        Vector3 local = root.InverseTransformPoint(ray.GetPoint(d));
+
+        var slots = BuildingSigns.Slots(bdef, placed.face, SignCellSize(bdef), SignFitFor);
+        if (slots.Count == 0) return;
+        var near = BuildingSigns.Nearest(slots, local);
+        if (BuildingSigns.SameSlot(near, current) && inst.signPinned && !placed.pinLost) return;
+
+        PinSign(inst, bdef, placed, near);
+        _moveSignChanged = true;
+        worldRenderer?.RespawnBuildingSign(inst, bdef);
+    }
+
+    private void EndMoveSignDrag()
+    {
+        _moveSignDragging = false;
+        _history?.EndGesture();          // drops the step when nothing moved
+        if (_moveSignChanged) libraryBrowser?.MarkDirty();
+        _moveSignChanged = false;
+    }
+
+    private void StopMoveSign()
+    {
+        if (_moveSignDragging) EndMoveSignDrag();
+        if (_mode == EditMode.MoveSign) _mode = EditMode.Browse;
     }
 
     // -----------------------------------------------------------------------

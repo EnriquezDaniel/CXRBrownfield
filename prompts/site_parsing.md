@@ -22,8 +22,7 @@ Your priority is to **faithfully interpret the sketch**, while producing a **cle
 - Do **NOT** include any text, explanation, or commentary before or after the JSON
 - Do **NOT** wrap the JSON in markdown code fences (no ```json or ```)
 - Do **NOT** include trailing commas
-- Do **NOT** add extra or missing fields
-- Maintain exact field order as specified in each schema below
+- Do **NOT** add fields outside the schemas below; an optional field is **omitted**, never `null`
 - Use double quotes only
 - Output must be directly parseable by `JSON.parse()` with no preprocessing
 
@@ -110,6 +109,21 @@ No additional top-level keys are permitted. Use an empty array `[]` for any cate
 
 > **Important:** Bounding boxes represent relative placement only. They do **NOT** define real-world size.
 
+### Axes and real size
+
+- `y` (the first coordinate) runs **down** the image, from `0` at the top edge to `1000` at the
+  bottom edge. It spans **`site_width_ft`**: one `y` unit is `site_width_ft / 1000` ft.
+- `x` (the second coordinate) runs **across** the image, from `0` at the left edge to `1000` at the
+  right edge. It spans **`site_height_ft`**: one `x` unit is `site_height_ft / 1000` ft.
+- So a site with `site_width_ft > site_height_ft` is **tall on the page**: its long side runs up
+  and down the image. Real-world size of any box:
+  `tall_ft = (ymax - ymin) / 1000 × site_width_ft`, `wide_ft = (xmax - xmin) / 1000 × site_height_ft`.
+- The runtime site context states the feet per unit on each axis and whether the image was
+  resampled to the parcel's true proportions. When it was, a square in the image is a square on the
+  ground. When it was not, the two axes have different feet per unit, so size boxes from the numbers
+  rather than from how they look. Example for a 374 × 64 ft parcel on an unresampled canvas: a
+  40 × 40 ft building is about `107` units tall by `625` units wide.
+
 ---
 
 ## 🌍 Terrain Zones
@@ -147,7 +161,8 @@ Each entry must follow this schema in this exact field order:
   "path_material": "pavement_dark" | "pavement_light" | "brick" | "dirt" | "asphalt",
   "width_ft": number,
   "points": [[y, x], [y, x], ...],
-  "smoothing": number            // OPTIONAL 0–1; omit to auto-pick from material
+  "smoothing": number,           // OPTIONAL 0–1; omit to auto-pick from material
+  "brief_ref": "p1"              // OPTIONAL — ref of the designer brief path entry this satisfies
 }
 ```
 
@@ -199,7 +214,8 @@ Each entry must follow this schema in this exact field order:
   "fence_type": "picket" | "lattice" | "chain_link" | "wood_privacy" | "wrought_iron",
   "points": [[y, x], [y, x], ...],
   "height_ft": number,           // OPTIONAL; omit to use the fence type's default height
-  "smoothing": number            // OPTIONAL 0–1; omit for crisp corners (fences are usually straight)
+  "smoothing": number,           // OPTIONAL 0–1; omit for crisp corners (fences are usually straight)
+  "brief_ref": "f1"              // OPTIONAL — ref of the designer brief fence entry this satisfies
 }
 ```
 
@@ -251,7 +267,10 @@ Each entry must follow this schema in this exact field order:
   "floors": number,
   "approx_sq_ft": number,
   "unity_strategy": "modular_prefab",
-  "corner_angles": [number, number, number, number]   // OPTIONAL — omit for ordinary rectangular buildings
+  "style": "A",                                        // OPTIONAL — one letter A to F, only when the designer notes assign it
+  "sign": "ICECREAM",                                  // OPTIONAL — short uppercase sign word, only for a building the sketch or notes name
+  "corner_angles": [number, number, number, number],  // OPTIONAL — omit for ordinary rectangular buildings
+  "brief_ref": "b1"                                    // OPTIONAL — ref of the designer brief building this entry satisfies
 }
 ```
 
@@ -260,9 +279,9 @@ Each entry must follow this schema in this exact field order:
 Derive from the bounding box scaled to real-world site dimensions:
 
 ```
-bbox_width_normalized  = (xmax - xmin) / 1000
-bbox_height_normalized = (ymax - ymin) / 1000
-approx_sq_ft = (bbox_width_normalized × site_width_ft) × (bbox_height_normalized × site_height_ft)
+tall_ft = (ymax - ymin) / 1000 × site_width_ft     // y runs down the image and spans site_width_ft
+wide_ft = (xmax - xmin) / 1000 × site_height_ft    // x runs across the image and spans site_height_ft
+approx_sq_ft = tall_ft × wide_ft
 ```
 
 ### Estimating floors
@@ -306,6 +325,60 @@ non-90° angle, e.g. a wedge-shaped lot building or a chamfered street corner.
     stays straight). **Negative = acute** (wall leans in), **positive = obtuse** (wall splays out).
     Typical magnitudes `15`–`45`. Set a non-zero value only for the corner that is the angled
     "point" in the sketch; leave the rest `0`.
+
+#### style (optional — designer-assigned facade style)
+
+`style` is a single uppercase letter `A` to `F`. It is an opaque label: it does not describe a
+material and you must never pick one from how a building looks in the sketch.
+
+- Include `style` **only** when the designer notes for this sketch assign a style letter to this
+  building. Match the building by the name or use the notes give (e.g. notes saying "ice cream shop:
+  style A" apply to the building you labelled as the ice cream shop).
+- **Omit the field entirely** for every building the notes do not name, and when there are no notes.
+- Copy the letter exactly as given, uppercased. Never invent a letter, and never use one outside A to F.
+
+Example with notes reading "Ice cream shop: style A":
+
+```json
+{
+  "area_name": "Ice Cream Shop",
+  "semantic_tag": "mixed_use_retail",
+  "bounding_box": [842, 130, 998, 888],
+  "center_point": [920, 509],
+  "rotation_y_deg": 0,
+  "floors": 7,
+  "approx_sq_ft": 3582,
+  "unity_strategy": "modular_prefab",
+  "style": "A",
+  "sign": "ICECREAM"
+}
+```
+
+#### sign (optional — the building's sign word)
+
+`sign` is the short word a sign on the building would show: `"ICECREAM"`, `"THEATER"`,
+`"PHARMACY"`. Unity hangs it on a two-tile plate on the building's east wall.
+
+- Include `sign` **only** when the sketch labels the building or the designer notes name it
+  (a use like "ice cream shop" counts as a name). Omit the field entirely for unnamed buildings.
+- One word, uppercase, 1 to 16 characters, letters and digits only, no spaces. Compress a
+  longer name to its key word: "Ice Cream Shop" → `"ICECREAM"`, "Movie Theater" → `"THEATER"`.
+- Never invent a name. If nothing in the sketch or notes names the building, leave it out.
+
+#### brief_ref and the designer brief (optional)
+
+When the runtime context carries a **designer brief** (a JSON reading of the notes), every brief
+`buildings[]` entry is one building the designer wants. Emit it exactly once, with `area_name`
+equal to the brief `name` and `brief_ref` equal to the brief `ref`, copying its `style` and
+`floors` when given. Use the brief `where` phrase to decide which drawn block it is.
+
+- A brief **split** group with count N is **one drawn block that becomes N buildings**: emit N
+  entries dividing that block into N equal shares along its longer side, touching (neighbours
+  share an edge), in member order starting from the end with the lowest coordinate. Each carries
+  its member's `brief_ref`, `area_name`, `style` and `floors`.
+- Never draw a block the sketch does not show to satisfy the brief. If no drawn block fits a
+  brief building, leave it out; the server reports it.
+- Omit `brief_ref` on every building the brief does not mention, and when there is no brief.
 
 #### Example
 
@@ -363,7 +436,8 @@ Each entry must follow this schema in this exact field order:
     "depth_ft": number,
     "height_ft": number
   },
-  "unity_strategy": "box_primitive"
+  "unity_strategy": "box_primitive",
+  "brief_ref": "b1"                    // OPTIONAL — ref of the designer brief building this satisfies (a named kiosk)
 }
 ```
 
@@ -410,7 +484,8 @@ Each entry must follow this schema in this exact field order:
   "footprint_box": [ymin, xmin, ymax, xmax],
   "rotation_deg": number,
   "scale_multiplier": number,
-  "unity_strategy": "place_prefab"
+  "unity_strategy": "place_prefab",
+  "brief_ref": "x1"                    // OPTIONAL — ref of the designer brief prop entry this satisfies
 }
 ```
 
@@ -420,6 +495,11 @@ Each entry must follow this schema in this exact field order:
 - `footprint_box` should tightly bound the object
 - `rotation_deg` defaults to `0` if unknown (same sign convention as `rotation_y_deg`: positive = counterclockwise as drawn)
 - `scale_multiplier` defaults to `1.0`
+- When the designer brief lists a prop (`props[]`), place that type in the arrangement and count it
+  gives, each instance carrying `brief_ref` equal to the brief `ref`; a brief prop with
+  `"exclude": true` is not placed at all, even if the sketch suggests it. The same applies to brief
+  `paths[]` and `fences[]` entries: emit the described path or fence with its `brief_ref`, material
+  or type, width or height, and emit nothing that matches an excluded one
 
 ---
 
@@ -470,6 +550,9 @@ Before producing output, verify:
 - For `generated_objects`: `width_ft × depth_ft ≈ approx_sq_ft` and `height_ft ≥ 10`
 - Regular rectangular buildings are in `generated_buildings`, not `generated_objects`
 - `rotation_y_deg` is present on every building entry and is **inferred from the sketch's wall angles**
+- `style` appears only on `generated_buildings` entries the designer notes assign a letter to, as a single uppercase `A` to `F`; every other building omits it
+- `sign` appears only on `generated_buildings` entries the sketch or notes name, as one uppercase word of 1 to 16 letters or digits; every other building omits it
+- With a designer brief: every brief building appears exactly once with its `brief_ref` and `area_name`; every split group has exactly its count of touching entries; excluded paths, fences and props are absent; `brief_ref` is omitted everywhere else
 - No `image_gen_prompt` fields exist anywhere in the output
 - All coordinate values are integers in the range `[0, 1000]`
 - JSON is valid and directly parseable — no fences, no commentary

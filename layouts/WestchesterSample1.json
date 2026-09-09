@@ -1,0 +1,184 @@
+{
+  "site_scale": {
+    "site_width_ft": 459,
+    "site_height_ft": 66,
+    "normalized_canvas": [0, 0, 1000, 1000],
+    "lot_boundary": [
+      [0, 0],
+      [0, 1000],
+      [1000, 1000],
+      [1000, 0]
+    ],
+    "scale_note": "All placements must fall within lot_boundary. Bounding boxes define placement. Real-world dimensions define scale."
+  },
+  "terrain_zones": [
+    {
+      "area_name": "Open Grass Area",
+      "semantic_tag": "lawn",
+      "terrain_type": "grass",
+      "bounding_box": [70, 200, 960, 720],
+      "approx_sq_ft": 25000,
+      "unity_strategy": "paint_terrain"
+    }
+  ],
+  "paths": [
+    {
+      "area_name": "Avenue Brick Sidewalk",
+      "semantic_tag": "sidewalk",
+      "path_material": "brick",
+      "width_ft": 8,
+      "points": [[90, 250], [500, 250], [950, 250]],
+      "brief_ref": "p1"
+    }
+  ],
+  "fences": [
+    {
+      "area_name": "East Edge Fence",
+      "semantic_tag": "boundary_fence",
+      "fence_type": "chain_link",
+      "points": [[80, 880], [500, 880], [955, 880]],
+      "brief_ref": "f1"
+    }
+  ],
+  "generated_buildings": [
+    {
+      "area_name": "Pickle Ball Court North",
+      "semantic_tag": "recreation_court",
+      "bounding_box": [105, 335, 190, 640],
+      "center_point": [147, 487],
+      "rotation_y_deg": 90,
+      "floors": 1,
+      "approx_sq_ft": 785,
+      "unity_strategy": "modular_prefab",
+      "sign": "PICKLEBALL"
+    },
+    {
+      "area_name": "Pickle Ball Court South",
+      "semantic_tag": "recreation_court",
+      "bounding_box": [200, 335, 285, 640],
+      "center_point": [242, 487],
+      "rotation_y_deg": 90,
+      "floors": 1,
+      "approx_sq_ft": 785,
+      "unity_strategy": "modular_prefab",
+      "sign": "PICKLEBALL"
+    },
+    {
+      "area_name": "Cafe",
+      "semantic_tag": "cafe",
+      "bounding_box": [320, 335, 420, 640],
+      "center_point": [370, 487],
+      "rotation_y_deg": 90,
+      "floors": 4,
+      "approx_sq_ft": 924,
+      "unity_strategy": "modular_prefab",
+      "sign": "CAFE",
+      "brief_ref": "b1"
+    },
+    {
+      "area_name": "Rite Aid",
+      "semantic_tag": "pharmacy",
+      "bounding_box": [420, 335, 520, 640],
+      "center_point": [470, 487],
+      "rotation_y_deg": 90,
+      "floors": 4,
+      "approx_sq_ft": 924,
+      "unity_strategy": "modular_prefab",
+      "style": "C",
+      "sign": "RITEAID",
+      "brief_ref": "b2"
+    },
+    {
+      "area_name": "Bakery",
+      "semantic_tag": "bakery",
+      "bounding_box": [520, 335, 620, 640],
+      "center_point": [570, 487],
+      "rotation_y_deg": 90,
+      "floors": 4,
+      "approx_sq_ft": 924,
+      "unity_strategy": "modular_prefab",
+      "sign": "BAKERY",
+      "brief_ref": "b3"
+    },
+    {
+      "area_name": "Ice Cream Shop",
+      "semantic_tag": "retail_shop",
+      "bounding_box": [790, 335, 925, 640],
+      "center_point": [857, 487],
+      "rotation_y_deg": 90,
+      "floors": 2,
+      "approx_sq_ft": 1246,
+      "unity_strategy": "modular_prefab",
+      "sign": "ICECREAM"
+    }
+  ],
+  "generated_objects": [],
+  "prefab_instances": [
+    {
+      "area_name": "Street Tree 1",
+      "semantic_tag": "tree",
+      "prefab_type": "tree",
+      "center_point": [160, 320],
+      "footprint_box": [145, 305, 175, 335],
+      "rotation_deg": 0,
+      "scale_multiplier": 1.0,
+      "unity_strategy": "place_prefab",
+      "brief_ref": "x1"
+    },
+    {
+      "area_name": "Street Tree 2",
+      "semantic_tag": "tree",
+      "prefab_type": "tree",
+      "center_point": [310, 320],
+      "footprint_box": [295, 305, 325, 335],
+      "rotation_deg": 0,
+      "scale_multiplier": 1.0,
+      "unity_strategy": "place_prefab",
+      "brief_ref": "x1"
+    },
+    {
+      "area_name": "Street Tree 3",
+      "semantic_tag": "tree",
+      "prefab_type": "tree",
+      "center_point": [460, 320],
+      "footprint_box": [445, 305, 475, 335],
+      "rotation_deg": 0,
+      "scale_multiplier": 1.0,
+      "unity_strategy": "place_prefab",
+      "brief_ref": "x1"
+    },
+    {
+      "area_name": "Street Tree 4",
+      "semantic_tag": "tree",
+      "prefab_type": "tree",
+      "center_point": [610, 320],
+      "footprint_box": [595, 305, 625, 335],
+      "rotation_deg": 0,
+      "scale_multiplier": 1.0,
+      "unity_strategy": "place_prefab",
+      "brief_ref": "x1"
+    },
+    {
+      "area_name": "Street Tree 5",
+      "semantic_tag": "tree",
+      "prefab_type": "tree",
+      "center_point": [760, 320],
+      "footprint_box": [745, 305, 775, 335],
+      "rotation_deg": 0,
+      "scale_multiplier": 1.0,
+      "unity_strategy": "place_prefab",
+      "brief_ref": "x1"
+    },
+    {
+      "area_name": "Street Tree 6",
+      "semantic_tag": "tree",
+      "prefab_type": "tree",
+      "center_point": [910, 320],
+      "footprint_box": [895, 305, 925, 335],
+      "rotation_deg": 0,
+      "scale_multiplier": 1.0,
+      "unity_strategy": "place_prefab",
+      "brief_ref": "x1"
+    }
+  ]
+}

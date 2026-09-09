@@ -2,6 +2,7 @@ using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
+using UnityEngine;
 
 [TestFixture]
 public class LayoutConverterTests
@@ -63,6 +64,270 @@ public class LayoutConverterTests
     }
 
     [Test]
+    public void Convert_BuildingStyle_NormalizesLetterAndDropsUnknown()
+    {
+        var data = MinimalData();
+        data.generated_buildings.Add(new GeneratedBuilding
+        {
+            area_name = "Styled", bounding_box = new[] { 0, 0, 100, 100 }, center_point = new[] { 50, 50 },
+            floors = 1, style = "b",
+        });
+        data.generated_buildings.Add(new GeneratedBuilding
+        {
+            area_name = "Bad letter", bounding_box = new[] { 200, 0, 300, 100 }, center_point = new[] { 250, 50 },
+            floors = 1, style = "Z",
+        });
+        data.generated_buildings.Add(new GeneratedBuilding
+        {
+            area_name = "Unstyled", bounding_box = new[] { 400, 0, 500, 100 }, center_point = new[] { 450, 50 },
+            floors = 1,
+        });
+
+        var result = LayoutConverter.Convert(data);
+
+        Assert.AreEqual("B",  result.Buildings.Find(b => b.name == "Styled").style);
+        Assert.IsNull(result.Buildings.Find(b => b.name == "Bad letter").style, "unknown letters are ignored");
+        Assert.IsNull(result.Buildings.Find(b => b.name == "Unstyled").style);
+        foreach (var b in result.Buildings)
+            foreach (var t in b.tiles)
+                Assert.IsNull(t.faceMaterials, "style is resolved at spawn time, never baked into faceMaterials");
+    }
+
+    // A 2 x 2 tile footprint: 1000 ft on a 1000 canvas is 0.3048 m per unit, so 26 units is 7.9 m,
+    // which rounds to two 4 m cells.
+    private static GeneratedBuilding TwoByTwo(int floors) => new GeneratedBuilding
+    {
+        area_name = "Flats", bounding_box = new[] { 0, 0, 26, 26 }, center_point = new[] { 13, 13 },
+        floors = floors,
+    };
+
+    [Test]
+    public void Convert_GeneratedBuilding_UpperFloorsGetWindowPairs()
+    {
+        var data = MinimalData(siteWidthFt: 1000f, siteHeightFt: 1000f);
+        data.generated_buildings.Add(TwoByTwo(3));
+
+        var bdef = LayoutConverter.Convert(data).Buildings[0];
+
+        Assert.AreEqual(4, bdef.tiles.FindAll(t => t.floor == 0).Count, "2 x 2 footprint");
+        Assert.AreEqual(16, bdef.embeddedObjects.Count, "8 perimeter faces on each of floors 1 and 2");
+        Assert.IsTrue(bdef.embeddedObjects.TrueForAll(e => e.prefabType == BuildingWindows.DefaultPrefabKey));
+        Assert.IsTrue(bdef.embeddedObjects.TrueForAll(e => e.optional), "skipped by the low-detail VR viewer");
+        Assert.IsTrue(bdef.embeddedObjects.TrueForAll(e => e.hostFloor >= 1), "none on the ground floor");
+        Assert.IsTrue(bdef.embeddedObjects.TrueForAll(e => DecorPlacement.IsReseatable(e)));
+    }
+
+    [Test]
+    public void Convert_GeneratedBuilding_OneFloorOrDisabledRule_NoWindows()
+    {
+        var data = MinimalData(siteWidthFt: 1000f, siteHeightFt: 1000f);
+        data.generated_buildings.Add(TwoByTwo(1));
+        Assert.AreEqual(0, LayoutConverter.Convert(data).Buildings[0].embeddedObjects.Count);
+
+        var tall = MinimalData(siteWidthFt: 1000f, siteHeightFt: 1000f);
+        tall.generated_buildings.Add(TwoByTwo(3));
+        var off = BuildingWindows.DefaultRule;
+        off.prefabKey = "";
+        Assert.AreEqual(0, LayoutConverter.Convert(tall, null, off).Buildings[0].embeddedObjects.Count);
+    }
+
+    [Test]
+    public void Convert_GeneratedBuilding_RuleFieldsReachTheRecord()
+    {
+        var data = MinimalData(siteWidthFt: 1000f, siteHeightFt: 1000f);
+        data.generated_buildings.Add(TwoByTwo(2));
+        var rule = new BuildingWindows.Rule
+        {
+            prefabKey = "Window", widthFrac = 0.5f, heightFrac = 0.6f, surfaceOffset = 0.05f,
+            anchor = (int)DecorAlignment.Anchor.Center, mountAxis = (int)DecorAlignment.MountAxis.PosZ,
+            flipMount = true, optional = false,
+        };
+
+        var bdef = LayoutConverter.Convert(data, "Env", rule).Buildings[0];
+
+        Assert.AreEqual(8, bdef.embeddedObjects.Count);
+        var e = bdef.embeddedObjects[0];
+        Assert.AreEqual("Window", e.prefabType);
+        Assert.AreEqual(0.5f,  e.decorWidthFrac,     1e-6f);
+        Assert.AreEqual(0.6f,  e.decorHeightFrac,    1e-6f);
+        Assert.AreEqual(0.05f, e.decorSurfaceOffset, 1e-6f);
+        Assert.AreEqual((int)DecorAlignment.Anchor.Center,    e.decorAnchor);
+        Assert.AreEqual((int)DecorAlignment.MountAxis.PosZ,   e.decorMountAxis);
+        Assert.IsTrue(e.decorFlipMount);
+        Assert.IsFalse(e.optional);
+    }
+
+    [Test]
+    public void Convert_GeneratedBuilding_WindowsSurviveJsonRoundTrip()
+    {
+        var data = MinimalData(siteWidthFt: 1000f, siteHeightFt: 1000f);
+        data.generated_buildings.Add(TwoByTwo(2));
+        var bdef = LayoutConverter.Convert(data).Buildings[0];
+
+        string json = JsonConvert.SerializeObject(bdef);
+        var back = JsonConvert.DeserializeObject<BuildingDef>(json);
+
+        Assert.AreEqual(bdef.embeddedObjects.Count, back.embeddedObjects.Count);
+        for (int i = 0; i < bdef.embeddedObjects.Count; i++)
+        {
+            var a = bdef.embeddedObjects[i]; var b = back.embeddedObjects[i];
+            Assert.AreEqual(a.instanceId, b.instanceId);
+            Assert.AreEqual(a.hostFace, b.hostFace);
+            Assert.AreEqual(a.hostGridX, b.hostGridX);
+            Assert.AreEqual(a.hostGridZ, b.hostGridZ);
+            Assert.AreEqual(a.hostFloor, b.hostFloor);
+            Assert.AreEqual(a.decorWidthFrac, b.decorWidthFrac, 1e-6f);
+            Assert.AreEqual(a.optional, b.optional);
+            Assert.AreEqual(a.localPos[0], b.localPos[0], 1e-5f);
+        }
+    }
+
+    [Test]
+    public void Convert_BuildingSign_NormalizesWordAndFacesEast()
+    {
+        var data = MinimalData();
+        data.generated_buildings.Add(new GeneratedBuilding
+        {
+            area_name = "Shop", bounding_box = new[] { 0, 0, 100, 100 }, center_point = new[] { 50, 50 },
+            floors = 1, rotation_y_deg = 0, sign = " ice cream ",
+        });
+        data.generated_buildings.Add(new GeneratedBuilding
+        {
+            area_name = "Turned", bounding_box = new[] { 200, 0, 300, 100 }, center_point = new[] { 250, 50 },
+            floors = 1, rotation_y_deg = 90, sign = "THEATER",
+        });
+        data.generated_buildings.Add(new GeneratedBuilding
+        {
+            area_name = "Unnamed", bounding_box = new[] { 400, 0, 500, 100 }, center_point = new[] { 450, 50 },
+            floors = 1,
+        });
+
+        var result = LayoutConverter.Convert(data);
+
+        // The sign belongs to the placed instance, facing world east; the def never carries one.
+        var shopDef  = result.Buildings.Find(b => b.name == "Shop");
+        var shop     = result.Environment.buildingInstances.Find(i => i.buildingId == shopDef.id);
+        Assert.AreEqual("ICE CREAM", shop.signText, "trimmed and uppercased");
+        Assert.AreEqual("east", shop.signCompass);
+        Assert.IsFalse(shop.signPinned, "generated signs sit at the centred spot");
+        Assert.IsNull(shopDef.signText, "the def carries no sign of its own");
+        Assert.IsNull(shopDef.signFace);
+        // Sketch rotation 0 is a 180 yaw (MapRotation), which turns the local north (+Z) wall to
+        // world -Z, east.
+        Assert.AreEqual("north", BuildingSigns.SpecFor(shop, shopDef).face);
+
+        var turnedDef = result.Buildings.Find(b => b.name == "Turned");
+        var turned    = result.Environment.buildingInstances.Find(i => i.buildingId == turnedDef.id);
+        Assert.AreEqual("THEATER", turned.signText);
+        Assert.AreEqual("east", BuildingSigns.SpecFor(turned, turnedDef).face, "a quarter turn (yaw 90) puts the local east wall on world east");
+
+        var unnamedDef = result.Buildings.Find(b => b.name == "Unnamed");
+        var unnamed    = result.Environment.buildingInstances.Find(i => i.buildingId == unnamedDef.id);
+        Assert.IsNull(unnamed.signText);
+        Assert.IsNull(unnamed.signCompass, "no word, no compass");
+        Assert.IsNull(BuildingSigns.SpecFor(unnamed, unnamedDef).text);
+    }
+
+    [Test]
+    public void Convert_NonSquareSite_PairsCanvasYWithWidthAndXWithHeight()
+    {
+        // A 374 x 64 ft strip (Westchester Bronx River Site A). Canvas index [0] is the sketch's
+        // vertical axis and spans site_width_ft -> Unity X; index [1] spans site_height_ft -> Z.
+        // A 40 x 40 ft building is therefore 107 units tall by 625 units wide on the canvas.
+        var data = MinimalData(374f, 64f);
+        data.site_scale.lot_boundary = new[]
+        {
+            new float[] { 0f, 0f }, new float[] { 1000f, 0f }, new float[] { 1000f, 1000f }, new float[] { 0f, 1000f },
+        };
+        data.generated_buildings.Add(new GeneratedBuilding
+        {
+            area_name      = "Kiosk",
+            bounding_box   = new[] { 0, 0, 107, 625 },
+            center_point   = new[] { 53, 312 },
+            rotation_y_deg = 0f,
+            floors         = 1,
+        });
+
+        var result = LayoutConverter.Convert(data);
+        float wM = 374f * AuthoringConventions.FT_TO_M, hM = 64f * AuthoringConventions.FT_TO_M;
+
+        // Terrain hugs the parcel plus the 2 m margin, long axis on X.
+        Assert.AreEqual(wM + 2f, result.Environment.site.terrainSize[0], 0.01f);
+        Assert.AreEqual(hM + 2f, result.Environment.site.terrainSize[1], 0.01f);
+        // Half turn: canvas [0,0] (top-left, north-west) is the world max corner, [1000,1000] the origin.
+        Assert.AreEqual(wM, result.Environment.site.lotBoundary[0][0], 0.01f);
+        Assert.AreEqual(hM, result.Environment.site.lotBoundary[0][1], 0.01f);
+        Assert.AreEqual(0f, result.Environment.site.lotBoundary[2][0], 0.01f);
+        Assert.AreEqual(0f, result.Environment.site.lotBoundary[2][1], 0.01f);
+
+        // 12.2 m x 12.2 m footprint -> a square 3 x 3 grid of 4 m tiles, not a 1 x 16 sliver.
+        var def = result.Buildings[0];
+        Assert.AreEqual(9, def.tiles.Count);
+        int maxX = 0, maxZ = 0;
+        foreach (var t in def.tiles) { if (t.gridX > maxX) maxX = t.gridX; if (t.gridZ > maxZ) maxZ = t.gridZ; }
+        Assert.AreEqual(2, maxX);
+        Assert.AreEqual(2, maxZ);
+    }
+
+    [Test]
+    public void IsQuarterTurn_OnlyNear90And270()
+    {
+        Assert.IsTrue(LayoutConverter.IsQuarterTurn(90f));
+        Assert.IsTrue(LayoutConverter.IsQuarterTurn(270f));
+        Assert.IsTrue(LayoutConverter.IsQuarterTurn(-90f));
+        Assert.IsTrue(LayoutConverter.IsQuarterTurn(89.5f));
+        Assert.IsFalse(LayoutConverter.IsQuarterTurn(0f));
+        Assert.IsFalse(LayoutConverter.IsQuarterTurn(180f));
+        Assert.IsFalse(LayoutConverter.IsQuarterTurn(45f));
+        Assert.IsFalse(LayoutConverter.IsQuarterTurn(120f));
+    }
+
+    [Test]
+    public void Convert_QuarterTurnBuilding_GridIsTransposedSoTheYawLandsItOnItsBox()
+    {
+        // On the 374 x 64 ft strip the model answers rotation 90 for a building whose long wall runs
+        // up the page (its long side along canvas y). Its box is 214 x 600 canvas units = 80 x 38 ft
+        // = 24.4 x 11.7 m: 6 tiles along Unity X, 3 along Z once rendered. The grid itself must be
+        // 3 wide x 6 deep so the 90 deg Unity yaw (180 - 90) swings it onto the box; an untransposed
+        // 6 x 3 grid rotated a quarter turn would stick 24 m across the 19 m strip.
+        var data = MinimalData(374f, 64f);
+        data.generated_buildings.Add(new GeneratedBuilding
+        {
+            area_name      = "Daycare",
+            bounding_box   = new[] { 0, 0, 214, 600 },
+            center_point   = new[] { 107, 300 },
+            rotation_y_deg = 90f,
+            floors         = 1,
+        });
+
+        var result = LayoutConverter.Convert(data);
+        var def    = result.Buildings[0];
+        var inst   = result.Environment.buildingInstances[0];
+        Assert.AreEqual(90f, inst.rotationY, 0.001f);
+
+        int maxX = 0, maxZ = 0;
+        foreach (var t in def.tiles) { if (t.gridX > maxX) maxX = t.gridX; if (t.gridZ > maxZ) maxZ = t.gridZ; }
+        Assert.AreEqual(2, maxX, "3 tiles wide in the building's own frame");
+        Assert.AreEqual(5, maxZ, "6 tiles deep in the building's own frame");
+
+        // Rendered footprint = the corner-pivot grid rotated by the yaw about the instance position.
+        // Local [0,12] x [0,24] under a 90 deg yaw maps to world X in [pos.x, pos.x + 24] and
+        // Z in [pos.z - 12, pos.z], so it must be centred on the model's center_point (turned half
+        // a turn: canvas 0 is the world max on each axis).
+        float cx = (1f - 107f / 1000f) * 374f * AuthoringConventions.FT_TO_M;
+        float cz = (1f - 300f / 1000f) * 64f  * AuthoringConventions.FT_TO_M;
+        float fpW = (maxX + 1) * def.gridCellSize, fpD = (maxZ + 1) * def.gridCellSize;   // 12, 24
+        Vector3 c0 = Quaternion.Euler(0f, inst.rotationY, 0f) * new Vector3(0f, 0f, 0f);
+        Vector3 c1 = Quaternion.Euler(0f, inst.rotationY, 0f) * new Vector3(fpW, 0f, fpD);
+        float worldMinX = inst.position[0] + Mathf.Min(c0.x, c1.x), worldMaxX = inst.position[0] + Mathf.Max(c0.x, c1.x);
+        float worldMinZ = inst.position[2] + Mathf.Min(c0.z, c1.z), worldMaxZ = inst.position[2] + Mathf.Max(c0.z, c1.z);
+        Assert.AreEqual(24f, worldMaxX - worldMinX, 0.01f, "long side lies along X, the strip's long axis");
+        Assert.AreEqual(12f, worldMaxZ - worldMinZ, 0.01f, "short side across Z fits the 19.4 m strip");
+        Assert.AreEqual(cx, (worldMinX + worldMaxX) * 0.5f, 0.01f);
+        Assert.AreEqual(cz, (worldMinZ + worldMaxZ) * 0.5f, 0.01f);
+    }
+
+    [Test]
     public void Convert_TerrainZone_NormalizesCoordinates()
     {
         var data = MinimalData();
@@ -75,19 +340,23 @@ public class LayoutConverterTests
         var result = LayoutConverter.Convert(data);
         var zone   = result.Environment.site.terrainZones[0];
 
-        float halfM = 300f * AuthoringConventions.FT_TO_M * 0.5f;
+        float fullM = 300f * AuthoringConventions.FT_TO_M;
+        float halfM = fullM * 0.5f;
+        // The top-left quarter of the sketch is the +X/+Z quarter of the world (half turn), and the
+        // rect stays min-first after the mapping flips the ends.
         Assert.AreEqual("grass", zone.terrainType);
-        Assert.AreEqual(0f,    zone.rectMeters[0], 0.001f);
-        Assert.AreEqual(0f,    zone.rectMeters[1], 0.001f);
-        Assert.AreEqual(halfM, zone.rectMeters[2], 0.001f);
-        Assert.AreEqual(halfM, zone.rectMeters[3], 0.001f);
+        Assert.AreEqual(halfM, zone.rectMeters[0], 0.001f);
+        Assert.AreEqual(halfM, zone.rectMeters[1], 0.001f);
+        Assert.AreEqual(fullM, zone.rectMeters[2], 0.001f);
+        Assert.AreEqual(fullM, zone.rectMeters[3], 0.001f);
     }
 
     [Test]
     public void Convert_LotBoundary_NormalizesToMetersXZ()
     {
         var data = MinimalData(300f, 300f);
-        // [y, x] normalized triangle; index [0] → X, index [1] → Z (file-header convention).
+        // [y, x] normalized triangle; index [0] → X, index [1] → Z, turned half a turn
+        // (file-header convention): canvas 0 is the world max, canvas 1000 the world 0.
         data.site_scale.lot_boundary = new[]
         {
             new float[] { 0f,    0f    },
@@ -101,12 +370,12 @@ public class LayoutConverterTests
 
         Assert.IsNotNull(boundary);
         Assert.AreEqual(3, boundary.Length);
-        Assert.AreEqual(0f,          boundary[0][0], 0.001f);  // x
-        Assert.AreEqual(0f,          boundary[0][1], 0.001f);  // z
-        Assert.AreEqual(fullM,       boundary[1][0], 0.001f);  // x = (1000/1000)*W
-        Assert.AreEqual(0f,          boundary[1][1], 0.001f);
-        Assert.AreEqual(fullM * 0.5f, boundary[2][0], 0.001f); // x = (500/1000)*W
-        Assert.AreEqual(fullM,       boundary[2][1], 0.001f);  // z = (1000/1000)*H
+        Assert.AreEqual(fullM,       boundary[0][0], 0.001f);  // x = (1 - 0/1000)*W
+        Assert.AreEqual(fullM,       boundary[0][1], 0.001f);  // z = (1 - 0/1000)*H
+        Assert.AreEqual(0f,          boundary[1][0], 0.001f);  // x = (1 - 1000/1000)*W
+        Assert.AreEqual(fullM,       boundary[1][1], 0.001f);
+        Assert.AreEqual(fullM * 0.5f, boundary[2][0], 0.001f); // x = (1 - 500/1000)*W
+        Assert.AreEqual(0f,          boundary[2][1], 0.001f);  // z = (1 - 1000/1000)*H
     }
 
     [Test]
@@ -151,9 +420,10 @@ public class LayoutConverterTests
 
         var binst = result.Environment.buildingInstances[0];
         Assert.AreEqual(bdef.id, binst.buildingId);
-        // Sketch yaw 45° CCW-as-drawn → Unity yaw −45° = 315° (the [y,x]→(X,Z) transpose
-        // reflects the ground plane, flipping rotation sense — see LayoutConverter header).
-        Assert.AreEqual(315f, binst.rotationY, 0.001f);
+        // Sketch yaw 45° CCW-as-drawn → Unity yaw 180° − 45° = 135° (the [y,x]→(X,Z) transpose
+        // reflects the ground plane, flipping rotation sense, and the plan's half turn adds 180°
+        // — see LayoutConverter header).
+        Assert.AreEqual(135f, binst.rotationY, 0.001f);
         Assert.IsTrue(binst.included);
     }
 
@@ -197,8 +467,9 @@ public class LayoutConverterTests
         Assert.AreEqual(1, result.Environment.objectInstances.Count);
         var inst = result.Environment.objectInstances[0];
         Assert.AreEqual("oak_tree", inst.prefabType);
-        // Sketch 90° CCW-as-drawn → Unity yaw 270° (reflection flips rotation sense).
-        Assert.AreEqual(270f, inst.rotationY, 0.001f);
+        // Sketch 90° CCW-as-drawn → Unity yaw 180° − 90° = 90° (reflection flips rotation sense,
+        // the half turn adds 180°).
+        Assert.AreEqual(90f, inst.rotationY, 0.001f);
         Assert.AreEqual(2f,  inst.scale, 0.001f);
         Assert.IsTrue(inst.included);
         Assert.IsFalse(string.IsNullOrEmpty(inst.instanceId));
@@ -301,7 +572,8 @@ public class LayoutConverterTests
     public void Convert_Path_NormalizesCoordinatesAndWidth()
     {
         // 300ft site → terrain meters; canvas 1000. A point at canvas [500, 250] maps to
-        // (500/1000)*W for X and (250/1000)*H for Z, mirroring the zone/placement transform.
+        // (1 - 500/1000)*W for X and (1 - 250/1000)*H for Z, the same half-turned transform as
+        // zones and placement.
         var data = MinimalData(300f, 300f);
         data.paths = new List<GeneratedPath>
         {
@@ -324,7 +596,7 @@ public class LayoutConverterTests
         Assert.IsFalse(string.IsNullOrEmpty(path.id), "Converted path must get a stable id");
         Assert.AreEqual(3, path.points.Length);
         Assert.AreEqual(0.5f * W, path.points[1][0], 0.001f);   // X from canvas index [0]
-        Assert.AreEqual(0.25f * H, path.points[1][1], 0.001f);  // Z from canvas index [1]
+        Assert.AreEqual(0.75f * H, path.points[1][1], 0.001f);  // Z from canvas index [1], turned
     }
 
     [Test]
@@ -340,7 +612,7 @@ public class LayoutConverterTests
     public void Convert_Fence_NormalizesCoordinatesAndHeight()
     {
         // Same canvas→meters transform as paths: a point at canvas [500, 250] maps to
-        // (500/1000)*W for X and (250/1000)*H for Z.
+        // (1 - 500/1000)*W for X and (1 - 250/1000)*H for Z.
         var data = MinimalData(300f, 300f);
         data.fences = new List<GeneratedFence>
         {
@@ -363,7 +635,7 @@ public class LayoutConverterTests
         Assert.IsFalse(string.IsNullOrEmpty(fence.id), "Converted fence must get a stable id");
         Assert.AreEqual(3, fence.points.Length);
         Assert.AreEqual(0.5f * W, fence.points[1][0], 0.001f);   // X from canvas index [0]
-        Assert.AreEqual(0.25f * H, fence.points[1][1], 0.001f);  // Z from canvas index [1]
+        Assert.AreEqual(0.75f * H, fence.points[1][1], 0.001f);  // Z from canvas index [1], turned
     }
 
     [Test]
@@ -393,17 +665,89 @@ public class LayoutConverterTests
         Assert.AreEqual(0, result.Environment.site.fences.Count);
     }
 
-    // --- Rotation mapping: sketch frame (CCW as drawn) → Unity yaw (CW from above) ---
+    // --- Rotation mapping: sketch frame (CCW as drawn) → Unity yaw (CW from above), plus the
+    // plan's half turn: yaw = 180 − θ ---
 
     [Test]
-    public void MapRotation_FlipsSignAndNormalizes()
+    public void MapRotation_FlipsSignAddsHalfTurnAndNormalizes()
     {
-        Assert.AreEqual(0f,   LayoutConverter.MapRotation(0f),    0.001f);   // axis-aligned regression
-        Assert.AreEqual(330f, LayoutConverter.MapRotation(30f),   0.001f);
-        Assert.AreEqual(270f, LayoutConverter.MapRotation(90f),   0.001f);
-        Assert.AreEqual(30f,  LayoutConverter.MapRotation(-30f),  0.001f);   // negative input normalizes
-        Assert.AreEqual(0f,   LayoutConverter.MapRotation(360f),  0.001f);   // full turn wraps to 0
-        Assert.AreEqual(180f, LayoutConverter.MapRotation(180f),  0.001f);   // half turn is its own mirror
+        Assert.AreEqual(180f, LayoutConverter.MapRotation(0f),    0.001f);   // axis-aligned carries the half turn
+        Assert.AreEqual(150f, LayoutConverter.MapRotation(30f),   0.001f);
+        Assert.AreEqual(90f,  LayoutConverter.MapRotation(90f),   0.001f);
+        Assert.AreEqual(210f, LayoutConverter.MapRotation(-30f),  0.001f);   // negative input normalizes
+        Assert.AreEqual(180f, LayoutConverter.MapRotation(360f),  0.001f);   // full turn wraps
+        Assert.AreEqual(0f,   LayoutConverter.MapRotation(180f),  0.001f);   // a drawn half turn cancels ours
+    }
+
+    // The convention itself, in one place: the top-left of the sketch (north-west) is the world's
+    // +X/+Z corner, an axis-aligned building carries the half turn, and an inset parcel is shifted so
+    // its bbox corner sits at the origin with the terrain hugging it.
+    [Test]
+    public void Convert_TopOfSketchLandsAtPositiveX_LeftAtPositiveZ()
+    {
+        var data = MinimalData(300f, 200f);
+        data.prefab_instances.Add(new PrefabInstance { prefab_type = "tree", center_point = new[] { 0, 0 } });
+        data.prefab_instances.Add(new PrefabInstance { prefab_type = "bench", center_point = new[] { 1000, 1000 } });
+        data.generated_buildings.Add(new GeneratedBuilding
+        {
+            area_name = "Aligned", bounding_box = new[] { 100, 100, 300, 300 }, center_point = new[] { 200, 200 },
+            rotation_y_deg = 0f, floors = 1,
+        });
+
+        var result = LayoutConverter.Convert(data);
+        float W = 300f * AuthoringConventions.FT_TO_M, H = 200f * AuthoringConventions.FT_TO_M;
+        var nw = result.Environment.objectInstances[0];
+        var se = result.Environment.objectInstances[1];
+        Assert.AreEqual(W, nw.position[0], 0.001f, "top of the sketch (north) is +X");
+        Assert.AreEqual(H, nw.position[2], 0.001f, "left of the sketch (west) is +Z");
+        Assert.AreEqual(0f, se.position[0], 0.001f);
+        Assert.AreEqual(0f, se.position[2], 0.001f);
+
+        var inst = result.Environment.buildingInstances[0];
+        Assert.AreEqual(180f, inst.rotationY, 0.001f);
+        // The grid extends from the pivot along the yawed axes, so the pivot is the world max corner
+        // and the footprint is still centred on center_point.
+        var def = result.Buildings[0];
+        int maxX = 0, maxZ = 0;
+        foreach (var t in def.tiles) { if (t.gridX > maxX) maxX = t.gridX; if (t.gridZ > maxZ) maxZ = t.gridZ; }
+        Vector3 half = new Vector3((maxX + 1) * def.gridCellSize * 0.5f, 0f, (maxZ + 1) * def.gridCellSize * 0.5f);
+        Vector3 centre = new Vector3(inst.position[0], 0f, inst.position[2]) + Quaternion.Euler(0f, inst.rotationY, 0f) * half;
+        Assert.AreEqual(0.8f * W, centre.x, 0.001f);
+        Assert.AreEqual(0.8f * H, centre.z, 0.001f);
+    }
+
+    [Test]
+    public void Convert_InsetParcel_IsShiftedToHugTheOrigin()
+    {
+        // A parcel that only covers canvas y 200..600, x 100..500 (like the Bronx preset). After the
+        // half turn it would sit at the far end of the ground; the shift brings its bbox corner to
+        // the origin and sizes the terrain to the parcel plus the 2 m margin.
+        var data = MinimalData(1000f, 1000f);
+        data.site_scale.lot_boundary = new[]
+        {
+            new float[] { 200f, 100f }, new float[] { 200f, 500f }, new float[] { 600f, 500f }, new float[] { 600f, 100f },
+        };
+        data.prefab_instances.Add(new PrefabInstance { prefab_type = "tree", center_point = new[] { 200, 100 } });
+
+        var result = LayoutConverter.Convert(data);
+        float M = 1000f * AuthoringConventions.FT_TO_M;
+        var lot = result.Environment.site.lotBoundary;
+        float minX = float.MaxValue, minZ = float.MaxValue, maxX = float.MinValue, maxZ = float.MinValue;
+        foreach (var v in lot)
+        {
+            minX = Mathf.Min(minX, v[0]); maxX = Mathf.Max(maxX, v[0]);
+            minZ = Mathf.Min(minZ, v[1]); maxZ = Mathf.Max(maxZ, v[1]);
+        }
+        Assert.AreEqual(0f, minX, 0.001f);
+        Assert.AreEqual(0f, minZ, 0.001f);
+        Assert.AreEqual(0.4f * M, maxX, 0.001f);
+        Assert.AreEqual(0.4f * M, maxZ, 0.001f);
+        Assert.AreEqual(0.4f * M + 2f, result.Environment.site.terrainSize[0], 0.001f);
+        Assert.AreEqual(0.4f * M + 2f, result.Environment.site.terrainSize[1], 0.001f);
+        // The parcel's north-west corner (its top-left on the canvas) is the shifted bbox max.
+        var tree = result.Environment.objectInstances[0];
+        Assert.AreEqual(0.4f * M, tree.position[0], 0.001f);
+        Assert.AreEqual(0.4f * M, tree.position[2], 0.001f);
     }
 
     [Test]
@@ -420,7 +764,7 @@ public class LayoutConverterTests
         });
 
         var result = LayoutConverter.Convert(data);
-        Assert.AreEqual(330f, result.Environment.buildingInstances[0].rotationY, 0.001f);
+        Assert.AreEqual(150f, result.Environment.buildingInstances[0].rotationY, 0.001f);
     }
 
     [Test]
@@ -436,7 +780,7 @@ public class LayoutConverterTests
         });
 
         var result = LayoutConverter.Convert(data);
-        Assert.AreEqual(270f, result.Environment.objectInstances[0].rotationY, 0.001f);
+        Assert.AreEqual(90f, result.Environment.objectInstances[0].rotationY, 0.001f);
     }
 }
 
@@ -468,7 +812,10 @@ public class AuthoringTypesSerializationTests
                     }
                 }
             },
-            embeddedObjects = new List<EmbeddedObjectDef>()
+            embeddedObjects = new List<EmbeddedObjectDef>(),
+            style        = "C",
+            signText     = "PHARMACY",
+            signFace     = "west",
         };
 
         string json = JsonConvert.SerializeObject(original, Formatting.Indented);
@@ -476,6 +823,12 @@ public class AuthoringTypesSerializationTests
 
         Assert.AreEqual(original.id, deserialized.id);
         Assert.AreEqual(original.name, deserialized.name);
+        Assert.AreEqual("C", deserialized.style);
+        Assert.AreEqual("PHARMACY", deserialized.signText, "legacy sign fields still round-trip");
+        Assert.AreEqual("west", deserialized.signFace);
+        var legacy = JsonConvert.DeserializeObject<BuildingDef>("{\"id\":\"old\",\"tiles\":[]}");
+        Assert.IsNull(legacy.signText, "records saved before the sign fields load as no sign");
+        Assert.IsNull(legacy.signFace);
         Assert.AreEqual(4.0f, deserialized.gridCellSize, 0.001f);
         Assert.AreEqual(1, deserialized.tiles.Count);
         Assert.AreEqual("brick_red", deserialized.tiles[0].faceMaterials["north"]);

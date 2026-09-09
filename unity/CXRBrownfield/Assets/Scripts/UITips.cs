@@ -13,7 +13,7 @@ public static class UITips
     {
         "Select things in the scene, then move, rotate, or scale them.",
         "Pick an object or building from the catalog and click the ground to drop it.",
-        "Lot size, paths, fences, scattered objects, ground surfaces, and the measure tool.",
+        "Lot size and placement, paths, fences, scattered objects, ground surfaces, and the measure tool.",
         "Edit a building tile by tile. Double-click a building in the scene or open one from the library.",
         "Upload a sketch and have the server turn it into a place.",
     };
@@ -87,6 +87,23 @@ public static class UITips
     public const string SkewLinear     = "Slopes at a constant rate.";
     public const string SkewApply      = "Adds this deform on top of the building's current shape and saves it. Ctrl+Z reverts it.";
     public const string SkewReset      = "Clears every deform on this building and saves it.";
+    public const string SignFoldout    = "Shows the sign controls for this building. The sign is a plate two tiles wide with the building's name or any word you type.";
+    public const string SignApply      = "Puts the typed word on the building. Text is uppercased and capped at 16 characters. Ctrl+Z reverts.";
+    public const string SignClear      = "Removes the sign from this building. Ctrl+Z brings it back.";
+    public const string SignUseName    = "Copies the building's name into the sign and applies it.";
+    public static readonly string[] SignCompass =
+    {
+        "Hangs the sign on the wall that faces north on the site. A turned building still picks the right wall.",
+        "Hangs the sign on the wall that faces east. Generated signs start here.",
+        "Hangs the sign on the wall that faces south.",
+        "Hangs the sign on the wall that faces west.",
+    };
+    public const string MoveSign       = "Lets you drag the sign along its wall in the scene. It snaps to whole tiles and can move up or down a floor. Esc leaves.";
+    public const string SignLeft       = "Slides the sign one tile to the left as seen from outside the wall.";
+    public const string SignRight      = "Slides the sign one tile to the right as seen from outside the wall.";
+    public const string SignUp         = "Moves the sign up one floor, keeping its place along the wall when that spot is open.";
+    public const string SignDown       = "Moves the sign down one floor, keeping its place along the wall when that spot is open.";
+    public const string SignReset      = "Puts the sign back at the centred spot on its wall.";
     public const string DeleteSelected = "Removes the selected items from the place. Ctrl+Z brings them back.";
 
     // ---- Place rail ----
@@ -104,14 +121,16 @@ public static class UITips
     public const string RefreshBuildingThumbs = RefreshBuildings;
 
     // ---- Terrain rail: site / lot ----
+    public const string SiteOriginApply = "Moves the whole place so the ground's corner lands at the typed X and Z in meters. Everything on it comes along. Ctrl+Z reverts.";
+    public const string MoveSite       = "Drag anywhere on the ground to slide the whole place, ground and all. The corner lands on whole meters. Hold Shift to move freely. Esc cancels a drag, and again leaves the tool.";
     public const string SiteApply      = "Resizes the ground to the typed width and length in meters. Content stays where it is.";
     public const string EditLotHandles = "Shows drag handles in the scene for the ground rectangle or the parcel outline.";
     public const string DoneLot        = "Hides the handles. The shape is kept.";
-    public const string LotRectangle   = "Drag the far corner or edges to resize the ground from its origin corner.";
+    public const string LotRectangle   = "Drag the far corner or edges to resize the ground from its corner. Move site or the Origin fields move the corner itself.";
     public const string LotParcel      = "Drag the outline's points. Click an edge to add a point. Delete removes the selected one.";
     public const string ResetParcel    = "Drops the custom outline so the lot is the plain rectangle again.";
-    public const string FitTerrainToLot = "Shrinks or grows the ground rectangle to hug the parcel outline, plus a 2 m margin.";
-    public const string FitLotToContent = "Grows or shrinks the ground so every placed item fits, with a 5 m margin.";
+    public const string FitTerrainToLot = "Moves and resizes the ground rectangle to hug the parcel outline, plus a 2 m margin. Content stays where it is.";
+    public const string FitLotToContent = "Moves and resizes the ground so every placed item fits, with a 5 m margin. Content stays where it is.";
 
     // ---- Terrain rail: paths ----
     public const string DrawPaths      = "Draw a surfaced path on the ground. Click to drop points, or drag in freehand mode.";
@@ -249,6 +268,17 @@ public static class UITips
     public const string WholeFaceOptional = "One click marks every prop on that building side optional. When they are all optional already it marks them required.";
     public static string Decor(string id) => $"Places {id} on the faces you click.";
     public const string SaveChanges    = "Saves the building to the server and keeps editing. Esc saves and exits.";
+    public const string BuildingStyle  = "Facade style for this building. Each letter maps to a wall material in BuildingStylePalette. The layout generator sets it from the notes you give a sketch.";
+    public static readonly string[] BuildingStyleTips =
+    {
+        "Clears the style. Walls go back to the default material. Faces you painted stay painted.",
+        "Uses the style A wall material on every face you have not painted.",
+        "Uses the style B wall material on every face you have not painted.",
+        "Uses the style C wall material on every face you have not painted.",
+        "Uses the style D wall material on every face you have not painted.",
+        "Uses the style E wall material on every face you have not painted.",
+        "Uses the style F wall material on every face you have not painted.",
+    };
 
     // ---- Generate rail (ModelRequesterUI) ----
     public const string HealthCheck    = "Pings the server to confirm it is reachable.";
@@ -256,9 +286,10 @@ public static class UITips
     public const string UploadImage    = "Opens a file picker and uploads a sketch to the server.";
     public const string RefreshInputs  = "Reloads the list of uploaded sketches.";
     public const string GenerateScene  = "Sends the selected sketch to the server. The layout it returns becomes a new place in the library. Off until a sketch is selected.";
+    public const string GenerateNotes  = "Notes the generator reads with the selected sketch. Name buildings, give a style letter A to F and floors, split a drawn block into several shops, describe paths, fences and trees. Saved with the sketch when you generate. The result says which named buildings the layout missed.";
     public const string PickFromDisk   = "Runs the layout generator on a file picked with a dialog on the server machine.";
-    public const string LocalSample    = "Loads the bundled Home Longfellow sketch without the server. Pick a site above and it lands inside that plot, ground and all, otherwise it loads at the origin. It arrives editable and unsaved, so press Save to keep it.";
-    public const string ServerSample   = "Loads a sample place from the server.";
+    public const string LocalSample    = "Loads the bundled Westchester Avenue sample without the server. Pick a site above and it lands inside that plot, ground and all, otherwise it loads at the origin. It arrives editable and unsaved, so press Save to keep it.";
+    public const string ServerSample   = "Loads the newest place on the server whose name contains sample. Today that is the Westchester bike lot, garden, restaurant and workshop strip. Needs the server running.";
     public const string ModelSearch    = "Searches for a 3D model by the typed name and loads it.";
 
     // ---- Sites (Site panel + Generate rail targeting) ----
@@ -272,4 +303,9 @@ public static class UITips
     public const string ClampToLot       = "Moves items that sit outside the parcel back to just inside its edge.";
     public const string SiteTargetNew    = "No site. The sketch becomes its own new place in the library.";
     public const string SiteTargetRow    = "The sketch scene is generated for this site and laid out inside it.";
+    public const string SketchRotationAuto    = "The server turns the sketch a quarter turn when its long side runs the other way from the site's. A near square sketch stays as drawn.";
+    public const string SketchRotationAsDrawn = "Sends the sketch exactly as uploaded. Use this when the long side of the drawing already runs the same way as the site.";
+    public const string SketchRotation90      = "Turns the sketch a quarter turn counter clockwise before generating.";
+    public const string SketchRotation180     = "Turns the sketch upside down before generating. Use this when the result comes out the right shape at the wrong end of the site.";
+    public const string SketchRotation270     = "Turns the sketch a quarter turn clockwise before generating.";
 }

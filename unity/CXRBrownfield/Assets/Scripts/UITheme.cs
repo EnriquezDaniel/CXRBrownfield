@@ -648,6 +648,13 @@ public static class UITheme
         GUILayout.Label(C(text, tip), _sub, GUILayout.MinWidth(0f), GUILayout.ExpandWidth(true));
     }
 
+    // Same, with explicit layout options (e.g. a fixed width beside a Segmented control).
+    public static void Label(string text, string tip, params GUILayoutOption[] opts)
+    {
+        Ensure();
+        GUILayout.Label(C(text, tip), _sub, opts);
+    }
+
     // Publishes `tip` for the control just laid out. A slider has no GUIContent of its own, so it
     // never sets GUI.tooltip; on Repaint, with the mouse over its rect, set it the way a labelled
     // control would and CaptureTooltip picks it up unchanged.

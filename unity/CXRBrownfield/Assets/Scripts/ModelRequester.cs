@@ -266,10 +266,29 @@ public class ModelRequester : MonoBehaviour
     /// </summary>
     public void GenerateLayoutFromImage(string imageName, float[][] lotBoundaryCanvas, float? siteWidthFt, float? siteHeightFt)
     {
-        StartCoroutine(RequestLayoutGeneration(imageName, lotBoundaryCanvas, siteWidthFt, siteHeightFt));
+        StartCoroutine(RequestLayoutGeneration(imageName, lotBoundaryCanvas, siteWidthFt, siteHeightFt, null));
     }
 
-    private IEnumerator RequestLayoutGeneration(string imageName, float[][] lotBoundaryCanvas, float? siteWidthFt, float? siteHeightFt)
+    /// <summary>
+    /// Site-aware overload with a sketch orientation: "auto" lets the server rotate a sketch whose
+    /// long side disagrees with the site's, "0" / "90" / "180" / "270" force a counter-clockwise
+    /// rotation in degrees. Null omits the field (server default is auto).
+    /// </summary>
+    public void GenerateLayoutFromImage(string imageName, float[][] lotBoundaryCanvas, float? siteWidthFt, float? siteHeightFt, string sketchRotation)
+    {
+        StartCoroutine(RequestLayoutGeneration(imageName, lotBoundaryCanvas, siteWidthFt, siteHeightFt, sketchRotation));
+    }
+
+    /// <summary>
+    /// Full overload: also sends designer notes for the sketch (see LayoutGenerateRequest.notes).
+    /// An empty string clears the notes saved on the server; null leaves them as they are.
+    /// </summary>
+    public void GenerateLayoutFromImage(string imageName, float[][] lotBoundaryCanvas, float? siteWidthFt, float? siteHeightFt, string sketchRotation, string notes)
+    {
+        StartCoroutine(RequestLayoutGeneration(imageName, lotBoundaryCanvas, siteWidthFt, siteHeightFt, sketchRotation, notes));
+    }
+
+    private IEnumerator RequestLayoutGeneration(string imageName, float[][] lotBoundaryCanvas, float? siteWidthFt, float? siteHeightFt, string sketchRotation = null, string notes = null)
     {
         string layoutUrl = $"{serverBaseUrl}/api/layout/generate";
         Log($"Triggering layout generation: {layoutUrl} (image: {imageName ?? "<server dialog>"})");
@@ -291,6 +310,8 @@ public class ModelRequester : MonoBehaviour
                       lot_boundary   = lotBoundaryCanvas,
                       site_width_ft  = siteWidthFt,
                       site_height_ft = siteHeightFt,
+                      sketch_rotation = sketchRotation,
+                      notes          = notes,
                   }, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
             byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(bodyJson);
             request.uploadHandler = new UploadHandlerRaw(bodyRaw);
@@ -708,5 +729,12 @@ public class ModelRequester : MonoBehaviour
         public float[][] lot_boundary;
         public float? site_width_ft;
         public float? site_height_ft;
+        // Sketch orientation: "auto" or "0" / "90" / "180" / "270" (degrees counter-clockwise).
+        public string sketch_rotation;
+        // Designer notes read with the sketch (program, names, "ice cream shop: style A"). Sent
+        // whenever the Generate rail has a sketch selected, empty string included: the server saves
+        // it beside the sketch, so an empty string clears the saved notes. Null omits the field and
+        // the server falls back to the saved text.
+        public string notes;
     }
 }

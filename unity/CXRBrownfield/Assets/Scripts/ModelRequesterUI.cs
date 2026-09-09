@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using SimpleFileBrowser;
 
 /// <summary>
@@ -29,11 +30,40 @@ public class ModelRequesterUI : MonoBehaviour
     private readonly List<string> _inputNames = new List<string>();
     private int _selectedInput = -1;
 
+    // Designer notes per sketch, keyed by stored name. Loaded from the server the first time a
+    // sketch is selected, then edited in place, so switching sketches keeps an unsent edit. Sent
+    // with every Generate (the server saves them beside the sketch).
+    private readonly Dictionary<string, string> _notesByInput = new Dictionary<string, string>();
+    private readonly HashSet<string> _notesRequested = new HashSet<string>();
+
     // Generate target: null = a new standalone environment (legacy); else the SitePlotDef id in the
     // active env the generated scene should fill. _generateTargetSiteId is the value captured at
     // click time so a selection change mid-generation can't retarget the result.
     private string _targetSiteId;
     private string _generateTargetSiteId;
+
+    // Sketch orientation sent with a site-targeted request (index into SketchRotationValues).
+    // "auto" lets the server turn a sketch whose long side runs the other way from the site's.
+    private int _sketchRotation = 0;
+    private static readonly string[] SketchRotationLabels = { "Auto", "As drawn", "90", "180", "270" };
+    private static readonly string[] SketchRotationValues = { "auto", "0", "90", "180", "270" };
+    private static readonly string[] SketchRotationTips =
+    {
+        UITips.SketchRotationAuto, UITips.SketchRotationAsDrawn,
+        UITips.SketchRotation90, UITips.SketchRotation180, UITips.SketchRotation270,
+    };
+
+    // Which way to draw the sketch for a site: the sketch's vertical axis lands on Unity X
+    // (site_width_ft), its horizontal axis on Unity Z (site_height_ft); LayoutConverter then turns
+    // the plan half a turn so the top of the sketch is +X. Pure text for the rail.
+    internal static string OrientationHint(float widthFt, float heightFt)
+    {
+        if (widthFt > heightFt * 1.15f)
+            return $"Draw the long side up the page: {widthFt:0} ft tall by {heightFt:0} ft across. Auto turns a sketch drawn the other way.";
+        if (heightFt > widthFt * 1.15f)
+            return $"Draw the long side across the page: {heightFt:0} ft across by {widthFt:0} ft tall. Auto turns a sketch drawn the other way.";
+        return $"Draw the lot about {widthFt:0} ft tall by {heightFt:0} ft across on the page.";
+    }
 
     [Header("Debug")]
     [SerializeField] private bool useDummyLayout = false;
@@ -172,6 +202,7 @@ public class ModelRequesterUI : MonoBehaviour
         if (UITheme.Button("Refresh", UITips.RefreshInputs, GUILayout.Width(66))) RefreshInputs();
         GUILayout.EndHorizontal();
 
+        DrawNotesSection();
         DrawSitesTargetSection();
 
         GUI.enabled = _selectedInput >= 0 && _selectedInput < _inputNames.Count;
@@ -181,6 +212,41 @@ public class ModelRequesterUI : MonoBehaviour
 
         if (UITheme.GhostButton("Pick a sketch from disk…", UITips.PickFromDisk))
             OnGenerateLayoutClicked();
+    }
+
+    // Notes for the selected sketch: free prose the server first parses into a structured brief
+    // (names, style letters, floors, splits, paths, fences, props) and then hands to the layout
+    // model with the sketch; the server enforces the brief on the result and reports what it
+    // missed. A raw TextArea is the only text entry IMGUI offers (no tooltip can attach to it, so
+    // the label carries it); hotkeys already yield to it through UITheme.TypingInUI. The style
+    // wraps, so the box grows with the text instead of scrolling a single line.
+    private static GUIStyle _notesStyle;
+
+    private void DrawNotesSection()
+    {
+        if (_selectedInput < 0 || _selectedInput >= _inputNames.Count) return;
+        string name = _inputNames[_selectedInput];
+        EnsureNotesLoaded(name);
+
+        if (_notesStyle == null) _notesStyle = new GUIStyle(GUI.skin.textArea) { wordWrap = true };
+        UITheme.Label("Notes", UITips.GenerateNotes);
+        _notesByInput.TryGetValue(name, out string text);
+        string edited = GUILayout.TextArea(text ?? "", _notesStyle, GUILayout.MinHeight(64f), GUILayout.ExpandWidth(true));
+        if (!string.Equals(edited, text)) _notesByInput[name] = edited;
+        UITheme.Note("Name buildings, give a style letter A to F and floors, split a drawn block into shops, describe paths, fences and trees. Example: The long block is three shops: a cafe, Rite Aid style C 4 floors, a bakery.");
+    }
+
+    // Fetch a sketch's saved notes once; a reply never overwrites text typed in the meantime.
+    private void EnsureNotesLoaded(string name)
+    {
+        if (libraryClient == null || string.IsNullOrEmpty(name) || !_notesRequested.Add(name)) return;
+        libraryClient.GetInputNotes(name,
+            notes =>
+            {
+                if (!_notesByInput.TryGetValue(name, out string typed) || string.IsNullOrEmpty(typed))
+                    _notesByInput[name] = notes ?? "";
+            },
+            err => Debug.LogWarning($"[ModelRequesterUI] Could not load notes for '{name}': {err}"));
     }
 
     // Sites live here, in the Generate rail only: one unified list. Selecting a row both selects
@@ -247,6 +313,18 @@ public class ModelRequesterUI : MonoBehaviour
             editController.DrawSiteCreateControls(host);
             editController.DrawSelectedSiteControls(host);
         }
+
+        // Orientation for the targeted site: which way to draw, and how the server may turn the sketch.
+        var target = _targetSiteId != null && sites != null ? sites.Find(s => s != null && s.id == _targetSiteId) : null;
+        if (target != null && SiteFit.SiteDimsFeet(target.boundary, out float siteWFt, out float siteHFt))
+        {
+            UITheme.Note(OrientationHint(siteWFt, siteHFt));
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Sketch:", GUILayout.Width(48f));
+            _sketchRotation = UITheme.Segmented(_sketchRotation, SketchRotationLabels, SketchRotationTips);
+            GUILayout.EndHorizontal();
+        }
+
         if (_targetSiteId != null && host != null && host.locked)
             UITheme.Note("The active place is locked. Unlock it to fill a site.");
     }
@@ -428,7 +506,7 @@ public class ModelRequesterUI : MonoBehaviour
         // Site targeting: send the drawn boundary + its real dimensions so the layout is generated
         // for that parcel, and remember the target for SaveAndRenderLayout's assignment.
         _generateTargetSiteId = null;
-        float[][] lotCanvas = null; float? widthFt = null, heightFt = null;
+        float[][] lotCanvas = null; float? widthFt = null, heightFt = null; string sketchRotation = null;
         var host = libraryBrowser != null ? libraryBrowser.CurrentEnvironment : null;
         var plot = host?.sites?.Find(s => s != null && s.id == _targetSiteId);
         if (_targetSiteId != null)
@@ -439,17 +517,24 @@ public class ModelRequesterUI : MonoBehaviour
             if (lotCanvas == null || !SiteFit.SiteDimsFeet(plot.boundary, out float wFt, out float hFt))
             { UpdateStatusText($"Site '{plot.name}' has a degenerate boundary. Reshape it first."); return; }
             widthFt = wFt; heightFt = hFt;
+            sketchRotation = SketchRotationValues[Mathf.Clamp(_sketchRotation, 0, SketchRotationValues.Length - 1)];
             _generateTargetSiteId = plot.id;
         }
+
+        // Always send the notes box, empty string included: the server keeps it beside the sketch,
+        // and an empty string is how saved notes get cleared.
+        _notesByInput.TryGetValue(imageName, out string notes);
+        notes = (notes ?? "").Trim();
 
         UpdateStatusText($"Generating layout from '{imageName}'...");
         UpdateResultsText($"Generating layout from '{imageName}' via Claude...");
         SetProgressVisible(true);
         UpdateProgress(0f, $"Generating from {imageName}...");
-        modelRequester.GenerateLayoutFromImage(imageName, lotCanvas, widthFt, heightFt);
+        modelRequester.GenerateLayoutFromImage(imageName, lotCanvas, widthFt, heightFt, sketchRotation, notes);
     }
 
-    // Load the bundled local sample (Resources/DummyLayout) into the scene as an editable env,
+    // Load the bundled local sample (Resources/DummyLayout, the generated reading of
+    // samples/WestchesterSample1.jpg) into the scene as an editable env,
     // exactly like a server environment — tracked in the Loaded list and active — but unsaved.
     public void OnTestLocalSampleClicked()
     {
@@ -480,12 +565,13 @@ public class ModelRequesterUI : MonoBehaviour
             if (plot == null) { UpdateStatusText("Target site no longer exists. Pick a target again."); return; }
         }
 
-        string envName = plot != null ? $"{host.name} - {plot.name}" : "Home Longfellow Sample";
+        string envName = plot != null ? $"{host.name} - {plot.name}" : "Westchester Sample";
         RenderLayoutLocalOnly(data, envName, plot);
     }
 
     // Load a sample environment that already exists on the server, via the LibraryBrowser load path
-    // so it shows up in the Loaded list like any other environment.
+    // so it shows up in the Loaded list like any other environment. Picks the most recently updated
+    // place whose name contains "sample" (WestchesterSample2 today), else the first place listed.
     public void OnTestServerSampleClicked()
     {
         if (libraryClient == null || libraryBrowser == null)
@@ -498,7 +584,17 @@ public class ModelRequesterUI : MonoBehaviour
             list =>
             {
                 if (list == null || list.Count == 0) { UpdateStatusText("No environments on the server."); return; }
-                var pick = list.Find(e => e.name != null && e.name.ToLower().Contains("sample")) ?? list[0];
+                // The newest place named like "sample" wins, so a freshly stored sample beats older ones.
+                EnvironmentSummary pick = null;
+                System.DateTime pickTime = System.DateTime.MinValue;
+                foreach (var e in list)
+                {
+                    if (e?.name == null || !e.name.ToLower().Contains("sample")) continue;
+                    System.DateTime.TryParse(e.updated ?? "", null,
+                        System.Globalization.DateTimeStyles.RoundtripKind, out System.DateTime t);
+                    if (pick == null || t > pickTime) { pick = e; pickTime = t; }
+                }
+                pick ??= list[0];
                 libraryBrowser.LoadEnvironmentById(pick.id);
                 UpdateStatusText($"Loading server sample '{pick.name ?? pick.id}'...");
             },
@@ -517,7 +613,7 @@ public class ModelRequesterUI : MonoBehaviour
     private void RenderLayoutLocalOnly(FullTerrainData data, string envName, SitePlotDef plot = null)
     {
         if (data == null) { UpdateStatusText("Local sample: no layout data."); return; }
-        var conv = LayoutConverter.Convert(data, envName);
+        var conv = LayoutConverter.Convert(data, envName, DecorPalette.GeneratedWindowRule(DecorPalette.LoadDefault()));
 
         if (plot != null && !SiteFit.ProjectIntoSite(conv.Environment, plot.boundary))
         {
@@ -595,12 +691,27 @@ public class ModelRequesterUI : MonoBehaviour
         FullTerrainData layoutData  = null;
         string          sketchPath  = null;
         List<string>    warnings    = null;
+        SketchPrepInfo  sketchPrep  = null;
+        GenerationDef   generation  = null;
+        string          briefText   = "";
         try
         {
             var envelope = JsonConvert.DeserializeObject<NewtonLayoutEnvelope>(responseJson);
             layoutData = envelope?.layout;
             sketchPath = envelope?.selected_sketch;
             warnings   = envelope?.warnings;
+            sketchPrep = envelope?.sketch_prep;
+            generation = new GenerationDef
+            {
+                sketch          = sketchPath,
+                notes           = envelope?.notes,
+                briefJson       = envelope?.brief?.ToString(Formatting.None),
+                briefReportJson = envelope?.brief_report?.ToString(Formatting.None),
+                model           = envelope?.layout_model,
+                briefModel      = envelope?.brief_model,
+                created         = DateTime.UtcNow.ToString("o"),
+            };
+            briefText = DescribeBriefReport(envelope?.brief, envelope?.brief_report);
         }
         catch (Exception e)
         {
@@ -624,13 +735,24 @@ public class ModelRequesterUI : MonoBehaviour
             warnText = $"\nServer warnings: {warnings.Count} (see Console)";
             foreach (var w in warnings) Debug.LogWarning($"[ModelRequesterUI] layout warning: {w}");
         }
-        UpdateResultsText($"Layout Generated\nTerrain Zones: {zoneCount}\nPrefabs: {prefabCount}\nSketch: {sketchPath}{warnText}");
+        // Say what the server did to the sketch so an unexpected orientation is explainable.
+        string prepText = "";
+        if (sketchPrep != null && (sketchPrep.rotation_deg != 0 || sketchPrep.resampled))
+        {
+            prepText = "\nSketch: ";
+            if (sketchPrep.rotation_deg != 0)
+                prepText += $"turned {sketchPrep.rotation_deg} deg{(sketchPrep.auto_rotated ? " (auto)" : "")}";
+            if (sketchPrep.resampled)
+                prepText += (sketchPrep.rotation_deg != 0 ? ", " : "") + "resampled to the site's proportions";
+            Debug.Log($"[ModelRequesterUI] sketch prep: rotation {sketchPrep.rotation_deg} deg, auto {sketchPrep.auto_rotated}, resampled {sketchPrep.resampled}");
+        }
+        UpdateResultsText($"Layout Generated\nTerrain Zones: {zoneCount}\nPrefabs: {prefabCount}\nSketch: {sketchPath}{prepText}{briefText}{warnText}");
 
         // New path: convert → save → render via WorldRenderer + LibraryClient.
         // Falls back to WorldGenerator if new components are not wired.
         if (worldRenderer != null && libraryClient != null)
         {
-            StartCoroutine(SaveAndRenderLayout(layoutData, sketchPath));
+            StartCoroutine(SaveAndRenderLayout(layoutData, sketchPath, generation));
         }
         else
         {
@@ -642,8 +764,37 @@ public class ModelRequesterUI : MonoBehaviour
         }
     }
 
+    // One Output line for the brief: how many named items the layout placed, and which it missed.
+    // Missing items also go to the Console so the names survive the next status update.
+    private static string DescribeBriefReport(JObject brief, JObject report)
+    {
+        if (report == null) return "";
+        string error = report.Value<string>("error");
+        if (!string.IsNullOrEmpty(error))
+        {
+            Debug.LogWarning($"[ModelRequesterUI] brief skipped: {error}");
+            return "\nNotes: not parsed (see Console)";
+        }
+        int satisfied = report["satisfied"] is JArray s ? s.Count : 0;
+        var missing = new List<string>();
+        if (report["missing"] is JArray m)
+            foreach (var item in m)
+            {
+                string name = item?.Value<string>("name");
+                if (!string.IsNullOrEmpty(name)) missing.Add(name);
+            }
+        foreach (var name in missing)
+            Debug.LogWarning($"[ModelRequesterUI] brief building not placed: {name}");
+        int named = satisfied + missing.Count;
+        string line = named == 0
+            ? "\nNotes: read, no buildings named"
+            : $"\nNotes: {satisfied} of {named} named building(s) placed";
+        if (missing.Count > 0) line += $", missing {string.Join(", ", missing)}";
+        return line;
+    }
+
     // Converts, saves all buildings + the environment, then renders.
-    private IEnumerator SaveAndRenderLayout(FullTerrainData data, string sketchPath)
+    private IEnumerator SaveAndRenderLayout(FullTerrainData data, string sketchPath, GenerationDef generation = null)
     {
         UpdateStatusText("Converting layout...");
 
@@ -656,7 +807,8 @@ public class ModelRequesterUI : MonoBehaviour
         // A site fill is named after its place in the host so the library row reads clearly.
         if (targetPlot != null) envName = $"{host.name} - {targetPlot.name}";
 
-        var conv = LayoutConverter.Convert(data, envName);
+        var conv = LayoutConverter.Convert(data, envName, DecorPalette.GeneratedWindowRule(DecorPalette.LoadDefault()));
+        conv.Environment.generation = generation;
 
         // Dedup identical building defs within this generation so repeated bays don't create
         // duplicate cached records. Duplicates remap their instances to the kept (canonical) def.
@@ -738,6 +890,12 @@ public class ModelRequesterUI : MonoBehaviour
     {
         var sb = new System.Text.StringBuilder();
         sb.Append(b.floors).Append('|').Append(b.gridCellSize).Append('|').Append(b.floorHeight).Append('|');
+        // Style is part of the look: two same-shaped blocks with different letters stay separate.
+        sb.Append(b.style ?? "").Append('|');
+        // Name and sign too: a split block yields siblings with identical tiles but different names
+        // (Cafe, Rite Aid, Bakery); without these the second silently collapses into the first and
+        // takes its name. The server's record signature keeps these fields as well.
+        sb.Append(b.name ?? "").Append('|').Append(b.signText ?? "").Append('|').Append(b.signFace ?? "").Append('|');
         if (b.tiles != null)
             foreach (var t in b.tiles)
             {
@@ -798,5 +956,19 @@ public class ModelRequesterUI : MonoBehaviour
         public string         selected_sketch;
         public FullTerrainData layout;
         public List<string>   warnings;
+        public SketchPrepInfo sketch_prep;   // null when the server sent the sketch untouched
+        public string         notes;         // the notes the server used (saved beside the sketch)
+        public JObject        brief;         // structured reading of the notes; null without notes
+        public JObject        brief_report;  // satisfied / missing / splits per the brief, or {error}
+        public string         brief_model;   // model that parsed the brief; null when none ran
+        public string         layout_model;  // model that produced the layout
+    }
+
+    // What the server did to the sketch before the model saw it (sketch_prep.py).
+    private class SketchPrepInfo
+    {
+        public int  rotation_deg;
+        public bool auto_rotated;
+        public bool resampled;
     }
 }
