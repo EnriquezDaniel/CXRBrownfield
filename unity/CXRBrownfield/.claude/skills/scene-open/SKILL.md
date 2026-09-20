@@ -1,6 +1,8 @@
 ---
 name: scene-open
 description: Open a Unity scene asset in Single or Additive mode. Returns the post-open list of all opened scenes. Use 'assets-find' to locate the scene asset first.
+metadata:
+  generated-by: mcp-plugin-dotnet
 ---
 
 # Scene / Open

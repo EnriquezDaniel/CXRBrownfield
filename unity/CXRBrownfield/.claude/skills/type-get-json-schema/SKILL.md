@@ -1,6 +1,8 @@
 ---
 name: type-get-json-schema
 description: Generate a JSON Schema for a C# type name via reflection. Supports primitives, enums, arrays, generic collections, dictionaries, and complex objects. Knobs control inclusion of nested `$defs` and whether type-level / property-level descriptions are emitted.
+metadata:
+  generated-by: mcp-plugin-dotnet
 ---
 
 # Type / Get Json Schema

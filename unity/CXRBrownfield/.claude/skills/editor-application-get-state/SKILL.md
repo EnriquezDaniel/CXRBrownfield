@@ -1,6 +1,8 @@
 ---
 name: editor-application-get-state
 description: Return the current state of `UnityEditor.EditorApplication` — playmode, paused state, compilation state, and related flags.
+metadata:
+  generated-by: mcp-plugin-dotnet
 ---
 
 # Editor / Application / Get State

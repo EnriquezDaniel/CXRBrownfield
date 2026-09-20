@@ -1,6 +1,8 @@
 ---
 name: editor-selection-get
 description: Get information about the current Selection in the Unity Editor — active object, active transform, selected GameObjects, transforms, instance IDs, and asset GUIDs (each enrichment is opt-in). Pair with 'editor-selection-set' to change the selection.
+metadata:
+  generated-by: mcp-plugin-dotnet
 ---
 
 # Editor / Selection / Get

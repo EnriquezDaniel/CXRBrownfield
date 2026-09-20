@@ -1,6 +1,8 @@
 ---
 name: scene-list-opened
 description: List every scene currently opened in the Unity Editor as a shallow snapshot (name, path, build flags). Use 'scene-get-data' for the deep view of a specific scene.
+metadata:
+  generated-by: mcp-plugin-dotnet
 ---
 
 # Scene / List Opened

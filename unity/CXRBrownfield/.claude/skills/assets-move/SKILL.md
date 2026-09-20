@@ -1,6 +1,8 @@
 ---
 name: assets-move
 description: Move or rename assets at the given project paths. Refreshes the AssetDatabase at the end. Use 'assets-find' to locate the assets first.
+metadata:
+  generated-by: mcp-plugin-dotnet
 ---
 
 # Assets / Move

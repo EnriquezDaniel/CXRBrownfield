@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 using UnityEngine;
 
 public class MaterialRandomizerScript : MonoBehaviour
@@ -24,6 +26,7 @@ public class MaterialRandomizerScript : MonoBehaviour
 
     public void findMaterials()
     {
+#if UNITY_EDITOR   // AssetDatabase does not exist in a player build
         string[] guids = AssetDatabase.FindAssets("t:Material", new[] { "Assets/PBS Materials Variety Pack/" });
         materials.Clear();
         foreach (string id in guids)
@@ -35,6 +38,7 @@ public class MaterialRandomizerScript : MonoBehaviour
                 materials.Add(mat);
             }
         }
+#endif
     }
 
     public void findMaterialSpheres()

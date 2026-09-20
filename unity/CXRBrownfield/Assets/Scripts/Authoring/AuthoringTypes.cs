@@ -107,13 +107,17 @@ public class BuildingDef
     // has no entry in TileDef.faceMaterials, so hand paint always wins. Records saved before this
     // field existed load as null.
     public string style;
-    // LEGACY sign fields, read only. Signs now live on the placed building (BuildingInstance.sign*)
+    // LEGACY sign fields, read only. Signs now live on the placed building (BuildingInstance.signs)
     // so two copies of one def can carry different signs. Records saved before that change still
     // carry the word here and the building-local wall it hung on ("north" / "east" / "south" /
-    // "west", TileFaceGeometry.BaselineDir); BuildingSigns.SpecFor reads them for an instance that
-    // has never been edited (signCompass null). Nothing writes them any more.
+    // "west", TileFaceGeometry.BaselineDir); BuildingSigns.EntriesFor reads them for an instance
+    // that has never been edited (signCompass null). Nothing writes them any more.
     public string signText;
     public string signFace;
+    // True = a pasted copy still carrying its auto name ("Coffee Shop 2", BuildingCopies). Kept out
+    // of the Buildings tab and the Place rail until the user renames it. Records saved before this
+    // field existed load as false.
+    public bool hiddenCopy;
 }
 
 [Serializable]
@@ -121,7 +125,7 @@ public class BuildingInstance
 {
     public string instanceId;
     public string buildingId;           // ref to BuildingDef.id
-    public float[] position;            // [x, y, z] world space
+    public float[] position;            // [x, y, z]: x/z world meters, y = offset above the terrain (0 = on the ground)
     public float rotationX;             // euler degrees; rotationY kept as the primary/legacy field
     public float rotationY;
     public float rotationZ;
@@ -130,20 +134,35 @@ public class BuildingInstance
     // True = skipped by the low-performance VR viewer (WorldRenderer.skipOptional). Records saved
     // before this field existed load as required (false).
     public bool optional;
-    // The building's sign (BuildingSigns), owned by the placed instance. signText is the normalized
-    // uppercase word (null = none). signCompass is the world direction the sign faces ("north" /
-    // "east" / "south" / "west", north = +X); BuildingSigns.SpecFor turns it into the building-local
-    // wall through rotationY. Null signCompass = this instance was never edited, so the def's legacy
-    // signText / signFace apply; a cleared sign keeps its compass with a null word so the legacy
-    // sign stays gone. signPinned = the plate sits on the pair whose first tile is
-    // (signHostX, signHostZ, signHostFloor); false = the centred spot on the wall. Records saved
-    // before these fields existed load as never edited.
-    public string signText;
+    // The building's signs (BuildingSigns), owned by the placed instance: one entry per tenant, in
+    // the order they hang on the wall. Null = never migrated, so the single-sign fields below (and
+    // behind them the def's legacy signText / signFace) still apply; non-null, even empty, owns the
+    // signs. signCompass is the world direction the row starts on ("north" / "east" / "south" /
+    // "west", north = +X); BuildingSigns.StartFace turns it into the building-local wall through
+    // rotationY. Null signCompass = this instance was never edited.
+    public List<BuildingSignEntry> signs;
     public string signCompass;
+    // LEGACY single-sign fields, read only (BuildingSigns.EntriesFor). The word, and the pinned pair
+    // whose first tile was (signHostX, signHostZ, signHostFloor). BuildingSigns.Adopt moves them into
+    // `signs` on the first edit. Nothing else writes them any more.
+    public string signText;
     public bool   signPinned;
     public int    signHostX;
     public int    signHostZ;
     public int    signHostFloor;
+}
+
+// One sign on a placed building. Unpinned signs are laid out by BuildingSigns.Layout; a pinned one
+// remembers its own wall and spot, and the others flow around it.
+[Serializable]
+public class BuildingSignEntry
+{
+    public string text;      // normalized uppercase word; null = an empty row, kept but not drawn
+    public bool   pinned;
+    public string pinFace;   // building-local wall (TileFaceGeometry.BaselineDir)
+    public int    pinFloor;
+    public int    pinSide;   // coordinate across the wall (gridZ for north/south, gridX for east/west)
+    public int    pinHalf;   // plate centre along the wall in half tiles: u = pinHalf * cellSize / 2
 }
 
 [Serializable]
@@ -151,7 +170,7 @@ public class ObjectInstance
 {
     public string instanceId;
     public string prefabType;
-    public float[] position;            // [x, y, z] world space
+    public float[] position;            // [x, y, z]: x/z world meters, y = offset above the terrain (0 = on the ground)
     public float rotationX;             // euler degrees; rotationY kept as the primary/legacy field
     public float rotationY;
     public float rotationZ;
@@ -331,7 +350,7 @@ public class EnvironmentDef
     public int version;
     public List<string> tags;
     // Persistent read-only flag for a "digital twin" backdrop: a locked env can still be
-    // loaded and made active (it owns/paints the shared terrain), but every mutation —
+    // loaded and made active, but every mutation —
     // edit tools, Save, auto-save, Archive — refuses until it is unlocked. Distinct from
     // WorldRenderer's transient backdrop dim/collider lock, which is just "not active".
     // Round-trips through the server JSON like every other field; old records default false.
@@ -371,6 +390,7 @@ public class BuildingSummary
     public string kind;                 // "static" | "cached"
     public string updated;              // ISO 8601 timestamp
     public bool favorite;               // server-managed; pins the row to the top of the list
+    public bool hiddenCopy;             // auto-named paste copy, left out of the library lists (BuildingDef.hiddenCopy)
 }
 
 // Serializes a [[x, z], ...] float point array with each value rounded to `decimals` places

@@ -1,6 +1,8 @@
 ---
 name: gameobject-component-destroy
 description: Destroy one or more Components from a target GameObject. Missing (null) components are skipped — they cannot be destroyed. Use 'gameobject-find' and 'gameobject-component-get' to identify the components first.
+metadata:
+  generated-by: mcp-plugin-dotnet
 ---
 
 # GameObject / Component / Destroy

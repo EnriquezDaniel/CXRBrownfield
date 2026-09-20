@@ -1722,15 +1722,15 @@ public class TileBuildingEditor : MonoBehaviour
         RebuildSign();
     }
 
-    // The sign depends on which tiles are exposed, so any tile change respawns it whole (one plate
-    // and one text mesh, cheap). Same spawner and spec as WorldRenderer, so the editor shows the
-    // instance's sign exactly as the world does, fallbacks included.
+    // The signs depend on which tiles are exposed, so any tile change respawns them whole (a plate
+    // and a text mesh each, cheap). Same spawner and layout as WorldRenderer, so the editor shows the
+    // instance's signs exactly as the world does.
     private void RebuildSign()
     {
         if (_signGO != null) DestroyObject(_signGO);
         _signGO = null;
         if (_bdef == null || _tileRoot == null || _signInst == null) return;
-        _signGO = BuildingSignSpawner.Spawn(_bdef, BuildingSigns.SpecFor(_signInst, _bdef), _tileRoot, CellSize(), FitFor, _signInst.instanceId);
+        _signGO = BuildingSignSpawner.Spawn(_bdef, _signInst, _tileRoot, CellSize(), FitFor, _signInst.instanceId);
     }
 
     private void SpawnTileGO(TileDef tile)

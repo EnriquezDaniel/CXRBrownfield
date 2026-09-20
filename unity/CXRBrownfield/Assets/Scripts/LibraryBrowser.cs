@@ -30,6 +30,10 @@ public class LibraryBrowser : MonoBehaviour
         // False for an auto-created in-memory environment that hasn't been POSTed yet; Save then
         // creates it on the server (POST) instead of overwriting (PUT, which 404s for a new id).
         public bool persisted;
+        // Ids of pasted building copies (BuildingCopies) that are not on the server yet. They are
+        // posted with the next environment save (CoFlushUnsavedBuildings), so closing without
+        // saving leaves no stray building record.
+        public readonly HashSet<string> unsavedBuildings = new();
     }
 
     // ---- environment state ----
@@ -81,7 +85,7 @@ public class LibraryBrowser : MonoBehaviour
     public EnvironmentDef                           CurrentEnvironment  => _active?.env;
     public IReadOnlyDictionary<string, BuildingDef> CurrentBuildingDefs => _active?.buildings;
     // True when the active env carries the persistent read-only "digital twin" flag. A locked env
-    // may be active (it owns the shared terrain) but every mutation path checks this and refuses.
+    // may be active but every mutation path checks this and refuses.
     public bool IsActiveLocked => _active?.env?.locked == true;
     public void MarkDirty(bool autoSave = false)
     {
@@ -118,6 +122,35 @@ public class LibraryBrowser : MonoBehaviour
         if (b == null) return;
         if (_active != null) _active.buildings[b.id] = b;
         else                 _pendingBuildings[b.id] = b;   // folded in when a working env is created
+    }
+
+    // A pasted copy: lives in the active env's dict only, until the next save posts it.
+    public void AddUnsavedBuildingDef(BuildingDef b)
+    {
+        if (b == null || _active == null) return;
+        _active.buildings[b.id] = b;
+        _active.unsavedBuildings.Add(b.id);
+    }
+
+    // True while a pasted copy has no server record. Callers hold its edits for the environment
+    // save instead of PUTting the building (which would 404).
+    public bool IsUnsavedBuilding(string id)
+    {
+        if (string.IsNullOrEmpty(id)) return false;
+        foreach (var le in _loaded)
+            if (le.unsavedBuildings.Contains(id)) return true;
+        return false;
+    }
+
+    // Every building def held in memory (all loaded envs plus the pending cache), unsaved copies
+    // included, so copy naming and rename checks see names the server list does not have yet.
+    public IEnumerable<(string id, string name)> AllKnownBuildings()
+    {
+        foreach (var le in _loaded)
+            foreach (var b in le.buildings.Values)
+                if (b != null) yield return (b.id, b.name);
+        foreach (var b in _pendingBuildings.Values)
+            if (b != null) yield return (b.id, b.name);
     }
 
     // Resolve a building def by id across the active env's dict and the pre-env pending cache (used
@@ -326,8 +359,10 @@ public class LibraryBrowser : MonoBehaviour
             fill.projected = copy;
             _fills.Add(fill);
             fillsChanged = true;
-            // Fills never take the terrain; their own lot frame would double-draw the site frame.
-            worldRenderer.RenderEnvironment(copy, fill.buildings, makeActive: false, suppressLotFrame: true);
+            // Fills have no ground of their own: they sit on the host's terrain. Their own lot frame
+            // would double-draw the site frame.
+            worldRenderer.RenderEnvironment(copy, fill.buildings, makeActive: false, suppressLotFrame: true,
+                                            terrainHostEnvId: hostId);
         }
 
         // Only recomposite when a fill actually changed: the overlay set and splat are already
@@ -420,7 +455,7 @@ public class LibraryBrowser : MonoBehaviour
     {
         _bldgStatus = "Refreshing...";
         libraryClient.GetBuildings(
-            list  => { _bldgList = list; SortBldgList(); _bldgStatus = $"{list.Count} building(s)"; },
+            list  => { _bldgList = list; SortBldgList(); _bldgStatus = $"{list.FindAll(s => !s.hiddenCopy).Count} building(s)"; },
             err   => _bldgStatus = $"Error: {err}");
     }
 
@@ -685,7 +720,9 @@ public class LibraryBrowser : MonoBehaviour
         GUILayout.FlexibleSpace();
         GUI.enabled = !_envBusy;
         if (UITheme.SecondaryButton("Re-render", UITips.Rerender, GUILayout.Width(74)))
-            worldRenderer?.RenderEnvironment(env, le.buildings);
+            // A backdrop row re-renders as a backdrop: the default makeActive would hand it the
+            // renderer's active slot while _active still pointed at the other env.
+            worldRenderer?.RenderEnvironment(env, le.buildings, makeActive: le == _active);
         GUI.enabled = !_envBusy && le.persisted;
         if (UITheme.SecondaryButton("Duplicate", UITips.Duplicate, GUILayout.Width(74)))
             DuplicateEnvironment(le);
@@ -810,6 +847,7 @@ public class LibraryBrowser : MonoBehaviour
         _bldgListScroll = GUILayout.BeginScrollView(_bldgListScroll, false, false, GUIStyle.none, GUI.skin.verticalScrollbar, GUILayout.Height(Screen.height - 240f));
         foreach (var s in _bldgList)
         {
+            if (s.hiddenCopy) continue;   // pasted copy, listed once it is renamed
             GUILayout.BeginHorizontal();
             GUILayout.Label((s.favorite ? "★ " : "") + (s.name ?? s.id), GUILayout.ExpandWidth(true));
             GUI.enabled = !_bldgBusy;
@@ -895,6 +933,15 @@ public class LibraryBrowser : MonoBehaviour
         var le = _active;
         _envBusy = true;
 
+        // Pasted building copies go up first, so the saved environment never points at a
+        // building the server does not have.
+        StartCoroutine(CoFlushUnsavedBuildings(le,
+            ()  => WriteEnvironment(le),
+            err => { _envStatus = $"Save error: {err}"; _envBusy = false; }));
+    }
+
+    private void WriteEnvironment(LoadedEnv le)
+    {
         // An auto-created working env doesn't exist on the server yet — create it (POST), which
         // preserves its client id. Once persisted, subsequent saves overwrite it (PUT).
         if (!le.persisted)
@@ -918,6 +965,14 @@ public class LibraryBrowser : MonoBehaviour
     {
         if (le == null) return;
         _envBusy = true; _envStatus = "Saving as...";
+        // The copy shares le's building ids, so its unsaved pasted buildings go up first.
+        StartCoroutine(CoFlushUnsavedBuildings(le,
+            ()  => WriteEnvironmentAs(le, newName),
+            err => { _envBusy = false; _envStatus = $"Save As error: {err}"; }));
+    }
+
+    private void WriteEnvironmentAs(LoadedEnv le, string newName)
+    {
         // Deep-copy via Newtonsoft; snapshot the building defs so the copy renders immediately.
         string json = Newtonsoft.Json.JsonConvert.SerializeObject(le.env);
         var copy = Newtonsoft.Json.JsonConvert.DeserializeObject<EnvironmentDef>(json);
@@ -928,6 +983,35 @@ public class LibraryBrowser : MonoBehaviour
             id  => { copy.id = id; _envBusy = false; _envStatus = $"Saved as '{newName}'."; RefreshEnvironments(); InstallEnv(copy, buildings); },
             err => { _envBusy = false; _envStatus = $"Save As error: {err}"; },
             kind: "user", dedupe: false);
+    }
+
+    // Posts le's pasted building copies that are still placed in it, one at a time. A copy whose
+    // paste was undone (or that was deleted) stays held and unposted, so redo still finds it and
+    // nothing is orphaned. dedupe:false because a fresh clone matches its source byte for byte
+    // apart from the name. The server may adjust a name another client took meanwhile (onName).
+    private IEnumerator CoFlushUnsavedBuildings(LoadedEnv le, Action onDone, Action<string> onError)
+    {
+        var ids = new List<string>();
+        if (le.env.buildingInstances != null)
+            foreach (var bi in le.env.buildingInstances)
+                if (bi != null && le.unsavedBuildings.Contains(bi.buildingId) && !ids.Contains(bi.buildingId))
+                    ids.Add(bi.buildingId);
+
+        foreach (var id in ids)
+        {
+            if (!le.buildings.TryGetValue(id, out var def) || def == null) { le.unsavedBuildings.Remove(id); continue; }
+            bool done = false; string error = null;
+            libraryClient.PostBuilding(def,
+                _   => done = true,
+                err => { error = err ?? "building save failed"; done = true; },
+                kind: "static", onName: n => def.name = n, dedupe: false);
+            while (!done) yield return null;
+            if (error != null) { onError?.Invoke(error); yield break; }
+            le.unsavedBuildings.Remove(id);
+        }
+
+        if (ids.Count > 0) { RefreshBuildings(); editController?.RefreshBuildingList(); }
+        onDone?.Invoke();
     }
 
     private void DuplicateEnvironment(LoadedEnv le)

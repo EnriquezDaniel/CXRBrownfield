@@ -1,6 +1,8 @@
 ---
 name: gameobject-set-parent
 description: Reparent a batch of GameObjects under a new parent in the currently opened Prefab or active Scene. Per-item failures are reported in the returned status string instead of aborting the batch. Use 'gameobject-find' to locate the GameObjects first.
+metadata:
+  generated-by: mcp-plugin-dotnet
 ---
 
 # GameObject / Set Parent

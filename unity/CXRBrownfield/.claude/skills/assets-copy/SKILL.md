@@ -1,6 +1,8 @@
 ---
 name: assets-copy
 description: Copy assets at given paths and store them at new paths. Refreshes the AssetDatabase at the end. Use 'assets-find' to locate the source assets first.
+metadata:
+  generated-by: mcp-plugin-dotnet
 ---
 
 # Assets / Copy

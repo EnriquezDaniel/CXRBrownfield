@@ -1,6 +1,8 @@
 ---
 name: object-get-data
 description: Get serialized data for a Unity `UnityEngine.Object` — all serializable fields and properties. Supports token-saving path-scoped reads via `paths` or `viewQuery`. Pair with 'object-modify' when you need to write back.
+metadata:
+  generated-by: mcp-plugin-dotnet
 ---
 
 # Object / Get Data

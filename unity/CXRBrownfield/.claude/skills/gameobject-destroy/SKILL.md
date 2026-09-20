@@ -1,6 +1,8 @@
 ---
 name: gameobject-destroy
 description: Destroy a GameObject (and all nested children) in the currently opened Prefab or active Scene. Returns the destroyed GameObject's name, path, and instance ID for confirmation. Use 'gameobject-find' to locate the target first.
+metadata:
+  generated-by: mcp-plugin-dotnet
 ---
 
 # GameObject / Destroy

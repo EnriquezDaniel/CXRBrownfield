@@ -1,6 +1,8 @@
 ---
 name: assets-get-data
 description: Get asset data from the asset file in the Unity project — every serializable field and property. Supports token-saving path-scoped reads via `paths` or `viewQuery`. Use 'assets-find' to find the asset first.
+metadata:
+  generated-by: mcp-plugin-dotnet
 ---
 
 # Assets / Get Data

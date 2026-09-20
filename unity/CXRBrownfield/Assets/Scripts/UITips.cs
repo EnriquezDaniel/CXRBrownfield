@@ -67,7 +67,8 @@ public static class UITips
 
     // ---- Browse rail: selection / transform (EditController) ----
     public const string EditTiles      = "Opens the tile editor for this building. Double-clicking it in the scene does the same.";
-    public const string SetSize        = "Applies the typed width, depth, and height in meters.";
+    public const string BuildingRename = "Renames this building. Every placement that shares it shows the new name. A pasted copy joins the Buildings list once it has a name of its own.";
+    public const string SetSize        ="Applies the typed width, depth, and height in meters.";
     public static readonly string[] TransformTools =
     {
         "Move tool. Drag the gizmo arrows, press G, or drag the axis handles below.",
@@ -87,23 +88,26 @@ public static class UITips
     public const string SkewLinear     = "Slopes at a constant rate.";
     public const string SkewApply      = "Adds this deform on top of the building's current shape and saves it. Ctrl+Z reverts it.";
     public const string SkewReset      = "Clears every deform on this building and saves it.";
-    public const string SignFoldout    = "Shows the sign controls for this building. The sign is a plate two tiles wide with the building's name or any word you type.";
-    public const string SignApply      = "Puts the typed word on the building. Text is uppercased and capped at 16 characters. Ctrl+Z reverts.";
-    public const string SignClear      = "Removes the sign from this building. Ctrl+Z brings it back.";
-    public const string SignUseName    = "Copies the building's name into the sign and applies it.";
+    public const string SignFoldout    = "Shows the signs on this building, one row per tenant. Each plate is as wide as its word and the row shares the wall between them.";
     public static readonly string[] SignCompass =
     {
-        "Hangs the sign on the wall that faces north on the site. A turned building still picks the right wall.",
-        "Hangs the sign on the wall that faces east. Generated signs start here.",
-        "Hangs the sign on the wall that faces south.",
-        "Hangs the sign on the wall that faces west.",
+        "Starts the row of signs on the wall that faces north on the site. A turned building still picks the right wall. Signs that do not fit carry on around the corner.",
+        "Starts the row on the wall that faces east. Generated signs start here.",
+        "Starts the row on the wall that faces south.",
+        "Starts the row on the wall that faces west.",
     };
-    public const string MoveSign       = "Lets you drag the sign along its wall in the scene. It snaps to whole tiles and can move up or down a floor. Esc leaves.";
-    public const string SignLeft       = "Slides the sign one tile to the left as seen from outside the wall.";
-    public const string SignRight      = "Slides the sign one tile to the right as seen from outside the wall.";
+    public const string SignRowUp      = "Moves this sign one place earlier in the row. The first sign hangs furthest left as seen from outside.";
+    public const string SignRowDown    = "Moves this sign one place later in the row.";
+    public const string SignRowPin     = "Holds this sign where it hangs now and shows the move controls. The other signs space themselves around it. Switch it off to place the sign automatically again.";
+    public const string SignRowRemove  = "Removes this sign. Ctrl+Z brings it back.";
+    public const string SignAdd        = "Adds an empty row. Type a word, then Apply words. Off while a row is still empty.";
+    public const string SignAddName    = "Adds a sign with the building's name.";
+    public const string SignApplyWords = "Puts every typed word on the building in one step. Enter does the same. Text is uppercased and capped at 16 characters.";
+    public const string MoveSign       = "Lets you drag this sign over the building in the scene. It snaps to half tiles and can move to another floor or wall. Esc leaves.";
+    public const string SignLeft       = "Slides the sign half a tile to the left as seen from outside the wall.";
+    public const string SignRight      = "Slides the sign half a tile to the right as seen from outside the wall.";
     public const string SignUp         = "Moves the sign up one floor, keeping its place along the wall when that spot is open.";
     public const string SignDown       = "Moves the sign down one floor, keeping its place along the wall when that spot is open.";
-    public const string SignReset      = "Puts the sign back at the centred spot on its wall.";
     public const string DeleteSelected = "Removes the selected items from the place. Ctrl+Z brings them back.";
 
     // ---- Place rail ----

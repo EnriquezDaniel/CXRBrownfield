@@ -19,7 +19,7 @@ Everything here runs in Play mode in `BasicModel`. Panels are IMGUI: `LibraryBro
    The letters A to F map to wall materials in `BuildingStylePalette`; the model only ever sees
    the letter and never picks one on its own. A building the sketch or the notes name also gets a
    sign word (`sign`, e.g. `ICECREAM`) that Unity hangs on the wall facing east (see the **Sign**
-   section under "Edit-mode controls" below; you can rename, re-aim and move it after generation);
+   section under "Edit-mode controls" below; you can rename, re-aim and move it after generation, and add more signs for other tenants);
    the model chooses the word. A split block becomes equal touching pieces along its long
    side, in the order the notes list them. Notes are saved beside the sketch on the server when
    you generate, so they come back the next time you pick that sketch, and the notes, the brief
@@ -76,9 +76,10 @@ alphamap cells. Adding the corner to a stored position is how a moved building u
 site offset a second time.
 
 `SiteFit.ProjectIntoSite` seeds `terrainOrigin` with the site's corner, so an environment fitted into
-a host's drawn site brings its ground with it. Only one environment owns the terrain at a time, so
-while such an environment is active the ground sits over its site and the host is a backdrop without
-ground under it; make the host active again and the terrain returns to it.
+a host's drawn site brings its ground with it. Every loaded environment has its own ground (see
+"Multiple environments"), so loading that environment next to its host shows both grounds, the
+active one on top where they overlap. A site *fill* is different: it has no ground of its own, sits
+on the host's terrain, and only its ground paint is composited into the host's splat.
 
 **Moving a place.** The corner is editable from the Terrain rail's **Site** block: type it into the
 **Origin (m)** fields and Apply, or turn on **Move site** and drag anywhere on the ground. Both bake
@@ -86,7 +87,7 @@ the move into the data through `EnvironmentScale.TranslateEnvironmentXZ` (instan
 water, strokes, the lot, the drawn site plots and `terrainOrigin`, which is seeded to 0,0 first when
 the record predates it), so nothing new is stored and the VR viewer, the server and undo see an
 ordinary edit. While the drag is held only transforms move (`WorldRenderer.PreviewEnvironmentOffset`
-offsets the place's root, its site fills' roots and the Terrain); the release commits, re-renders and
+offsets the place's root, its site fills' roots and the place's own Terrain); the release commits, re-renders and
 re-fits the fills. Every rebuild path clears that preview first, so an undo mid-drag can never bake an
 offset root. The rectangle lot handles, `EnvironmentScale.EffectiveLotPolygon`, the out-of-lot checks
 and the two **Fit** buttons all honour the corner: a fit sets both origin and size, so a parcel or
@@ -106,13 +107,13 @@ y = -15 with a 30 m height range, so the flat base plane (normalized 0.5) sits a
 | Shift/Ctrl + click | Add/remove an instance in a multi-selection (Browse or Transform); move/rotate/scale then apply to all selected, each about its own pivot. Shift/Ctrl+click also ignores fences so you can reach an object behind one |
 | Tab | Cycle overlapping hits at the last click (repeated clicks also cycle) |
 | Double-click building | Enter tile edit mode |
-| G / R / T | Grab / rotate / scale selected |
+| G / R / T | Grab / rotate / scale selected. Esc, Enter, or switching to another tool or mode all keep the change; Ctrl+Z takes it back. A building's height is an offset from the ground under it (0 = on the ground), so a building sunk or raised with the gizmo's Y arrow stays that far from the ground through save and reload |
 | Shift (during any rotate) | Snap rotation to 15° (R-drag, gizmo ring, panel Y slider are free otherwise) |
 | Gizmo handles | Arrows = move on X/Z, center pad = free move, ring = rotate, top cube = scale (works without G/R/T) |
 | Right-panel sliders | Rotation (0–360°) and scale (0.1–5) of the selected instance |
 | Right-panel **Pivot** (Rotate tool, multi-selection) | **Each object** (default; every instance spins about its own pivot) or **selection center** (yaw orbits positions around the group's XZ centroid). Applies to R-drag, gizmo ring, Y slider; X/Z rotation stays per-instance |
 | Right-panel **Skew shape** (selected building) | Whole-building deform of the `BuildingDef`: **Bend corner** (acute/obtuse footprint corner) or **Slope edge** (shed roof). **Apply** stacks onto the current shape, **Reset** clears all deform; both re-render, `PutBuilding`, and are undoable. Writes `TileDeform` via the shared `TileDeformField` (same field AI generation uses), so it round-trips like a tile edit |
-| Right-panel **Sign** (selected building, open by default) | The sign the placed building carries (`BuildingInstance.signText`, `signCompass`, `signPinned`, `signHostX/Z/Floor`; two copies of one def can differ). Type a word and **Apply** (uppercased, 16 characters max, "Set sign"), **Clear** removes it, **Use name** copies the building's name in. **North / East / South / West** is the world direction the sign faces; `BuildingSigns.SpecFor` turns it into the building-local wall through the instance yaw, so a turned building still picks the right wall ("Aim sign", drops any pin). **Move sign** arms a drag on that wall: the plate snaps to the nearest pair of open tiles, one tile at a time, and can move up or down a floor; Esc leaves. **Left / Right / Up / Down** nudge one tile or one floor (right = the viewer's right facing the wall), **Reset spot** returns to the centred pair. Every edit is one Environment-scope undo step saved with the place (never `PutBuilding`), and only the sign GO is respawned (`WorldRenderer.RespawnBuildingSign`). The plate is two tiles wide in the top band of its floor (`BuildingSignSpawner`). A pinned pair whose tiles are gone falls back to the centred spot, a wall with no room falls back to the first other wall that has one, and the section says which happened; only a building with no two open tiles side by side on any wall shows nothing. Undo while the section is open deselects the building (as with Transform); click it again to continue. Records saved before this feature keep the def's legacy `signText` / `signFace` until the first edit moves the sign onto the instance |
+| Right-panel **Sign** (selected building, open by default) | The signs the placed building carries, one row per tenant (`BuildingInstance.signs`, a list of `BuildingSignEntry`, plus the shared `signCompass`; two copies of one def can differ). **North / East / South / West** is the world direction the row starts on; `BuildingSigns.StartFace` turns it into the building-local wall through the instance yaw, so a turned building still picks the right wall ("Aim signs"; pins keep their own wall). Each row has a word field, **▲ / ▼** to reorder, **Pin**, and **×** to remove. **Add sign** adds an empty row (off while one is still empty), **Add name** adds the building's name, and **Apply words** (or Enter in a field) commits every typed word as one undo step (uppercased, 16 characters max, "Set signs"). Layout is automatic (`BuildingSigns.Layout`): every plate is as wide as its word at one shared text size, in the top band of the lowest floor. The row fills the start wall's open stretches, longest first, in list order, left to right as seen from outside. Each stretch is shared out in proportion to plate width and every sign is centred in its share. Signs that do not fit spill onto the neighbour wall with more open wall (counterclockwise seen from above on a tie, which is the usual case), then on around the building the same way. Open wall is the exposed-face test the tile editor uses (`TileFaces.IsExposed`); a missing tile or a pillar ends a stretch. **Pin** holds a sign where it hangs and shows its move controls; the other signs space themselves around it, and Pin off returns it to the automatic row. **Move sign** arms a drag over the building: the plate snaps to half-tile steps and can go to another floor or another wall; Esc leaves. **Left / Right** nudge half a tile (right = the viewer's right facing the wall, gaps in the wall are hopped), **Up / Down** move a floor. A word wider than the longest open stretch shrinks alone ("Shrunk to fit."); under half size it is not drawn ("Too long for any wall. Not shown."). A sign with no wall left stays in the list ("No room on any wall. Not shown."), a pin whose wall is gone is laid out automatically ("Saved spot is gone. Placed automatically."), and a sign off the start wall says which wall it is on. Every edit is one Environment-scope undo step saved with the place (never `PutBuilding`), and only the `Signs` GO is respawned (`WorldRenderer.RespawnBuildingSign`). Undo while the section is open deselects the building (as with Transform); click it again to continue. Records saved with the older single sign (`signText`, `signPinned`, `signHostX/Z/Floor`) or the def's legacy `signText` / `signFace` read as a one-row list at the same spot (`BuildingSigns.EntriesFor`) until the first edit moves them into `signs` (`BuildingSigns.Adopt`). Plates are narrower than the old fixed two-tile plate |
 | Arrow keys | Nudge (Transform mode) |
 | Ctrl+C / Ctrl+V | Copy selected instance(s) / paste at the cursor (see below) |
 | Delete / Backspace | Remove selected instance or tile. While editing a fence: removes the selected control dot, or with no dot selected (the state right after clicking a fence) **deletes the whole fence**; a 2-point fence always deletes. Undoable |
@@ -163,8 +164,19 @@ Details:
   face.
 - **Copy/paste** — group centroid anchored at the cursor's ground point (camera pivot when over
   UI). Clipboard is cross-environment data copies: copy from a locked twin works, pasting into a
-  locked env refuses; pasted buildings share the original `BuildingDef`. The pasted set becomes the
-  selection; one undo step.
+  locked env refuses. The pasted set becomes the selection; one undo step.
+  **A pasted building is its own building**: each one gets a cloned `BuildingDef` with a new id and
+  the next free numbered name across the library (`Coffee Shop` → `Coffee Shop 2`; copying
+  `Coffee Shop 2` gives `Coffee Shop 3`), so tile edits, paint, skew and style on the copy never
+  touch the original. The signs are kept, pins included. The copy is held in memory and posted with the next
+  environment save (Save, Save As, Live auto-save); tile edits and skew on it are held the same way,
+  and closing without saving leaves no record behind. Copies carry `hiddenCopy` and stay out of the
+  Buildings tab and the Place rail until renamed. Placing one library building twice from the Place
+  rail still shares a single def. Rules live in `BuildingCopies` (`Authoring/`).
+- **Building name** — the right rail shows the selected building's name with a **Rename** field.
+  The name belongs to the `BuildingDef`, so every placement that shares it follows. Names must be
+  unique; renaming a pasted copy lists it in the Buildings tab and the Place rail. Undoable
+  (building scope).
 
 ## Tile edit mode (double-click a building)
 
@@ -176,7 +188,7 @@ Details:
 | Left-click | **Add** places one tile in the hovered cell, on release |
 | Left-drag | **Add** paints each cell dragged over once the cursor moves a few pixels, **Select** keeps adding hovered tiles, **Paint** paints each face dragged over, **Decorate** places the active decor on each face dragged over |
 | **Style** row (above the tools) | Facade style for the whole building: **None** or **A** to **F** (`BuildingDef.style`). Each letter's `BuildingStylePalette` wall material covers every wall face you have not painted; tops and bottoms keep the default. Switching re-skins at once, one undo step ("Set style"). Painted faces stay painted, and there is no way yet to hand a painted face back to the style. The layout generator sets the letter from the sketch notes |
-| Sign | Drawn here exactly as in the world (same spawner, same fallbacks) so you see it while shaping tiles, but edited only from the selection panel's **Sign** section (it belongs to the placed instance, not the def). A building opened from the library has no placed instance, so it shows no sign |
+| Signs | Drawn here exactly as in the world (same spawner, same layout) and laid out again after every tile change, so you see the row reflow while shaping tiles. Edited only from the selection panel's **Sign** section (they belong to the placed instance, not the def). A building opened from the library has no placed instance, so it shows no signs |
 | **Paint** | Assign a `MaterialPalette` material to a tile face. Paint sits on top of the building's style |
 | **Decorate** | Place props (doors/windows/vents) from a `DecorPalette` decor onto tile faces — the prop analogue of Paint. Each prop auto-centers, fits to `widthFraction`×`heightFraction` of the cell (aspect preserved), seats flush at its `anchor`. Decors stack; only re-painting the same decor replaces it; a `replacesOtherDecor` decor clears other face-claiming decor instead. The panel summary shows `• stacks` / `• clears face`. **Erase** drags remove painted props **one per click** (the nearest), so a stack peels off a prop at a time. The decor's `surface` filter keeps walls and roofs to the right prop types. Saved as `BuildingDef.embeddedObjects` (field glossary in [unity-scene-wiring.md](unity-scene-wiring.md)) |
 | **Optional** (Decorate) | Third Decorate mode next to Place / Erase. Click a prop to flip its `optional` flag (the VR viewer skips optional decor, see [Optional content](#optional-content-vr-detail-level)). Optional props show a translucent blue tint in the editor. One flip per click, no drag. Undo: "Mark decor optional" / "Mark decor required" |
@@ -289,8 +301,8 @@ Shape ground details:
 
 - **Range**: 15 m up and 15 m down from the flat base. `TerrainData.size.y` is 30, flat ground is
   normalized 0.5, and the `Terrain` sits at y = -15 so the base plane is world y = 0. The heightmap
-  is 257 × 257; `WorldRenderer.EnsureHeightSetup` enforces all three once per session (editing the
-  shared `New TerrainAlt` asset the first time, 65 → 257).
+  is 257 × 257; `WorldRenderer.EnsureHeightSetup` enforces all three on each environment's ground
+  copy when it is created. The shared `New TerrainAlt` asset is only a template and is never written.
 - **Time based**: every frame the button is held stamps `rate × dt` (Raise/Lower) or
   `strength × dt` (Smooth/Flatten, strength 0.1 to 20, one frame capped at a weight of 1) at the
   cursor with a smoothstep falloff to the rim. Frames within `radius × 0.25` of the last stored
@@ -338,8 +350,8 @@ Draw water details:
   the carve never raises ground). Nothing is stored: delete the body and the hole fills in, change
   the depth and the bed follows. Strokes made before a body was drawn replay over it too, so a
   flatten laid where a river is later drawn will partly fill that river. **Stay inside lot** clips
-  the carve to the parcel like a height stroke. Only the active env carves (backdrops render their
-  water at the live ground height).
+  the carve to the parcel like a height stroke. Every loaded env carves its own ground, backdrops
+  included.
 - **Preview while drawing** drapes on the ground (a river ribbon hugs the terrain, a pond fill
   floats just above the highest point of its outline) because the true surface sits below the
   un-dug ground and would be invisible; the commit digs the bed and the real mesh appears. While
@@ -369,27 +381,45 @@ environment JSON, so they Save/Load and round-trip through the server like every
 
 ## Multiple environments
 
-**Load** adds an environment without unloading the others — several render at once, overlaid at
-their shared origin (positions are world coordinates). Only **one environment is active**
-(editable/saveable); the rest are locked backdrops (colliders disabled, dimmed). The **Loaded (n)**
-list shows every loaded env — **Edit** makes one active, **Close** unloads it (no server delete).
-Selection, placement, transform, tile-edit, **Save**, **Save As**, and **Bake** operate on the active
-env only; the active env paints the shared terrain.
+**Load** adds an environment without unloading the others — several render at once at their world
+coordinates. Only **one environment is active** (editable/saveable); the rest are locked backdrops
+(colliders disabled, dimmed). The **Loaded (n)** list shows every loaded env — **Edit** makes one
+active, **Close** unloads it (no server delete). Selection, placement, transform, tile-edit, the
+terrain tools, **Save**, **Save As**, and **Bake** operate on the active env only.
 
-`WorldRenderer` keeps one root + instance map per env id (`_envRenders`) and a single `_activeEnvId`;
-`LibraryBrowser` keeps a `LoadedEnv` list with one `_active`; `EditController` edits
+**Every loaded env keeps its own ground.** The scene's `Terrain` (`WorldRenderer.targetTerrain`) is a
+template, hidden in Play. Each env gets a copy with its own `TerrainData` (`Terrain:<name>`, a sibling
+of the env's root under the renderer), sized, placed, sculpted, carved and painted from that env's
+site, and destroyed when the env closes. Switching the active env rebuilds nothing. Details:
+
+- Grounds are drawn as they are, full rectangle and outside ring included; nothing is clipped or
+  merged where two overlap. To keep two coincident flat grounds from flickering, each backdrop (env
+  and ground together) sits 2 cm lower per load rank, down to 10 cm (`TerrainStack.BiasY`), so the
+  active env's ground is the one you see. Backdrop ground is not dimmed and stays solid, so Walk
+  and the headset can stand on it.
+- Placement drapes each env on its own ground (`DrapeY`; a site fill uses its host's). "What is the
+  ground here" queries from Walk, the headset and the cursor go through
+  `WorldRenderer.SampleTerrainSurfaceY`: the active ground inside its rectangle, else the highest
+  loaded ground that holds the point, else the active ground's edge (`TerrainStack.TryPickGround`,
+  unit tested).
+- With nothing loaded a flat, unpainted ground is shown (Play only).
+- Each copy carries a full splat (1024² × 28 layers from the template). `WorldRenderer`'s
+  **Env Alphamap Resolution** lowers it per scene; `VRViewer` uses 512.
+
+`WorldRenderer` keeps one root, ground + instance map per env id (`_envRenders`) and a single
+`_activeEnvId`; `LibraryBrowser` keeps a `LoadedEnv` list with one `_active`; `EditController` edits
 `LibraryBrowser.CurrentEnvironment`, which resolves to the active env.
 
 ## Locked environments (digital twin)
 
 `EnvironmentDef.locked` is a persistent flag (round-trips through the server; shown in list rows via
 `EnvironmentSummary.locked`). Lock from the Loaded-list row (**Lock** is one click; **Unlock…** asks
-to confirm; persists immediately via PUT). A locked env **can still be active** — it owns and paints
-the shared terrain — but is **read-only**: all edit rails show a locked notice; G/R/T, gizmo drags,
+to confirm; persists immediately via PUT). A locked env **can still be active** but is **read-only**: all edit rails show a locked notice; G/R/T, gizmo drags,
 Delete, double-click tile-edit, calibration, include-toggles, undo/redo, dirty-marking, Live-Share
 auto-save, **Save**, Archive, and Delete all refuse. **Save As** / **Duplicate** produce an *unlocked*
 copy — the sanctioned "design on top of the twin" flow. Known limitation: `BuildingDef`s are global,
-so a def shared with the twin can still be edited from another env or the Buildings tab.
+so a def shared with the twin can still be edited from another env or the Buildings tab. A building
+pasted out of the twin is a separate def (see Copy/paste), so editing that copy is safe.
 
 ## Optional content (VR detail level)
 

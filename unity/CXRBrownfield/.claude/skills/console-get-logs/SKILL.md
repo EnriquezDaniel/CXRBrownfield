@@ -1,6 +1,8 @@
 ---
 name: console-get-logs
 description: Retrieve Unity Editor logs from the MCP plugin's `LogCollector`, optionally filtered by log type or time window. Useful for debugging and monitoring Editor activity.
+metadata:
+  generated-by: mcp-plugin-dotnet
 ---
 
 # Console / Get Logs

@@ -1,6 +1,8 @@
 ---
 name: gameobject-find
 description: Find a specific GameObject in the opened Prefab (preferred when present) or the active Scene. Optionally include editable data, components preview, bounds, and limited hierarchy. Supports token-saving path-scoped reads via `paths` or `viewQuery`.
+metadata:
+  generated-by: mcp-plugin-dotnet
 ---
 
 # GameObject / Find

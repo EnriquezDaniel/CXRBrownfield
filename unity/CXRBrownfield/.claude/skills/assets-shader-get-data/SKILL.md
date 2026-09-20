@@ -1,6 +1,8 @@
 ---
 name: assets-shader-get-data
 description: "Get detailed data about a shader asset — properties, subshaders, passes, compilation messages, and supported status. Supports token-saving path-scoped reads via `paths` or `viewQuery`. Use 'assets-find' with `t:Shader` or 'assets-shader-list-all' to locate the shader first."
+metadata:
+  generated-by: mcp-plugin-dotnet
 ---
 
 # Assets / Shader / Get Data

@@ -1,6 +1,8 @@
 ---
 name: assets-prefab-close
 description: Close the currently opened prefab edit stage. Optionally saves changes back to the prefab asset before closing. Pair with 'assets-prefab-open' to enter the edit mode first.
+metadata:
+  generated-by: mcp-plugin-dotnet
 ---
 
 # Assets / Prefab / Close

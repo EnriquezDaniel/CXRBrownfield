@@ -4,6 +4,8 @@ description: |-
   Provides an initial setup for AI Skills, `unity-mcp-cli` command line tool installation
   and everything else that is helpful to set up at the start of the project. Essential packages,
   and basic configurations.
+metadata:
+  generated-by: mcp-plugin-dotnet
 ---
 
 # AI Game Developer — Initial Setup

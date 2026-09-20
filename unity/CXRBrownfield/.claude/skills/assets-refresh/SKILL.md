@@ -1,6 +1,8 @@
 ---
 name: assets-refresh
 description: Refresh the Unity AssetDatabase. Use after files were added or updated outside of the Unity API, or to force script recompilation when a '.cs' file changed. Returns a processing/success response and waits for compilation when triggered.
+metadata:
+  generated-by: mcp-plugin-dotnet
 ---
 
 # Assets / Refresh

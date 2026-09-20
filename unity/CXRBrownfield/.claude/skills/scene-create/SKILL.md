@@ -1,6 +1,8 @@
 ---
 name: scene-create
 description: Create a new Unity scene asset and save it at the given `.unity` path. Use 'scene-list-opened' to inspect the resulting opened-scene set afterwards.
+metadata:
+  generated-by: mcp-plugin-dotnet
 ---
 
 # Scene / Create

@@ -1,6 +1,8 @@
 ---
 name: screenshot-isolated
 description: Render a target GameObject from a chosen camera angle with optional layer-based isolation, configurable background (solid/skybox/transparent), multi-light setup via JSON, and Composite (2x2 Front/Right/Back/Top) mode. Returns a PNG image. When isolated=true, inactive children may briefly fire OnEnable — see the body for side-effect notes.
+metadata:
+  generated-by: mcp-plugin-dotnet
 ---
 
 # Screenshot / Isolated GameObject

@@ -1,6 +1,8 @@
 ---
 name: reflection-method-find
 description: Find C# methods across every loaded assembly by name / type / parameters — including private methods. Returns serialized `MethodData` entries usable as schemas for 'reflection-method-call'.
+metadata:
+  generated-by: mcp-plugin-dotnet
 ---
 
 # Method C# / Find

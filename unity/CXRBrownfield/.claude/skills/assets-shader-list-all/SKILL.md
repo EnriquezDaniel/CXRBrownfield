@@ -1,6 +1,8 @@
 ---
 name: assets-shader-list-all
 description: List all shaders available in the project assets and packages, sorted by name. Use this to discover a valid `shaderName` for 'assets-material-create'.
+metadata:
+  generated-by: mcp-plugin-dotnet
 ---
 
 # Assets / List Shaders

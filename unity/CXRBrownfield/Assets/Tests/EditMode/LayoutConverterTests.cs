@@ -207,25 +207,27 @@ public class LayoutConverterTests
         // The sign belongs to the placed instance, facing world east; the def never carries one.
         var shopDef  = result.Buildings.Find(b => b.name == "Shop");
         var shop     = result.Environment.buildingInstances.Find(i => i.buildingId == shopDef.id);
-        Assert.AreEqual("ICE CREAM", shop.signText, "trimmed and uppercased");
+        Assert.AreEqual(1, shop.signs.Count);
+        Assert.AreEqual("ICE CREAM", shop.signs[0].text, "trimmed and uppercased");
         Assert.AreEqual("east", shop.signCompass);
-        Assert.IsFalse(shop.signPinned, "generated signs sit at the centred spot");
+        Assert.IsFalse(shop.signs[0].pinned, "generated signs are laid out automatically");
+        Assert.IsNull(shop.signText, "the older single-sign field is no longer written");
         Assert.IsNull(shopDef.signText, "the def carries no sign of its own");
         Assert.IsNull(shopDef.signFace);
         // Sketch rotation 0 is a 180 yaw (MapRotation), which turns the local north (+Z) wall to
         // world -Z, east.
-        Assert.AreEqual("north", BuildingSigns.SpecFor(shop, shopDef).face);
+        Assert.AreEqual("north", BuildingSigns.StartFace(shop, shopDef));
 
         var turnedDef = result.Buildings.Find(b => b.name == "Turned");
         var turned    = result.Environment.buildingInstances.Find(i => i.buildingId == turnedDef.id);
-        Assert.AreEqual("THEATER", turned.signText);
-        Assert.AreEqual("east", BuildingSigns.SpecFor(turned, turnedDef).face, "a quarter turn (yaw 90) puts the local east wall on world east");
+        Assert.AreEqual("THEATER", turned.signs[0].text);
+        Assert.AreEqual("east", BuildingSigns.StartFace(turned, turnedDef), "a quarter turn (yaw 90) puts the local east wall on world east");
 
         var unnamedDef = result.Buildings.Find(b => b.name == "Unnamed");
         var unnamed    = result.Environment.buildingInstances.Find(i => i.buildingId == unnamedDef.id);
-        Assert.IsNull(unnamed.signText);
+        Assert.IsNull(unnamed.signs);
         Assert.IsNull(unnamed.signCompass, "no word, no compass");
-        Assert.IsNull(BuildingSigns.SpecFor(unnamed, unnamedDef).text);
+        Assert.AreEqual(0, BuildingSigns.EntriesFor(unnamed, unnamedDef).Count);
     }
 
     [Test]

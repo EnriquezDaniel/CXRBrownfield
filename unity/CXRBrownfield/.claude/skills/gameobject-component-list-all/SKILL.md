@@ -1,6 +1,8 @@
 ---
 name: gameobject-component-list-all
 description: List the fully-qualified C# type names of every concrete `UnityEngine.Component` subclass available in the project. Paginated (default 5/page, max 500). Use this to find a valid `componentName` for 'gameobject-component-add'.
+metadata:
+  generated-by: mcp-plugin-dotnet
 ---
 
 # GameObject / Component / List All

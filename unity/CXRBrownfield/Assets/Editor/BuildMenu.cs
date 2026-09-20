@@ -22,11 +22,60 @@ public static class BuildMenu
     }
 
     // Quest / standalone-Android headset. OpenXR is already enabled for the Android target.
+    //
+    // On the headset "localhost" is the headset, so the server address is baked into the APK: a
+    // Resources text file LibraryClient reads on Awake, written here and deleted after the build so
+    // no other build ever contains it. The address is this PC's LAN IPv4 on port 5002; set the
+    // EditorPrefs string "CXR.ViewerServerUrl" to force another one (a hotspot, a different host).
+    // The PC's address changing means a rebuild.
+    public const string ServerUrlPref = "CXR.ViewerServerUrl";
+    private const string ServerUrlAsset = "Assets/Resources/" + LibraryClient.ServerUrlResource + ".txt";
+
     [MenuItem("Build/VR — Quest (Android) %#q", priority = 20)]
     public static void BuildVRQuest()
     {
-        Build(new[] { VrScene }, BuildTarget.Android,
-              "Builds/VR-Quest/CXR-VR.apk");
+        string url = EditorPrefs.GetString(ServerUrlPref, "");
+        if (string.IsNullOrWhiteSpace(url)) url = DetectServerUrl();
+        if (url == null)
+        {
+            Debug.LogError("[BuildMenu] No LAN IPv4 address found for the server. Set EditorPrefs " +
+                           $"'{ServerUrlPref}' (for example http://192.168.1.20:5002) and build again.");
+            return;
+        }
+
+        try
+        {
+            System.IO.File.WriteAllText(ServerUrlAsset, url);
+            AssetDatabase.ImportAsset(ServerUrlAsset, ImportAssetOptions.ForceSynchronousImport);
+            Debug.Log($"[BuildMenu] Quest build will talk to {url}");
+            Build(new[] { VrScene }, BuildTarget.Android,
+                  "Builds/VR-Quest/CXR-VR.apk");
+        }
+        finally
+        {
+            AssetDatabase.DeleteAsset(ServerUrlAsset);
+        }
+    }
+
+    // http://<ip>:5002 for the first up, non-loopback interface that has a default gateway (the
+    // one the router hands out), so virtual adapters with no route are skipped. null when none.
+    public static string DetectServerUrl()
+    {
+        foreach (var nic in System.Net.NetworkInformation.NetworkInterface.GetAllNetworkInterfaces())
+        {
+            if (nic.OperationalStatus != System.Net.NetworkInformation.OperationalStatus.Up) continue;
+            if (nic.NetworkInterfaceType == System.Net.NetworkInformation.NetworkInterfaceType.Loopback) continue;
+            var props = nic.GetIPProperties();
+            bool hasGateway = false;
+            foreach (var g in props.GatewayAddresses)
+                if (g.Address != null && g.Address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork &&
+                    !g.Address.Equals(System.Net.IPAddress.Any)) { hasGateway = true; break; }
+            if (!hasGateway) continue;
+            foreach (var a in props.UnicastAddresses)
+                if (a.Address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
+                    return $"http://{a.Address}:5002";
+        }
+        return null;
     }
 
     // Tethered PCVR (Windows). NOTE: requires OpenXR enabled for the *Standalone* target in

@@ -12,7 +12,7 @@ using UnityEngine;
 public class WorldRenderer : MonoBehaviour
 {
     [Header("References")]
-    [SerializeField] private Terrain targetTerrain;               // USER WIRES THIS IN INSPECTOR
+    [SerializeField] private Terrain targetTerrain;               // USER WIRES THIS IN INSPECTOR (template: every loaded env gets its own copy, this one is hidden in Play)
     [SerializeField] private PrefabRegistry prefabRegistry;       // USER WIRES THIS IN INSPECTOR
     [SerializeField] private TerrainRegistry terrainRegistry;     // USER WIRES THIS IN INSPECTOR
     [SerializeField] private BuildingGenerator buildingGenerator; // USER WIRES THIS IN INSPECTOR (legacy bay massing — only used when a def has tiles but tileShapePalette is unassigned; empty defs render a neutral pad instead)
@@ -45,13 +45,31 @@ public class WorldRenderer : MonoBehaviour
     private bool _optionalHidden;
     public  bool OptionalHidden => _optionalHidden;
 
-    // Per-environment render state. Multiple environments can be rendered at once (overlaid at
-    // their shared origin); only the active one is interactive — see SetActiveEnvironment.
+    [Header("Ground")]
+    // Alphamap resolution of each env's ground copy; 0 keeps the template's. Every loaded env owns
+    // a full splat (one RGBA texture per four TerrainRegistry layers), so the headset viewer can
+    // trade paint sharpness for memory here. Applied before the first paint.
+    [SerializeField] private int envAlphamapResolution = 0;
+
+    // Per-environment render state. Multiple environments can be rendered at once, each with its
+    // own ground; only the active one is interactive — see SetActiveEnvironment.
     private class EnvRender
     {
-        public EnvironmentDef env;                 // kept so SetActiveEnvironment can repaint terrain
+        public EnvironmentDef env;                 // kept so a dirty ground can be repainted from its site
         public Transform      root;
         public readonly Dictionary<string, GameObject> instanceToGO = new();
+
+        // This env's ground: a copy of the template Terrain with its own TerrainData, a SIBLING of
+        // root under the renderer (ClearEnvRender empties root on every re-render, ApplyLockState
+        // would switch a backdrop's TerrainCollider off, BakePass walks root). null for a site
+        // fill, which sits on its host's ground (terrainHostId).
+        public Terrain     terrain;
+        public TerrainData terrainData;
+        public string      terrainHostId;
+        public bool        paintDirty;             // site-fill overlays changed; repaint on the next activation
+        public int         loadSeq;                // load order, ranks the backdrops' ground bias
+        public float       biasY;                  // TerrainStack.BiasY: 0 when active, a few cm down as a backdrop
+        public Vector3     previewOffset;          // Move site drag, XZ only
 
         // ApplyLockState cache: the full-hierarchy component sweeps are expensive at scale and used
         // to run for EVERY loaded env on every render/activation. The lists are gathered once per
@@ -68,16 +86,18 @@ public class WorldRenderer : MonoBehaviour
         public void InvalidateLockCache() { lockRenderers = null; lockColliders = null; }
     }
 
-    // env.id → its rendered geometry. Order is insertion order; not significant for overlay.
+    // env.id → its rendered geometry and ground.
     private readonly Dictionary<string, EnvRender> _envRenders = new();
-    // The single editable/saveable environment. Its colliders are enabled and it paints the
-    // shared terrain; all other loaded environments are locked (colliders off) and dimmed.
+    private int _loadSeq;
+    // The single editable/saveable environment. Its colliders are enabled and the terrain tools
+    // edit its ground; all other loaded environments are locked (colliders off) and dimmed, with
+    // their ground left in full color and a few cm lower (TerrainStack.BiasY).
     private string _activeEnvId;
 
     // Ground paint from site fills: for each host env id, the fills' SiteDefs (already projected
     // into host meters by SiteFit) plus the site polygon that clips them. Composited into the
-    // splatmap after the host's own paint whenever that host is the active env. Set by
-    // LibraryBrowser when it reconciles fills; cleared by passing null/empty.
+    // host's splatmap after its own paint. Set by LibraryBrowser when it reconciles fills; cleared
+    // by passing null/empty. The host repaints on the next SetActiveEnvironment (paintDirty).
     public struct SiteOverlay
     {
         public SiteDef   site;   // projected child ground data (zones/strokes in host meters)
@@ -90,14 +110,16 @@ public class WorldRenderer : MonoBehaviour
         if (string.IsNullOrEmpty(hostEnvId)) return;
         if (overlays == null || overlays.Count == 0) _siteOverlays.Remove(hostEnvId);
         else                                         _siteOverlays[hostEnvId] = overlays;
+        if (_envRenders.TryGetValue(hostEnvId, out var host)) host.paintDirty = true;
     }
 
     // Palettes/registries exposed so other tools (e.g. EditController) can reuse the same assets
     // wired here instead of requiring a second inspector assignment.
     public PathMaterialPalette PathMaterialPalette => pathMaterialPalette;
-    public FencePalette        FencePalette        => fencePalette;
-    // The water palette lives in Resources, so an unwired slot (VRViewer, a fresh scene) still
-    // resolves; the inspector slot only overrides it.
+    // The Resources palettes below resolve even from an unwired slot (VRViewer, a fresh scene);
+    // the inspector slot only overrides them.
+    public FencePalette        FencePalette        =>
+        fencePalette != null ? fencePalette : (fencePalette = Resources.Load<FencePalette>("FencePalette"));
     public WaterPalette        WaterPalette        =>
         waterPalette != null ? waterPalette : (waterPalette = Resources.Load<WaterPalette>("WaterPalette"));
     // Same Resources fallback: BuildingDef.style resolves in the VR viewer without any wiring.
@@ -110,12 +132,13 @@ public class WorldRenderer : MonoBehaviour
     // Public API
     // -----------------------------------------------------------------------
 
-    // Renders (or re-renders) one environment into its own root. By default the rendered
-    // environment becomes the active (editable) one — it paints the shared terrain and its
-    // colliders are enabled; pass makeActive:false to load it as a locked backdrop.
+    // Renders (or re-renders) one environment into its own root, on its own ground. By default the
+    // rendered environment becomes the active (editable) one; pass makeActive:false to load it as a
+    // locked backdrop. terrainHostEnvId marks a site fill: it gets no ground of its own and drapes
+    // on that host's terrain (the host composites the fill's paint through SetSiteOverlays).
     public void RenderEnvironment(EnvironmentDef env, IReadOnlyDictionary<string, BuildingDef> buildingDefs,
                                   bool makeActive = true, bool suppressLotFrame = false,
-                                  bool skipTerrainPaint = false)
+                                  bool skipTerrainPaint = false, string terrainHostEnvId = null)
     {
         if (env == null) { Debug.LogError("[WorldRenderer] RenderEnvironment: env is null."); return; }
         ClearPreviewOffsets();   // never rebuild children into a root a move preview has offset
@@ -126,24 +149,35 @@ public class WorldRenderer : MonoBehaviour
 
         var er = GetOrCreateEnvRender(env);
         er.env = env;
+        er.terrainHostId = string.IsNullOrEmpty(terrainHostEnvId) ? null : terrainHostEnvId;
         ClearEnvRender(er);   // only this environment's geometry, never the others
         long tClear = Lap();
 
-        // If this env will paint the shared terrain, apply its size/heightmap BEFORE spawning
-        // geometry: objects and path ribbons ground themselves via Terrain.SampleHeight, so
-        // sampling the outgoing terrain (e.g. on undo of a grade/resize edit) leaves them
-        // floating or buried. The tail SetActiveEnvironment paints the splat once (it no longer
-        // re-applies size/heightmap a second time). skipTerrainPaint (undo of an edit whose site
-        // is unchanged) skips all of it: the terrain is already in exactly this state.
-        bool willBeActive = makeActive || _activeEnvId == null || env.id == _activeEnvId;
+        // Geometry is spawned in data space: the root and the ground go back to their data
+        // position (no backdrop bias) for the rebuild and get the bias again at the tail.
+        ResetEnvOffsetForRebuild(er);
+
+        // Size + heightmap go onto this env's OWN ground BEFORE spawning geometry: objects and
+        // path ribbons ground themselves via Terrain.SampleHeight, so sampling the outgoing
+        // heights (e.g. on undo of a grade/resize edit) leaves them floating or buried.
+        // skipTerrainPaint (undo of an edit whose site is unchanged) skips size, heights and
+        // splat: the ground is already in exactly this state. A ground created just now is
+        // always built.
         UnityEngine.Profiling.Profiler.BeginSample("WR.Heightmap");
-        if (willBeActive && env.site != null && !skipTerrainPaint)
-        {
-            ApplyTerrainSize(env.site);
-            ApplyHeightmap(env.site);
-        }
+        bool ownGround = er.terrainHostId == null;
+        bool groundIsNew = ownGround && EnsureEnvTerrain(er);
+        bool rebuildGround = ownGround && er.terrain != null && env.site != null && (groundIsNew || !skipTerrainPaint);
+        if (rebuildGround)
+            using (GroundScope(er.terrain))
+            {
+                ApplyTerrainSize(env.site);
+                ApplyHeightmap(env.site);
+            }
         UnityEngine.Profiling.Profiler.EndSample();
         long tTerrain = Lap();
+
+        // Everything below drapes on this env's ground (a fill: its host's), whichever env is active.
+        using var drape = GroundScope(TerrainFor(er));
 
         UnityEngine.Profiling.Profiler.BeginSample("WR.Objects");
         if (env.objectInstances != null)
@@ -183,15 +217,27 @@ public class WorldRenderer : MonoBehaviour
             RenderSiteFrames(env, er);
         }
         long tFrames = Lap();
+        drape.Dispose();
+
+        // Splat last, once, on this env's own ground (site-fill overlays included).
+        UnityEngine.Profiling.Profiler.BeginSample("WR.PaintTerrain");
+        if (rebuildGround)
+        {
+            using (GroundScope(er.terrain)) PaintTerrain(env.site, env.id);
+            er.paintDirty = false;
+        }
+        UnityEngine.Profiling.Profiler.EndSample();
 
         // Adopt as active if requested, or if nothing is active yet. Otherwise just refresh
-        // lock/dim state so this freshly-rendered (or re-rendered) env reflects its role.
-        // Size/heightmap were already applied above whenever the site was, so the tail never
-        // re-applies them; skipTerrainPaint also skips the splat repaint.
+        // lock/dim state and the ground bias so this freshly-rendered (or re-rendered) env
+        // reflects its role.
         if (makeActive || _activeEnvId == null)
-            SetActiveEnvironment(env.id, reapplyTerrain: false, repaint: !skipTerrainPaint);
+            SetActiveEnvironment(env.id);
         else
+        {
+            ApplyStackBias();
             RefreshLockStates();
+        }
         long tActivate = Lap();
 
         PerfLog.Log(sw.ElapsedMilliseconds, 50,
@@ -200,34 +246,27 @@ public class WorldRenderer : MonoBehaviour
             $"fences={tFences} water={tWater} frames={tFrames} activate={tActivate}");
     }
 
-    // Marks one loaded environment as the editable/saveable one: repaints the shared terrain
-    // from its site, enables its colliders, and locks + dims every other loaded environment.
-    public void SetActiveEnvironment(string envId) =>
-        SetActiveEnvironment(envId, reapplyTerrain: true, repaint: true);
-
-    // Internal variant so RenderEnvironment's tail can skip work its head already did (terrain
-    // size + heightmap) or that is provably unnecessary (repaint=false on an undo whose site is
-    // byte-identical). External callers always get the full behavior via the public overload.
-    private void SetActiveEnvironment(string envId, bool reapplyTerrain, bool repaint)
+    // Marks one loaded environment as the editable/saveable one: the terrain tools now edit its
+    // ground, its colliders are enabled, and every other loaded environment is locked + dimmed
+    // with its ground a few cm lower. Every env keeps its own ground, so a switch rebuilds nothing;
+    // only a ground whose site-fill overlays changed since its last paint is repainted here.
+    public void SetActiveEnvironment(string envId)
     {
         var sw = System.Diagnostics.Stopwatch.StartNew();
         _activeEnvId = envId;
-        long tPaint = 0;
-        if (envId != null && _envRenders.TryGetValue(envId, out var er) && er.env?.site != null)
+
+        UnityEngine.Profiling.Profiler.BeginSample("WR.PaintTerrain");
+        foreach (var er in _envRenders.Values)
         {
-            if (reapplyTerrain)
-            {
-                ApplyTerrainSize(er.env.site);
-                ApplyHeightmap(er.env.site);
-            }
-            if (repaint)
-            {
-                UnityEngine.Profiling.Profiler.BeginSample("WR.PaintTerrain");
-                PaintTerrain(er.env.site, er.env.id);
-                UnityEngine.Profiling.Profiler.EndSample();
-            }
-            tPaint = sw.ElapsedMilliseconds;
+            if (!er.paintDirty) continue;
+            er.paintDirty = false;
+            if (er.terrain == null || er.env?.site == null) continue;
+            using (GroundScope(er.terrain)) PaintTerrain(er.env.site, er.env.id);
         }
+        UnityEngine.Profiling.Profiler.EndSample();
+        long tPaint = sw.ElapsedMilliseconds;
+
+        ApplyStackBias();
         UnityEngine.Profiling.Profiler.BeginSample("WR.LockStates");
         RefreshLockStates();
         UnityEngine.Profiling.Profiler.EndSample();
@@ -235,7 +274,183 @@ public class WorldRenderer : MonoBehaviour
             $"SetActiveEnvironment '{envId}': paint={tPaint}ms locks={sw.ElapsedMilliseconds - tPaint}ms");
     }
 
-    // Sizes the in-scene Terrain to the environment's real-world site.terrainSize (meters) so the
+    // -----------------------------------------------------------------------
+    // Per-environment ground
+    //
+    // targetTerrain is a template. Each loaded env (site fills excepted) owns a copy of it with its
+    // own TerrainData, so several grounds show at once and none overwrites another; the shared
+    // TerrainData asset is never written. Every terrain function below works on `Ground`: the
+    // scoped terrain while a specific env is being built, else the active env's. That keeps the
+    // public terrain API (what the editor's tools call) meaning "the active env's ground".
+    // -----------------------------------------------------------------------
+
+    private Terrain _scopeTerrain;
+    private bool    _scopeSet;
+    private Terrain _blankTerrain;       // flat, unpainted ground shown while nothing is loaded
+    private TerrainData _blankData;
+
+    private Terrain ActiveTerrain =>
+        _activeEnvId != null && _envRenders.TryGetValue(_activeEnvId, out var er) ? TerrainFor(er) : null;
+
+    // The terrain the terrain functions act on. A scope pins it (even to null: a fill whose host
+    // is gone must not fall through to the active env's ground).
+    private Terrain Ground => _scopeSet ? _scopeTerrain : ActiveTerrain;
+
+    // An env's ground: its own, or for a site fill its host's. Resolved on every call, never
+    // cached: the host's terrain can be destroyed and rebuilt under the fill.
+    private Terrain TerrainFor(EnvRender er)
+    {
+        if (er == null) return null;
+        if (er.terrainHostId == null) return er.terrain;
+        return _envRenders.TryGetValue(er.terrainHostId, out var host) ? host.terrain : null;
+    }
+
+    private readonly struct GroundScopeToken : IDisposable
+    {
+        private readonly WorldRenderer _wr;
+        private readonly Terrain _prev;
+        private readonly bool    _prevSet;
+        public GroundScopeToken(WorldRenderer wr, Terrain t)
+        {
+            _wr = wr; _prev = wr._scopeTerrain; _prevSet = wr._scopeSet;
+            wr._scopeTerrain = t; wr._scopeSet = true;
+        }
+        public void Dispose() { _wr._scopeTerrain = _prev; _wr._scopeSet = _prevSet; }
+    }
+    private GroundScopeToken GroundScope(Terrain t) => new GroundScopeToken(this, t);
+
+    // Creates the env's ground if it has none. True when a new one was made (the caller then
+    // always builds it, even on a skipTerrainPaint render).
+    private bool EnsureEnvTerrain(EnvRender er)
+    {
+        if (er.terrain != null) return false;
+        er.terrain = CloneTemplate($"Terrain:{er.env?.name}", out er.terrainData);
+        if (er.terrain == null) return false;
+        if (_blankTerrain != null) _blankTerrain.gameObject.SetActive(false);
+        return true;
+    }
+
+    private Terrain CloneTemplate(string goName, out TerrainData data)
+    {
+        data = null;
+        if (targetTerrain == null || targetTerrain.terrainData == null) return null;
+
+        var go = Instantiate(targetTerrain.gameObject, transform);
+        go.name = goName;
+        var t = go.GetComponent<Terrain>();
+        data = Instantiate(targetTerrain.terrainData);
+        data.name = goName;
+        if (envAlphamapResolution > 0 && data.alphamapResolution != envAlphamapResolution)
+            data.alphamapResolution = envAlphamapResolution;
+        t.terrainData = data;
+        if (go.TryGetComponent<TerrainCollider>(out var col)) col.terrainData = data;
+        // Overlapping grounds are independent: never let Unity stitch their LODs as neighbors.
+        t.allowAutoConnect = false;
+        if (!Application.isPlaying)
+        {
+            // Edit-mode rigs (tests, script-execute) must never leave these in the open scene.
+            go.hideFlags   = HideFlags.DontSave;
+            data.hideFlags = HideFlags.DontSave;
+        }
+        using (GroundScope(t)) EnsureHeightSetup();
+        go.SetActive(true);
+        return t;
+    }
+
+    // Runtime TerrainData is not freed with its GameObject, so both go explicitly.
+    private static void DestroyTerrain(ref Terrain t, ref TerrainData data)
+    {
+        if (t != null)
+        {
+            if (Application.isPlaying) Destroy(t.gameObject); else DestroyImmediate(t.gameObject);
+        }
+        if (data != null)
+        {
+            if (Application.isPlaying) Destroy(data); else DestroyImmediate(data);
+        }
+        t = null; data = null;
+    }
+
+    // With nothing loaded the scene still has a floor: a flat copy of the template painted with
+    // the first registry layer. Rebuilt flat each time it comes back (nothing edits it on purpose,
+    // but a terrain tool with no active env would land here).
+    private void RefreshBlankGround()
+    {
+        bool anyGround = false;
+        foreach (var er in _envRenders.Values) if (er.terrain != null) { anyGround = true; break; }
+        if (anyGround)
+        {
+            if (_blankTerrain != null) _blankTerrain.gameObject.SetActive(false);
+            return;
+        }
+        if (!Application.isPlaying) return;   // edit-mode rigs get no floor of their own
+
+        if (_blankTerrain == null)
+        {
+            _blankTerrain = CloneTemplate("Terrain:(blank)", out _blankData);
+            if (_blankTerrain == null) return;
+        }
+        _blankTerrain.gameObject.SetActive(true);
+        var p = _blankTerrain.transform.position;
+        _blankTerrain.transform.position = new Vector3(0f, p.y, 0f);
+        _blankData.SetHeights(0, 0, FlatHeights(_blankData.heightmapResolution));
+        if (terrainRegistry != null && terrainRegistry.entries.Count > 0)
+        {
+            _blankData.terrainLayers = new[] { terrainRegistry.entries[0].terrainLayer };
+            int res = _blankData.alphamapResolution;
+            var map = new float[res, res, 1];
+            for (int y = 0; y < res; y++)
+                for (int x = 0; x < res; x++)
+                    map[y, x, 0] = 1f;
+            _blankData.SetAlphamaps(0, 0, map);
+        }
+    }
+
+    // Ranks the backdrops by load order and drops each one's ground (and the env with it) a step
+    // below the one above, so two coincident flat grounds never z-fight and the active env's
+    // ground is the one you see. A fill takes its host's bias.
+    private readonly List<EnvRender> _biasOrder = new();
+    private void ApplyStackBias()
+    {
+        _biasOrder.Clear();
+        foreach (var kv in _envRenders)
+            if (kv.Value.terrainHostId == null && kv.Key != _activeEnvId) _biasOrder.Add(kv.Value);
+        _biasOrder.Sort((a, b) => a.loadSeq.CompareTo(b.loadSeq));
+        for (int i = 0; i < _biasOrder.Count; i++) _biasOrder[i].biasY = TerrainStack.BiasY(false, i);
+        if (_activeEnvId != null && _envRenders.TryGetValue(_activeEnvId, out var active)) active.biasY = 0f;
+
+        foreach (var er in _envRenders.Values)
+        {
+            if (er.terrainHostId != null)
+                er.biasY = _envRenders.TryGetValue(er.terrainHostId, out var host) ? host.biasY : 0f;
+            ApplyEnvOffset(er);
+        }
+    }
+
+    // Places an env's root and ground from its data corner, its ground bias and any Move site
+    // preview, together, so the env always moves rigidly with its ground.
+    private void ApplyEnvOffset(EnvRender er)
+    {
+        var off = new Vector3(er.previewOffset.x, er.biasY, er.previewOffset.z);
+        if (er.root != null) er.root.localPosition = off;
+        if (er.terrain != null)
+        {
+            EnvironmentScale.TerrainCorner(er.env?.site, out float ox, out float oz);
+            er.terrain.transform.position = new Vector3(ox + off.x, HeightBrush.BASE_WORLD_Y + off.y, oz + off.z);
+        }
+    }
+
+    // Back to data space for a rebuild: children are spawned at stored world positions into the
+    // root, so it may not carry the bias while that happens (the tail's ApplyStackBias restores
+    // it). Ground sampling needs no such care: DrapeY ignores the terrain's Y.
+    private void ResetEnvOffsetForRebuild(EnvRender er)
+    {
+        er.biasY = 0f;
+        er.previewOffset = Vector3.zero;
+        ApplyEnvOffset(er);
+    }
+
+    // Sizes the env's Terrain to the environment's real-world site.terrainSize (meters) so the
     // visible ground is true scale (1 unit = 1 m) and every coordinate that's normalized against
     // terrainData.size (zones, strokes, lot mask, paths) lands correctly. The terrain's Y (height
     // range) is preserved — it is owned by EnsureHeightSetup. Width/length are clamped
@@ -263,19 +478,12 @@ public class WorldRenderer : MonoBehaviour
     // placement.
     private void ApplyTerrainOrigin(SiteDef site)
     {
-        if (targetTerrain == null) return;
-        float x = 0f, z = 0f;
-        var o = site?.terrainOrigin;
-        if (o != null && o.Length >= 2 &&
-            !float.IsNaN(o[0]) && !float.IsInfinity(o[0]) &&
-            !float.IsNaN(o[1]) && !float.IsInfinity(o[1]))
-        {
-            x = o[0];
-            z = o[1];
-        }
-        var p = targetTerrain.transform.position;
+        var t = Ground;
+        if (t == null) return;
+        EnvironmentScale.TerrainCorner(site, out float x, out float z);
+        var p = t.transform.position;
         if (!Mathf.Approximately(p.x, x) || !Mathf.Approximately(p.z, z))
-            targetTerrain.transform.position = new Vector3(x, p.y, z);
+            t.transform.position = new Vector3(x, p.y, z);
     }
 
     // Lightweight live preview of a terrain resize from raw width/length (meters), without touching
@@ -286,80 +494,53 @@ public class WorldRenderer : MonoBehaviour
     // -----------------------------------------------------------------------
     // Whole-environment move preview (Move site tool)
     //
-    // While the user drags, nothing in the data moves: the env's root, the roots of its site fills
-    // and (for the active env) the shared Terrain are offset as transforms, which is cheap and
-    // needs no rebuild. On release the editor bakes the delta into the data
-    // (EnvironmentScale.TranslateEnvironmentXZ) and re-renders. Roots are identity children of
-    // this renderer (GetOrCreateEnvRender), and RenderEnvironment reuses a root without resetting
-    // it, so every rebuild path clears the preview first: an offset root would shift every child
-    // spawned into it at its stored world position.
+    // While the user drags, nothing in the data moves: the env's root, its ground and the roots of
+    // its site fills are offset as transforms, which is cheap and needs no rebuild. On release the
+    // editor bakes the delta into the data (EnvironmentScale.TranslateEnvironmentXZ) and
+    // re-renders. RenderEnvironment reuses a root without rebuilding it, so every rebuild path
+    // clears the preview first: an offset root would shift every child spawned into it at its
+    // stored world position.
     // -----------------------------------------------------------------------
 
     private readonly HashSet<string> _previewOffsetIds = new();
-    private bool _previewTerrainOffset;
 
-    // Offsets the rendered env `envId`, its site fills and (when it is the active env) the terrain
-    // by `delta` from their data positions. Absolute, not cumulative: pass the full drag delta each
-    // frame. Y is ignored (a move is on the ground plane).
+    // Offsets the rendered env `envId`, its ground and its site fills by `delta` from their data
+    // positions. Absolute, not cumulative: pass the full drag delta each frame. Y is ignored (a
+    // move is on the ground plane).
     public void PreviewEnvironmentOffset(string envId, Vector3 delta)
     {
         if (envId == null || !_envRenders.TryGetValue(envId, out var host) || host.root == null) return;
         var offset = new Vector3(delta.x, 0f, delta.z);
-        host.root.localPosition = offset;
-        _previewOffsetIds.Add(envId);
-
-        // Fills render as their own envs keyed childId + "@" + siteId (LibraryBrowser), so a host's
-        // fills are the renders whose id ends with one of its site ids.
-        var sites = host.env?.sites;
-        if (sites != null)
-            foreach (var kv in _envRenders)
-            {
-                if (kv.Key == envId || kv.Value.root == null) continue;
-                foreach (var s in sites)
-                {
-                    if (s?.id == null || !kv.Key.EndsWith("@" + s.id, System.StringComparison.Ordinal)) continue;
-                    kv.Value.root.localPosition = offset;
-                    _previewOffsetIds.Add(kv.Key);
-                    break;
-                }
-            }
-
-        if (envId == _activeEnvId && targetTerrain != null)
+        foreach (var kv in _envRenders)
         {
-            EnvironmentScale.TerrainCorner(host.env?.site, out float ox, out float oz);
-            var p = targetTerrain.transform.position;
-            targetTerrain.transform.position = new Vector3(ox + offset.x, p.y, oz + offset.z);
-            _previewTerrainOffset = true;
+            if (kv.Key != envId && kv.Value.terrainHostId != envId) continue;
+            kv.Value.previewOffset = offset;
+            ApplyEnvOffset(kv.Value);
+            _previewOffsetIds.Add(kv.Key);
         }
     }
 
-    // Puts every previewed root back at identity and the terrain back on its data corner. Cheap
-    // no-op when nothing is previewed; safe to call from any rebuild or unload path.
+    // Puts every previewed root and ground back on its data position (the ground bias stays).
+    // Cheap no-op when nothing is previewed; safe to call from any rebuild or unload path.
     public void ClearPreviewOffsets()
     {
-        if (_previewOffsetIds.Count > 0)
-        {
-            foreach (var id in _previewOffsetIds)
-                if (_envRenders.TryGetValue(id, out var er) && er.root != null)
-                    er.root.localPosition = Vector3.zero;
-            _previewOffsetIds.Clear();
-        }
-        if (_previewTerrainOffset)
-        {
-            _previewTerrainOffset = false;
-            if (_activeEnvId != null && _envRenders.TryGetValue(_activeEnvId, out var active))
-                ApplyTerrainOrigin(active.env?.site);
-        }
+        if (_previewOffsetIds.Count == 0) return;
+        foreach (var id in _previewOffsetIds)
+            if (_envRenders.TryGetValue(id, out var er))
+            {
+                er.previewOffset = Vector3.zero;
+                ApplyEnvOffset(er);
+            }
+        _previewOffsetIds.Clear();
     }
 
     // Shared resize core: clamps to the sane band, preserves the height range, no-ops on no change.
     private void SetTerrainSizeClamped(float width, float length)
     {
-        if (targetTerrain == null) return;
-        if (float.IsNaN(width) || float.IsNaN(length) || width <= 0f || length <= 0f) return;
-        float w = Mathf.Clamp(width,  1f, 4000f);
-        float l = Mathf.Clamp(length, 1f, 4000f);
-        var tData = targetTerrain.terrainData;
+        var t = Ground;
+        if (t == null) return;
+        if (!TerrainStack.ClampSize(width, length, out float w, out float l)) return;
+        var tData = t.terrainData;
         float y = tData.size.y > 0f ? tData.size.y : 1f;   // preserve the existing height range
         if (!Mathf.Approximately(tData.size.x, w) || !Mathf.Approximately(tData.size.z, l))
             tData.size = new Vector3(w, y, l);
@@ -371,25 +552,35 @@ public class WorldRenderer : MonoBehaviour
     // The heightmap contract: HeightBrush.RESOLUTION samples, HeightBrush.RANGE_METERS of range,
     // flat ground at the normalized base HeightBrush.BASE_NORMALIZED, and the Terrain parked at
     // HeightBrush.BASE_WORLD_Y so that base plane is world y = 0 (where every environment authored
-    // before sculpting already sits). Every "sit on the ground" query in this file goes through
-    // SampleTerrainSurfaceY, which adds the transform's Y, so the park is invisible to callers.
+    // before sculpting already sits). Every "sit on the ground" placement in this file goes through
+    // DrapeY, which adds the park back, so it is invisible to callers.
     // -----------------------------------------------------------------------
 
     private void Awake()
     {
-        EnsureHeightSetup();
+        // The scene terrain is only the template the per-env grounds are copied from.
+        if (targetTerrain != null) targetTerrain.gameObject.SetActive(false);
+        RefreshBlankGround();
         // Water surfaces are walked through, not on (see RenderWater).
         Physics.IgnoreLayerCollision(WaterLayer, WalkerLayer, true);
     }
 
-    // Applies the contract once per session. Setting heightmapResolution resets the heights AND
+    private void OnDestroy()
+    {
+        _destroying = true;
+        ClearRendered();
+        DestroyTerrain(ref _blankTerrain, ref _blankData);
+    }
+
+    // Applies the contract to a ground copy. Setting heightmapResolution resets the heights AND
     // the size, so the size is captured first and restored (with the fixed Y range) afterwards, and
-    // the reset zeros (15 m below the base) are refilled flat. This edits the shared TerrainData
-    // asset in the editor, the same way the previous grade bake did.
+    // the reset zeros (15 m below the base) are refilled flat. Only ever touches a runtime copy of
+    // the TerrainData, never the shared asset.
     private void EnsureHeightSetup()
     {
-        if (targetTerrain == null) return;
-        var tData = targetTerrain.terrainData;
+        var terrain = Ground;
+        if (terrain == null) return;
+        var tData = terrain.terrainData;
         if (tData == null) return;
 
         Vector3 size = tData.size;
@@ -400,9 +591,9 @@ public class WorldRenderer : MonoBehaviour
             !Mathf.Approximately(tData.size.x, size.x) || !Mathf.Approximately(tData.size.z, size.z))
             tData.size = new Vector3(size.x, HeightBrush.RANGE_METERS, size.z);
 
-        var p = targetTerrain.transform.position;
+        var p = terrain.transform.position;
         if (!Mathf.Approximately(p.y, HeightBrush.BASE_WORLD_Y))
-            targetTerrain.transform.position = new Vector3(p.x, HeightBrush.BASE_WORLD_Y, p.z);
+            terrain.transform.position = new Vector3(p.x, HeightBrush.BASE_WORLD_Y, p.z);
 
         if (resChanged) tData.SetHeights(0, 0, FlatHeights(tData.heightmapResolution));
     }
@@ -417,20 +608,21 @@ public class WorldRenderer : MonoBehaviour
     }
 
     // Replays site.heightStrokes in order onto a flat base and pushes the whole heightmap once. Runs
-    // on every activation / undo whose site changed, so it is the authoritative ground; the live
+    // on every render / undo whose site changed, so it is the authoritative ground; the live
     // brush (StampHeightLive) previews exactly this. Objects, buildings, paths and fences drape via
-    // SampleTerrainSurfaceY, so callers render geometry after this. Site-fill overlays
+    // DrapeY, so callers render geometry after this. Site-fill overlays
     // (_siteOverlays) composite surface paint only; a fill's height strokes are not applied.
     // Call after ApplyTerrainSize.
     public void ApplyHeightmap(SiteDef site)
     {
-        if (targetTerrain == null) return;
+        var terrain = Ground;
+        if (terrain == null) return;
         EnsureHeightSetup();
-        var tData = targetTerrain.terrainData;
+        var tData = terrain.terrainData;
         int res = tData.heightmapResolution;
         var heights = FlatHeights(res);
 
-        Vector3 tPos = targetTerrain.transform.position, size = tData.size;
+        Vector3 tPos = terrain.transform.position, size = tData.size;
         var win = new HeightWindow { heights = heights, x0 = 0, z0 = 0, res = res, sizeX = size.x, sizeZ = size.z };
 
         // Water beds are derived, never stored: each body digs to `depth` below the flat base and
@@ -476,9 +668,10 @@ public class WorldRenderer : MonoBehaviour
     public void StampHeightLive(Vector3 worldPos, HeightBrushKind kind, float radius, float amount,
                                 float targetHeightMeters, bool clipToLot, SiteDef site)
     {
-        if (targetTerrain == null) return;
-        var tData = targetTerrain.terrainData;
-        Vector3 tPos = targetTerrain.transform.position, size = tData.size;
+        var terrain = Ground;
+        if (terrain == null) return;
+        var tData = terrain.terrainData;
+        Vector3 tPos = terrain.transform.position, size = tData.size;
         int res = tData.heightmapResolution;
         float cx = worldPos.x - tPos.x, cz = worldPos.z - tPos.z;
         if (!HeightBrush.SampleWindow(cx, cz, radius, size.x, size.z, res, out int x0, out int z0, out int w, out int h)) return;
@@ -493,10 +686,10 @@ public class WorldRenderer : MonoBehaviour
     // Ground height above the flat base plane at world (x, z), in meters. With the terrain parked
     // at BASE_WORLD_Y the base plane is world y = 0, so this is the surface Y itself; named for the
     // Flatten brush, whose target is sampled here at the press.
-    public float SampleHeightAboveBase(float x, float z) => SampleTerrainSurfaceY(x, z);
+    public float SampleHeightAboveBase(float x, float z) => DrapeY(x, z);
 
-    // Removes one environment's geometry (e.g. on close/archive). If it was the active one,
-    // the caller is responsible for choosing a new active env (or leaving none).
+    // Removes one environment's geometry and ground (e.g. on close/archive). If it was the active
+    // one, the caller is responsible for choosing a new active env (or leaving none).
     public void UnloadEnvironment(string envId)
     {
         if (envId == null || !_envRenders.TryGetValue(envId, out var er)) return;
@@ -504,6 +697,8 @@ public class WorldRenderer : MonoBehaviour
         DestroyRoot(er);
         _envRenders.Remove(envId);
         if (_activeEnvId == envId) _activeEnvId = null;
+        ApplyStackBias();
+        RefreshBlankGround();
     }
 
     // Clears every rendered environment.
@@ -513,7 +708,9 @@ public class WorldRenderer : MonoBehaviour
         foreach (var er in _envRenders.Values) DestroyRoot(er);
         _envRenders.Clear();
         _activeEnvId = null;
+        if (!_destroying) RefreshBlankGround();
     }
+    private bool _destroying;
 
     // Exposed for EditController (selection) and BakePass (mesh combine). Returns the active
     // environment's root — the one being authored — so BakePass combines what's being edited.
@@ -538,7 +735,7 @@ public class WorldRenderer : MonoBehaviour
     private EnvRender GetOrCreateEnvRender(EnvironmentDef env)
     {
         if (_envRenders.TryGetValue(env.id, out var er) && er.root != null) return er;
-        er ??= new EnvRender();
+        er ??= new EnvRender { loadSeq = ++_loadSeq };
         var go = new GameObject($"RenderedEnvironment:{env.name}");
         go.transform.SetParent(transform, false);
         er.root = go.transform;
@@ -561,7 +758,9 @@ public class WorldRenderer : MonoBehaviour
 
     private static void DestroyRoot(EnvRender er)
     {
-        if (er?.root == null) return;
+        if (er == null) return;
+        DestroyTerrain(ref er.terrain, ref er.terrainData);
+        if (er.root == null) return;
         if (Application.isPlaying) Destroy(er.root.gameObject);
         else                       DestroyImmediate(er.root.gameObject);
         er.root = null;
@@ -683,14 +882,17 @@ public class WorldRenderer : MonoBehaviour
 
     private void PaintTerrain(SiteDef site, string envId = null)
     {
-        if (targetTerrain == null)  { Debug.LogError("[WorldRenderer] targetTerrain not assigned.");  return; }
+        var terrain = Ground;
+        if (terrain == null)        { Debug.LogError("[WorldRenderer] targetTerrain not assigned.");  return; }
         if (terrainRegistry == null){ Debug.LogError("[WorldRenderer] terrainRegistry not assigned."); return; }
 
-        TerrainData tData = targetTerrain.terrainData;
+        TerrainData tData = terrain.terrainData;
         int res = tData.alphamapResolution;
         Vector3 terrainSize = tData.size;
         // Site data is world meters; alphamap cells start at the terrain's corner (site.terrainOrigin).
-        Vector3 terrainPos  = targetTerrain.transform.position;
+        // The data corner, not the transform: a Move site preview may have the transform offset.
+        EnvironmentScale.TerrainCorner(site, out float cornerX, out float cornerZ);
+        Vector3 terrainPos  = new Vector3(cornerX, 0f, cornerZ);
 
         int layerCount = terrainRegistry.entries.Count;
         var layers     = new TerrainLayer[layerCount];
@@ -927,8 +1129,9 @@ public class WorldRenderer : MonoBehaviour
     // Index of `terrainType` in the live terrain's layer list, or -1 (logged) when unknown.
     private int ResolveLiveLayerIndex(string terrainType)
     {
-        if (targetTerrain == null || terrainRegistry == null) return -1;
-        int layerCount = targetTerrain.terrainData.terrainLayers?.Length ?? 0;
+        var terrain = Ground;
+        if (terrain == null || terrainRegistry == null) return -1;
+        int layerCount = terrain.terrainData.terrainLayers?.Length ?? 0;
         for (int i = 0; i < terrainRegistry.entries.Count && i < layerCount; i++)
             if (string.Equals(terrainRegistry.entries[i].key, terrainType, StringComparison.OrdinalIgnoreCase))
                 return i;
@@ -942,9 +1145,10 @@ public class WorldRenderer : MonoBehaviour
     public void StampSurfaceLive(Vector3 worldPos, float radius, string terrainType,
                                  bool square = false, float dirRad = 0f)
     {
-        if (targetTerrain == null || terrainRegistry == null) return;
+        var terrain = Ground;
+        if (terrain == null || terrainRegistry == null) return;
 
-        TerrainData tData = targetTerrain.terrainData;
+        TerrainData tData = terrain.terrainData;
         int res = tData.alphamapResolution;
         int layerCount = tData.terrainLayers != null ? tData.terrainLayers.Length : 0;
         if (layerCount == 0) return;
@@ -952,7 +1156,7 @@ public class WorldRenderer : MonoBehaviour
         int idx = ResolveLiveLayerIndex(terrainType);
         if (idx < 0) return;
 
-        Vector3 terrainPos  = targetTerrain.transform.position;
+        Vector3 terrainPos  = terrain.transform.position;
         Vector3 terrainSize = tData.size;
         radius = Mathf.Max(0.1f, radius);
         float reach = square ? radius * SQUARE_REACH : radius;
@@ -995,12 +1199,15 @@ public class WorldRenderer : MonoBehaviour
     private float[,,] _liveWork;                             // scratch the run is stamped into
     private int  _liveX0, _liveY0, _liveW, _liveH;           // snapshot window, in alphamap cells
     private bool _liveRunActive;
+    private Terrain _liveTerrain;                            // the ground the run started on
 
     // Starts a live run. Pair with EndLiveSurfaceRun — without it the snapshot leaks and a later
-    // run would restore stale ground.
+    // run would restore stale ground. The run stays on the ground it began on, so a change of
+    // active env mid-drag can't put its snapshot back into another env's splat.
     public void BeginLiveSurfaceRun()
     {
         _liveRunActive = true;
+        _liveTerrain = Ground;
         _liveBase = _liveWork = null;
         _liveW = _liveH = 0;
     }
@@ -1009,11 +1216,12 @@ public class WorldRenderer : MonoBehaviour
     // plus one SetAlphamaps over the run's bounding window (not the whole terrain).
     public void UpdateLiveSurfaceRun(SurfaceStrokeDef stroke)
     {
-        if (!_liveRunActive || targetTerrain == null || stroke?.points == null) return;
+        if (!_liveRunActive || _liveTerrain == null || stroke?.points == null) return;
+        using var scope = GroundScope(_liveTerrain);
         int idx = ResolveLiveLayerIndex(stroke.terrainType);
         if (idx < 0) return;
 
-        TerrainData tData = targetTerrain.terrainData;
+        TerrainData tData = _liveTerrain.terrainData;
         int res = tData.alphamapResolution;
         int layerCount = tData.terrainLayers != null ? tData.terrainLayers.Length : 0;
         if (layerCount == 0) return;
@@ -1037,7 +1245,7 @@ public class WorldRenderer : MonoBehaviour
 
         Array.Copy(_liveBase, _liveWork, _liveBase.Length);   // start from clean ground every update
 
-        Vector3 tPos = targetTerrain.transform.position, tSize = tData.size;
+        Vector3 tPos = _liveTerrain.transform.position, tSize = tData.size;
         float radius = Mathf.Max(0.1f, stroke.radius);
         bool square = IsSquareShape(stroke.shape);
         float angleDeg = stroke.angleDeg;
@@ -1055,14 +1263,15 @@ public class WorldRenderer : MonoBehaviour
     {
         if (!keepPaint) RestoreLiveSurfaceRun();
         _liveRunActive = false;
+        _liveTerrain = null;
         _liveBase = _liveWork = null;
         _liveW = _liveH = 0;
     }
 
     private void RestoreLiveSurfaceRun()
     {
-        if (_liveBase == null || targetTerrain == null || _liveW <= 0 || _liveH <= 0) return;
-        targetTerrain.terrainData.SetAlphamaps(_liveX0, _liveY0, _liveBase);
+        if (_liveBase == null || _liveTerrain == null || _liveW <= 0 || _liveH <= 0) return;
+        _liveTerrain.terrainData.SetAlphamaps(_liveX0, _liveY0, _liveBase);
     }
 
     // Alphamap cell window a stroke can touch, clamped to the map. Terrain-local, matching the
@@ -1070,9 +1279,10 @@ public class WorldRenderer : MonoBehaviour
     private bool StrokeCellRect(SurfaceStrokeDef stroke, int res, out int x0, out int y0, out int w, out int h)
     {
         x0 = y0 = w = h = 0;
-        if (targetTerrain == null || stroke?.points == null) return false;
+        var terrain = Ground;
+        if (terrain == null || stroke?.points == null) return false;
 
-        Vector3 tPos = targetTerrain.transform.position, tSize = targetTerrain.terrainData.size;
+        Vector3 tPos = terrain.transform.position, tSize = terrain.terrainData.size;
         float reach = Mathf.Max(0.1f, stroke.radius) * (IsSquareShape(stroke.shape) ? SQUARE_REACH : 1f);
 
         float minX = float.MaxValue, maxX = float.MinValue, minZ = float.MaxValue, maxZ = float.MinValue;
@@ -1324,20 +1534,51 @@ public class WorldRenderer : MonoBehaviour
     // SegmentsIntersect / PointSegmentDistance moved to PathGeometry (Authoring) so the junction
     // prefilter is unit-testable alongside the math it guards.
 
-    // World Y of the terrain surface at *world* (x, z). Single source of truth for every
-    // "sit on the ground" query — objects, buildings and paths must all sample the same way, or
-    // they drape onto slightly different surfaces. Note SampleHeight takes world coordinates and
-    // returns a height relative to the terrain's own base, hence the transform.position.y add.
-    public float SampleTerrainSurfaceY(float x, float z)
+    // Data-space Y of ONE env's ground at *world* (x, z): the env being rendered, else the active
+    // one. Single source of truth for every "sit on the ground" placement — objects, buildings and
+    // paths must all sample the same way, or they drape onto slightly different surfaces. Strictly
+    // the env's own ground (edge-clamped outside its rectangle), never a neighbor's: an object that
+    // grounded on a backdrop's hill while being dragged would jump on the next re-render.
+    // SampleHeight returns a height relative to the terrain's base, which is parked at
+    // BASE_WORLD_Y; the backdrop bias is left out on purpose, the env's root carries it.
+    private float DrapeY(float x, float z)
     {
-        float baseY = targetTerrain != null ? targetTerrain.transform.position.y : 0f;
-        float h     = targetTerrain != null ? targetTerrain.SampleHeight(new Vector3(x, 0f, z)) : 0f;
-        return baseY + h;
+        var terrain = Ground;
+        return terrain != null ? HeightBrush.BASE_WORLD_Y + terrain.SampleHeight(new Vector3(x, 0f, z)) : 0f;
     }
 
-    // Final world Y for a path vertex at world (x, z): terrain surface + z-fight lift. Public so the
+    // World Y of the ground you would stand on at *world* (x, z), across every loaded env: what
+    // the walker, the headset and the cursor ask. The active env's ground answers inside its
+    // rectangle, else the highest loaded ground that holds the point, else the active ground's
+    // edge (TerrainStack.TryPickGround). Includes each ground's backdrop bias.
+    public float SampleTerrainSurfaceY(float x, float z)
+    {
+        _pickRects.Clear();
+        _pickTerrains.Clear();
+        int activeIndex = -1;
+        foreach (var kv in _envRenders)
+        {
+            var er = kv.Value;
+            if (er.terrain == null) continue;
+            if (kv.Key == _activeEnvId) activeIndex = _pickTerrains.Count;
+            _pickTerrains.Add(er.terrain);
+            _pickRects.Add(TerrainStack.TryRectOf(er.env?.site, out var rect) ? rect : (TerrainStack.GroundRect?)null);
+        }
+        // A fill can be the active env; its ground is its host's.
+        if (activeIndex < 0 && ActiveTerrain != null) activeIndex = _pickTerrains.IndexOf(ActiveTerrain);
+
+        _pickPoint = new Vector3(x, 0f, z);
+        _pickSample ??= i => _pickTerrains[i].transform.position.y + _pickTerrains[i].SampleHeight(_pickPoint);
+        return TerrainStack.TryPickGround(_pickRects, activeIndex, x, z, _pickSample, out _, out float y) ? y : 0f;
+    }
+    private readonly List<TerrainStack.GroundRect?> _pickRects = new();
+    private readonly List<Terrain> _pickTerrains = new();
+    private Vector3 _pickPoint;
+    private Func<int, float> _pickSample;
+
+    // Final Y for a path vertex at world (x, z): ground + z-fight lift. Public so the
     // edit-mode live preview drapes its ribbon exactly like the committed render does.
-    public float SamplePathSurfaceY(float x, float z) => SampleTerrainSurfaceY(x, z) + pathYEpsilon;
+    public float SamplePathSurfaceY(float x, float z) => DrapeY(x, z) + pathYEpsilon;
 
     // -----------------------------------------------------------------------
     // Water bodies: one flat translucent mesh per WaterBodyDef at its surface height. The bed under
@@ -1401,7 +1642,7 @@ public class WorldRenderer : MonoBehaviour
     private void RenderFences(List<FenceDef> fences, EnvRender er)
     {
         if (fences == null || fences.Count == 0) return;
-        if (fencePalette == null)
+        if (FencePalette == null)   // property: falls back to Resources when the slot is unwired
         {
             Debug.LogError("[WorldRenderer] fencePalette not assigned — cannot render fences.");
             return;
@@ -1655,7 +1896,7 @@ public class WorldRenderer : MonoBehaviour
         if (go == null || position == null || position.Length < 3) return;
 
         Vector3 worldXZ = new Vector3(position[0], 0f, position[2]);   // stored XZ is world meters
-        float   groundY    = SampleTerrainSurfaceY(worldXZ.x, worldXZ.z);
+        float   groundY    = DrapeY(worldXZ.x, worldXZ.z);
 
         go.transform.position = new Vector3(worldXZ.x, groundY, worldXZ.z);
 
@@ -1690,7 +1931,7 @@ public class WorldRenderer : MonoBehaviour
 
         // position[1] is a vertical offset above the terrain surface, as for objects.
         go.transform.position = new Vector3(worldXZ.x,
-                                            SampleTerrainSurfaceY(worldXZ.x, worldXZ.z) + position[1],
+                                            DrapeY(worldXZ.x, worldXZ.z) + position[1],
                                             worldXZ.z);
     }
 
@@ -1722,7 +1963,7 @@ public class WorldRenderer : MonoBehaviour
             // Stored XZ is world meters (see ApplyTerrainOrigin), which is also what SampleHeight takes.
             float worldX = inst.position[0];
             float worldZ = inst.position[2];
-            var worldPos = new Vector3(worldX, SampleTerrainSurfaceY(worldX, worldZ) + posY, worldZ);
+            var worldPos = new Vector3(worldX, DrapeY(worldX, worldZ) + posY, worldZ);
 
             bool hasTiles = bdef.tiles != null && bdef.tiles.Count > 0;
             GameObject bldgRoot;
@@ -1811,15 +2052,15 @@ public class WorldRenderer : MonoBehaviour
                              $"{maxX - minX + 1}×{maxZ - minZ + 1} cells — it likely contains a stray " +
                              $"tile far from the footprint (tile extent X {minX}..{maxX}, Z {minZ}..{maxZ}).");
 
-        // The sign the placed instance carries (BuildingSigns.SpecFor: instance fields, else the
-        // def's legacy sign) hangs on its wall; the tile editor draws the same one.
-        BuildingSignSpawner.Spawn(bdef, BuildingSigns.SpecFor(inst, bdef), rootGO.transform, cs, FitFor, inst.instanceId);
+        // The signs the placed instance carries (BuildingSigns.EntriesFor: its list, else the older
+        // single sign, else the def's legacy one) hang on its walls; the tile editor draws the same.
+        BuildingSignSpawner.Spawn(bdef, inst, rootGO.transform, cs, FitFor, inst.instanceId);
 
         return rootGO;
     }
 
-    // Replaces just the sign under a rendered building (a Sign panel edit or one drag step), so the
-    // world is not rebuilt for one plate. No-op for an empty def: its root is the placeholder pad.
+    // Replaces just the signs under a rendered building (a Sign panel edit or one drag step), so the
+    // world is not rebuilt for a few plates. No-op for an empty def: its root is the placeholder pad.
     public void RespawnBuildingSign(BuildingInstance inst, BuildingDef bdef)
     {
         if (inst == null || bdef?.tiles == null || bdef.tiles.Count == 0) return;
@@ -1832,7 +2073,7 @@ public class WorldRenderer : MonoBehaviour
             if (Application.isPlaying) Destroy(old.gameObject); else DestroyImmediate(old.gameObject);
         }
         float cs = bdef.gridCellSize > 0f ? bdef.gridCellSize : AuthoringConventions.DEFAULT_GRID_CELL_SIZE;
-        BuildingSignSpawner.Spawn(bdef, BuildingSigns.SpecFor(inst, bdef), go.transform, cs, FitFor, inst.instanceId);
+        BuildingSignSpawner.Spawn(bdef, inst, go.transform, cs, FitFor, inst.instanceId);
     }
 
     // Neutral stand-in for a BuildingDef with no tiles: the same corner-pivot root as a tiled building

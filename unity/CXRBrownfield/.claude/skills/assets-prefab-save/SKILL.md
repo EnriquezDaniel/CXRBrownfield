@@ -1,6 +1,8 @@
 ---
 name: assets-prefab-save
 description: Save the currently opened prefab edit stage back to its prefab asset without exiting the stage. Pair with 'assets-prefab-open' to enter the edit mode first.
+metadata:
+  generated-by: mcp-plugin-dotnet
 ---
 
 # Assets / Prefab / Save

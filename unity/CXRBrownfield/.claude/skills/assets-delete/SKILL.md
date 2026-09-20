@@ -1,6 +1,8 @@
 ---
 name: assets-delete
 description: Delete the assets at the given project paths. Refreshes the AssetDatabase at the end. Use 'assets-find' to locate the assets first.
+metadata:
+  generated-by: mcp-plugin-dotnet
 ---
 
 # Assets / Delete

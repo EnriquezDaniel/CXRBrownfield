@@ -1,6 +1,8 @@
 ---
 name: editor-selection-set
 description: Set the current Selection in the Unity Editor to the provided objects. All `ObjectRef`s must resolve to existing Unity objects; otherwise the call throws. Use 'editor-selection-get' to inspect the current selection first.
+metadata:
+  generated-by: mcp-plugin-dotnet
 ---
 
 # Editor / Selection / Set

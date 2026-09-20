@@ -1,6 +1,8 @@
 ---
 name: gameobject-duplicate
 description: Duplicate a batch of GameObjects in the currently opened Prefab or active Scene. Marks each affected scene as dirty after duplication. Use 'gameobject-find' to locate the source GameObjects first.
+metadata:
+  generated-by: mcp-plugin-dotnet
 ---
 
 # GameObject / Duplicate

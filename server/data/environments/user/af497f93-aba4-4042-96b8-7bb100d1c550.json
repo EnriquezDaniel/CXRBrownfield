@@ -1,0 +1,367 @@
+{
+  "id": "af497f93-aba4-4042-96b8-7bb100d1c550",
+  "name": "Current Site B",
+  "version": 4,
+  "tags": [
+    "user"
+  ],
+  "locked": false,
+  "site": {
+    "terrainSize": [
+      88.63,
+      39.65
+    ],
+    "terrainOrigin": [
+      113.0,
+      83.0
+    ],
+    "terrainZones": [],
+    "paths": [],
+    "fences": [
+      {
+        "id": "41935b51-f041-4e13-9f80-9b3382d0ed15",
+        "fenceType": "Fence",
+        "points": [
+          [
+            142.909164,
+            125.245758
+          ],
+          [
+            203.886658,
+            84.95873
+          ]
+        ],
+        "smoothing": 0.0,
+        "height": 2.0
+      },
+      {
+        "id": "fba94172-0360-4fe9-a268-f67c6bb3578e",
+        "fenceType": "Fence",
+        "points": [
+          [
+            203.886658,
+            84.95873
+          ],
+          [
+            118.611206,
+            84.62139
+          ]
+        ],
+        "smoothing": 0.0,
+        "height": 2.0
+      }
+    ],
+    "surfaceStrokes": [
+      {
+        "id": "aa9cc16b-26de-4f27-b7d4-69718eff7d29",
+        "terrainType": "pavement",
+        "radius": 18.2626057,
+        "points": [
+          [
+            126.71,
+            95.92
+          ],
+          [
+            136.0,
+            94.52
+          ],
+          [
+            147.63,
+            99.92
+          ],
+          [
+            153.86,
+            107.98
+          ],
+          [
+            146.14,
+            115.62
+          ],
+          [
+            155.01,
+            118.31
+          ],
+          [
+            143.61,
+            117.72
+          ],
+          [
+            134.73,
+            115.19
+          ],
+          [
+            144.31,
+            104.93
+          ],
+          [
+            168.65,
+            101.79
+          ],
+          [
+            172.78,
+            111.49
+          ],
+          [
+            159.71,
+            104.56
+          ],
+          [
+            167.33,
+            85.12
+          ],
+          [
+            182.59,
+            101.76
+          ],
+          [
+            173.38,
+            102.71
+          ],
+          [
+            181.48,
+            89.91
+          ],
+          [
+            194.24,
+            93.82
+          ],
+          [
+            198.26,
+            104.33
+          ],
+          [
+            196.73,
+            113.63
+          ],
+          [
+            190.24,
+            104.21
+          ],
+          [
+            192.36,
+            82.95
+          ],
+          [
+            201.26,
+            97.25
+          ],
+          [
+            202.86,
+            112.82
+          ],
+          [
+            192.89,
+            114.85
+          ],
+          [
+            186.04,
+            101.54
+          ],
+          [
+            191.37,
+            88.54
+          ]
+        ],
+        "shape": "circle",
+        "angleDeg": -1.0
+      },
+      {
+        "id": "1b22b3b4-ee17-43c3-be1b-162b710cf1fb",
+        "terrainType": "pavement",
+        "radius": 18.2626057,
+        "points": [
+          [
+            122.43,
+            104.86
+          ],
+          [
+            119.15,
+            113.63
+          ],
+          [
+            118.55,
+            103.71
+          ],
+          [
+            119.26,
+            94.28
+          ],
+          [
+            123.67,
+            84.97
+          ],
+          [
+            131.74,
+            79.89
+          ]
+        ],
+        "shape": "circle",
+        "angleDeg": -1.0
+      }
+    ],
+    "heightStrokes": [],
+    "waterBodies": null,
+    "scaleNote": "",
+    "lotBoundary": null,
+    "outsideTerrainType": "water"
+  },
+  "buildingInstances": [],
+  "objectInstances": [
+    {
+      "instanceId": "f7459229-4f61-40b2-959e-94a8779d05eb",
+      "prefabType": "tree",
+      "position": [
+        149.2839,
+        -2.42178612e-06,
+        121.810181
+      ],
+      "rotationX": 0.0,
+      "rotationY": 0.0,
+      "rotationZ": 0.0,
+      "scale": 0.488461524,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": false,
+      "optional": false
+    },
+    {
+      "instanceId": "111376dd-617b-42e9-bbfe-3b2f6608db51",
+      "prefabType": "tree",
+      "position": [
+        120.833817,
+        3.29483464e-06,
+        85.61489
+      ],
+      "rotationX": 0.0,
+      "rotationY": 0.0,
+      "rotationZ": 0.0,
+      "scale": 0.488461524,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": false,
+      "optional": false
+    },
+    {
+      "instanceId": "02204ded-2d0a-49f7-8dc7-3e8eb138e0ac",
+      "prefabType": "tree",
+      "position": [
+        139.628571,
+        -1.92548578e-06,
+        84.94879
+      ],
+      "rotationX": 0.0,
+      "rotationY": 0.0,
+      "rotationZ": 0.0,
+      "scale": 0.488461524,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": false,
+      "optional": false
+    },
+    {
+      "instanceId": "7062a7cd-7b94-46b8-afda-ab55563ec39b",
+      "prefabType": "tree",
+      "position": [
+        154.886841,
+        -1.67255712e-06,
+        84.84894
+      ],
+      "rotationX": 0.0,
+      "rotationY": 0.0,
+      "rotationZ": 0.0,
+      "scale": 0.488461524,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": false,
+      "optional": false
+    },
+    {
+      "instanceId": "f6c3bf61-8dcc-47ae-865c-062edd25227f",
+      "prefabType": "tree",
+      "position": [
+        170.590851,
+        2.34839627e-06,
+        84.28149
+      ],
+      "rotationX": 0.0,
+      "rotationY": 0.0,
+      "rotationZ": 0.0,
+      "scale": 0.488461524,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": false,
+      "optional": false
+    },
+    {
+      "instanceId": "b49fd0bb-6d88-4b1e-afa9-2c7e8f7001ac",
+      "prefabType": "tree",
+      "position": [
+        183.693558,
+        1.52040138e-06,
+        84.27265
+      ],
+      "rotationX": 0.0,
+      "rotationY": 0.0,
+      "rotationZ": 0.0,
+      "scale": 0.488461524,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": false,
+      "optional": false
+    },
+    {
+      "instanceId": "e7ed2b3d-e1f3-4374-a6e2-32f8af50fcc0",
+      "prefabType": "tree",
+      "position": [
+        190.8824,
+        2.70260216e-06,
+        93.1337662
+      ],
+      "rotationX": 0.0,
+      "rotationY": 0.0,
+      "rotationZ": 0.0,
+      "scale": 0.488461524,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": false,
+      "optional": false
+    },
+    {
+      "instanceId": "36997cd7-2aff-4fa7-a1dc-855bc6799a02",
+      "prefabType": "tree",
+      "position": [
+        179.4076,
+        -3.15626312e-06,
+        101.681458
+      ],
+      "rotationX": 0.0,
+      "rotationY": 0.0,
+      "rotationZ": 0.0,
+      "scale": 0.488461524,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": false,
+      "optional": false
+    },
+    {
+      "instanceId": "c29679b9-ecfd-4803-8b88-416f490b2883",
+      "prefabType": "Car4",
+      "position": [
+        166.2442,
+        9.409396e-07,
+        112.7528
+      ],
+      "rotationX": 0.0,
+      "rotationY": 213.8614,
+      "rotationZ": 0.0,
+      "scale": 1.0,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": false,
+      "optional": false
+    }
+  ],
+  "sites": null,
+  "generation": null,
+  "favorite": true
+}

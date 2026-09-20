@@ -14,6 +14,23 @@ public class LibraryClient : MonoBehaviour
     [SerializeField] private string serverBaseUrl = "http://localhost:5002";
     [SerializeField] private int timeoutSeconds = 10;
 
+    // Resources text file holding the server address for a headset build, where localhost is the
+    // headset itself. Build → VR Quest writes it with this PC's LAN address and deletes it after
+    // the build (BuildMenu), so it only ever exists inside that APK.
+    public const string ServerUrlResource = "ViewerServerUrl";
+
+    public string ServerBaseUrl => serverBaseUrl;
+
+    private void Awake()
+    {
+        var baked = Resources.Load<TextAsset>(ServerUrlResource);
+        if (baked == null) return;
+        string url = baked.text.Trim().TrimEnd('/');
+        if (url.Length == 0) return;
+        serverBaseUrl = url;
+        Debug.Log($"[LibraryClient] Server address from the build: {serverBaseUrl}");
+    }
+
     // --- Environments ---
 
     public void GetEnvironments(Action<List<EnvironmentSummary>> onSuccess, Action<string> onError = null)

@@ -180,24 +180,24 @@ public class DummyLayoutSampleTests
 
         // Signs belong to the placed instances and face world east. Both blocks are drawn
         // axis-aligned, so they carry a 180 yaw and their local north (+Z) wall faces east (-Z).
-        // Each north side is wide enough (18 and 5 tiles), so the plate lands on the centred pair
-        // of ground-floor tiles.
+        // Each north side is wide enough (18 and 5 tiles), so the plate lands at the middle of the
+        // ground-floor wall.
         var shopInst    = env.buildingInstances.Find(i => i.buildingId == shop.id);
         var theaterInst = env.buildingInstances.Find(i => i.buildingId == theater.id);
-        Assert.AreEqual("ICECREAM", shopInst.signText);
-        Assert.AreEqual("THEATER", theaterInst.signText);
+        Assert.AreEqual("ICECREAM", shopInst.signs[0].text);
+        Assert.AreEqual("THEATER", theaterInst.signs[0].text);
         Assert.AreEqual("east", shopInst.signCompass);
         Assert.IsNull(shop.signText, "the def carries no sign of its own");
-        var shopSpec    = BuildingSigns.SpecFor(shopInst, shop);
-        var theaterSpec = BuildingSigns.SpecFor(theaterInst, theater);
-        Assert.AreEqual("north", shopSpec.face);
-        Assert.AreEqual("north", theaterSpec.face);
-        Assert.AreEqual(BuildingSigns.Skip.None, BuildingSigns.TryPlace(shop, shopSpec, shop.gridCellSize, null, out var shopSign));
-        Assert.AreEqual(BuildingSigns.Skip.None, BuildingSigns.TryPlace(theater, theaterSpec, theater.gridCellSize, null, out var theaterSign));
-        Assert.AreEqual(1, shopSign.tileA.gridX);     Assert.AreEqual(2, shopSign.tileB.gridX);
-        Assert.AreEqual(8, theaterSign.tileA.gridX);  Assert.AreEqual(9, theaterSign.tileB.gridX);
-        Assert.AreEqual(3, shopSign.tileA.gridZ, "the north row of a 4-deep grid");
-        Assert.AreEqual(0, shopSign.floor);
+        var shopSign    = BuildingSigns.LayoutFor(shopInst, shop, shop.gridCellSize, null)[0];
+        var theaterSign = BuildingSigns.LayoutFor(theaterInst, theater, theater.gridCellSize, null)[0];
+        Assert.AreEqual(BuildingSigns.Skip.None, shopSign.skip);
+        Assert.AreEqual(BuildingSigns.Skip.None, theaterSign.skip);
+        Assert.AreEqual("north", shopSign.p.face);
+        Assert.AreEqual("north", theaterSign.p.face);
+        Assert.AreEqual(2.5f * shop.gridCellSize, shopSign.p.u, 1e-3f,    "the middle of the 5-tile wall");
+        Assert.AreEqual(9f * theater.gridCellSize, theaterSign.p.u, 1e-3f, "the middle of the 18-tile wall");
+        Assert.AreEqual(3, shopSign.p.side, "the north row of a 4-deep grid");
+        Assert.AreEqual(0, shopSign.p.floor);
 
         // Terrain hugs the parcel: 459 x 66 ft in metres + LayoutConverter's 2 m margin.
         Assert.AreEqual(141.90f, env.site.terrainSize[0], 0.5f);

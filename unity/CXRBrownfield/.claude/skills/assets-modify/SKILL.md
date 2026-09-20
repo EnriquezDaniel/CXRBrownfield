@@ -1,6 +1,8 @@
 ---
 name: assets-modify
 description: Modify an asset file in the project. Use 'assets-get-data' first to inspect the asset structure before modifying. Not allowed to modify asset files in the 'Packages/' folder — modify them in 'Assets/'. Three modification surfaces are available (content, pathPatches, jsonPatch) — see the skill body for details.
+metadata:
+  generated-by: mcp-plugin-dotnet
 ---
 
 # Assets / Modify

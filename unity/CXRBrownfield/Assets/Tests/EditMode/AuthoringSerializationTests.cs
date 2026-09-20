@@ -1,5 +1,6 @@
 using NUnit.Framework;
 using Newtonsoft.Json;
+using System.Collections.Generic;
 
 // Serialization contracts for the Authoring data types -- the stroke-point rounding converter
 // (RoundedPointArrayConverter on SurfaceStrokeDef.points at 2 decimals and HeightStrokeDef.points
@@ -193,6 +194,34 @@ public class AuthoringSerializationTests
         Assert.IsNull(inst.signCompass);
         Assert.IsFalse(inst.signPinned);
         Assert.AreEqual(0, inst.signHostFloor);
+        Assert.IsNull(inst.signs, "no list means never migrated");
+    }
+
+    [Test]
+    public void BuildingInstance_SignsList_RoundTrips()
+    {
+        var inst = new BuildingInstance
+        {
+            instanceId = "i1", buildingId = "b1", signCompass = "west",
+            signs = new List<BuildingSignEntry>
+            {
+                new() { text = "CAFE" },
+                new() { text = "BIKES", pinned = true, pinFace = "east", pinFloor = 1, pinSide = 4, pinHalf = 7 },
+            },
+        };
+        var back = JsonConvert.DeserializeObject<BuildingInstance>(JsonConvert.SerializeObject(inst));
+        Assert.AreEqual(2, back.signs.Count);
+        Assert.AreEqual("CAFE", back.signs[0].text);
+        Assert.IsFalse(back.signs[0].pinned);
+        Assert.AreEqual("BIKES", back.signs[1].text);
+        Assert.IsTrue(back.signs[1].pinned);
+        Assert.AreEqual("east", back.signs[1].pinFace);
+        Assert.AreEqual(1, back.signs[1].pinFloor);
+        Assert.AreEqual(4, back.signs[1].pinSide);
+        Assert.AreEqual(7, back.signs[1].pinHalf);
+
+        var empty = JsonConvert.DeserializeObject<BuildingInstance>("{\"instanceId\":\"i1\",\"signs\":[]}");
+        Assert.AreEqual(0, empty.signs.Count, "an empty list stays a list, so removed signs stay removed");
     }
 
     [Test]
@@ -210,6 +239,24 @@ public class AuthoringSerializationTests
         Assert.AreEqual(3, back.signHostX);
         Assert.AreEqual(0, back.signHostZ);
         Assert.AreEqual(1, back.signHostFloor);
+    }
+
+    // ---- BuildingDef.hiddenCopy ----
+
+    [Test]
+    public void BuildingDef_MissingHiddenCopy_LoadsAsListed()
+    {
+        var def = JsonConvert.DeserializeObject<BuildingDef>("{\"id\":\"b1\",\"name\":\"Coffee Shop\",\"version\":1}");
+        Assert.IsFalse(def.hiddenCopy, "records saved before the field existed stay in the library lists");
+    }
+
+    [Test]
+    public void BuildingDef_HiddenCopy_RoundTrips()
+    {
+        var def = new BuildingDef { id = "b1", name = "Coffee Shop 2", hiddenCopy = true };
+        Assert.IsTrue(JsonConvert.DeserializeObject<BuildingDef>(JsonConvert.SerializeObject(def)).hiddenCopy);
+        var row = JsonConvert.DeserializeObject<BuildingSummary>("{\"id\":\"b1\",\"name\":\"Coffee Shop 2\",\"hiddenCopy\":true}");
+        Assert.IsTrue(row.hiddenCopy);
     }
 
     // ---- EnvironmentDef.generation (provenance) ----

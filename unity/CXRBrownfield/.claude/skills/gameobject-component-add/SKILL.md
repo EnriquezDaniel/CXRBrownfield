@@ -1,6 +1,8 @@
 ---
 name: gameobject-component-add
 description: Add one or more Components to a GameObject in the opened Prefab or active Scene. Component types are looked up by full name (with namespace) or by class-name fallback. Use 'gameobject-find' to locate the host GameObject and 'gameobject-component-list-all' to discover valid component type names.
+metadata:
+  generated-by: mcp-plugin-dotnet
 ---
 
 # GameObject / Component / Add

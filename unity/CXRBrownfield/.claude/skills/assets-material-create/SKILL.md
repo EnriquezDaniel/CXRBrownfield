@@ -1,6 +1,8 @@
 ---
 name: assets-material-create
 description: Create a new Material asset with default parameters at a given 'Assets/'-rooted path ending in '.mat'. Creates intermediate folders if missing. Use 'assets-shader-list-all' to find a valid `shaderName`.
+metadata:
+  generated-by: mcp-plugin-dotnet
 ---
 
 # Assets / Create Material

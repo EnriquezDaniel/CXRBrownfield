@@ -1,6 +1,8 @@
 ---
 name: editor-application-set-state
 description: Start / stop / pause the Unity Editor 'playmode'. Use 'editor-application-get-state' to inspect the current state first. Throws if the project currently has compilation errors.
+metadata:
+  generated-by: mcp-plugin-dotnet
 ---
 
 # Editor / Application / Set State

@@ -1,6 +1,8 @@
 ---
 name: gameobject-modify
 description: Modify GameObject fields and properties in opened Prefab or in a Scene. You can modify multiple GameObjects at once. Just provide the same number of GameObject references and SerializedMember objects. Three modification surfaces are available per GameObject (gameObjectDiffs, pathPatchesPerGameObject, jsonPatchesPerGameObject) — see the skill body for details.
+metadata:
+  generated-by: mcp-plugin-dotnet
 ---
 
 # GameObject / Modify

@@ -1,6 +1,8 @@
 ---
 name: assets-prefab-create
 description: Create a Prefab (or Prefab Variant) at a project asset path. Source can be a scene GameObject (`gameObjectRef`) or an existing prefab asset (`sourcePrefabAssetPath`). Creates intermediate folders if missing. Use 'gameobject-find' to locate the source GameObject first.
+metadata:
+  generated-by: mcp-plugin-dotnet
 ---
 
 # Assets / Prefab / Create

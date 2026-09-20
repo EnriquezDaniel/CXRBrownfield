@@ -1,6 +1,8 @@
 ---
 name: gameobject-component-get
 description: Get detailed information about a specific Component on a GameObject — type, enabled state, and (optionally) serialized fields and properties. Supports token-saving path-scoped reads via `paths` or `viewQuery`. Use 'gameobject-find' to list components first.
+metadata:
+  generated-by: mcp-plugin-dotnet
 ---
 
 # GameObject / Component / Get

@@ -1,6 +1,8 @@
 ---
 name: scene-set-active
 description: Mark an opened scene as the Editor's active scene (the one new GameObjects are added to and that's used as the default for many operations). Use 'scene-list-opened' to enumerate opened scenes first.
+metadata:
+  generated-by: mcp-plugin-dotnet
 ---
 
 # Scene / Set Active

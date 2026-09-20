@@ -1,6 +1,8 @@
 ---
 name: gameobject-create
 description: Create a new GameObject in the currently opened Prefab or active Scene, optionally parented under another GameObject and pre-positioned. Pass `primitiveType` to spawn a Unity primitive (Cube, Sphere, etc.) instead of an empty GameObject.
+metadata:
+  generated-by: mcp-plugin-dotnet
 ---
 
 # GameObject / Create

@@ -1,6 +1,8 @@
 ---
 name: scene-unload
 description: Unload an opened scene from the Unity Editor (asynchronously via `SceneManager.UnloadSceneAsync`). Use 'scene-list-opened' to find the scene name first.
+metadata:
+  generated-by: mcp-plugin-dotnet
 ---
 
 # Scene / Unload

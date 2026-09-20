@@ -15,6 +15,10 @@
 # Local recovery copies of the registry/palette .asset YAML, written by Assets/Editor/PaletteGuard.cs.
 /PaletteSnapshots/
 
+# Server address baked into a Quest build; BuildMenu writes it for the build and deletes it after.
+/Assets/Resources/ViewerServerUrl.txt
+/Assets/Resources/ViewerServerUrl.txt.meta
+
 # By default unity supports Blender asset imports, *.blend1 blender files do not need to be commited to version control.
 *.blend1
 *.blend1.meta

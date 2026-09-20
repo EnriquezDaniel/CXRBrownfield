@@ -188,6 +188,8 @@ def _summarize(data: dict, path: Path) -> dict:
         "updated":  _iso_mtime(path),
         "favorite": data.get("favorite", False),
         "locked":   data.get("locked", False),
+        # Buildings only: an auto-named paste copy the Unity lists leave out until it is renamed.
+        "hiddenCopy": data.get("hiddenCopy", False),
     }
 
 
@@ -275,11 +277,15 @@ def _set_kind_tag(data: dict, kind: str, all_kinds: dict):
     data["tags"] = tags
 
 
-def _unique_name(kinds: dict, base: str) -> str:
+def _unique_name(kinds: dict, base: str, spaced: bool = False) -> str:
     """Return base, or 'base2', 'base3', ... so names stay unique across kinds.
 
     The first record keeps its bare name; later same-name records get a bare-number
     suffix (e.g. 'TestEnvironment', 'TestEnvironment2', 'TestEnvironment3').
+
+    spaced=True (buildings) mirrors Unity's BuildingCopies.NextCopyName: a trailing
+    ' <number>' is split off first and the count continues from it, compared without
+    case ('Coffee Shop' -> 'Coffee Shop 2'; a taken 'Coffee Shop 2' -> 'Coffee Shop 3').
     """
     existing = set()
     for d in kinds.values():
@@ -287,6 +293,19 @@ def _unique_name(kinds: dict, base: str) -> str:
             entry = _cached_record(path)
             if entry is not None:
                 existing.add(entry["name"])
+    if spaced:
+        taken = {str(e).strip().lower() for e in existing if e}
+        base = str(base).strip()
+        if base.lower() not in taken:
+            return base
+        stem, _, tail = base.rpartition(" ")
+        if stem and tail.isdigit() and 1 <= int(tail) and len(tail) <= 6:
+            stem, n = stem.rstrip(), int(tail) + 1
+        else:
+            stem, n = base, 2
+        while f"{stem} {n}".lower() in taken:
+            n += 1
+        return f"{stem} {n}"
     if base not in existing:
         return base
     n = 2
@@ -1247,7 +1266,7 @@ def create_building():
             bldg_id = _client_or_new_id(data)
             data["id"]      = bldg_id
             data["version"] = data.get("version") or 1
-            data["name"]    = _unique_name(BLDG_KINDS, data["name"])
+            data["name"]    = _unique_name(BLDG_KINDS, data["name"], spaced=True)
             data.pop("kind", None)
             _set_kind_tag(data, kind, BLDG_KINDS)
 

@@ -1,6 +1,8 @@
 ---
 name: assets-prefab-instantiate
 description: Instantiate a prefab into the currently active scene at an optional position/rotation/scale, parented under an optional scene GameObject path. Use 'assets-find' to locate the prefab asset first.
+metadata:
+  generated-by: mcp-plugin-dotnet
 ---
 
 # Assets / Prefab / Instantiate

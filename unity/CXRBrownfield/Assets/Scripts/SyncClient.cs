@@ -28,11 +28,19 @@ public class SyncClient : MonoBehaviour
     private readonly Dictionary<string, int> _appliedVersions = new();
     private string _appliedActiveId;
     private bool   _fetching;
+    private bool   _polling;     // a GET /api/active is outstanding; one at a time, or they stack up behind a dead server
+    private string _lastError;   // last error logged, so a dead server logs once, not every poll
+    // Each rendered env, so the headset rig can be stood on the active one the first time.
+    private readonly Dictionary<string, EnvironmentDef> _envs = new();
+    private VRLocomotion _locomotion;
     // Building defs cached across polls and shared by all envs. An env's ids are evicted just
     // before its re-render so an edited building def is refetched instead of served stale.
     private readonly Dictionary<string, BuildingDef> _buildings = new();
 
     public string Status { get; private set; } = "Starting…";
+    // True once at least one environment is on screen (VRStatusText hides itself then).
+    public bool HasRendered => _appliedVersions.Count > 0;
+    public string ServerUrl => libraryClient != null ? libraryClient.ServerBaseUrl : "";
 
     private void Start()
     {
@@ -46,6 +54,11 @@ public class SyncClient : MonoBehaviour
             return;
         }
         worldRenderer.SetSkipOptional(skipOptional);   // before the first RenderEnvironment
+        // The viewer walks through every published env, so backdrops are solid too (the desktop
+        // only does this while its Walk mode is on).
+        worldRenderer.SetBackdropCollidersSolid(true);
+        _locomotion = FindFirstObjectByType<VRLocomotion>();
+        Debug.Log($"[SyncClient] Polling {ServerUrl}/api/active every {pollIntervalSeconds:F1} s");
         StartCoroutine(PollLoop());
     }
 
@@ -55,14 +68,33 @@ public class SyncClient : MonoBehaviour
         while (true)
         {
             // Skip a poll while a fetch/render is mid-flight; pick up the latest on the next tick.
-            if (!_fetching)
-                libraryClient.GetActive(OnActive, err => Status = $"Sync error: {err}");
+            if (!_fetching && !_polling)
+            {
+                _polling = true;
+                libraryClient.GetActive(OnActive, OnPollError);
+            }
             yield return wait;
         }
     }
 
+    // Shown in the headset by VRStatusText and logged once per distinct error (adb logcat).
+    private void OnPollError(string err)
+    {
+        _polling = false;
+        Status = $"Sync error: {err}";
+        if (err == _lastError) return;
+        _lastError = err;
+        Debug.LogWarning($"[SyncClient] {ServerUrl}/api/active failed: {err}");
+    }
+
     private void OnActive(LibraryClient.ActivePointer ptr)
     {
+        _polling = false;
+        if (_lastError != null)
+        {
+            Debug.Log($"[SyncClient] Reached {ServerUrl} again.");
+            _lastError = null;
+        }
         if (ptr == null || _fetching) return;
 
         // Old-server fallback: a payload without a loaded list means just the single active env.
@@ -82,6 +114,7 @@ public class SyncClient : MonoBehaviour
         {
             worldRenderer.UnloadEnvironment(id);
             _appliedVersions.Remove(id);
+            _envs.Remove(id);
             Debug.Log($"[SyncClient] Unloaded '{id}' (no longer published)");
         }
 
@@ -110,7 +143,12 @@ public class SyncClient : MonoBehaviour
                 e   => { env = e; got = true; },
                 err => { error = err; got = true; });
             while (!got) yield return null;
-            if (env == null) { Status = $"Fetch error: {error}"; continue; }   // retry next poll
+            if (env == null)                                                   // retry next poll
+            {
+                Status = $"Fetch error: {error}";
+                Debug.LogWarning($"[SyncClient] Fetching '{p.name}' failed: {error}");
+                continue;
+            }
 
             var ids = new List<string>();
             if (env.buildingInstances != null)
@@ -121,6 +159,7 @@ public class SyncClient : MonoBehaviour
 
             worldRenderer.RenderEnvironment(env, _buildings, makeActive: false);
             _appliedVersions[p.envId] = p.version;
+            _envs[p.envId] = env;
             Debug.Log($"[SyncClient] Rendered '{env.name}' v{p.version}");
         }
         ApplyActive(activeId);
@@ -133,7 +172,12 @@ public class SyncClient : MonoBehaviour
     {
         _appliedActiveId = activeId;
         if (activeId != null && _appliedVersions.ContainsKey(activeId))
+        {
             worldRenderer.SetActiveEnvironment(activeId);
+            // First time only: later syncs must not yank the viewer back to the corner.
+            if (_locomotion != null && !_locomotion.IsPlaced && _envs.TryGetValue(activeId, out var env))
+                _locomotion.PlaceAtSpawn(env);
+        }
         Status = InSyncStatus();
     }
 

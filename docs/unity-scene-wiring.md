@@ -9,7 +9,7 @@ Every `// USER WIRES THIS IN INSPECTOR:` comment marks a `[SerializeField]` that
 
 | GameObject | Component | Required assignments |
 |---|---|---|
-| `WorldRenderer` | `WorldRenderer` | `Terrain`, `PrefabRegistry`, `TerrainRegistry`, `TileShapePalette`, `MaterialPalette` (tile-based building rendering), `PathMaterialPalette` (path ribbons), `FencePalette` (fence runs), `WaterPalette` (water surfaces; optional, falls back to `Resources/WaterPalette`), `BuildingStylePalette` (style letter → wall material; optional, falls back to `Resources/BuildingStylePalette`), `BuildingGenerator` (legacy bay massing — used only when a def has tiles but `TileShapePalette` is unassigned; a def with **no** tiles renders as a neutral translucent pad over cell (0,0) instead, still selectable / double-click-editable). The `Terrain` must share its `TerrainData` with the scene's `TerrainCollider` (true in `BasicModel`; `VRViewer`'s collider still points at `New Terrain.asset` and needs re-pointing for VR walking on shaped ground). `WorldRenderer.EnsureHeightSetup` forces that asset to a 257 heightmap, 30 m height range and parks the Terrain at y = -15, so it shows as modified once after the first run. `skipOptional` (Detail header) is the spawn gate for `optional` items; leave it false in `BasicModel`, `SyncClient` sets it at runtime in `VRViewer` |
+| `WorldRenderer` | `WorldRenderer` | `Terrain`, `PrefabRegistry`, `TerrainRegistry`, `TileShapePalette`, `MaterialPalette` (tile-based building rendering), `PathMaterialPalette` (path ribbons), `FencePalette` (fence runs), `WaterPalette` (water surfaces; optional, falls back to `Resources/WaterPalette`), `BuildingStylePalette` (style letter → wall material; optional, falls back to `Resources/BuildingStylePalette`), `BuildingGenerator` (legacy bay massing — used only when a def has tiles but `TileShapePalette` is unassigned; a def with **no** tiles renders as a neutral translucent pad over cell (0,0) instead, still selectable / double-click-editable). The `Terrain` is a template: it is hidden in Play and every loaded environment gets its own copy (GameObject, `TerrainCollider` and a runtime `TerrainData`, so the template's collider wiring no longer matters and the `New TerrainAlt` asset is never written). `WorldRenderer.EnsureHeightSetup` gives each copy a 257 heightmap, 30 m height range and parks it at y = -15. `envAlphamapResolution` (Ground header) sets each copy's splat resolution, 0 keeps the template's 1024; `VRViewer` uses 512. `skipOptional` (Detail header) is the spawn gate for `optional` items; leave it false in `BasicModel`, `SyncClient` sets it at runtime in `VRViewer` |
 | `LibraryBrowser` | `LibraryBrowser` | `LibraryClient`, `WorldRenderer` |
 | `LibraryClient` | `LibraryClient` | `serverBaseUrl = http://localhost:5002` (a headset needs the host PC's LAN IP) |
 | `EditController` | `EditController` | `LibraryBrowser`, `LibraryClient`, `WorldRenderer`, `TileBuildingEditor`, `PrefabRegistry`, `PathMaterialPalette` (path tool), `FencePalette` (fence tool — borrowed from `WorldRenderer` if unset), `TerrainRegistry` (ground-surface tool); optional: camera |
@@ -67,21 +67,25 @@ through `DecorPalette.LoadDefault()` (Resources), so no Inspector slot is needed
 the entry and generation falls back to built-in defaults (prefab `WindowPair`, 0.8 fractions,
 Bottom anchor) with one console warning.
 
-A building's sign persists on the placed instance: `BuildingInstance.signText` (normalized
-uppercase word, null = none), `signCompass` (`north` / `east` / `south` / `west`, the world direction
-it faces; north is +X), `signPinned` plus `signHostX` / `signHostZ` / `signHostFloor` (the first tile
-of the pair the user slid it to; unpinned = the centred pair). `LayoutConverter` writes the word and
-`east` for a generated instance. `BuildingDef.signText` / `signFace` are legacy read-only fields
-from records saved before that change; `BuildingSigns.SpecFor` uses them for an instance whose
-`signCompass` is still null, and the first panel edit moves the sign onto the instance.
-`BuildingSigns` (Authoring) resolves the plate from the spec: the compass becomes the building-local
-wall through the instance yaw, the pinned pair is used while it exists, else the centred pair on
-that wall's main run, else the first other wall with room; the plate is a band `BandFrac` (0.35) of
-the cell tall under the floor's top edge. `BuildingSignSpawner` builds it under the building root as
-`Sign/Plate` (a collider-free quad, URP Lit near black) and `Sign/Text` (a `TextMeshPro` 3D text,
-white bold, auto-sized, the TMP Settings default font `LiberationSans SDF`). No inspector wiring:
-`WorldRenderer.RenderTiledBuilding` and the tile editor call the spawner with the same spec, and
-`WorldRenderer.RespawnBuildingSign` swaps just the sign GO after a panel edit or a drag step.
+A building's signs persist on the placed instance: `BuildingInstance.signs`, a list of
+`BuildingSignEntry` in wall order (`text` = normalized uppercase word, null = an empty row;
+`pinned` plus `pinFace` / `pinFloor` / `pinSide` / `pinHalf` = a hand-placed spot on a building-local
+wall, in half tiles along it), and `signCompass` (`north` / `east` / `south` / `west`, the world
+direction the row starts on; north is +X). A null list means never migrated; an empty list means the
+signs were removed. `LayoutConverter` writes a one-entry list and `east` for a generated instance.
+`BuildingInstance.signText` / `signPinned` / `signHostX/Z/Floor` (the older single sign) and
+`BuildingDef.signText` / `signFace` are legacy read-only fields: `BuildingSigns.EntriesFor` reads them
+as a one-entry list (the old pinned pair becomes a pin at its midpoint) and the first panel edit
+moves them into `signs` (`BuildingSigns.Adopt`).
+`BuildingSigns` (Authoring) lays the plates out (`Layout`): plate width follows the word
+(`PlateWidth`), the height is a band `BandFrac` (0.35) of the cell under the floor's top edge, pins
+resolve first, and the rest share the open stretches of the start wall's lowest floor before
+spilling around the building (`FaceOrder`). `BuildingSignSpawner` builds them under the building root
+as `Signs/Sign N/Plate` (a collider-free quad, URP Lit near black) and `Signs/Sign N/Text` (a
+`TextMeshPro` 3D text, white bold, one shared size, the TMP Settings default font
+`LiberationSans SDF`; `N` is the row number). No inspector wiring:
+`WorldRenderer.RenderTiledBuilding` and the tile editor call the spawner with the same instance, and
+`WorldRenderer.RespawnBuildingSign` swaps just the `Signs` GO after a panel edit or a drag step.
 
 ## TileShapePalette: per-face tile prefabs are generated
 

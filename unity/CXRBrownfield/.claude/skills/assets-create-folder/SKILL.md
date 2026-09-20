@@ -1,6 +1,8 @@
 ---
 name: assets-create-folder
 description: Create a new folder under a parent folder inside 'Assets/'. The parent path must start with 'Assets/' and every intermediate folder in it must already exist. Refreshes the AssetDatabase at the end and returns the GUID(s) of the created folder(s).
+metadata:
+  generated-by: mcp-plugin-dotnet
 ---
 
 # Assets / Create Folder

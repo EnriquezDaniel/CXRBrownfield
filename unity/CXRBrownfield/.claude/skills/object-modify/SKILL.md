@@ -1,6 +1,8 @@
 ---
 name: object-modify
 description: Modify a Unity `UnityEngine.Object`'s serializable fields/properties. Three modification surfaces are available (`objectDiff`, `pathPatches`, `jsonPatch`) — see the skill body. Use 'object-get-data' first to inspect the object structure.
+metadata:
+  generated-by: mcp-plugin-dotnet
 ---
 
 # Object / Modify

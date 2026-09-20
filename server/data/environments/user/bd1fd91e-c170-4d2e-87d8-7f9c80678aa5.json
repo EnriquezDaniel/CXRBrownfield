@@ -1,7 +1,7 @@
 {
   "id": "bd1fd91e-c170-4d2e-87d8-7f9c80678aa5",
   "name": "1A",
-  "version": 4,
+  "version": 9,
   "tags": [
     "user"
   ],
@@ -73,7 +73,7 @@
       "buildingId": "90901288-e281-439a-879e-9166a9fbe266",
       "position": [
         155.72612,
-        -2.28462267,
+        -3.20164728,
         188.2347
       ],
       "rotationX": 0.0,
@@ -769,6 +769,23 @@
       "boxSizeMeters": null,
       "included": true,
       "brushPainted": true,
+      "optional": false
+    },
+    {
+      "instanceId": "0e39bc3f-77fe-46bc-abd0-785b49a552a6",
+      "prefabType": "tree",
+      "position": [
+        195.2037,
+        -2.02647379e-06,
+        171.620239
+      ],
+      "rotationX": 0.0,
+      "rotationY": 0.0,
+      "rotationZ": 0.0,
+      "scale": 1.0,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": false,
       "optional": false
     }
   ],

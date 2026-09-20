@@ -1,6 +1,8 @@
 ---
 name: assets-find-built-in
 description: Search the built-in assets of the Unity Editor (located at Resources/unity_builtin_extra). Filters by name and/or type; built-in assets have no GUID so GUID-based lookups are not supported.
+metadata:
+  generated-by: mcp-plugin-dotnet
 ---
 
 # Assets / Find (Built-in)

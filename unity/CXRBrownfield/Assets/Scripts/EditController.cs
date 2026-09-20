@@ -72,14 +72,15 @@ public partial class EditController : MonoBehaviour, EditHistory.IHost
     private readonly List<GameObject> _gizmoGOs  = new();  // reused buffer for SetTargets
 
     // Cross-environment clipboard (Ctrl+C / Ctrl+V): deep-copied instance DATA (not GOs), so
-    // entries survive env switches, edits, and deletion of the originals. BuildingDef is a
-    // SHARED reference — pasted buildings keep the same buildingId (defs are never cloned).
+    // entries survive env switches, edits, and deletion of the originals. A pasted building gets
+    // its own BuildingDef cloned from the `def` snapshot (BuildingCopies), so it never shares a
+    // buildingId with the original.
     private class ClipEntry
     {
         public bool             isBuilding;
         public ObjectInstance   obj;    // deep clone (isBuilding == false)
         public BuildingInstance bldg;   // deep clone (isBuilding == true)
-        public BuildingDef      def;    // shared ref for cross-env injection (may be null)
+        public BuildingDef      def;    // deep clone of the def as it was at copy time (may be null)
     }
     private readonly List<ClipEntry> _clipboard = new();
     private float      _lastClickTime;
@@ -107,9 +108,7 @@ public partial class EditController : MonoBehaviour, EditHistory.IHost
 
     // Transform
     private bool    _transDragging;
-    private Vector3 _transStartHit, _transOrigPos;
-    private Vector3 _transOrigRot;          // euler degrees (X, Y, Z) captured on Enter
-    private float   _transOrigScale;
+    private Vector3 _transStartHit;
     private const float ROT_SNAP_DEG = 15f; // rotation snaps to this increment while Shift is held (free otherwise)
     private Vector3 _transPrevMouse;   // drag-local; _prevMouse can't be used — UpdateCamera overwrites it every frame
     private float   _rotDragRaw, _rotDragEmitted;  // R-key yaw drag: accumulate raw, emit only snapped steps
@@ -782,13 +781,19 @@ public partial class EditController : MonoBehaviour, EditHistory.IHost
         var env = libraryBrowser?.CurrentEnvironment;
         if (env == null) return;
 
-        Vector3 pos = GetInstancePos(env);
-        _transOrigPos   = pos;
-        _transOrigRot   = GetInstanceRot(env);
-        _transOrigScale = GetInstanceScale(env);
         _tool           = tool;
         _transDragging  = false;
         _mode           = EditMode.Transform;
+    }
+
+    // Every way out of Transform keeps the edit (Esc, Enter, switching tool or mode); Ctrl+Z takes
+    // it back. Restoring a position captured on Enter would bypass EditHistory and silently drop a
+    // committed gizmo drag, e.g. a building sunk below the ground popping back to offset 0.
+    private void CommitTransform()
+    {
+        _transDragging = false;
+        libraryBrowser?.MarkDirty();
+        _mode = EditMode.Browse;
     }
 
     private TransformGizmo.Mode GizmoMode() => _tool switch
@@ -805,17 +810,11 @@ public partial class EditController : MonoBehaviour, EditHistory.IHost
         // Transform hotkeys — suppressed while typing in a panel text field/slider.
         if (!TypingInUI)
         {
-            if (KB.escapeKey.wasPressedThisFrame)
+            // Escape and Enter both exit Transform and keep the edits.
+            if (KB.escapeKey.wasPressedThisFrame ||
+                KB.enterKey.wasPressedThisFrame || KB.numpadEnterKey.wasPressedThisFrame)
             {
-                // Escape exits Transform but keeps the edits (no revert); commit them like Enter does.
-                libraryBrowser?.MarkDirty();
-                _mode = EditMode.Browse;
-                return;
-            }
-            if (KB.enterKey.wasPressedThisFrame || KB.numpadEnterKey.wasPressedThisFrame)
-            {
-                libraryBrowser?.MarkDirty();
-                _mode = EditMode.Browse;
+                CommitTransform();
                 return;
             }
 
@@ -1077,33 +1076,6 @@ public partial class EditController : MonoBehaviour, EditHistory.IHost
     }
 
     private void RegroundSelected(EnvironmentDef env) => RegroundOne(env, _selId, _selIsBuilding, _selGO);
-
-    private void RevertTransform()
-    {
-        var env = libraryBrowser?.CurrentEnvironment;
-        if (env == null) return;
-        if (_selIsBuilding)
-        {
-            var i = FindBI(env, _selId); if (i == null) return;
-            i.position = new[] { _transOrigPos.x, _transOrigPos.y, _transOrigPos.z };
-            i.rotationX = _transOrigRot.x; i.rotationY = _transOrigRot.y; i.rotationZ = _transOrigRot.z;
-            i.scale = _transOrigScale;
-        }
-        else
-        {
-            var i = FindOI(env, _selId); if (i == null) return;
-            i.position = new[] { _transOrigPos.x, _transOrigPos.y, _transOrigPos.z };
-            i.rotationX = _transOrigRot.x; i.rotationY = _transOrigRot.y; i.rotationZ = _transOrigRot.z;
-            i.scale = _transOrigScale;
-        }
-        if (_selGO)
-        {
-            _selGO.transform.position   = _transOrigPos;
-            _selGO.transform.rotation   = Quaternion.Euler(_transOrigRot) * SelectedBaseRotation(env);
-            _selGO.transform.localScale = _selBaseScale * _transOrigScale;
-            RegroundSelected(env);   // objects: re-snap to terrain for the restored rotation/scale
-        }
-    }
 
     // -----------------------------------------------------------------------
     // PlaceObject mode
@@ -4065,9 +4037,7 @@ public partial class EditController : MonoBehaviour, EditHistory.IHost
         if (tileBuildingEditor == null || !tileBuildingEditor.IsActive) return;
         var bdef = tileBuildingEditor.CurrentDef;
         if (bdef == null) return;
-        libraryClient?.PutBuilding(bdef,
-            ()  => { Debug.Log($"[EditController] Building '{bdef.name}' saved."); },
-            err => Debug.LogError($"[EditController] Save building failed: {err}"));
+        PersistBuildingDef(bdef, "saved");
         libraryBrowser?.AddBuildingDef(bdef);
 
         // Reflect the save in the scene while staying in the editor: re-render so other placed
@@ -4146,15 +4116,13 @@ public partial class EditController : MonoBehaviour, EditHistory.IHost
             var updated = tileBuildingEditor.ExitAndGet();
             if (updated != null)
             {
-                // KNOWN LIMITATION: BuildingDefs are global records shared across environments, so
-                // this PUT mutates the def everywhere it is placed — including inside a locked
-                // (digital twin) env that references the same buildingId. Entry into the tile editor
-                // is blocked while a locked env is active, but a shared def can still be edited from
-                // another env or the Buildings tab. Full protection needs per-building locks or
-                // copy-on-write; out of scope for the pilot.
-                libraryClient?.PutBuilding(updated,
-                    ()  => Debug.Log($"[EditController] Building '{updated.name}' saved."),
-                    err => Debug.LogError($"[EditController] Save building failed: {err}"));
+                // KNOWN LIMITATION: a BuildingDef placed from the library is a global record shared
+                // across environments, so this PUT mutates it everywhere it is placed — including
+                // inside a locked (digital twin) env that references the same buildingId. Entry into
+                // the tile editor is blocked while a locked env is active, but a shared def can still
+                // be edited from another env or the Buildings tab. Pasted copies are separate records
+                // (BuildingCopies); full protection for the rest needs per-building locks.
+                PersistBuildingDef(updated, "saved");
                 libraryBrowser?.AddBuildingDef(updated);
 
                 if (standalone)
@@ -4886,7 +4854,7 @@ public partial class EditController : MonoBehaviour, EditHistory.IHost
             {
                 var bi = FindBI(env, s.id); if (bi == null) continue;
                 entries.Add(new ClipEntry { isBuilding = true, bldg = CloneData(bi),
-                                            def = libraryBrowser?.GetBuildingDef(bi.buildingId) });
+                                            def = CloneData(libraryBrowser?.GetBuildingDef(bi.buildingId)) });
             }
             else
             {
@@ -4897,6 +4865,18 @@ public partial class EditController : MonoBehaviour, EditHistory.IHost
         if (entries.Count == 0) return;   // nothing resolvable — don't clobber the clipboard
         _clipboard.Clear();
         _clipboard.AddRange(entries);
+
+        // Paste names each building copy against the library list, so have it ready by then.
+        if (!_bldgListFetched && entries.Exists(e => e.isBuilding)) FetchBuildingList();
+    }
+
+    // Every building name in use: the server list (hidden copies included) plus every def held in
+    // memory, which covers pasted copies that are not saved yet.
+    private IEnumerable<(string id, string name)> AllBuildingNames()
+    {
+        foreach (var s in _bldgList) yield return (s.id, s.name);
+        if (libraryBrowser != null)
+            foreach (var b in libraryBrowser.AllKnownBuildings()) yield return b;
     }
 
     // Where the pasted group's centroid lands: the cursor's ground-plane hit, or the camera
@@ -4921,16 +4901,6 @@ public partial class EditController : MonoBehaviour, EditHistory.IHost
         var env = libraryBrowser?.EnsureWorkingEnvironment();
         if (env == null) return;
 
-        // Cross-env: make sure the target env knows every pasted building's def. Shared
-        // reference, never overwrites an id the target already has (its copy may be newer) —
-        // same mechanism as placing a library building (FetchAndPlace → AddBuildingDef).
-        foreach (var e in _clipboard)
-        {
-            if (!e.isBuilding) continue;
-            bool known = libraryBrowser?.GetBuildingDef(e.bldg.buildingId) != null;
-            if (!known && e.def != null) libraryBrowser?.AddBuildingDef(e.def);
-        }
-
         // Group centroid (XZ) from the stored source positions.
         float cx = 0f, cz = 0f; int n = 0;
         foreach (var e in _clipboard)
@@ -4944,17 +4914,30 @@ public partial class EditController : MonoBehaviour, EditHistory.IHost
 
         _history?.RecordBefore(EditHistory.Scope.Environment, "Paste");
 
+        // Names handed out in this paste count as taken for the next building in the group.
+        var takenNames = new List<string>();
+        foreach (var (_, name) in AllBuildingNames()) takenNames.Add(name);
+
         var pasted = new List<(string id, bool isBuilding)>();
         foreach (var e in _clipboard)
         {
             if (e.isBuilding)
             {
-                if (libraryBrowser?.GetBuildingDef(e.bldg.buildingId) == null)
+                if (e.def == null || libraryBrowser == null)
                 {
                     Debug.LogWarning($"[EditController] Paste: no BuildingDef for '{e.bldg.buildingId}' — skipped.");
                     continue;
                 }
+                // Every pasted building is its own record ("Coffee Shop 2"), so editing the copy
+                // never changes the original. Held in memory until the environment is saved. An
+                // undone paste leaves the def behind unreferenced; it is never posted.
+                string copyName = BuildingCopies.NextCopyName(e.def.name, takenNames);
+                takenNames.Add(copyName);
+                var def = BuildingCopies.CloneDef(e.def, Guid.NewGuid().ToString("D"), copyName);
+                libraryBrowser.AddUnsavedBuildingDef(def);
+
                 var copy = CloneData(e.bldg);   // clone again so repeated pastes never alias
+                copy.buildingId = def.id;
                 copy.instanceId = Guid.NewGuid().ToString("D");
                 copy.position   = Offset(copy.position);
                 copy.included   = true;
@@ -4998,7 +4981,7 @@ public partial class EditController : MonoBehaviour, EditHistory.IHost
             case EditMode.PlaceObject:   StopPlaceObject();          break;
             case EditMode.PlaceBuilding: StopPlaceBuilding();        break;
             case EditMode.EditBuilding:  ExitEditBuilding(save:true); break;
-            case EditMode.Transform:     RevertTransform(); _mode = EditMode.Browse; break;
+            case EditMode.Transform:     CommitTransform();          break;
             case EditMode.DrawPath:      StopDrawPath();             break;
             case EditMode.EditPath:      StopEditPath();             break;
             case EditMode.DrawFence:     StopDrawFence();            break;
@@ -5928,6 +5911,7 @@ public partial class EditController : MonoBehaviour, EditHistory.IHost
                 UITheme.BeginThumbGrid();
                 foreach (var s in _bldgList)
                 {
+                    if (s.hiddenCopy) continue;   // pasted copy, listed once it is renamed
                     if (!Contains(s.name ?? s.id, _placeSearch)) continue;
                     if (UITheme.ThumbCell(null, s.name ?? s.id, false, UITips.PlaceBuilding(s.name ?? s.id))) FetchAndPlace(s.id);
                 }
@@ -5952,14 +5936,17 @@ public partial class EditController : MonoBehaviour, EditHistory.IHost
 
         UITheme.Divider();
         int total = 1 + _extraSel.Count;
+        var selDef = total == 1 ? SelectedBuildingDef(env) : null;
         UITheme.Header(total > 1 ? $"Selected {total} instances"
-                                 : $"Selected {(_selIsBuilding ? "building" : "object")}");
+                     : !string.IsNullOrWhiteSpace(selDef?.name) ? selDef.name
+                     : $"Selected {(_selIsBuilding ? "building" : "object")}");
         if (total > 1) UITheme.Note("Move / rotate / scale apply to all • Shift/Ctrl+click to toggle • drag a box to select objects (Shift+drag adds)");
 
         if (_selIsBuilding)
         {
             var inst = FindBI(env, _selId);
             if (inst == null) return;
+            if (selDef != null) DrawBuildingNameRow(selDef);
             if (tileBuildingEditor != null && UITheme.Button("Edit tiles", UITips.EditTiles))
                 EnterEditBuilding();
         }
@@ -6323,30 +6310,119 @@ public partial class EditController : MonoBehaviour, EditHistory.IHost
     {
         worldRenderer?.RenderEnvironment(env, libraryBrowser?.CurrentBuildingDefs);
         libraryBrowser?.AddBuildingDef(bdef);   // keep the in-memory dict copy in sync
+        PersistBuildingDef(bdef, "skewed & saved");
+    }
+
+    // Stores a changed def. A pasted copy that is not on the server yet has nothing to PUT: it is
+    // held and goes up with the next environment save (LibraryBrowser.CoFlushUnsavedBuildings).
+    private void PersistBuildingDef(BuildingDef bdef, string what, Action onSaved = null)
+    {
+        if (bdef == null) return;
+        if (libraryBrowser != null && libraryBrowser.IsUnsavedBuilding(bdef.id))
+        {
+            libraryBrowser.MarkDirty();
+            return;
+        }
         libraryClient?.PutBuilding(bdef,
-            ()  => Debug.Log($"[EditController] Building '{bdef.name}' skewed & saved."),
-            err => Debug.LogError($"[EditController] Save skewed building failed: {err}"));
+            ()  => { Debug.Log($"[EditController] Building '{bdef.name}' {what}."); onSaved?.Invoke(); },
+            err => Debug.LogError($"[EditController] Building '{bdef.name}' not {what}: {err}"));
     }
 
     // -----------------------------------------------------------------------
-    // Sign (selected building): the word, the compass it faces, the spot on the wall. The sign
-    // belongs to the placed instance (BuildingInstance.sign*), so two copies of one def can differ
-    // and every edit is an Environment-scope undo step saved with the place, never a PutBuilding.
-    // BuildingSigns resolves the plate; WorldRenderer.RespawnBuildingSign swaps only the sign GO.
+    // Name (selected building). The name belongs to the BuildingDef, so a rename reaches every
+    // placement that shares it. Renaming a pasted copy also clears hiddenCopy, which lists it in
+    // the Buildings tab and the Place rail. Building-scope undo, like Skew.
+    // -----------------------------------------------------------------------
+
+    private string _nameDraft = "";
+    private string _nameDraftFor;        // building id + name the draft was seeded from
+    private string _nameError;
+
+    private void DrawBuildingNameRow(BuildingDef bdef)
+    {
+        // Reseed on a new selection and when the name changes underneath (rename, undo).
+        string seed = bdef.id + "\n" + bdef.name;
+        if (_nameDraftFor != seed) { _nameDraft = bdef.name ?? ""; _nameDraftFor = seed; _nameError = null; }
+
+        // IMGUI text fields carry no tooltip; the button beside it does.
+        GUI.enabled = !ActiveLocked;
+        GUILayout.BeginHorizontal();
+        _nameDraft = GUILayout.TextField(_nameDraft ?? "", 48, GUILayout.ExpandWidth(true), GUILayout.Height(UITheme.RowH));
+        bool rename = UITheme.GhostButton("Rename", UITips.BuildingRename, GUILayout.Width(66f), GUILayout.Height(UITheme.RowH));
+        GUILayout.EndHorizontal();
+        GUI.enabled = true;
+        if (rename) RenameBuilding(bdef, _nameDraft);
+        if (_nameError != null) UITheme.Note(_nameError);
+    }
+
+    private void RenameBuilding(BuildingDef bdef, string draft)
+    {
+        _nameError = null;
+        string name = (draft ?? "").Trim();
+        if (ActiveLocked || name.Length == 0 || name == bdef.name) return;
+        if (BuildingCopies.IsNameTaken(name, bdef.id, AllBuildingNames()))
+        {
+            _nameError = "That name is already used.";
+            return;
+        }
+
+        _history?.RecordBefore(EditHistory.Scope.Building, "Rename");
+        bdef.name       = name;
+        bdef.hiddenCopy = false;
+        PersistBuildingDef(bdef, "renamed",
+            onSaved: () => { libraryBrowser?.RefreshBuildings(); FetchBuildingList(); });
+    }
+
+    // -----------------------------------------------------------------------
+    // Sign (selected building): the list of signs, the compass the row starts on, and a pin per
+    // sign. Signs belong to the placed instance (BuildingInstance.signs), so two copies of one def
+    // can differ and every edit is an Environment-scope undo step saved with the place, never a
+    // PutBuilding. BuildingSigns lays the plates out; WorldRenderer.RespawnBuildingSign swaps only
+    // the Signs GO.
     // -----------------------------------------------------------------------
 
     private bool   _showSign = true;
-    private string _signDraft = "";
-    private string _signDraftFor;        // instance id the draft was seeded from
+    private readonly List<string> _signDrafts = new();
+    private string _signDraftFor;        // instance id the drafts were seeded from
+    private int    _moveSignIndex = -1;  // the row Move sign drags
+    private List<BuildingSigns.PinSpot> _moveSignSpots;   // every spot for that row, cached at the press
     private bool   _moveSignDragging;
     private bool   _moveSignChanged;     // something moved during the drag, so the place is dirty
+    private List<BuildingSigns.SignResult> _signLayout;   // Layout is too heavy to run every OnGUI pass
+    private string _signLayoutKey;
 
     private static readonly string[] SignCompassLabels = { "North", "East", "South", "West" };
+    private const string SignWordControl = "signWord";
 
     private Func<string, TileFit> SignFitFor => worldRenderer != null ? worldRenderer.FitFor : (Func<string, TileFit>)null;
 
     private static float SignCellSize(BuildingDef bdef) =>
         bdef != null && bdef.gridCellSize > 0f ? bdef.gridCellSize : AuthoringConventions.DEFAULT_GRID_CELL_SIZE;
+
+    // The current layout of the selected building's signs. Rebuilt whenever the signs (an edit, an
+    // undo), the building, its yaw, its tile count or the edit mode changes (a tile edit ends in a
+    // mode change).
+    private List<BuildingSigns.SignResult> SignLayout(BuildingInstance inst, BuildingDef bdef)
+    {
+        var sb = new System.Text.StringBuilder($"{inst.instanceId}|{inst.rotationY}|{bdef.tiles.Count}|{_mode}|{inst.signCompass}");
+        foreach (var e in BuildingSigns.EntriesFor(inst, bdef))
+            sb.Append($"|{e.text},{e.pinned},{e.pinFace},{e.pinFloor},{e.pinSide},{e.pinHalf}");
+        string key = sb.ToString();
+        if (_signLayout == null || _signLayoutKey != key)
+        {
+            _signLayout    = BuildingSigns.LayoutFor(inst, bdef, SignCellSize(bdef), SignFitFor);
+            _signLayoutKey = key;
+        }
+        return _signLayout;
+    }
+
+    private void SeedSignDrafts(BuildingInstance inst, List<BuildingSignEntry> entries)
+    {
+        if (_signDraftFor == inst.instanceId && _signDrafts.Count == entries.Count) return;
+        _signDrafts.Clear();
+        foreach (var e in entries) _signDrafts.Add(e?.text ?? "");
+        _signDraftFor = inst.instanceId;
+    }
 
     private void DrawSignSection(EnvironmentDef env)
     {
@@ -6358,161 +6434,221 @@ public partial class EditController : MonoBehaviour, EditHistory.IHost
         _showSign = UITheme.ToggleButton(_showSign, _showSign ? "▾  Sign" : "▸  Sign", UITips.SignFoldout);
         if (!_showSign) return;
 
-        var spec = BuildingSigns.SpecFor(inst, bdef);
-        if (_signDraftFor != inst.instanceId) { _signDraft = spec.text ?? ""; _signDraftFor = inst.instanceId; }
-        bool hasText = spec.text != null;
+        var entries = BuildingSigns.EntriesFor(inst, bdef);
+        SeedSignDrafts(inst, entries);
+        var layout = SignLayout(inst, bdef);
+        bool moving = _mode == EditMode.MoveSign;
 
-        // Word. IMGUI text fields carry no tooltip; the buttons beside it do.
-        GUI.enabled = !ActiveLocked;
-        GUILayout.BeginHorizontal();
-        _signDraft = GUILayout.TextField(_signDraft ?? "", BuildingSigns.MaxChars, GUILayout.ExpandWidth(true), GUILayout.Height(UITheme.RowH));
-        bool apply = UITheme.GhostButton("Apply", UITips.SignApply, GUILayout.Width(56f), GUILayout.Height(UITheme.RowH));
-        GUI.enabled = !ActiveLocked && hasText;
-        bool clear = UITheme.GhostButton("Clear", UITips.SignClear, GUILayout.Width(56f), GUILayout.Height(UITheme.RowH));
-        GUILayout.EndHorizontal();
-        GUI.enabled = !ActiveLocked && !string.IsNullOrWhiteSpace(bdef.name);
-        bool useName = UITheme.GhostButton("Use name", UITips.SignUseName, GUILayout.Height(UITheme.RowH));
-        GUI.enabled = true;
-        if (apply)        ApplySignText(env, inst, bdef, _signDraft);
-        else if (clear)   ApplySignText(env, inst, bdef, null);
-        else if (useName) ApplySignText(env, inst, bdef, bdef.name);
+        // Enter in a word field applies, read before the fields see the key.
+        var ev = Event.current;
+        bool enter = ev.type == EventType.KeyDown && (ev.keyCode == KeyCode.Return || ev.keyCode == KeyCode.KeypadEnter)
+                     && (GUI.GetNameOfFocusedControl() ?? "").StartsWith(SignWordControl);
 
-        // Compass: which way the sign faces on the site. Re-read after a text edit above.
-        spec    = BuildingSigns.SpecFor(inst, bdef);
-        hasText = spec.text != null;
+        // Compass: the wall the row starts on.
         string compass = BuildingSigns.EffectiveCompass(inst, bdef);
         int ci = Array.IndexOf(BuildingSigns.Compass, compass);
         if (ci < 0) ci = Array.IndexOf(BuildingSigns.Compass, BuildingSigns.DefaultCompass);
-        GUI.enabled = !ActiveLocked && hasText;
+        GUI.enabled = !ActiveLocked;
         int nci = UITheme.Segmented(ci, SignCompassLabels, UITips.SignCompass);
         GUI.enabled = true;
-        if (nci != ci) SetSignCompass(env, inst, bdef, BuildingSigns.Compass[nci]);
 
-        // Spot: a drag toggle plus one-tile nudges. The hint draws before the mode switches so this
-        // pass's control count matches `moving` (same shape as Move site).
-        bool moving = _mode == EditMode.MoveSign;
-        GUI.enabled = !ActiveLocked && hasText;
-        bool wantMove = UITheme.ToggleButton(moving, "Move sign", UITips.MoveSign, GUILayout.Height(UITheme.RowH));
-        GUILayout.BeginHorizontal();
-        bool left  = UITheme.GhostButton("Left",  UITips.SignLeft,  GUILayout.Height(UITheme.RowH));
-        bool right = UITheme.GhostButton("Right", UITips.SignRight, GUILayout.Height(UITheme.RowH));
-        bool up    = UITheme.GhostButton("Up",    UITips.SignUp,    GUILayout.Height(UITheme.RowH));
-        bool down  = UITheme.GhostButton("Down",  UITips.SignDown,  GUILayout.Height(UITheme.RowH));
-        GUILayout.EndHorizontal();
-        GUI.enabled = !ActiveLocked && hasText && spec.pinned;
-        bool reset = UITheme.GhostButton("Reset spot", UITips.SignReset, GUILayout.Height(UITheme.RowH));
-        GUI.enabled = true;
-        if (moving) UITheme.Note("Drag on the wall to slide the sign along it or onto another floor. Esc leaves.");
-        if (wantMove && !moving) StartMoveSign();
-        else if (!wantMove && moving) StopMoveSign();
-        if (left)       NudgeSign(env, inst, bdef, -1, 0);
-        else if (right) NudgeSign(env, inst, bdef, +1, 0);
-        else if (up)    NudgeSign(env, inst, bdef, 0, +1);
-        else if (down)  NudgeSign(env, inst, bdef, 0, -1);
-        else if (reset) ResetSignSpot(env, inst, bdef);
-
-        // Say where the sign is, and why it is not where it was asked to be.
-        spec = BuildingSigns.SpecFor(inst, bdef);
-        if (spec.text == null) return;
-        var skip = BuildingSigns.TryPlace(bdef, spec, SignCellSize(bdef), SignFitFor, out var p);
-        if (skip == BuildingSigns.Skip.TooNarrow)
-            UITheme.Note($"The sign needs {BuildingSigns.SignTiles} open tiles side by side on a wall. No wall has room, so nothing shows.");
-        else if (skip == BuildingSigns.Skip.None)
+        // Rows. Every action is collected and run after the last control, so this pass draws the
+        // same controls it laid out (same shape as Move site).
+        string startFace = BuildingSigns.StartFace(inst, bdef);
+        int rowUp = -1, rowDown = -1, rowRemove = -1, rowPin = -1, rowMove = -1, rowNudge = -1, nudgeRight = 0, nudgeFloor = 0;
+        bool anyEmpty = false, anyDirty = false;
+        for (int i = 0; i < entries.Count; i++)
         {
-            string shown = BuildingSigns.CompassOfFace(p.face, inst.rotationY);
-            if (p.faceFallback)  UITheme.Note($"No room on the {compass} wall. Showing the sign on the {shown} wall.");
-            else if (p.pinLost)  UITheme.Note("The saved spot is gone. Showing the sign at the centred spot.");
-            else                 UITheme.Note($"Sign faces {shown}, floor {p.floor + 1}.");
+            var e = entries[i];
+            bool hasText = e.text != null;
+            anyEmpty |= !hasText;
+            if (BuildingSigns.NormalizeText(_signDrafts[i]) != e.text) anyDirty = true;
+
+            // Word. IMGUI text fields carry no tooltip; the buttons beside it do.
+            GUILayout.BeginHorizontal();
+            GUI.enabled = !ActiveLocked;
+            GUI.SetNextControlName(SignWordControl + i);
+            _signDrafts[i] = GUILayout.TextField(_signDrafts[i] ?? "", BuildingSigns.MaxChars, GUILayout.ExpandWidth(true), GUILayout.Height(UITheme.RowH));
+            GUI.enabled = !ActiveLocked && i > 0;
+            if (UITheme.GhostButton("▲", UITips.SignRowUp, GUILayout.Width(24f), GUILayout.Height(UITheme.RowH))) rowUp = i;
+            GUI.enabled = !ActiveLocked && i < entries.Count - 1;
+            if (UITheme.GhostButton("▼", UITips.SignRowDown, GUILayout.Width(24f), GUILayout.Height(UITheme.RowH))) rowDown = i;
+            GUI.enabled = !ActiveLocked && hasText;
+            if (UITheme.RowToggle(e.pinned, "Pin", UITips.SignRowPin, GUILayout.Width(40f), GUILayout.Height(UITheme.RowH)) != e.pinned) rowPin = i;
+            GUI.enabled = !ActiveLocked;
+            if (UITheme.GhostButton("×", UITips.SignRowRemove, GUILayout.Width(24f), GUILayout.Height(UITheme.RowH))) rowRemove = i;
+            GUILayout.EndHorizontal();
+
+            if (e.pinned && hasText)
+            {
+                GUI.enabled = !ActiveLocked;
+                bool movingThis = moving && _moveSignIndex == i;
+                GUILayout.BeginHorizontal();
+                if (UITheme.ToggleButton(movingThis, "Move sign", UITips.MoveSign, GUILayout.Height(UITheme.RowH)) != movingThis) rowMove = i;
+                if (UITheme.GhostButton("Left",  UITips.SignLeft,  GUILayout.Height(UITheme.RowH))) { rowNudge = i; nudgeRight = -1; }
+                if (UITheme.GhostButton("Right", UITips.SignRight, GUILayout.Height(UITheme.RowH))) { rowNudge = i; nudgeRight = +1; }
+                if (UITheme.GhostButton("Up",    UITips.SignUp,    GUILayout.Height(UITheme.RowH))) { rowNudge = i; nudgeFloor = +1; }
+                if (UITheme.GhostButton("Down",  UITips.SignDown,  GUILayout.Height(UITheme.RowH))) { rowNudge = i; nudgeFloor = -1; }
+                GUILayout.EndHorizontal();
+            }
+            GUI.enabled = true;
+
+            // Say why a sign is not where it was asked to be.
+            if (i < layout.Count && hasText)
+            {
+                var r = layout[i];
+                if (r.skip == BuildingSigns.Skip.NoRoom)        UITheme.Note("No room on any wall. Not shown.");
+                else if (r.skip == BuildingSigns.Skip.TooSmall) UITheme.Note("Too long for any wall. Not shown.");
+                else if (r.skip == BuildingSigns.Skip.None)
+                {
+                    if (r.p.pinLost)                 UITheme.Note("Saved spot is gone. Placed automatically.");
+                    else if (r.p.scale < 0.999f)     UITheme.Note("Shrunk to fit.");
+                    else if (r.p.face != startFace)  UITheme.Note($"On the {BuildingSigns.CompassOfFace(r.p.face, inst.rotationY)} wall.");
+                }
+            }
+        }
+
+        GUILayout.BeginHorizontal();
+        GUI.enabled = !ActiveLocked && !anyEmpty;
+        bool add = UITheme.GhostButton("Add sign", UITips.SignAdd, GUILayout.Height(UITheme.RowH));
+        GUI.enabled = !ActiveLocked && BuildingSigns.NormalizeText(bdef.name) != null;
+        bool addName = UITheme.GhostButton("Add name", UITips.SignAddName, GUILayout.Height(UITheme.RowH));
+        GUILayout.EndHorizontal();
+        GUI.enabled = !ActiveLocked && anyDirty;
+        bool apply = UITheme.GhostButton("Apply words", UITips.SignApplyWords, GUILayout.Height(UITheme.RowH));
+        GUI.enabled = true;
+        if (moving) UITheme.Note("Drag on the building to slide the sign in half tile steps. It can go to another floor or wall. Esc leaves.");
+
+        if (ActiveLocked) return;
+        if (enter && anyDirty) { apply = true; ev.Use(); }
+        if (nci != ci)           SetSignCompass(env, inst, bdef, BuildingSigns.Compass[nci]);
+        else if (apply)          ApplySignWords(env, inst, bdef);
+        else if (rowUp >= 0)     MoveSignInList(env, inst, bdef, rowUp, -1);
+        else if (rowDown >= 0)   MoveSignInList(env, inst, bdef, rowDown, +1);
+        else if (rowRemove >= 0) RemoveSign(env, inst, bdef, rowRemove);
+        else if (rowPin >= 0)    SetSignPinned(env, inst, bdef, rowPin, !entries[rowPin].pinned);
+        else if (rowNudge >= 0)  NudgeSign(env, inst, bdef, rowNudge, nudgeRight, nudgeFloor);
+        else if (add)            AddSign(env, inst, bdef, null);
+        else if (addName)        AddSign(env, inst, bdef, bdef.name);
+        else if (rowMove >= 0)
+        {
+            if (moving && _moveSignIndex == rowMove) StopMoveSign();
+            else StartMoveSign(rowMove);
         }
     }
 
-    private void ApplySignText(EnvironmentDef env, BuildingInstance inst, BuildingDef bdef, string raw)
+    // Opens an undo step and hands back the instance's own list (the first edit moves the older
+    // single sign into it).
+    private List<BuildingSignEntry> BeginSignEdit(BuildingInstance inst, BuildingDef bdef, string label)
+    {
+        _history?.RecordBefore(EditHistory.Scope.Environment, label);
+        BuildingSigns.Adopt(inst, bdef);
+        return inst.signs;
+    }
+
+    private void ApplySignWords(EnvironmentDef env, BuildingInstance inst, BuildingDef bdef)
+    {
+        var signs = BeginSignEdit(inst, bdef, "Set signs");
+        for (int i = 0; i < signs.Count && i < _signDrafts.Count; i++)
+        {
+            signs[i].text  = BuildingSigns.NormalizeText(_signDrafts[i]);
+            _signDrafts[i] = signs[i].text ?? "";
+        }
+        AfterSignEdit(env, inst, bdef);
+    }
+
+    // A new row. A word (Add name) fills the first empty row when there is one.
+    private void AddSign(EnvironmentDef env, BuildingInstance inst, BuildingDef bdef, string raw)
     {
         string text = BuildingSigns.NormalizeText(raw);
-        var spec = BuildingSigns.SpecFor(inst, bdef);
-        if (text == spec.text) { _signDraft = text ?? ""; return; }
-        _history?.RecordBefore(EditHistory.Scope.Environment, text == null ? "Clear sign" : "Set sign");
-        AdoptLegacySign(inst, bdef);
-        inst.signText = text;
-        _signDraft    = text ?? "";
+        var signs = BeginSignEdit(inst, bdef, "Add sign");
+        int empty = text != null ? signs.FindIndex(s => s.text == null) : -1;
+        if (empty >= 0) { signs[empty].text = text; _signDrafts[empty] = text; }
+        else            { signs.Add(new BuildingSignEntry { text = text }); _signDrafts.Add(text ?? ""); }
+        AfterSignEdit(env, inst, bdef);
+    }
+
+    private void RemoveSign(EnvironmentDef env, BuildingInstance inst, BuildingDef bdef, int i)
+    {
+        StopMoveSign();
+        var signs = BeginSignEdit(inst, bdef, "Remove sign");
+        if (i < 0 || i >= signs.Count) return;
+        signs.RemoveAt(i);
+        _signDrafts.RemoveAt(i);
+        AfterSignEdit(env, inst, bdef);
+    }
+
+    private void MoveSignInList(EnvironmentDef env, BuildingInstance inst, BuildingDef bdef, int i, int d)
+    {
+        StopMoveSign();
+        var signs = BeginSignEdit(inst, bdef, "Reorder signs");
+        int j = i + d;
+        if (i < 0 || j < 0 || i >= signs.Count || j >= signs.Count) return;
+        (signs[i], signs[j])             = (signs[j], signs[i]);
+        (_signDrafts[i], _signDrafts[j]) = (_signDrafts[j], _signDrafts[i]);
         AfterSignEdit(env, inst, bdef);
     }
 
     private void SetSignCompass(EnvironmentDef env, BuildingInstance inst, BuildingDef bdef, string compass)
     {
-        _history?.RecordBefore(EditHistory.Scope.Environment, "Aim sign");
-        AdoptLegacySign(inst, bdef);
-        inst.signCompass = compass;
-        inst.signPinned  = false;   // a pin belongs to one wall
+        BeginSignEdit(inst, bdef, "Aim signs");
+        inst.signCompass = compass;   // pins keep their own wall
         AfterSignEdit(env, inst, bdef);
     }
 
-    private void NudgeSign(EnvironmentDef env, BuildingInstance inst, BuildingDef bdef, int dRight, int dFloor)
+    // Pin on holds the sign where it hangs now (or at the middle of the first wall with room when it
+    // is not drawn). Pin off hands it back to the automatic row.
+    private void SetSignPinned(EnvironmentDef env, BuildingInstance inst, BuildingDef bdef, int i, bool on)
     {
-        if (!TryCurrentSignSlot(inst, bdef, out var slot, out var placed)) return;
-        var next = BuildingSigns.Step(bdef, placed.face, slot, dRight, dFloor, SignCellSize(bdef), SignFitFor);
-        if (BuildingSigns.SameSlot(next, slot) && inst.signPinned && !placed.pinLost) return;
-        _history?.RecordBefore(EditHistory.Scope.Environment, "Move sign");
-        PinSign(inst, bdef, placed, next);
+        float cs = SignCellSize(bdef);
+        var pin = default(BuildingSigns.Pin);
+        if (on)
+        {
+            var layout = SignLayout(inst, bdef);
+            var entries = BuildingSigns.EntriesFor(inst, bdef);
+            if (i < 0 || i >= entries.Count || i >= layout.Count) return;
+            if (layout[i].skip == BuildingSigns.Skip.None) pin = BuildingSigns.PinFromPlacement(layout[i].p, cs);
+            else if (!BuildingSigns.DefaultPin(bdef, BuildingSigns.StartFace(inst, bdef),
+                                               BuildingSigns.PlateWidth(entries[i].text, cs), cs, SignFitFor, out pin)) return;
+        }
+        else if (_moveSignIndex == i) StopMoveSign();
+
+        var signs = BeginSignEdit(inst, bdef, on ? "Pin sign" : "Unpin sign");
+        if (i < 0 || i >= signs.Count) return;
+        if (on) BuildingSigns.SetPin(signs[i], pin);
+        else    signs[i].pinned = false;
         AfterSignEdit(env, inst, bdef);
     }
 
-    private void ResetSignSpot(EnvironmentDef env, BuildingInstance inst, BuildingDef bdef)
+    private void NudgeSign(EnvironmentDef env, BuildingInstance inst, BuildingDef bdef, int i, int dRight, int dFloor)
     {
-        if (!inst.signPinned) return;
-        _history?.RecordBefore(EditHistory.Scope.Environment, "Reset sign");
-        inst.signPinned = false;
+        var entries = BuildingSigns.EntriesFor(inst, bdef);
+        if (i < 0 || i >= entries.Count || !entries[i].pinned) return;
+        var next = BuildingSigns.StepPin(bdef, entries[i], dRight, dFloor, SignCellSize(bdef), SignFitFor);
+        if (BuildingSigns.SamePin(next, BuildingSigns.PinOf(entries[i]))) return;
+        var signs = BeginSignEdit(inst, bdef, "Move sign");
+        BuildingSigns.SetPin(signs[i], next);
         AfterSignEdit(env, inst, bdef);
-    }
-
-    // First edit on an instance still showing its def's legacy sign: carry the word and the compass
-    // over so the instance owns the sign from here on (and a later Clear stays cleared).
-    private static void AdoptLegacySign(BuildingInstance inst, BuildingDef bdef)
-    {
-        if (BuildingSigns.NormalizeCompass(inst.signCompass) != null) return;
-        var legacy = BuildingSigns.SpecFor(inst, bdef);
-        inst.signCompass = BuildingSigns.EffectiveCompass(inst, bdef);
-        inst.signText    = legacy.text;
-        inst.signPinned  = false;
-    }
-
-    // Pins the instance's sign to `slot` on the wall it is currently shown on. A sign shown on a
-    // fallback wall adopts that wall's compass, or the pin would name tiles the chosen wall lacks.
-    private static void PinSign(BuildingInstance inst, BuildingDef bdef, BuildingSigns.Placement placed, BuildingSigns.Slot slot)
-    {
-        AdoptLegacySign(inst, bdef);
-        if (placed.faceFallback) inst.signCompass = BuildingSigns.CompassOfFace(placed.face, inst.rotationY);
-        inst.signPinned    = true;
-        inst.signHostX     = slot.a.gridX;
-        inst.signHostZ     = slot.a.gridZ;
-        inst.signHostFloor = slot.floor;
-    }
-
-    // The slot the sign is shown on right now (pinned, auto or fallback), plus the placement.
-    private bool TryCurrentSignSlot(BuildingInstance inst, BuildingDef bdef, out BuildingSigns.Slot slot, out BuildingSigns.Placement placed)
-    {
-        slot = default;
-        var spec = BuildingSigns.SpecFor(inst, bdef);
-        if (BuildingSigns.TryPlace(bdef, spec, SignCellSize(bdef), SignFitFor, out placed) != BuildingSigns.Skip.None) return false;
-        var slots = BuildingSigns.Slots(bdef, placed.face, SignCellSize(bdef), SignFitFor);
-        return BuildingSigns.TryFindSlot(slots, placed.floor, placed.tileA.gridX, placed.tileA.gridZ, out slot);
     }
 
     private void AfterSignEdit(EnvironmentDef env, BuildingInstance inst, BuildingDef bdef)
     {
+        _signLayout = null;
         worldRenderer?.RespawnBuildingSign(inst, bdef);
         libraryBrowser?.MarkDirty();
     }
 
-    // Move sign: a drag on the wall plane picks the nearest open pair, one tile at a time. Not a
-    // preserved tool mode: it needs a selection, and an undo deselects (RestoreEnvironment), so it
-    // drops back to Browse the way Transform does.
+    // Move sign: a drag over the building picks the nearest half-tile spot on whichever wall the
+    // mouse is on. Not a preserved tool mode: it needs a selection, and an undo deselects
+    // (RestoreEnvironment), so it drops back to Browse the way Transform does.
 
-    private void StartMoveSign()
+    private void StartMoveSign(int index)
     {
         ExitCurrentMode();
         if (!_selIsBuilding || string.IsNullOrEmpty(_selId)) { _mode = EditMode.Browse; return; }
         _mode = EditMode.MoveSign;
+        _moveSignIndex    = index;
+        _moveSignSpots    = null;
         _moveSignDragging = false;
         _moveSignChanged  = false;
     }
@@ -6523,6 +6659,8 @@ public partial class EditController : MonoBehaviour, EditHistory.IHost
         var inst = env != null ? FindBI(env, _selId) : null;
         var bdef = SelectedBuildingDef(env);
         if (!_selIsBuilding || inst == null || bdef == null) { StopMoveSign(); return; }
+        var entries = BuildingSigns.EntriesFor(inst, bdef);
+        if (_moveSignIndex < 0 || _moveSignIndex >= entries.Count || !entries[_moveSignIndex].pinned) { StopMoveSign(); return; }
 
         if (KB != null && !TypingInUI && KB.escapeKey.wasPressedThisFrame) { StopMoveSign(); return; }
 
@@ -6533,33 +6671,32 @@ public partial class EditController : MonoBehaviour, EditHistory.IHost
         if (LMBDown)
         {
             _history?.BeginGesture(EditHistory.Scope.Environment, "Move sign");
+            BuildingSigns.Adopt(inst, bdef);
+            float cs = SignCellSize(bdef);
+            _moveSignSpots    = BuildingSigns.PinSpots(bdef, BuildingSigns.PlateWidth(inst.signs[_moveSignIndex].text, cs), cs, SignFitFor);
             _moveSignDragging = true;
             _moveSignChanged  = false;
         }
-        if (_moveSignDragging && LMBHeld) DragSignTo(env, inst, bdef);
+        if (_moveSignDragging && LMBHeld) DragSignTo(inst, bdef);
     }
 
-    private void DragSignTo(EnvironmentDef env, BuildingInstance inst, BuildingDef bdef)
+    private void DragSignTo(BuildingInstance inst, BuildingDef bdef)
     {
         var rootGO = _selGO != null ? _selGO : worldRenderer?.GetInstanceGO(inst.instanceId);
-        if (rootGO == null || mainCamera == null) return;
+        if (rootGO == null || mainCamera == null || inst.signs == null || _moveSignIndex >= inst.signs.Count) return;
         var root = rootGO.transform;
-        if (!TryCurrentSignSlot(inst, bdef, out var current, out var placed)) return;
 
-        // The wall plane through the plate, in world space; the hit goes back to building-local
-        // through the root so a scaled or turned instance still measures in its own metres.
-        var   plane = new Plane(root.TransformDirection(placed.normal).normalized, root.TransformPoint(placed.center));
-        Ray   ray   = mainCamera.ScreenPointToRay(MousePos);
-        if (!plane.Raycast(ray, out float d)) return;
-        Vector3 local = root.InverseTransformPoint(ray.GetPoint(d));
+        // The mouse ray in building-local space, so a scaled or turned instance still measures in
+        // its own metres.
+        Ray world = mainCamera.ScreenPointToRay(MousePos);
+        var local = new Ray(root.InverseTransformPoint(world.origin), root.InverseTransformDirection(world.direction));
+        if (!BuildingSigns.NearestPinSpot(_moveSignSpots, local, out var spot)) return;
 
-        var slots = BuildingSigns.Slots(bdef, placed.face, SignCellSize(bdef), SignFitFor);
-        if (slots.Count == 0) return;
-        var near = BuildingSigns.Nearest(slots, local);
-        if (BuildingSigns.SameSlot(near, current) && inst.signPinned && !placed.pinLost) return;
-
-        PinSign(inst, bdef, placed, near);
+        var entry = inst.signs[_moveSignIndex];
+        if (BuildingSigns.SamePin(spot.pin, BuildingSigns.PinOf(entry))) return;
+        BuildingSigns.SetPin(entry, spot.pin);
         _moveSignChanged = true;
+        _signLayout = null;
         worldRenderer?.RespawnBuildingSign(inst, bdef);
     }
 
@@ -6575,15 +6712,21 @@ public partial class EditController : MonoBehaviour, EditHistory.IHost
     {
         if (_moveSignDragging) EndMoveSignDrag();
         if (_mode == EditMode.MoveSign) _mode = EditMode.Browse;
+        _moveSignIndex = -1;
+        _moveSignSpots = null;
     }
 
     // -----------------------------------------------------------------------
     // Building library (PlaceBuilding)
     // -----------------------------------------------------------------------
 
+    // Re-reads the library list (LibraryBrowser calls this after it posts pasted copies).
+    public void RefreshBuildingList() => FetchBuildingList();
+
+    // The old list stays until the new one lands: paste naming and the rename check read it.
     private void FetchBuildingList()
     {
-        _bldgListLoading = true; _bldgListFetched = true; _bldgList.Clear();
+        _bldgListLoading = true; _bldgListFetched = true;
         libraryClient?.GetBuildings(
             list => { _bldgList = list; _bldgListLoading = false; },
             err  => { Debug.LogError($"[EditController] GetBuildings: {err}"); _bldgListLoading = false; });

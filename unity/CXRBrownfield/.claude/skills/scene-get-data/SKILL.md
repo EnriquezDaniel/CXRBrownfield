@@ -1,6 +1,8 @@
 ---
 name: scene-get-data
 description: Retrieve the list of root GameObjects in the specified opened scene (or the active scene when `openedSceneName` is empty). Supports token-saving path-scoped reads over the root-GameObjects array via `paths` or `viewQuery`. Use 'scene-list-opened' to enumerate scenes.
+metadata:
+  generated-by: mcp-plugin-dotnet
 ---
 
 # Scene / Get Data

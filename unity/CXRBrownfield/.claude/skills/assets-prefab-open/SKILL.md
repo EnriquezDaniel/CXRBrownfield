@@ -1,6 +1,8 @@
 ---
 name: assets-prefab-open
 description: Open the prefab edit stage for a prefab instance or prefab asset GameObject. Modifications inside the edit stage propagate to all instances. Pair with 'assets-prefab-close' to exit the stage when done.
+metadata:
+  generated-by: mcp-plugin-dotnet
 ---
 
 # Assets / Prefab / Open

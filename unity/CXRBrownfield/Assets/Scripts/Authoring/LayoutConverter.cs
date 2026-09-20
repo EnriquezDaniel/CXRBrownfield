@@ -184,7 +184,7 @@ public static class LayoutConverter
             Vector3 corner = Quaternion.Euler(0f, yaw, 0f) * FootprintHalfExtent(def);
 
             // Sign word from the model, carried by the placed instance and facing world east
-            // (BuildingSigns.SpecFor turns the compass into the building-local wall through the
+            // (BuildingSigns.StartFace turns the compass into the building-local wall through the
             // yaw). No word, no compass: the instance carries neither, and the def never does.
             string signText = BuildingSigns.NormalizeText(gb.sign);
 
@@ -196,7 +196,7 @@ public static class LayoutConverter
                 rotationY   = yaw,
                 scale       = 1f,
                 included    = true,
-                signText    = signText,
+                signs       = signText == null ? null : new List<BuildingSignEntry> { new() { text = signText } },
                 signCompass = signText == null ? null : BuildingSigns.DefaultCompass,
             });
         }

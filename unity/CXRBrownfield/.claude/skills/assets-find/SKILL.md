@@ -1,6 +1,8 @@
 ---
 name: assets-find
 description: "Search the Unity asset database using a search filter string. The filter accepts names, labels (`l:`), types (`t:`), AssetBundles (`b:`), areas (`a:`), and globs (`glob:`). See the body for the full filter syntax."
+metadata:
+  generated-by: mcp-plugin-dotnet
 ---
 
 # Assets / Find

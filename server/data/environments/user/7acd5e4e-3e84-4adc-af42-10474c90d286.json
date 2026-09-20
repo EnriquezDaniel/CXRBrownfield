@@ -1,34 +1,19 @@
 {
   "id": "7acd5e4e-3e84-4adc-af42-10474c90d286",
   "name": "Home Longfellow Site",
-  "version": 42,
+  "version": 47,
   "tags": [
     "user"
   ],
   "locked": false,
   "site": {
     "terrainSize": [
-      250.64537,
+      306.271118,
       240.372681
     ],
+    "terrainOrigin": null,
     "terrainZones": [],
     "paths": [
-      {
-        "id": "8762e399-a9c2-434b-bf38-f3783f9f033c",
-        "material": "street",
-        "width": 8.96468449,
-        "points": [
-          [
-            208.873291,
-            75.63374
-          ],
-          [
-            35.43951,
-            76.1043854
-          ]
-        ],
-        "smoothing": 0.5
-      },
       {
         "id": "e2d6fe4d-f72f-47f6-b40c-20aa3d85e7ba",
         "material": "sidewalk",
@@ -68,65 +53,9 @@
           ]
         ],
         "smoothing": 0.5
-      },
-      {
-        "id": "0cdf48f2-5027-44f9-822c-0f384b2bb4c3",
-        "material": "street",
-        "width": 8.98513,
-        "points": [
-          [
-            218.005783,
-            79.34805
-          ],
-          [
-            256.41922,
-            59.0130272
-          ],
-          [
-            259.287476,
-            58.9164772
-          ],
-          [
-            258.493134,
-            58.07432
-          ]
-        ],
-        "smoothing": 0.5
       }
     ],
     "fences": [
-      {
-        "id": "9ddf2541-3ee0-47dc-8d83-460c15ac4cda",
-        "fenceType": "Fence",
-        "points": [
-          [
-            143.134354,
-            124.683456
-          ],
-          [
-            203.65863,
-            84.4607849
-          ]
-        ],
-        "smoothing": 0.0,
-        "height": 2.0
-      },
-      {
-        "id": "7809d1db-87af-4aa8-a3eb-718ea35fba78",
-        "fenceType": "Fence",
-        "points": [
-          [
-            203.65863,
-            84.4607849
-          ],
-          [
-            117.635757,
-            85.15165
-          ]
-        ],
-        "smoothing": 0.0,
-        "height": 2.0
-      },
       {
         "id": "972c7b3e-277a-47c5-b447-2a8716217e6d",
         "fenceType": "Fence",
@@ -342,6 +271,22 @@
           [
             216.690445,
             39.13984
+          ]
+        ],
+        "smoothing": 0.0,
+        "height": 2.0
+      },
+      {
+        "id": "888e88ae-c3ef-43fa-af9b-d6b5c1b414f8",
+        "fenceType": "Fence",
+        "points": [
+          [
+            196.425644,
+            66.8856
+          ],
+          [
+            210.70105,
+            67.05469
           ]
         ],
         "smoothing": 0.0,
@@ -14931,11 +14876,406 @@
         ],
         "shape": "square",
         "angleDeg": 0.0
+      },
+      {
+        "id": "183fd240-c311-48f6-907a-d411d30a5d55",
+        "terrainType": "pavement",
+        "radius": 5.0,
+        "points": [
+          [
+            295.57,
+            16.8
+          ],
+          [
+            293.13,
+            18.51
+          ],
+          [
+            290.23,
+            22.58
+          ],
+          [
+            287.7,
+            23.92
+          ],
+          [
+            287.0,
+            18.31
+          ],
+          [
+            287.55,
+            12.72
+          ],
+          [
+            290.12,
+            14.33
+          ],
+          [
+            291.44,
+            20.78
+          ],
+          [
+            287.8,
+            18.3
+          ],
+          [
+            284.71,
+            13.17
+          ],
+          [
+            282.88,
+            10.33
+          ],
+          [
+            284.03,
+            15.74
+          ],
+          [
+            284.25,
+            19.27
+          ],
+          [
+            283.89,
+            15.2
+          ],
+          [
+            283.25,
+            10.31
+          ],
+          [
+            282.46,
+            7.48
+          ],
+          [
+            284.7,
+            10.15
+          ],
+          [
+            290.28,
+            19.16
+          ],
+          [
+            299.31,
+            28.41
+          ],
+          [
+            306.77,
+            32.52
+          ],
+          [
+            309.61,
+            33.87
+          ]
+        ],
+        "shape": "circle",
+        "angleDeg": -1.0
+      },
+      {
+        "id": "7ed07019-8be3-4766-8221-c0f9f2cd35a2",
+        "terrainType": "pavement",
+        "radius": 18.2626057,
+        "points": [
+          [
+            288.62,
+            5.83
+          ],
+          [
+            296.19,
+            12.16
+          ],
+          [
+            297.95,
+            21.56
+          ],
+          [
+            298.15,
+            36.69
+          ],
+          [
+            297.68,
+            50.37
+          ],
+          [
+            298.28,
+            61.36
+          ],
+          [
+            299.32,
+            70.94
+          ],
+          [
+            300.2,
+            83.08
+          ],
+          [
+            299.7,
+            97.23
+          ],
+          [
+            298.27,
+            117.24
+          ],
+          [
+            296.17,
+            138.01
+          ],
+          [
+            294.0,
+            155.85
+          ],
+          [
+            291.91,
+            182.76
+          ],
+          [
+            287.99,
+            235.64
+          ],
+          [
+            285.24,
+            268.27
+          ],
+          [
+            284.19,
+            277.61
+          ],
+          [
+            282.27,
+            267.34
+          ],
+          [
+            280.06,
+            242.82
+          ],
+          [
+            275.6,
+            207.87
+          ],
+          [
+            271.74,
+            170.55
+          ],
+          [
+            271.28,
+            147.8
+          ],
+          [
+            273.56,
+            127.2
+          ],
+          [
+            283.68,
+            164.44
+          ],
+          [
+            287.24,
+            184.99
+          ],
+          [
+            287.49,
+            196.91
+          ],
+          [
+            286.86,
+            177.61
+          ],
+          [
+            280.93,
+            135.55
+          ],
+          [
+            278.09,
+            80.57
+          ],
+          [
+            278.23,
+            61.79
+          ],
+          [
+            282.57,
+            83.52
+          ],
+          [
+            288.28,
+            128.23
+          ],
+          [
+            296.63,
+            193.04
+          ],
+          [
+            303.5,
+            236.82
+          ],
+          [
+            305.33,
+            250.74
+          ],
+          [
+            299.89,
+            223.53
+          ],
+          [
+            293.42,
+            177.35
+          ],
+          [
+            290.95,
+            153.05
+          ],
+          [
+            288.67,
+            143.62
+          ],
+          [
+            285.27,
+            126.59
+          ],
+          [
+            282.74,
+            115.98
+          ],
+          [
+            279.84,
+            101.03
+          ],
+          [
+            276.38,
+            110.97
+          ],
+          [
+            274.74,
+            131.3
+          ],
+          [
+            272.47,
+            151.93
+          ],
+          [
+            268.7,
+            179.18
+          ],
+          [
+            264.97,
+            201.46
+          ],
+          [
+            261.64,
+            221.9
+          ],
+          [
+            259.04,
+            236.24
+          ],
+          [
+            261.69,
+            223.72
+          ],
+          [
+            267.16,
+            208.39
+          ],
+          [
+            274.44,
+            191.44
+          ],
+          [
+            280.33,
+            175.56
+          ],
+          [
+            282.93,
+            156.17
+          ],
+          [
+            285.53,
+            128.08
+          ],
+          [
+            288.8,
+            98.4
+          ],
+          [
+            292.33,
+            67.05
+          ],
+          [
+            297.03,
+            42.59
+          ],
+          [
+            298.33,
+            28.65
+          ],
+          [
+            298.22,
+            15.99
+          ],
+          [
+            300.81,
+            31.81
+          ],
+          [
+            299.28,
+            58.85
+          ],
+          [
+            296.75,
+            75.92
+          ],
+          [
+            295.09,
+            66.8
+          ],
+          [
+            291.93,
+            49.94
+          ],
+          [
+            287.89,
+            35.16
+          ],
+          [
+            283.44,
+            24.31
+          ],
+          [
+            273.31,
+            16.51
+          ],
+          [
+            262.13,
+            11.78
+          ]
+        ],
+        "shape": "circle",
+        "angleDeg": -1.0
+      },
+      {
+        "id": "6f661e8b-2ad3-40c8-a311-7ca65d4bbe79",
+        "terrainType": "pavement",
+        "radius": 18.2626057,
+        "points": [
+          [
+            255.46,
+            50.72
+          ],
+          [
+            262.04,
+            58.55
+          ],
+          [
+            252.47,
+            57.16
+          ]
+        ],
+        "shape": "circle",
+        "angleDeg": -1.0
       }
     ],
+    "heightStrokes": null,
+    "waterBodies": null,
     "scaleNote": "",
-    "gradePoints": null,
-    "maxGradeHeight": 30.0,
     "lotBoundary": null,
     "outsideTerrainType": "water"
   },
@@ -14952,7 +15292,15 @@
       "rotationY": 0.0,
       "rotationZ": 0.0,
       "scale": 1.0,
-      "included": true
+      "included": true,
+      "optional": false,
+      "signs": null,
+      "signCompass": null,
+      "signText": null,
+      "signPinned": false,
+      "signHostX": 0,
+      "signHostZ": 0,
+      "signHostFloor": 0
     },
     {
       "instanceId": "cb25818d-e519-42b4-8786-bea15c298853",
@@ -14966,7 +15314,15 @@
       "rotationY": 90.0,
       "rotationZ": 0.0,
       "scale": 1.0,
-      "included": true
+      "included": true,
+      "optional": false,
+      "signs": null,
+      "signCompass": null,
+      "signText": null,
+      "signPinned": false,
+      "signHostX": 0,
+      "signHostZ": 0,
+      "signHostFloor": 0
     },
     {
       "instanceId": "7ece647d-fd63-4b09-a62e-74b42053db2b",
@@ -14980,21 +15336,37 @@
       "rotationY": -30.0,
       "rotationZ": 0.0,
       "scale": 1.0,
-      "included": true
+      "included": true,
+      "optional": false,
+      "signs": null,
+      "signCompass": null,
+      "signText": null,
+      "signPinned": false,
+      "signHostX": 0,
+      "signHostZ": 0,
+      "signHostFloor": 0
     },
     {
       "instanceId": "64e00fd0-67d5-4cc9-8c8a-bf8d2177fe89",
       "buildingId": "cf22eaa7-49d2-49b8-a6ac-831b6d44db62",
       "position": [
-        204.983521,
-        0.0,
-        124.816551
+        202.284882,
+        -0.000117798641,
+        127.856705
       ],
       "rotationX": 0.0,
-      "rotationY": 300.0,
+      "rotationY": 290.4762,
       "rotationZ": 0.0,
       "scale": 1.0,
-      "included": true
+      "included": true,
+      "optional": false,
+      "signs": null,
+      "signCompass": null,
+      "signText": null,
+      "signPinned": false,
+      "signHostX": 0,
+      "signHostZ": 0,
+      "signHostFloor": 0
     },
     {
       "instanceId": "662efe56-9d48-48f9-9e54-66e9bbad7398",
@@ -15008,7 +15380,15 @@
       "rotationY": 0.0,
       "rotationZ": 0.0,
       "scale": 1.0,
-      "included": true
+      "included": true,
+      "optional": false,
+      "signs": null,
+      "signCompass": null,
+      "signText": null,
+      "signPinned": false,
+      "signHostX": 0,
+      "signHostZ": 0,
+      "signHostFloor": 0
     },
     {
       "instanceId": "18a6865d-f86d-47ae-ab63-660ee26b6592",
@@ -15022,7 +15402,15 @@
       "rotationY": 0.0,
       "rotationZ": 0.0,
       "scale": 1.0,
-      "included": true
+      "included": true,
+      "optional": false,
+      "signs": null,
+      "signCompass": null,
+      "signText": null,
+      "signPinned": false,
+      "signHostX": 0,
+      "signHostZ": 0,
+      "signHostFloor": 0
     },
     {
       "instanceId": "132de6b5-e88a-4802-856e-bc036b66fad2",
@@ -15036,13 +15424,21 @@
       "rotationY": 212.903229,
       "rotationZ": 0.0,
       "scale": 1.0,
-      "included": true
+      "included": true,
+      "optional": false,
+      "signs": null,
+      "signCompass": null,
+      "signText": null,
+      "signPinned": false,
+      "signHostX": 0,
+      "signHostZ": 0,
+      "signHostFloor": 0
     },
     {
       "instanceId": "cf56207a-e9ca-4a8e-b9cb-f527d58cfe22",
       "buildingId": "95a65e30-cf7f-4585-b53c-5de761731da3",
       "position": [
-        204.776123,
+        218.57518,
         0.0,
         59.38282
       ],
@@ -15050,7 +15446,81 @@
       "rotationY": 0.0,
       "rotationZ": 0.0,
       "scale": 1.0,
-      "included": true
+      "included": true,
+      "optional": false,
+      "signs": null,
+      "signCompass": null,
+      "signText": null,
+      "signPinned": false,
+      "signHostX": 0,
+      "signHostZ": 0,
+      "signHostFloor": 0
+    },
+    {
+      "instanceId": "1aa71408-a9bb-4259-92fe-87188c9c934e",
+      "buildingId": "140564c6-6e54-41a2-97b8-93fed3e67299",
+      "position": [
+        247.296143,
+        5.80098422e-05,
+        63.02726
+      ],
+      "rotationX": 0.0,
+      "rotationY": -118.9286,
+      "rotationZ": 0.0,
+      "scale": 1.0,
+      "included": true,
+      "optional": false,
+      "signs": null,
+      "signCompass": null,
+      "signText": null,
+      "signPinned": false,
+      "signHostX": 0,
+      "signHostZ": 0,
+      "signHostFloor": 0
+    },
+    {
+      "instanceId": "db319a0e-fb10-408f-8776-6cfe6feb6e03",
+      "buildingId": "b45584b9-5b59-4787-a70a-225c451edff5",
+      "position": [
+        93.3957062,
+        2.10150956e-05,
+        137.545364
+      ],
+      "rotationX": 0.0,
+      "rotationY": 325.714325,
+      "rotationZ": 0.0,
+      "scale": 1.0,
+      "included": true,
+      "optional": false,
+      "signs": null,
+      "signCompass": null,
+      "signText": null,
+      "signPinned": false,
+      "signHostX": 0,
+      "signHostZ": 0,
+      "signHostFloor": 0
+    },
+    {
+      "instanceId": "9d5bf830-0c88-48da-942a-079a5ef2ff84",
+      "buildingId": "0932da91-8c73-45ec-8f43-e3f725501091",
+      "position": [
+        129.847687,
+        -0.000117798641,
+        173.143356
+      ],
+      "rotationX": 0.0,
+      "rotationY": 290.4762,
+      "rotationZ": 0.0,
+      "scale": 1.0,
+      "included": true,
+      "optional": false,
+      "signs": null,
+      "signCompass": null,
+      "signText": null,
+      "signPinned": false,
+      "signHostX": 0,
+      "signHostZ": 0,
+      "signHostFloor": 0
     }
   ],
   "objectInstances": [
@@ -15068,7 +15538,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "e2d99a09-8c01-4ac4-a242-7615dfbccf3c",
@@ -15084,7 +15555,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "1ababd0c-fe07-49c4-9948-c04bf104db34",
@@ -15100,7 +15572,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "eb52d367-7e51-4483-bedb-0231b032d792",
@@ -15116,7 +15589,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "155eca0d-dbb3-4a44-8ad0-8b4a8e5ac4da",
@@ -15132,7 +15606,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "a5f8888e-0165-423b-8ad1-d46008aaa7e0",
@@ -15148,7 +15623,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "3c546b80-247a-40f8-96cc-fad6fbcfd0fd",
@@ -15164,7 +15640,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "2d04e049-1673-4aec-9ff0-6ff4e44f413c",
@@ -15180,7 +15657,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "a488e282-a18a-4dac-80df-65dd19dfea20",
@@ -15196,7 +15674,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "eb0508ba-0745-482e-9577-f84f6fc0b73b",
@@ -15212,7 +15691,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "830f6707-9173-4972-a22d-538570255572",
@@ -15228,7 +15708,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "e3aef02f-f8bc-4ffc-8dd0-4ca82b6c66a9",
@@ -15244,7 +15725,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "0c54db12-9fd3-4064-8e36-4f2126528408",
@@ -15260,7 +15742,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "954505b1-50c1-46fd-92ba-e367e47c038c",
@@ -15276,7 +15759,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "59fd3c65-732b-476f-96c4-167322769a16",
@@ -15292,7 +15776,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "9bfff23f-903e-4c30-a477-451b43110f08",
@@ -15308,7 +15793,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "5f029759-e5e9-4ee4-a4e6-9bda3042dfaf",
@@ -15324,7 +15810,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "6728082f-c731-4028-8c17-377daa02e741",
@@ -15340,7 +15827,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "fe5911a0-3cd8-4b6f-8701-7383afb61e3f",
@@ -15356,7 +15844,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "cc1915c3-8d43-4429-8cf5-df7e3ce7f72a",
@@ -15372,7 +15861,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "c7cf2eb8-2635-4e9e-b4f0-cd9357e4a76e",
@@ -15388,7 +15878,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "50be2ae1-8fd0-4aef-9674-831d7cab7dce",
@@ -15404,7 +15895,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "0710b17b-ead4-4320-b40f-ae719b103114",
@@ -15420,7 +15912,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "1caa038e-3749-4305-bde3-870fe04298f9",
@@ -15436,7 +15929,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "7ab5f204-9eb2-48f8-a058-4c2164c62f55",
@@ -15452,7 +15946,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "ae47bcdc-6265-42c3-a698-8656cbf6e88a",
@@ -15468,7 +15963,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "a862cb6a-aa3e-4105-9d2d-7723281942f8",
@@ -15484,7 +15980,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "66e0de88-4127-4102-8d69-0fe17b74a3d6",
@@ -15500,7 +15997,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "690807b4-9de4-483a-9c52-0af03f8c83bc",
@@ -15516,7 +16014,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "010627c1-5f14-447b-bc7b-d12b9bb1e196",
@@ -15532,7 +16031,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "7076690a-5e8d-4824-aa2f-01c3a8cfa685",
@@ -15548,7 +16048,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "901dde33-76f6-4107-99e8-712a7d947618",
@@ -15564,7 +16065,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "f4ef0da9-8d41-465b-8fe4-fad56eb18269",
@@ -15580,7 +16082,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "66eee7c4-ad05-4f38-b462-e64292f2aebe",
@@ -15596,7 +16099,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "6f1e2661-8183-46db-becd-8a61571be648",
@@ -15612,7 +16116,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "1450715d-3952-4de4-a559-db99f874557f",
@@ -15628,7 +16133,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "521d97c1-23b1-4822-a7eb-03639c346e67",
@@ -15644,7 +16150,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "6a4c1c68-1161-4fe8-be1e-f995ba571459",
@@ -15660,7 +16167,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "6291218a-b33e-4665-b569-ba5e69d9c1fe",
@@ -15676,7 +16184,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "d0760b19-b74f-459f-8cb6-a50a5f269013",
@@ -15692,7 +16201,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "8bdd14c7-b5ef-4c91-9399-255d83fde4d5",
@@ -15708,7 +16218,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "db0d0173-2ffb-4d4a-964f-62b9cf0ddf39",
@@ -15724,7 +16235,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "8faec634-925f-472a-97ff-e911a1fefa35",
@@ -15740,7 +16252,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "78b63641-6d03-465e-9c05-210a88f21e6b",
@@ -15756,7 +16269,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "716b276d-6ed6-4a7e-9941-6d0af1cc8653",
@@ -15772,7 +16286,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "daff0ea2-d7c1-42f2-9e4b-7783bb7073c2",
@@ -15788,7 +16303,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "7aecb946-ca19-4161-aa22-ae01a766ed74",
@@ -15804,7 +16320,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "a137ab1b-3306-4516-896e-9865267511a4",
@@ -15820,7 +16337,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "65f2d9a1-2b93-4123-9220-5feab9b9185e",
@@ -15836,7 +16354,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "1d5f11f1-a92a-43c2-ac40-2dccc989b017",
@@ -15852,7 +16371,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "d421e0a8-6473-40bb-ba1b-2e90f28c4cd2",
@@ -15868,7 +16388,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "c7d3f67d-0d45-4647-b069-e6e9497cfedd",
@@ -15884,7 +16405,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "f9900df4-b6f7-45a4-ba83-131332491d42",
@@ -15900,7 +16422,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "6df214c4-c513-49d6-94e5-51e346fa547a",
@@ -15916,7 +16439,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "e9fde7fd-6fa3-4c40-a2b4-a5dd696f9009",
@@ -15932,7 +16456,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "41f52203-e1a0-482d-b1f0-1b7fb7af9b0b",
@@ -15948,7 +16473,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "a90839b1-b1d1-444a-9589-296cec4e504f",
@@ -15964,7 +16490,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "39993817-f71c-4e7d-afb0-00214ff79831",
@@ -15980,7 +16507,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "fa638a8b-ee53-4919-ad77-30208e189ba8",
@@ -15996,7 +16524,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "2a0af930-589c-4013-9ead-d660c5e17dd2",
@@ -16012,7 +16541,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "722b0e75-1070-4f04-b043-815633d281e8",
@@ -16028,7 +16558,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "eefc3096-cb18-4222-8a5f-c65faf8f4ce5",
@@ -16044,7 +16575,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "34c3881c-5a38-4dd5-95f0-40349e5b9481",
@@ -16060,7 +16592,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "598c2a96-63f5-4324-8c1c-b8fb3722e667",
@@ -16076,7 +16609,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "e27a93f6-4e5e-4246-bfc0-d2408a19ae1b",
@@ -16092,7 +16626,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "9a57b7e2-db62-4851-b39a-6b40b05112df",
@@ -16108,7 +16643,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "003a8c63-049c-4081-bf47-d62af4fad359",
@@ -16124,7 +16660,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "8476b218-b0f0-4b81-9a9d-5c31ddf549a4",
@@ -16140,7 +16677,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "e6250d4a-1193-4513-a4cd-0b95e884d734",
@@ -16156,7 +16694,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "2d7623fc-bed2-47b9-9a29-bd50e7c33653",
@@ -16172,7 +16711,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "1a68ee4b-2fb8-41e6-a9cb-35600dc7ad4c",
@@ -16188,7 +16728,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "59abd020-27b3-4bf7-8fff-4f9bcb3e5b53",
@@ -16204,7 +16745,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "07bf244b-e1c4-42f7-8e47-1b6065db685b",
@@ -16220,7 +16762,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "451fea06-a142-4b3c-840a-3a188d9146d7",
@@ -16236,7 +16779,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "bbd526ad-e08e-4ad0-9ac2-85583e424f57",
@@ -16252,7 +16796,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "eb40e1ce-c1ad-4a12-b611-482453d2176b",
@@ -16268,7 +16813,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "6622636c-c799-4b26-ad32-c376d895106f",
@@ -16284,7 +16830,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "a092fe59-06bb-40c3-b579-ebd7421c1ad7",
@@ -16300,7 +16847,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "d6030506-9e87-4ddd-a3ed-edb5decd84b4",
@@ -16316,7 +16864,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "a5fe44b3-3f03-41f4-9b3e-ae17688fd0b5",
@@ -16332,7 +16881,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "1b2618e5-e172-4828-b5df-55c7d7098f49",
@@ -16348,7 +16898,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "a5fe888e-6269-4d3a-9c19-683e87d9aec5",
@@ -16364,7 +16915,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "188e04bc-3916-4f62-aae8-e0d5d20c7c61",
@@ -16380,7 +16932,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "9b85fbe4-2432-43f5-a710-362394c3b251",
@@ -16396,7 +16949,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "157b95f7-4f91-4ae3-91ff-e04c03c289c2",
@@ -16412,7 +16966,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "71aa5ba9-a491-47bc-bf8b-a685fd2b788b",
@@ -16428,7 +16983,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "9e454b26-bbe7-4d5b-bf30-f96d1fa90807",
@@ -16444,7 +17000,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "43efed04-308f-408f-9270-cd15b25ebe99",
@@ -16460,119 +17017,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
-    },
-    {
-      "instanceId": "6729fafe-1ffa-40e8-b5a8-5002936fe0c3",
-      "prefabType": "tree",
-      "position": [
-        184.266083,
-        1.52040138e-06,
-        84.17334
-      ],
-      "rotationX": 0.0,
-      "rotationY": 0.0,
-      "rotationZ": 0.0,
-      "scale": 0.488461524,
-      "boxSizeMeters": null,
-      "included": true,
-      "brushPainted": false
-    },
-    {
-      "instanceId": "cbfc0895-1ebe-4ee3-9c5d-3537f4b865b0",
-      "prefabType": "tree",
-      "position": [
-        171.163376,
-        2.34839627e-06,
-        84.1821747
-      ],
-      "rotationX": 0.0,
-      "rotationY": 0.0,
-      "rotationZ": 0.0,
-      "scale": 0.488461524,
-      "boxSizeMeters": null,
-      "included": true,
-      "brushPainted": false
-    },
-    {
-      "instanceId": "3e5e741e-b96c-40eb-b168-1c0257452e03",
-      "prefabType": "tree",
-      "position": [
-        155.459366,
-        -1.67255712e-06,
-        84.7496262
-      ],
-      "rotationX": 0.0,
-      "rotationY": 0.0,
-      "rotationZ": 0.0,
-      "scale": 0.488461524,
-      "boxSizeMeters": null,
-      "included": true,
-      "brushPainted": false
-    },
-    {
-      "instanceId": "9141bda1-17c6-4baf-898b-24c0a2ebf143",
-      "prefabType": "tree",
-      "position": [
-        140.2011,
-        -1.92548578e-06,
-        84.84948
-      ],
-      "rotationX": 0.0,
-      "rotationY": 0.0,
-      "rotationZ": 0.0,
-      "scale": 0.488461524,
-      "boxSizeMeters": null,
-      "included": true,
-      "brushPainted": false
-    },
-    {
-      "instanceId": "24727034-39c5-45ce-aa19-673aa8258abb",
-      "prefabType": "tree",
-      "position": [
-        121.406342,
-        3.29483464e-06,
-        85.51558
-      ],
-      "rotationX": 0.0,
-      "rotationY": 0.0,
-      "rotationZ": 0.0,
-      "scale": 0.488461524,
-      "boxSizeMeters": null,
-      "included": true,
-      "brushPainted": false
-    },
-    {
-      "instanceId": "83f48b76-d1e3-4055-8e74-cac192be7bab",
-      "prefabType": "tree",
-      "position": [
-        191.454926,
-        2.70260216e-06,
-        93.0344543
-      ],
-      "rotationX": 0.0,
-      "rotationY": 0.0,
-      "rotationZ": 0.0,
-      "scale": 0.488461524,
-      "boxSizeMeters": null,
-      "included": true,
-      "brushPainted": false
-    },
-    {
-      "instanceId": "2ca985fd-e759-44e7-9a7d-3f92c1a67c2b",
-      "prefabType": "tree",
-      "position": [
-        179.980118,
-        -3.15626312e-06,
-        101.582146
-      ],
-      "rotationX": 0.0,
-      "rotationY": 0.0,
-      "rotationZ": 0.0,
-      "scale": 0.488461524,
-      "boxSizeMeters": null,
-      "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "ff7f1f27-9e2b-43b6-95d1-b2b03d3883d0",
@@ -16588,7 +17034,8 @@
       "scale": 0.488461524,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "d0ce1426-7bc9-49d3-84f7-efb26f68ace2",
@@ -16604,7 +17051,8 @@
       "scale": 0.488461524,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "d5cbf7b0-1493-42e5-8df9-b4604d71ad49",
@@ -16620,7 +17068,8 @@
       "scale": 0.488461524,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "155cdbb2-bef8-4f5e-a272-398b8d081807",
@@ -16636,7 +17085,8 @@
       "scale": 0.488461524,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "ecde2339-2e10-4f94-a086-6d3e38ba8bb8",
@@ -16652,7 +17102,8 @@
       "scale": 0.488461524,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "369088b2-c021-40df-b13b-4689792d0c4d",
@@ -16668,7 +17119,8 @@
       "scale": 0.488461524,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "b0d9766a-0763-49dc-9571-730644403997",
@@ -16684,7 +17136,8 @@
       "scale": 0.488461524,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "8b34368f-a703-4261-8783-e0d5c2963fa0",
@@ -16700,7 +17153,8 @@
       "scale": 0.488461524,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "a489efa1-3cdb-4003-b5b8-7cd655a53b2c",
@@ -16716,7 +17170,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "361b7e92-862f-4eb5-975b-3985356000d1",
@@ -16732,7 +17187,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "fb0b391f-0e4a-4b92-8ef7-6265a6d33889",
@@ -16748,7 +17204,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "f5b17ca4-3058-4b72-aa5d-038918ee2b3b",
@@ -16764,7 +17221,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "e1c75dee-586a-4c23-b586-162bfbcfea1c",
@@ -16780,7 +17238,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "c873c88b-49f2-47be-ba94-5eac667c56e0",
@@ -16796,7 +17255,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "8953373d-9011-4cac-90aa-62b5629648a4",
@@ -16812,7 +17272,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "a8b490a9-90cb-4d63-abcd-6f888433cc43",
@@ -16828,7 +17289,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "7ffbc82f-01ab-4d18-93bf-d7be0f158050",
@@ -16844,7 +17306,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "3e767f92-9799-4d1e-9dff-2bb9b88dfa6a",
@@ -16860,7 +17323,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "31fc06a1-6a33-4064-b1e3-e13f1efe27e2",
@@ -16876,7 +17340,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "14361bc1-76bc-4d63-8eb4-4883d6ab426f",
@@ -16892,7 +17357,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "522b1676-29d0-49e5-948f-b3a827e6a4f6",
@@ -16908,7 +17374,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "f16f478b-c72e-4b8b-bb29-28713ea89bd6",
@@ -16924,7 +17391,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "85d78bf7-2de7-4e86-b7be-a74e71e6c4ee",
@@ -16940,7 +17408,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "54f62c0f-2b30-4ca2-a9be-abe8062fe676",
@@ -16956,7 +17425,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "8b541e67-2580-4c4c-bc8d-09594367eea7",
@@ -16972,7 +17442,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "ad6fc177-52eb-4b63-9085-c49a53abd393",
@@ -16988,7 +17459,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "35c049a6-7a94-4663-b953-7759e6ec8d1a",
@@ -17004,7 +17476,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "b63bb92e-e79c-4f6c-8340-b29de25cbca5",
@@ -17020,7 +17493,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "205dd46b-439e-4ed9-9de4-0d9bd9667ffa",
@@ -17036,7 +17510,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "613c657a-91a1-46aa-851d-d47cbd1386f6",
@@ -17052,7 +17527,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "13c3fa40-12b3-4c13-bb9e-75bcc89e205d",
@@ -17068,7 +17544,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "cc8265a5-3e96-42e2-bbf1-348fe8a6cc49",
@@ -17084,7 +17561,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "4ba74464-1791-4dca-a22c-ae459c971d7d",
@@ -17100,7 +17578,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "8a695888-222c-4b19-8a2f-1d2f482b81cb",
@@ -17116,7 +17595,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "f2c79f2b-8f2d-41d1-aff5-148e1ef6bfaa",
@@ -17132,7 +17612,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "5d1e10e4-963a-42d3-aff9-5c7ace86f9fe",
@@ -17148,7 +17629,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "4371770f-b9bf-406f-932d-9856b48a7827",
@@ -17164,7 +17646,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "395841f9-5542-4f78-a68b-aea42a4f752f",
@@ -17180,7 +17663,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "0eac7810-1b61-478b-88c7-1e89cbb12053",
@@ -17196,7 +17680,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "e593421a-f02d-484b-88df-38339167ae0b",
@@ -17212,7 +17697,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "b039aa2b-93ee-4e07-8315-0cb19f2e1b33",
@@ -17228,7 +17714,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "f88e39ef-a6a2-4f9d-b62c-513cd4e3ec44",
@@ -17244,7 +17731,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "fee4542f-20d5-4f1d-9e27-5d64e572a6f1",
@@ -17260,7 +17748,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "49815f74-357c-452d-a977-c50f56a152fd",
@@ -17276,7 +17765,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "ba79c80c-86cb-47a7-9341-a0fd39133003",
@@ -17292,7 +17782,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "e7bc3e8d-1946-4e3a-beb4-b8394748a682",
@@ -17308,7 +17799,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "dda2078b-9287-4637-bfe4-e794c9f33aa9",
@@ -17324,7 +17816,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "8c132444-7abe-41ae-b2e4-5c4434f162de",
@@ -17340,7 +17833,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "52030af6-08ee-46c1-803b-b80588b05bad",
@@ -17356,7 +17850,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "3102b6f1-7181-458e-962f-4d8f0cc86e3e",
@@ -17372,23 +17867,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
-    },
-    {
-      "instanceId": "5e20e70e-9343-48d5-937c-c4fe10e1be1d",
-      "prefabType": "Truck3",
-      "position": [
-        149.07196,
-        1.29040882e-06,
-        124.255348
-      ],
-      "rotationX": 0.0,
-      "rotationY": 213.8614,
-      "rotationZ": 0.0,
-      "scale": 1.0,
-      "boxSizeMeters": null,
-      "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "fcfdeeab-dd4e-46af-bb65-80d3813ec14c",
@@ -17404,7 +17884,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "ad769936-b5d4-4677-85fb-9639adbb624f",
@@ -17420,23 +17901,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
-    },
-    {
-      "instanceId": "6a16e7b0-7722-4b52-9268-175c87043de5",
-      "prefabType": "Car4",
-      "position": [
-        166.816727,
-        9.409396e-07,
-        112.653481
-      ],
-      "rotationX": 0.0,
-      "rotationY": 213.8614,
-      "rotationZ": 0.0,
-      "scale": 1.0,
-      "boxSizeMeters": null,
-      "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "2ef0732a-0c61-493d-9e2c-3ee819a615d7",
@@ -17452,7 +17918,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "5de129b3-8282-4bf6-953e-ff90580593b4",
@@ -17468,7 +17935,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "79118a2a-23fc-4f0f-a001-7d38fb2bd678",
@@ -17484,7 +17952,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "41a07ac5-cfd4-419e-8645-dc725d421903",
@@ -17500,7 +17969,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "17336f06-51e0-490e-9395-48f78acb3ecd",
@@ -17516,7 +17986,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "bfec66e2-4645-4210-b930-fa07f9d47c20",
@@ -17532,7 +18003,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "eab93427-e2aa-43aa-9598-5d168e96a1b7",
@@ -17548,7 +18020,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "84c9a5f1-6968-42af-9ccf-b166089b2372",
@@ -17564,7 +18037,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "3f9bb686-d237-486f-bcee-a53bcd67409e",
@@ -17580,7 +18054,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "5aa2efa0-c97f-4c21-99ac-b4dc9b82664d",
@@ -17596,7 +18071,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "2aac4205-9f83-4846-a96b-4307a4df2a30",
@@ -17612,7 +18088,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "d2273b51-8cd9-496b-bfd4-e33cb9344f7f",
@@ -17628,7 +18105,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "bcf92a9c-23b8-44ef-bba6-860dcdae2649",
@@ -17644,7 +18122,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "7996e643-402b-402c-9f13-3a49ae6986f0",
@@ -17660,7 +18139,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "5c05df62-1f9c-4ddd-acfd-d6110c996090",
@@ -17676,7 +18156,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "045ae36e-1903-42b9-8177-c9a57973aec6",
@@ -17692,7 +18173,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "c537dfb5-5b78-444c-94ca-352f9e0a7fed",
@@ -17708,7 +18190,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "7ba9ea3c-f19b-4120-bb71-5f2a113e7a18",
@@ -17724,7 +18207,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "e59b7b10-dec1-484d-b225-b0703e0630e1",
@@ -17740,7 +18224,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "d6071e27-a7c3-47bb-a1fa-a70d6c970d3e",
@@ -17756,7 +18241,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "3370bd93-fb27-43a4-877e-0f05c0d65948",
@@ -17772,7 +18258,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "eac3ed64-f5c2-44aa-abfd-52f7019d55e3",
@@ -17788,7 +18275,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "07c6ad0d-3415-46fd-8568-36f8378e41e9",
@@ -17804,7 +18292,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "859ad236-f778-4e6f-b1a2-5a202590d3b1",
@@ -17820,7 +18309,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "0b60f112-ddbb-42a7-9d5e-f8ac41e06bfa",
@@ -17836,7 +18326,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "6e34765a-f295-4866-bd1d-375b55d933c5",
@@ -17852,7 +18343,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "adb1f465-3ca9-478d-afe7-81fdeb8dc3a3",
@@ -17868,7 +18360,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "8bf20259-b24b-4cfc-a667-e0858f1a19aa",
@@ -17884,7 +18377,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "8c7aac94-8091-4b56-a36b-faaea95704b4",
@@ -17900,7 +18394,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "ce388cf3-e828-4222-b101-e2dde48e15bd",
@@ -17916,7 +18411,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "a4c2ef9c-0d84-4f42-bb77-079f05f8b302",
@@ -17932,7 +18428,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "b591120c-772e-471a-ae74-0bd96f0c7ff3",
@@ -17948,7 +18445,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "d5e34bc3-b92d-41ce-b3c3-03282d50bfe6",
@@ -17964,7 +18462,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "77274638-1732-4ffd-9e07-aef8ae0addca",
@@ -17980,7 +18479,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "62882867-5764-4ea2-93ec-a0e5e32419d1",
@@ -17996,7 +18496,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "263402b2-7ed8-4b01-a37e-cadc84cfabd9",
@@ -18012,7 +18513,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "e60cc610-128d-43be-9017-b4d48b0a5441",
@@ -18028,7 +18530,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "db7555f2-5728-41fd-ae68-33bf2e5e70ec",
@@ -18044,7 +18547,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "702cc568-1aa2-41ae-b071-82cd4ae9d034",
@@ -18060,7 +18564,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "4103ec5c-ca7d-4b0a-b06e-5241aa08256e",
@@ -18076,7 +18581,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "5b0d3afd-df6b-4beb-83de-9cf2391c3b56",
@@ -18092,7 +18598,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "f3476a3a-fcbd-419e-97de-f34b303dba04",
@@ -18108,7 +18615,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "7838baa8-79df-4dd4-b2e0-924ab3b62e5a",
@@ -18124,7 +18632,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "d34fa957-c19d-48db-bf7a-613d0aeeb7ac",
@@ -18140,7 +18649,8 @@
       "scale": 0.488461524,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "1e97ba84-39e4-4c86-b9c3-758a22c358a4",
@@ -18156,7 +18666,8 @@
       "scale": 0.488461524,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "e8f10601-b09a-4040-a908-2c99ebe438d7",
@@ -18172,7 +18683,8 @@
       "scale": 0.488461524,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "fff40682-6dcb-4fd2-9d6b-d7e9e7707898",
@@ -18188,7 +18700,8 @@
       "scale": 0.488461524,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "3d946bc1-1723-4063-806d-839b3b802b13",
@@ -18204,7 +18717,8 @@
       "scale": 0.488461524,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "fa22a974-a38e-43d2-8910-f3bc83d98e39",
@@ -18220,7 +18734,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "1ccac72a-7b48-45d4-9d75-d11eab8d104b",
@@ -18236,7 +18751,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "a6d94afc-2540-4a18-bf09-d14a6df947d0",
@@ -18252,7 +18768,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "edc82a36-a19d-466e-bf72-4dc9054a0eed",
@@ -18268,7 +18785,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "d0aeba1e-2d1b-42cf-bcc4-e6822dc2f6fd",
@@ -18284,7 +18802,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "035f16a2-c38f-46e7-b332-38128583be32",
@@ -18300,7 +18819,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "72fb18e9-7d68-47e2-b55f-1888930d89a1",
@@ -18316,7 +18836,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "b50c189e-8c9d-44e7-91e3-bbd1f03b75c0",
@@ -18332,7 +18853,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "98237d92-cdb7-4b18-9887-806bde1a6876",
@@ -18348,7 +18870,8 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
     },
     {
       "instanceId": "1abbf01c-5983-4ad4-befe-365ee77b85ce",
@@ -18364,7 +18887,93 @@
       "scale": 1.0,
       "boxSizeMeters": null,
       "included": true,
-      "brushPainted": false
+      "brushPainted": false,
+      "optional": false
+    },
+    {
+      "instanceId": "836b5dd6-9999-43c7-abcc-709790648998",
+      "prefabType": "SingleLaneRoad",
+      "position": [
+        236.1729,
+        -2.23977661,
+        49.8552742
+      ],
+      "rotationX": 0.0,
+      "rotationY": 144.761917,
+      "rotationZ": 0.0,
+      "scale": 1.0,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": false,
+      "optional": false
+    },
+    {
+      "instanceId": "0f933e27-b163-458a-8f47-3fc553860635",
+      "prefabType": "SingleLaneRoad",
+      "position": [
+        204.000488,
+        -2.29076958,
+        81.36844
+      ],
+      "rotationX": 0.0,
+      "rotationY": -90.7037354,
+      "rotationZ": 0.0,
+      "scale": 1.0,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": false,
+      "optional": false
+    },
+    {
+      "instanceId": "c09e20c9-3d96-4152-b730-a7ec2335982c",
+      "prefabType": "SingleLaneRoad",
+      "position": [
+        235.221054,
+        -2.057085,
+        95.0580444
+      ],
+      "rotationX": 0.0,
+      "rotationY": 0.0,
+      "rotationZ": 0.0,
+      "scale": 1.0,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": false,
+      "optional": false
+    },
+    {
+      "instanceId": "c500088f-3764-4d59-8271-d0b39068bb70",
+      "prefabType": "SingleLaneRoad",
+      "position": [
+        271.842743,
+        -2.057085,
+        101.822884
+      ],
+      "rotationX": 0.0,
+      "rotationY": 46.3705978,
+      "rotationZ": 0.0,
+      "scale": 1.0,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": false,
+      "optional": false
+    },
+    {
+      "instanceId": "c1097e7b-a974-4d1f-aebe-3de9d572d86f",
+      "prefabType": "SingleLaneRoad",
+      "position": [
+        258.955322,
+        -2.23977661,
+        17.2305984
+      ],
+      "rotationX": 0.0,
+      "rotationY": 144.761917,
+      "rotationZ": 0.0,
+      "scale": 1.0,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": false,
+      "optional": false
     }
   ],
   "sites": [
@@ -18404,5 +19013,6 @@
       "fillEnvironmentId": null
     }
   ],
+  "generation": null,
   "favorite": true
 }

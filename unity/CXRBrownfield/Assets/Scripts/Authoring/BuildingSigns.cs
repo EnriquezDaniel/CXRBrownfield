@@ -3,22 +3,31 @@ using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 
-// Building signs: the word a placed building carries and where its plate goes. One sign per
-// placed building (BuildingInstance.signText, signCompass, signPinned, signHost*), two tiles wide,
-// in the top band of one floor, on the building-local wall that points the chosen world compass
-// direction once the instance is yawed. A never-edited instance falls back to the def's legacy
-// signText / signFace (SpecFor). The spot is either the centred pair on the wall's main run (auto)
-// or a pinned pair the user slid it to; a pin that no longer exists, or a wall with no room, falls
-// back so the sign never silently vanishes (TryPlace reports which fallback happened).
+// Building signs: the words a placed building carries and where their plates go. A building holds a
+// list of signs, one per tenant (BuildingInstance.signs, signCompass). Every plate is as wide as its
+// word at one shared text size and hangs in the top band of a floor. The row starts on the
+// building-local wall that points the chosen world compass direction once the instance is yawed,
+// shares each open stretch of wall in proportion to plate width, and spills around the building
+// when the wall is full (Layout). Any sign can be pinned to a half-tile spot on any wall; the rest
+// flow around it. Records saved with the older single-sign fields, or with the def's legacy
+// signText / signFace, read as a one-entry list (EntriesFor) until the first edit (Adopt).
 //
 // Pure rules only (no scene objects), so the EditMode tests cover the placement; BuildingSignSpawner
-// (Assets/Scripts) turns a Placement into the plate and the TextMeshPro text.
+// (Assets/Scripts) turns the Placements into plates and TextMeshPro text.
 public static class BuildingSigns
 {
-    public const int   SignTiles = 2;      // tiles the plate spans along the wall
     public const float BandFrac  = 0.35f;  // plate height as a fraction of the cell (1.4 m on a 4 m cell)
     public const float TopMargin = 0.15f;  // metres between the floor's top edge and the plate
     public const int   MaxChars  = 16;     // mirrors server.py BUILDING_SIGN_MAX_CHARS
+
+    // Plate sizing, as fractions of the cell (metres on a 4 m cell in brackets).
+    public const float PadFrac       = 0.05f;  // plate left bare around the text (0.2)
+    public const float TextEmFrac    = 0.20f;  // text em at the shared size (0.8)
+    public const float CharAdvanceEm = 0.75f;  // wall one bold capital takes, in ems (0.6 per letter)
+    public const float MinPlateFrac  = 0.5f;   // narrowest plate (2)
+    public const float GapFrac       = 0.1f;   // clear wall between plates and at a stretch's ends (0.4)
+    public const float MinScale      = 0.5f;   // a sign shrunk below this is not drawn
+    private const float JoinGap      = 0.05f;  // metres two neighbouring faces may miss by and still join
 
     // World east. The converted plan has north at +X and west at +Z (LayoutConverter header), so
     // east is -Z. Generated signs face this way.
@@ -102,37 +111,38 @@ public static class BuildingSigns
         return best;
     }
 
-    // ---- what a building's sign is ----
+    // ---- what a building's signs are ----
 
-    // Everything the placement needs, resolved to the building's own frame.
-    public struct Spec
+    // The signs an instance shows, in list order. Never mutates: a migrated instance returns its own
+    // list; a never-migrated one gets a fresh list built from the single-sign fields (the old pinned
+    // pair maps to a pin at the same midpoint), else from the def's legacy word, else nothing.
+    public static List<BuildingSignEntry> EntriesFor(BuildingInstance inst, BuildingDef def)
     {
-        public string text;        // normalized word, null = no sign
-        public string face;        // building-local wall, null = none
-        public bool   pinned;      // hostX/Z/Floor name tile A of the pair; false = auto spot
-        public int    hostX, hostZ, hostFloor;
-    }
-
-    // The sign an instance shows. Instance fields win once the instance has a compass; a
-    // never-edited instance shows its def's legacy sign at the auto spot; else no sign.
-    public static Spec SpecFor(BuildingInstance inst, BuildingDef def)
-    {
+        if (inst?.signs != null) return inst.signs;
+        var list = new List<BuildingSignEntry>();
         string compass = inst != null ? NormalizeCompass(inst.signCompass) : null;
         if (compass != null)
         {
-            return new Spec
+            string text = NormalizeText(inst.signText);
+            if (text == null) return list;   // a cleared sign stays cleared
+            var e = new BuildingSignEntry { text = text };
+            if (inst.signPinned)
             {
-                text      = NormalizeText(inst.signText),
-                face      = FaceTowardWorldDir(inst.rotationY, CompassDir(compass)),
-                pinned    = inst.signPinned,
-                hostX     = inst.signHostX,
-                hostZ     = inst.signHostZ,
-                hostFloor = inst.signHostFloor,
-            };
+                string face = FaceTowardWorldDir(inst.rotationY, CompassDir(compass));
+                bool alongX = RunsAlongX(face);
+                int along   = alongX ? inst.signHostX : inst.signHostZ;
+                e.pinned   = true;
+                e.pinFace  = face;
+                e.pinFloor = inst.signHostFloor;
+                e.pinSide  = alongX ? inst.signHostZ : inst.signHostX;
+                e.pinHalf  = 2 * (along + 1);   // the line between tile A and tile B
+            }
+            list.Add(e);
+            return list;
         }
-        if (def != null && NormalizeText(def.signText) != null)
-            return new Spec { text = NormalizeText(def.signText), face = NormalizeFace(def.signFace) };
-        return default;
+        string legacy = def != null ? NormalizeText(def.signText) : null;
+        if (legacy != null) list.Add(new BuildingSignEntry { text = legacy });
+        return list;
     }
 
     // The compass the panel shows: the instance's own, else the legacy def wall turned by the yaw,
@@ -149,41 +159,94 @@ public static class BuildingSigns
         return DefaultCompass;
     }
 
-    // ---- where it can go ----
-
-    // One place a plate can sit: two adjacent exposed tiles on one floor of one wall.
-    public struct Slot
+    // The building-local wall the row starts on: the instance compass through the yaw, else the
+    // legacy def wall as stored, else east through the yaw.
+    public static string StartFace(BuildingInstance inst, BuildingDef def)
     {
-        public int     floor;
-        public int     side;      // coordinate across the wall (Z for north/south, X for east/west)
-        public int     along;     // coordinate of tile A along the wall; B is along + 1
-        public TileDef a, b;      // the two host tiles, along ascending
-        public TileFaceGeometry.FaceFrame frameA, frameB;
-        public Vector3 center;    // building-local midpoint of the two face centres
+        float yaw = inst != null ? inst.rotationY : 0f;
+        string compass = inst != null ? NormalizeCompass(inst.signCompass) : null;
+        if (compass != null) return FaceTowardWorldDir(yaw, CompassDir(compass));
+        if (def != null && NormalizeText(def.signText) != null)
+        {
+            string face = NormalizeFace(def.signFace);
+            if (face != null) return face;
+        }
+        return FaceTowardWorldDir(yaw, CompassDir(DefaultCompass));
     }
 
-    // Where the plate sits, in building-local metres. `right` runs along the wall from the first
-    // tile to the second; `up` is the wall's in-plane up; `normal` points out of the wall.
-    public struct Placement
+    // First edit on an instance still showing the single-sign fields or its def's legacy sign: the
+    // list takes over from here on. No-op once migrated. Never called on load, so opening a record
+    // does not change it.
+    public static void Adopt(BuildingInstance inst, BuildingDef def)
     {
-        public Vector3 center;
-        public Vector3 normal;
-        public Vector3 up;
-        public Vector3 right;
-        public float   width;
-        public float   height;
-        public int     floor;        // the floor the plate hangs on
-        public TileDef tileA;        // the two host tiles, in `right` order
-        public TileDef tileB;
-        public string  face;         // the wall actually used (differs from the spec's on a fallback)
-        public bool    pinLost;      // the pinned pair no longer exists, so the auto spot is shown
-        public bool    faceFallback; // the chosen wall had no room, so another wall is shown
+        if (inst == null || inst.signs != null) return;
+        var entries = EntriesFor(inst, def);
+        inst.signCompass   = EffectiveCompass(inst, def);
+        inst.signs         = entries;
+        inst.signText      = null;
+        inst.signPinned    = false;
+        inst.signHostX     = 0;
+        inst.signHostZ     = 0;
+        inst.signHostFloor = 0;
     }
 
-    public enum Skip { None, NoText, NoFace, TooNarrow }
+    // Plate width for a word at the shared text size: the letters plus the bare edge, never under
+    // the minimum plate.
+    public static float PlateWidth(string text, float cellSize)
+    {
+        string t = NormalizeText(text);
+        int chars = t != null ? t.Length : 0;
+        float w = 2f * PadFrac * cellSize + chars * CharAdvanceEm * TextEmFrac * cellSize;
+        return Mathf.Max(MinPlateFrac * cellSize, w);
+    }
+
+    // ---- open wall ----
+
+    // One exposed tile face under a stretch: its frame and the span it covers along the wall.
+    public struct Host
+    {
+        public TileDef tile;
+        public TileFaceGeometry.FaceFrame frame;
+        public float a0, a1;
+    }
+
+    // One unbroken run of open wall on one floor of one face, measured in building-local metres
+    // along the wall axis (X for north/south walls, Z for east/west).
+    public struct Stretch
+    {
+        public string face;
+        public int    floor;
+        public int    side;      // coordinate across the wall (Z for north/south, X for east/west)
+        public float  u0, u1;
+        public List<Host> hosts; // every exposed tile of the run (a cut piece keeps the whole run's)
+        public float Length => u1 - u0;
+    }
+
+    private static bool RunsAlongX(string face)
+    {
+        Vector3 dir = TileFaceGeometry.BaselineDir(face);
+        return Mathf.Abs(dir.z) > Mathf.Abs(dir.x);
+    }
+
+    private static Vector3 AlongAxis(string face) => RunsAlongX(face) ? Vector3.right : Vector3.forward;
+
+    // +1 when the wall axis runs toward the right of someone facing the wall from outside, else -1.
+    private static int ViewerSign(string face)
+    {
+        Vector3 viewerRight = Vector3.Cross(Vector3.up, -TileFaceGeometry.BaselineDir(face));
+        return Vector3.Dot(viewerRight, AlongAxis(face)) >= 0f ? 1 : -1;
+    }
+
+    private static int LowestFloor(BuildingDef def)
+    {
+        int floor = int.MaxValue;
+        if (def?.tiles != null)
+            foreach (var t in def.tiles) if (t != null && t.floor < floor) floor = t.floor;
+        return floor;
+    }
 
     // Exposed tiles with a face pointing out of `face`, grouped by (floor, side) and listed along
-    // the wall. The raw material for both the auto rule and the slot list.
+    // the wall.
     private static Dictionary<(int floor, int side), List<(int along, TileDef tile, string faceName)>>
         ExposedRows(BuildingDef def, string face, float cellSize, Func<string, TileFit> fitFor, int? onlyFloor)
     {
@@ -208,215 +271,455 @@ public static class BuildingSigns
         return rows;
     }
 
-    private static bool TryMakeSlot(int floor, int side,
-                                    (int along, TileDef tile, string faceName) a,
-                                    (int along, TileDef tile, string faceName) b,
-                                    float cellSize, Func<string, TileFit> fitFor, out Slot slot)
+    // Every stretch of open wall on `face` (one floor, or all of them), ordered by floor, side, u0.
+    // Neighbouring tiles join when their faces meet; a missing tile, a covered face, or a shape
+    // narrower than its cell (a pillar) ends the stretch.
+    public static List<Stretch> Stretches(BuildingDef def, string face, float cellSize,
+                                          Func<string, TileFit> fitFor, int? floor = null)
     {
-        slot = default;
-        TileFit fitA = fitFor != null ? fitFor(a.tile.shapeId) : TileFit.Full;
-        TileFit fitB = fitFor != null ? fitFor(b.tile.shapeId) : TileFit.Full;
-        if (!TileFaceGeometry.TryGetFaceFrame(a.tile, a.faceName, cellSize, fitA, out var fa)) return false;
-        if (!TileFaceGeometry.TryGetFaceFrame(b.tile, b.faceName, cellSize, fitB, out var fb)) return false;
-        slot = new Slot
-        {
-            floor = floor, side = side, along = a.along,
-            a = a.tile, b = b.tile, frameA = fa, frameB = fb,
-            center = (fa.center + fb.center) * 0.5f,
-        };
-        return true;
-    }
-
-    // Every place the plate can sit on `face`, on every floor, ordered by floor, side, along.
-    public static List<Slot> Slots(BuildingDef def, string face, float cellSize, Func<string, TileFit> fitFor)
-    {
-        var result = new List<Slot>();
+        var result = new List<Stretch>();
         string f = NormalizeFace(face);
         if (f == null || cellSize <= 0f) return result;
-        var rows = ExposedRows(def, f, cellSize, fitFor, null);
+        Vector3 axis = AlongAxis(f);
+        var rows = ExposedRows(def, f, cellSize, fitFor, floor);
         var keys = new List<(int floor, int side)>(rows.Keys);
         keys.Sort((x, y) => x.floor != y.floor ? x.floor.CompareTo(y.floor) : x.side.CompareTo(y.side));
         foreach (var key in keys)
         {
-            var row = rows[key];
-            for (int i = 0; i + 1 < row.Count; i++)
+            bool open = false;
+            Stretch cur = default;
+            int prevAlong = 0;
+            foreach (var (along, tile, faceName) in rows[key])
             {
-                if (row[i + 1].along != row[i].along + 1) continue;
-                if (TryMakeSlot(key.floor, key.side, row[i], row[i + 1], cellSize, fitFor, out var slot))
-                    result.Add(slot);
+                TileFit fit = fitFor != null ? fitFor(tile.shapeId) : TileFit.Full;
+                if (!TileFaceGeometry.TryGetFaceFrame(tile, faceName, cellSize, fit, out var frame)) continue;
+                float c = Vector3.Dot(frame.center, axis);
+                var host = new Host { tile = tile, frame = frame, a0 = c - frame.width * 0.5f, a1 = c + frame.width * 0.5f };
+                bool joins = open && along == prevAlong + 1 && Mathf.Abs(host.a0 - cur.u1) <= JoinGap;
+                if (!joins)
+                {
+                    if (open) result.Add(cur);
+                    cur = new Stretch { face = f, floor = key.floor, side = key.side, u0 = host.a0, u1 = host.a1, hosts = new List<Host>() };
+                    open = true;
+                }
+                cur.u1 = Mathf.Max(cur.u1, host.a1);
+                cur.hosts.Add(host);
+                prevAlong = along;
             }
+            if (open) result.Add(cur);
         }
         return result;
     }
 
-    // The generated spot: the building's lowest floor, the side with the most exposed tiles (the
-    // main wall on that side, lowest coordinate on ties), the longest contiguous run inside it,
-    // the centred pair (left-biased on odd runs).
-    public static bool TryAutoSlot(BuildingDef def, string face, float cellSize, Func<string, TileFit> fitFor, out Slot slot)
+    // ---- where the plates go ----
+
+    // Where one plate sits, in building-local metres. `right` runs along the wall axis; `up` is the
+    // wall's in-plane up; `normal` points out of the wall.
+    public struct Placement
     {
-        slot = default;
-        string f = NormalizeFace(face);
-        if (f == null || cellSize <= 0f || def?.tiles == null || def.tiles.Count == 0) return false;
-
-        int floor = int.MaxValue;
-        foreach (var t in def.tiles) if (t != null && t.floor < floor) floor = t.floor;
-        var rows = ExposedRows(def, f, cellSize, fitFor, floor);
-        if (rows.Count == 0) return false;
-
-        int bestSide = 0, bestCount = -1;
-        foreach (var kv in rows)
-            if (kv.Value.Count > bestCount || (kv.Value.Count == bestCount && kv.Key.side < bestSide))
-            { bestSide = kv.Key.side; bestCount = kv.Value.Count; }
-        var row = rows[(floor, bestSide)];
-
-        int runStart = 0, runLen = 0, bestStart = 0, bestLen = 0;
-        for (int i = 0; i < row.Count; i++)
-        {
-            if (i > 0 && row[i].along == row[i - 1].along + 1) runLen++;
-            else { runStart = i; runLen = 1; }
-            if (runLen > bestLen) { bestLen = runLen; bestStart = runStart; }
-        }
-        if (bestLen < SignTiles) return false;
-
-        int first = bestStart + (bestLen - SignTiles) / 2;   // centred, left-biased on odd runs
-        return TryMakeSlot(floor, bestSide, row[first], row[first + 1], cellSize, fitFor, out slot);
+        public Vector3 center;
+        public Vector3 normal;
+        public Vector3 up;
+        public Vector3 right;
+        public float   width;
+        public float   height;
+        public float   scale;    // 1 = the shared size; under 1 = shrunk to fit its wall
+        public string  face;     // the wall the plate hangs on
+        public int     floor;
+        public int     side;
+        public float   u;        // plate centre along the wall axis
+        public bool    pinned;   // placed by its pin
+        public bool    pinLost;  // the pinned spot is gone, so the sign was laid out automatically
     }
 
-    public static bool SameSlot(Slot x, Slot y) =>
-        x.floor == y.floor && x.side == y.side && x.along == y.along;
+    public enum Skip { None, NoText, NoRoom, TooSmall }
 
-    // The slot whose first tile is (hostX, hostZ) on `floor`, if the wall still has it.
-    public static bool TryFindSlot(List<Slot> slots, int floor, int hostX, int hostZ, out Slot slot)
+    public struct SignResult
     {
-        slot = default;
-        if (slots == null) return false;
-        foreach (var s in slots)
-            if (s.floor == floor && s.a != null && s.a.gridX == hostX && s.a.gridZ == hostZ) { slot = s; return true; }
+        public Skip      skip;
+        public Placement p;   // valid when skip == None
+    }
+
+    // The plate of `width` (already scaled) centred at `u` on a stretch: seated on the tiles it
+    // covers, in the top band of the floor (the lowest safe top line among them, less the margin).
+    private static Placement MakePlacement(Stretch s, float u, float width, float scale, float cellSize)
+    {
+        Vector3 axis = AlongAxis(s.face);
+        float lo = u - width * 0.5f + 1e-3f, hi = u + width * 0.5f - 1e-3f;
+        Vector3 normal = Vector3.zero, up = Vector3.zero, off = Vector3.zero;
+        float uTop = float.PositiveInfinity;
+        int count = 0;
+        for (int pass = 0; pass < 2 && count == 0; pass++)
+        {
+            foreach (var h in s.hosts)
+            {
+                if (pass == 0 && (h.a1 < lo || h.a0 > hi)) continue;
+                normal += h.frame.normal;
+                up     += h.frame.up;
+                off    += h.frame.center - axis * Vector3.Dot(h.frame.center, axis);
+                uTop    = Mathf.Min(uTop, h.frame.uTop);
+                count++;
+            }
+        }
+        normal.Normalize();
+        up.Normalize();
+        float band = BandFrac * cellSize * scale;
+        return new Placement
+        {
+            center = axis * u + off / Mathf.Max(1, count) + up * (uTop - TopMargin - band * 0.5f),
+            normal = normal,
+            up     = up,
+            right  = axis,
+            width  = width,
+            height = band,
+            scale  = scale,
+            face   = s.face,
+            floor  = s.floor,
+            side   = s.side,
+            u      = u,
+        };
+    }
+
+    // Counterclockwise seen from above: north (+Z), west (-X), south, east.
+    private static readonly string[] CounterClockwise = { "north", "west", "south", "east" };
+
+    private static string[] FaceOrder(string start, Func<string, float> openMetres)
+    {
+        int i = Array.IndexOf(CounterClockwise, start);
+        string ccw = CounterClockwise[(i + 1) % 4], opposite = CounterClockwise[(i + 2) % 4], cw = CounterClockwise[(i + 3) % 4];
+        bool goCcw = openMetres(ccw) >= openMetres(cw) - 1e-4f;
+        return goCcw ? new[] { start, ccw, opposite, cw } : new[] { start, cw, opposite, ccw };
+    }
+
+    // The order the row spills around the building: the start wall, then the neighbour with more
+    // open wall on the lowest floor (counterclockwise seen from above on a tie), then on around
+    // the same way.
+    public static string[] FaceOrder(BuildingDef def, string startFace, float cellSize, Func<string, TileFit> fitFor)
+    {
+        string start = NormalizeFace(startFace);
+        if (start == null) return new string[0];
+        int lowest = LowestFloor(def);
+        return FaceOrder(start, face =>
+        {
+            float sum = 0f;
+            foreach (var s in Stretches(def, face, cellSize, fitFor, lowest)) sum += s.Length;
+            return sum;
+        });
+    }
+
+    private static bool TryResolvePin(List<Stretch> onFace, BuildingSignEntry e, float width, float cellSize,
+                                      out Stretch stretch, out float u, out float scale)
+    {
+        stretch = default; scale = 1f;
+        u = e.pinHalf * cellSize * 0.5f;
+        foreach (var s in onFace)
+        {
+            if (s.floor != e.pinFloor || s.side != e.pinSide) continue;
+            if (u < s.u0 - 1e-3f || u > s.u1 + 1e-3f) continue;
+            stretch = s;
+            float w = width;
+            if (s.Length < w) { scale = s.Length / w; w = s.Length; }
+            u = Mathf.Clamp(u, s.u0 + w * 0.5f, s.u1 - w * 0.5f);
+            return true;
+        }
         return false;
     }
 
-    // The slot whose centre is closest to a building-local point (a drag hit on the wall plane).
-    public static Slot Nearest(List<Slot> slots, Vector3 localPoint)
+    // Lays out every sign of a building. Pinned signs take their own spot first. The rest keep list
+    // order: they fill the start wall's lowest floor (longest open stretch first), then spill around
+    // the building (FaceOrder). Each stretch is shared out in proportion to plate width and every
+    // sign is centred in its share, left to right as seen from outside. A word wider than the
+    // longest stretch shrinks alone; under MinScale it is TooSmall. A sign with no wall left is
+    // NoRoom. One result per entry, same order.
+    public static List<SignResult> Layout(BuildingDef def, IList<BuildingSignEntry> entries, string startFace,
+                                          float cellSize, Func<string, TileFit> fitFor)
     {
-        Slot best = default;
-        float bestD = float.PositiveInfinity;
-        if (slots == null) return best;
-        foreach (var s in slots)
+        int n = entries?.Count ?? 0;
+        var results = new List<SignResult>(n);
+        for (int i = 0; i < n; i++)
+            results.Add(new SignResult { skip = NormalizeText(entries[i]?.text) == null ? Skip.NoText : Skip.NoRoom });
+        string start = NormalizeFace(startFace);
+        if (n == 0 || start == null || cellSize <= 0f || def?.tiles == null || def.tiles.Count == 0) return results;
+
+        var byFace = new Dictionary<string, List<Stretch>>();
+        List<Stretch> All(string face)
         {
-            float d = (s.center - localPoint).sqrMagnitude;
-            if (d < bestD) { bestD = d; best = s; }
+            if (!byFace.TryGetValue(face, out var list)) byFace[face] = list = Stretches(def, face, cellSize, fitFor);
+            return list;
         }
-        return best;
+        int lowest = LowestFloor(def);
+        float gap = GapFrac * cellSize;
+
+        // Pins first. A pin whose wall is gone rejoins the automatic row at its place in the list.
+        var pinLost = new bool[n];
+        var spans   = new List<(string face, int floor, int side, float a, float b)>();
+        var auto    = new List<int>();
+        for (int i = 0; i < n; i++)
+        {
+            if (results[i].skip == Skip.NoText) continue;
+            var e = entries[i];
+            string pinFace = e.pinned ? NormalizeFace(e.pinFace) : null;
+            if (!e.pinned) { auto.Add(i); continue; }
+            float w = PlateWidth(e.text, cellSize);
+            if (pinFace == null || !TryResolvePin(All(pinFace), e, w, cellSize, out var s, out float u, out float scale))
+            {
+                pinLost[i] = true;
+                auto.Add(i);
+                continue;
+            }
+            if (scale < MinScale) { results[i] = new SignResult { skip = Skip.TooSmall }; continue; }
+            var p = MakePlacement(s, u, w * scale, scale, cellSize);
+            p.pinned = true;
+            results[i] = new SignResult { skip = Skip.None, p = p };
+            spans.Add((s.face, s.floor, s.side, u - w * scale * 0.5f, u + w * scale * 0.5f));
+        }
+        if (auto.Count == 0) return results;
+
+        // The open wall left for the row, wall by wall, longest stretch first on each.
+        var order = FaceOrder(start, face =>
+        {
+            float sum = 0f;
+            foreach (var s in All(face)) if (s.floor == lowest) sum += s.Length;
+            return sum;
+        });
+        var flat = new List<Stretch>();
+        foreach (var face in order)
+        {
+            var pieces = new List<Stretch>();
+            foreach (var s in All(face))
+            {
+                if (s.floor != lowest) continue;
+                var cut = new List<Stretch> { s };
+                foreach (var sp in spans)
+                {
+                    if (sp.face != s.face || sp.floor != s.floor || sp.side != s.side) continue;
+                    var next = new List<Stretch>();
+                    foreach (var c in cut)
+                    {
+                        float a = sp.a - gap, b = sp.b + gap;
+                        if (b <= c.u0 || a >= c.u1) { next.Add(c); continue; }
+                        if (a > c.u0) { var l = c; l.u1 = a; next.Add(l); }
+                        if (b < c.u1) { var r = c; r.u0 = b; next.Add(r); }
+                    }
+                    cut = next;
+                }
+                foreach (var c in cut) if (c.Length > 1e-3f) pieces.Add(c);
+            }
+            pieces.Sort((x, y) =>
+            {
+                if (Mathf.Abs(x.Length - y.Length) > 1e-4f) return y.Length.CompareTo(x.Length);
+                return x.side != y.side ? x.side.CompareTo(y.side) : x.u0.CompareTo(y.u0);
+            });
+            flat.AddRange(pieces);
+        }
+        float longest = 0f;
+        foreach (var s in flat) longest = Mathf.Max(longest, s.Length);
+
+        // Order-keeping first fit: a sign goes on the current stretch or a later one, never back.
+        var assigned = new List<(int index, float width, float scale)>[flat.Count];
+        var used     = new float[flat.Count];
+        for (int k = 0; k < flat.Count; k++) { assigned[k] = new(); used[k] = gap; }
+        int cursor = 0;
+        foreach (int i in auto)
+        {
+            float w = PlateWidth(entries[i].text, cellSize), scale = 1f;
+            float room = longest - 2f * gap;
+            if (flat.Count > 0 && w > room)
+            {
+                scale = room > 0f ? room / w : 0f;
+                if (scale < MinScale) { results[i] = new SignResult { skip = Skip.TooSmall }; continue; }
+                w = room;
+            }
+            for (int k = cursor; k < flat.Count; k++)
+            {
+                if (used[k] + w + gap > flat[k].Length + 1e-4f) continue;
+                assigned[k].Add((i, w, scale));
+                used[k] += w + gap;
+                cursor = k;
+                break;
+            }
+        }
+
+        for (int k = 0; k < flat.Count; k++)
+        {
+            if (assigned[k].Count == 0) continue;
+            var s = flat[k];
+            float total = 0f;
+            foreach (var a in assigned[k]) total += a.width + gap;
+            int dir = ViewerSign(s.face);
+            float at = dir > 0 ? s.u0 : s.u1;
+            foreach (var a in assigned[k])
+            {
+                float share = s.Length * (a.width + gap) / total;
+                var p = MakePlacement(s, at + dir * share * 0.5f, a.width, a.scale, cellSize);
+                p.pinLost = pinLost[a.index];
+                results[a.index] = new SignResult { skip = Skip.None, p = p };
+                at += dir * share;
+            }
+        }
+        return results;
     }
 
-    // One nudge. dRight steps toward the viewer's right when facing the wall from outside (so
-    // "Right" on the panel moves the plate right on screen for someone looking at it); dFloor
-    // steps up or down a floor, keeping the position along the wall when that pair exists and
-    // taking the closest pair on that floor otherwise. Returns `current` when nothing valid exists.
-    public static Slot Step(BuildingDef def, string face, Slot current, int dRight, int dFloor,
-                            float cellSize, Func<string, TileFit> fitFor)
+    public static List<SignResult> LayoutFor(BuildingInstance inst, BuildingDef def, float cellSize, Func<string, TileFit> fitFor) =>
+        Layout(def, EntriesFor(inst, def), StartFace(inst, def), cellSize, fitFor);
+
+    // ---- pins ----
+
+    public struct Pin
     {
-        string f = NormalizeFace(face);
-        if (f == null) return current;
-        var slots = Slots(def, f, cellSize, fitFor);
-        if (slots.Count == 0) return current;
+        public string face;
+        public int    floor, side, half;
+    }
+
+    // One place a pinned plate can sit: a half-tile step on some open stretch, with the plate centre
+    // it resolves to (clamped so the plate stays on the stretch).
+    public struct PinSpot
+    {
+        public Pin     pin;
+        public Vector3 center;
+        public Vector3 normal;
+    }
+
+    public static Pin PinOf(BuildingSignEntry e) =>
+        new Pin { face = NormalizeFace(e.pinFace), floor = e.pinFloor, side = e.pinSide, half = e.pinHalf };
+
+    public static void SetPin(BuildingSignEntry e, Pin pin)
+    {
+        e.pinned   = true;
+        e.pinFace  = pin.face;
+        e.pinFloor = pin.floor;
+        e.pinSide  = pin.side;
+        e.pinHalf  = pin.half;
+    }
+
+    public static bool SamePin(Pin x, Pin y) =>
+        x.face == y.face && x.floor == y.floor && x.side == y.side && x.half == y.half;
+
+    // The pin that holds a plate where the layout put it (rounded to the nearest half tile).
+    public static Pin PinFromPlacement(Placement p, float cellSize) =>
+        new Pin { face = p.face, floor = p.floor, side = p.side, half = Mathf.RoundToInt(p.u / (cellSize * 0.5f)) };
+
+    private static void AddSpots(List<PinSpot> spots, Stretch s, float width, float cellSize)
+    {
+        if (s.Length < width * MinScale) return;
+        float half = cellSize * 0.5f;
+        float w = Mathf.Min(width, s.Length), scale = w / width;
+        int h0 = Mathf.CeilToInt((s.u0 - 1e-3f) / half), h1 = Mathf.FloorToInt((s.u1 + 1e-3f) / half);
+        for (int h = h0; h <= h1; h++)
+        {
+            float u = Mathf.Clamp(h * half, s.u0 + w * 0.5f, s.u1 - w * 0.5f);
+            var p = MakePlacement(s, u, w, scale, cellSize);
+            spots.Add(new PinSpot
+            {
+                pin = new Pin { face = s.face, floor = s.floor, side = s.side, half = h },
+                center = p.center, normal = p.normal,
+            });
+        }
+    }
+
+    // Every half-tile spot a plate of `width` can be pinned to, on every wall and floor.
+    public static List<PinSpot> PinSpots(BuildingDef def, float width, float cellSize, Func<string, TileFit> fitFor)
+    {
+        var spots = new List<PinSpot>();
+        foreach (var face in WallFaces)
+            foreach (var s in Stretches(def, face, cellSize, fitFor))
+                AddSpots(spots, s, width, cellSize);
+        return spots;
+    }
+
+    // The spot a building-local ray (a drag) points at: among walls facing the ray, the spot whose
+    // centre is closest to where the ray meets that spot's wall plane.
+    public static bool NearestPinSpot(List<PinSpot> spots, Ray localRay, out PinSpot best)
+    {
+        best = default;
+        float bestD = float.PositiveInfinity;
+        if (spots == null) return false;
+        foreach (var s in spots)
+        {
+            float facing = Vector3.Dot(localRay.direction, s.normal);
+            if (facing >= -1e-4f) continue;
+            float t = Vector3.Dot(s.center - localRay.origin, s.normal) / facing;
+            if (t <= 0f) continue;
+            float d = (localRay.GetPoint(t) - s.center).sqrMagnitude;
+            if (d < bestD) { bestD = d; best = s; }
+        }
+        return bestD < float.PositiveInfinity;
+    }
+
+    // The spot a sign gets when it is pinned while not drawn: the middle of the longest lowest-floor
+    // stretch on the first wall (FaceOrder) that can hold it.
+    public static bool DefaultPin(BuildingDef def, string startFace, float width, float cellSize,
+                                  Func<string, TileFit> fitFor, out Pin pin)
+    {
+        pin = default;
+        int lowest = LowestFloor(def);
+        foreach (var face in FaceOrder(def, startFace, cellSize, fitFor))
+        {
+            bool found = false;
+            Stretch bestS = default;
+            foreach (var s in Stretches(def, face, cellSize, fitFor, lowest))
+                if (s.Length >= width * MinScale && (!found || s.Length > bestS.Length + 1e-4f)) { bestS = s; found = true; }
+            if (!found) continue;
+            pin = new Pin { face = face, floor = bestS.floor, side = bestS.side,
+                            half = Mathf.RoundToInt((bestS.u0 + bestS.u1) * 0.5f / (cellSize * 0.5f)) };
+            return true;
+        }
+        return false;
+    }
+
+    // One nudge of a pinned sign. dRight steps half a tile toward the viewer's right when facing the
+    // wall from outside, skipping steps that leave the plate where it is (the clamped ends) and
+    // hopping gaps in the wall; it stays on its own wall. dFloor steps a floor, keeping the place
+    // along the wall when that wall exists there and taking the closest spot on that floor otherwise.
+    // Returns the entry's own pin when nothing valid exists.
+    public static Pin StepPin(BuildingDef def, BuildingSignEntry e, int dRight, int dFloor,
+                              float cellSize, Func<string, TileFit> fitFor)
+    {
+        Pin current = PinOf(e);
+        if (current.face == null || cellSize <= 0f) return current;
+        float width = PlateWidth(e.text, cellSize);
+        var onFace = Stretches(def, current.face, cellSize, fitFor);
+        bool have = TryResolvePin(onFace, e, width, cellSize, out var curS, out float curU, out _);
+        var probe = new BuildingSignEntry { text = e.text, pinned = true, pinFace = current.face,
+                                            pinFloor = current.floor, pinSide = current.side, pinHalf = current.half };
 
         if (dFloor != 0)
         {
-            int target = current.floor + dFloor;
-            bool any = false;
-            Slot best = default;
+            probe.pinFloor = current.floor + dFloor;
+            if (TryResolvePin(onFace, probe, width, cellSize, out var s, out _, out float sc) && sc >= MinScale)
+                return PinOf(probe);
+            var spots = new List<PinSpot>();
+            foreach (var st in onFace) if (st.floor == probe.pinFloor) AddSpots(spots, st, width, cellSize);
+            if (spots.Count == 0) return current;
+            Vector3 from = have ? MakePlacement(curS, curU, Mathf.Min(width, curS.Length), 1f, cellSize).center
+                                : AlongAxis(current.face) * (current.half * cellSize * 0.5f);
+            from.y += dFloor * cellSize;
+            PinSpot best = spots[0];
             float bestD = float.PositiveInfinity;
-            foreach (var s in slots)
+            foreach (var sp in spots)
             {
-                if (s.floor != target) continue;
-                if (s.side == current.side && s.along == current.along) return s;
-                float d = (s.center - current.center).sqrMagnitude;
-                if (d < bestD) { bestD = d; best = s; any = true; }
+                float d = (sp.center - from).sqrMagnitude;
+                if (d < bestD) { bestD = d; best = sp; }
             }
-            return any ? best : current;
+            return best.pin;
         }
 
         if (dRight != 0)
         {
-            Vector3 normal      = TileFaceGeometry.BaselineDir(f);
-            bool    alongX      = Mathf.Abs(normal.z) > Mathf.Abs(normal.x);
-            Vector3 alongAxis   = alongX ? Vector3.right : Vector3.forward;
-            Vector3 viewerRight = Vector3.Cross(Vector3.up, -normal);
-            int sign   = Vector3.Dot(viewerRight, alongAxis) >= 0f ? 1 : -1;
-            int target = current.along + dRight * sign;
-            foreach (var s in slots)
-                if (s.floor == current.floor && s.side == current.side && s.along == target) return s;
+            float lo = float.PositiveInfinity, hi = float.NegativeInfinity;
+            foreach (var s in onFace)
+                if (s.floor == current.floor && s.side == current.side) { lo = Mathf.Min(lo, s.u0); hi = Mathf.Max(hi, s.u1); }
+            if (lo > hi) return current;
+            int step = dRight * ViewerSign(current.face);
+            float half = cellSize * 0.5f;
+            for (int h = current.half + step; h * half >= lo - 1e-3f && h * half <= hi + 1e-3f; h += step)
+            {
+                probe.pinHalf = h;
+                if (!TryResolvePin(onFace, probe, width, cellSize, out _, out float u, out float sc) || sc < MinScale) continue;
+                if (have && Mathf.Abs(u - curU) < 1e-3f) continue;
+                return PinOf(probe);
+            }
         }
         return current;
     }
-
-    // ---- where it goes ----
-
-    private static Placement PlacementFor(Slot s, float cellSize, string face)
-    {
-        float band = BandFrac * cellSize;
-        var fa = s.frameA;
-        var fb = s.frameB;
-        Vector3 up = (fa.up + fb.up).normalized;
-        // Top band: the lower of the two safe top lines, less the margin, less half the plate.
-        float uTop = Mathf.Min(fa.uTop, fb.uTop);
-        return new Placement
-        {
-            center = s.center + up * (uTop - TopMargin - band * 0.5f),
-            normal = (fa.normal + fb.normal).normalized,
-            up     = up,
-            right  = (fb.center - fa.center).normalized,
-            width  = fa.width + fb.width,
-            height = band,
-            floor  = s.floor,
-            tileA  = s.a,
-            tileB  = s.b,
-            face   = face,
-        };
-    }
-
-    // Resolves the plate for a spec. Order: the pinned pair while it still exists → the auto spot
-    // on the spec's wall → the auto spot on another wall → TooNarrow (the sign stays stored but
-    // shows nothing). The fallbacks are reported on the Placement so the panel can say so.
-    public static Skip TryPlace(BuildingDef def, Spec spec, float cellSize, Func<string, TileFit> fitFor, out Placement p)
-    {
-        p = default;
-        if (def == null || cellSize <= 0f) return Skip.NoText;
-        if (NormalizeText(spec.text) == null) return Skip.NoText;
-        string face = NormalizeFace(spec.face);
-        if (face == null) return Skip.NoFace;
-        if (def.tiles == null || def.tiles.Count == 0) return Skip.TooNarrow;
-
-        bool pinLost = false, faceFallback = false;
-        string used = face;
-        Slot slot = default;
-        bool found = false;
-
-        if (spec.pinned)
-        {
-            found = TryFindSlot(Slots(def, face, cellSize, fitFor), spec.hostFloor, spec.hostX, spec.hostZ, out slot);
-            pinLost = !found;
-        }
-        if (!found) found = TryAutoSlot(def, face, cellSize, fitFor, out slot);
-        if (!found)
-        {
-            foreach (var other in WallFaces)
-            {
-                if (other == face) continue;
-                if (TryAutoSlot(def, other, cellSize, fitFor, out slot)) { found = true; used = other; faceFallback = true; break; }
-            }
-        }
-        if (!found) return Skip.TooNarrow;
-
-        p = PlacementFor(slot, cellSize, used);
-        p.pinLost      = pinLost;
-        p.faceFallback = faceFallback;
-        return Skip.None;
-    }
-
-    // Legacy entry: the def's own signText / signFace at the auto spot (records saved before signs
-    // moved to the instance, and the tests that pin down the generated placement).
-    public static Skip TryPlace(BuildingDef def, float cellSize, Func<string, TileFit> fitFor, out Placement p) =>
-        TryPlace(def, SpecFor(null, def), cellSize, fitFor, out p);
 }

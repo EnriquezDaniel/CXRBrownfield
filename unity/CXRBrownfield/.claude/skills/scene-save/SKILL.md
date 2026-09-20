@@ -1,6 +1,8 @@
 ---
 name: scene-save
 description: Save an opened scene back to its asset file (or to a new path when `path` is provided). When `openedSceneName` is empty, saves the currently active scene. Use 'scene-list-opened' to find the scene name first.
+metadata:
+  generated-by: mcp-plugin-dotnet
 ---
 
 # Scene / Save

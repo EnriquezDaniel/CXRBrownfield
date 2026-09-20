@@ -1,3 +1,5 @@
+// Inspector for a material pack demo. Editor only: unguarded it fails every player build.
+#if UNITY_EDITOR
 using UnityEngine;
 using System.Collections;
 using UnityEditor;
@@ -24,3 +26,4 @@ public class MaterialRandomizer : Editor
         }
     }
 }
+#endif

@@ -1,6 +1,8 @@
 ---
 name: reflection-method-call
 description: Call a C# method by reflection — including private methods. Requires a method schema obtained via 'reflection-method-find'. Supports static methods, instance methods (with optional target deserialization), and main-thread / off-thread execution.
+metadata:
+  generated-by: mcp-plugin-dotnet
 ---
 
 # Method C# / Call
