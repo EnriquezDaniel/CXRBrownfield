@@ -1,0 +1,295 @@
+{
+  "id": "f6086bec-6125-4513-8b35-a494153c1479",
+  "name": "Boxes",
+  "version": 5,
+  "tags": [
+    "static"
+  ],
+  "gridCellSize": 4.0,
+  "floors": 2,
+  "floorHeight": 3.5,
+  "tiles": [
+    {
+      "gridX": -1,
+      "gridZ": 1,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "Plasterboard"
+      },
+      "deform": null
+    },
+    {
+      "gridX": 0,
+      "gridZ": 1,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "Plasterboard"
+      },
+      "deform": null
+    },
+    {
+      "gridX": 1,
+      "gridZ": -1,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "Plasterboard",
+        "south": "Plasterboard",
+        "east": "Plasterboard"
+      },
+      "deform": null
+    },
+    {
+      "gridX": 1,
+      "gridZ": 0,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "Plasterboard",
+        "east": "Plasterboard"
+      },
+      "deform": null
+    },
+    {
+      "gridX": 1,
+      "gridZ": 1,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "east": "Plasterboard"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -2,
+      "gridZ": 1,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": -2,
+      "gridZ": 0,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "Plasterboard",
+        "east": "Plasterboard"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -3,
+      "gridZ": 1,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "Plasterboard"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -3,
+      "gridZ": 0,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "Plasterboard",
+        "south": "Plasterboard"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -5,
+      "gridZ": -2,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "Plasterboard",
+        "south": "Plasterboard",
+        "east": "Plasterboard"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -5,
+      "gridZ": -1,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "Plasterboard",
+        "east": "Plasterboard"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -7,
+      "gridZ": -2,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "Plasterboard",
+        "south": "Plasterboard",
+        "east": "Plasterboard"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -7,
+      "gridZ": -1,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "Plasterboard",
+        "east": "Plasterboard"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -9,
+      "gridZ": -2,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "Plasterboard",
+        "south": "Plasterboard",
+        "east": "Plasterboard"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -9,
+      "gridZ": -1,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "Plasterboard",
+        "east": "Plasterboard"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -9,
+      "gridZ": 0,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "Plasterboard",
+        "east": "Plasterboard"
+      },
+      "deform": null
+    },
+    {
+      "gridX": 1,
+      "gridZ": 1,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "east": "Plasterboard"
+      },
+      "deform": null
+    },
+    {
+      "gridX": 1,
+      "gridZ": 0,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "Plasterboard",
+        "east": "Plasterboard"
+      },
+      "deform": null
+    },
+    {
+      "gridX": 1,
+      "gridZ": -1,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "Plasterboard",
+        "south": "Plasterboard",
+        "east": "Plasterboard"
+      },
+      "deform": null
+    },
+    {
+      "gridX": 0,
+      "gridZ": 1,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "Plasterboard",
+        "south": "Plasterboard"
+      },
+      "deform": null
+    }
+  ],
+  "embeddedObjects": [],
+  "style": null,
+  "signText": null,
+  "signFace": null,
+  "favorite": false
+}

@@ -1,0 +1,1251 @@
+{
+  "id": "a0df5fcb-c763-4269-8b1d-ab14cc326763",
+  "name": "1A",
+  "version": 4,
+  "tags": [
+    "static"
+  ],
+  "gridCellSize": 4.0,
+  "floors": 3,
+  "floorHeight": 3.5,
+  "tiles": [
+    {
+      "gridX": -1,
+      "gridZ": -1,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "ConcreteBricks",
+        "west": "ConcreteBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -1,
+      "gridZ": 0,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "ConcreteBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -1,
+      "gridZ": 1,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "ConcreteBricks",
+        "west": "ConcreteBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": 0,
+      "gridZ": -1,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "ConcreteBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": 0,
+      "gridZ": 0,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": 0,
+      "gridZ": 1,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "ConcreteBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": 1,
+      "gridZ": -1,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "east": "ConcreteBricks",
+        "south": "ConcreteBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": 1,
+      "gridZ": 0,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "east": "ConcreteBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": 1,
+      "gridZ": 1,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "east": "ConcreteBricks",
+        "north": "ConcreteBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -1,
+      "gridZ": -1,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "ConcreteBricks",
+        "west": "ConcreteBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -1,
+      "gridZ": 0,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "ConcreteBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -1,
+      "gridZ": 1,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "ConcreteBricks",
+        "west": "ConcreteBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": 0,
+      "gridZ": -1,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "ConcreteBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": 0,
+      "gridZ": 0,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": 0,
+      "gridZ": 1,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "ConcreteBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": 1,
+      "gridZ": -1,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "east": "ConcreteBricks",
+        "south": "ConcreteBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": 1,
+      "gridZ": 0,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "east": "ConcreteBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": 1,
+      "gridZ": 1,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "east": "ConcreteBricks",
+        "north": "ConcreteBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -1,
+      "gridZ": -1,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "ConcreteBricks",
+        "top": "ConcreteBricks",
+        "west": "ConcreteBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -1,
+      "gridZ": 0,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "ConcreteBricks",
+        "west": "ConcreteBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -1,
+      "gridZ": 1,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "ConcreteBricks",
+        "top": "ConcreteBricks",
+        "west": "ConcreteBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": 0,
+      "gridZ": -1,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "ConcreteBricks",
+        "top": "ConcreteBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": 0,
+      "gridZ": 0,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "ConcreteBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": 0,
+      "gridZ": 1,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "ConcreteBricks",
+        "top": "ConcreteBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": 1,
+      "gridZ": -1,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "east": "ConcreteBricks",
+        "south": "ConcreteBricks",
+        "top": "ConcreteBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": 1,
+      "gridZ": 0,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "east": "ConcreteBricks",
+        "top": "ConcreteBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": 1,
+      "gridZ": 1,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "east": "ConcreteBricks",
+        "north": "ConcreteBricks",
+        "top": "ConcreteBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -2,
+      "gridZ": 1,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "ConcreteBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -3,
+      "gridZ": 1,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "ConcreteBricks",
+        "west": "ConcreteBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -3,
+      "gridZ": 0,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "ConcreteBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -3,
+      "gridZ": -1,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "ConcreteBricks",
+        "west": "ConcreteBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -2,
+      "gridZ": -1,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "ConcreteBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -2,
+      "gridZ": 0,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": -2,
+      "gridZ": 1,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "ConcreteBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -3,
+      "gridZ": 1,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "ConcreteBricks",
+        "west": "ConcreteBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -3,
+      "gridZ": 0,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "ConcreteBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -3,
+      "gridZ": -1,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "ConcreteBricks",
+        "west": "ConcreteBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -2,
+      "gridZ": -1,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "ConcreteBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -2,
+      "gridZ": 0,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": -2,
+      "gridZ": 1,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "ConcreteBricks",
+        "top": "ConcreteBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -3,
+      "gridZ": 1,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "ConcreteBricks",
+        "top": "ConcreteBricks",
+        "west": "ConcreteBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -3,
+      "gridZ": 0,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "ConcreteBricks",
+        "west": "ConcreteBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -3,
+      "gridZ": -1,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "ConcreteBricks",
+        "top": "ConcreteBricks",
+        "west": "ConcreteBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -2,
+      "gridZ": -1,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "ConcreteBricks",
+        "top": "ConcreteBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -2,
+      "gridZ": 0,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "top": "ConcreteBricks"
+      },
+      "deform": null
+    }
+  ],
+  "embeddedObjects": [
+    {
+      "instanceId": "34dac175-422f-4f94-b2bb-a08115647a64",
+      "prefabType": "WindowPair",
+      "localPos": [
+        -10.0,
+        5.21767044,
+        8.14856
+      ],
+      "rotationX": 0.0,
+      "rotationY": 270.0,
+      "rotationZ": 0.0,
+      "scale": 1.543186,
+      "hostGridX": -3,
+      "hostGridZ": 1,
+      "hostFloor": 1,
+      "hostFace": "north",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false,
+      "optional": false
+    },
+    {
+      "instanceId": "7ed5c22a-3aa4-4113-b50a-5ce8cda0f0cc",
+      "prefabType": "WindowPair",
+      "localPos": [
+        -6.0,
+        5.21767044,
+        8.14856
+      ],
+      "rotationX": 0.0,
+      "rotationY": 270.0,
+      "rotationZ": 0.0,
+      "scale": 1.543186,
+      "hostGridX": -2,
+      "hostGridZ": 1,
+      "hostFloor": 1,
+      "hostFace": "north",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false,
+      "optional": false
+    },
+    {
+      "instanceId": "858af776-2afd-4834-a700-51659f4c1d6a",
+      "prefabType": "WindowPair",
+      "localPos": [
+        2.0,
+        9.21767,
+        8.14856
+      ],
+      "rotationX": 0.0,
+      "rotationY": 270.0,
+      "rotationZ": 0.0,
+      "scale": 1.543186,
+      "hostGridX": 0,
+      "hostGridZ": 1,
+      "hostFloor": 2,
+      "hostFace": "north",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false,
+      "optional": false
+    },
+    {
+      "instanceId": "a2c115b2-a210-47e7-be8c-6a802c525389",
+      "prefabType": "WindowPair",
+      "localPos": [
+        -2.0,
+        9.21767,
+        8.14856
+      ],
+      "rotationX": 0.0,
+      "rotationY": 270.0,
+      "rotationZ": 0.0,
+      "scale": 1.543186,
+      "hostGridX": -1,
+      "hostGridZ": 1,
+      "hostFloor": 2,
+      "hostFace": "north",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false,
+      "optional": false
+    },
+    {
+      "instanceId": "e06f4168-4603-4159-bb69-c951299e59db",
+      "prefabType": "WindowPair",
+      "localPos": [
+        -10.0,
+        9.21767,
+        8.14856
+      ],
+      "rotationX": 0.0,
+      "rotationY": 270.0,
+      "rotationZ": 0.0,
+      "scale": 1.543186,
+      "hostGridX": -3,
+      "hostGridZ": 1,
+      "hostFloor": 2,
+      "hostFace": "north",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false,
+      "optional": false
+    },
+    {
+      "instanceId": "59667166-d32c-4233-9ca4-605689d33e22",
+      "prefabType": "WindowPair",
+      "localPos": [
+        -6.0,
+        9.21767,
+        8.14856
+      ],
+      "rotationX": 0.0,
+      "rotationY": 270.0,
+      "rotationZ": 0.0,
+      "scale": 1.543186,
+      "hostGridX": -2,
+      "hostGridZ": 1,
+      "hostFloor": 2,
+      "hostFace": "north",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false,
+      "optional": false
+    },
+    {
+      "instanceId": "3fcb69e6-588d-43ff-8dad-39620f065d11",
+      "prefabType": "WindowPair",
+      "localPos": [
+        -2.0,
+        5.21767044,
+        8.14856
+      ],
+      "rotationX": 0.0,
+      "rotationY": 270.0,
+      "rotationZ": 0.0,
+      "scale": 1.543186,
+      "hostGridX": -1,
+      "hostGridZ": 1,
+      "hostFloor": 1,
+      "hostFace": "north",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false,
+      "optional": false
+    },
+    {
+      "instanceId": "99a7e634-0f1b-44f1-b284-3c439152d6ba",
+      "prefabType": "WindowPair",
+      "localPos": [
+        2.0,
+        5.21767044,
+        8.14856
+      ],
+      "rotationX": 0.0,
+      "rotationY": 270.0,
+      "rotationZ": 0.0,
+      "scale": 1.543186,
+      "hostGridX": 0,
+      "hostGridZ": 1,
+      "hostFloor": 1,
+      "hostFace": "north",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false,
+      "optional": false
+    },
+    {
+      "instanceId": "e1b53585-f5ba-4471-878e-60c6d731e129",
+      "prefabType": "WindowPair",
+      "localPos": [
+        6.0,
+        5.21767044,
+        8.14856
+      ],
+      "rotationX": 0.0,
+      "rotationY": 270.0,
+      "rotationZ": 0.0,
+      "scale": 1.543186,
+      "hostGridX": 1,
+      "hostGridZ": 1,
+      "hostFloor": 1,
+      "hostFace": "north",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false,
+      "optional": false
+    },
+    {
+      "instanceId": "0f1323c9-fd7a-463c-91d4-1d8ed7d5960e",
+      "prefabType": "WindowPair",
+      "localPos": [
+        8.14856,
+        5.21767044,
+        -2.0
+      ],
+      "rotationX": 0.0,
+      "rotationY": 0.0,
+      "rotationZ": 0.0,
+      "scale": 1.543186,
+      "hostGridX": 1,
+      "hostGridZ": -1,
+      "hostFloor": 1,
+      "hostFace": "east",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false,
+      "optional": false
+    },
+    {
+      "instanceId": "3fbcd330-5a3a-467d-bb60-ddb9493b9974",
+      "prefabType": "WindowPair",
+      "localPos": [
+        8.14856,
+        5.21767044,
+        2.0
+      ],
+      "rotationX": 0.0,
+      "rotationY": 0.0,
+      "rotationZ": 0.0,
+      "scale": 1.543186,
+      "hostGridX": 1,
+      "hostGridZ": 0,
+      "hostFloor": 1,
+      "hostFace": "east",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false,
+      "optional": false
+    },
+    {
+      "instanceId": "97ab28f6-b8e5-48db-9d24-ef82303ccf04",
+      "prefabType": "WindowPair",
+      "localPos": [
+        8.14856,
+        5.21767044,
+        6.0
+      ],
+      "rotationX": 0.0,
+      "rotationY": 0.0,
+      "rotationZ": 0.0,
+      "scale": 1.543186,
+      "hostGridX": 1,
+      "hostGridZ": 1,
+      "hostFloor": 1,
+      "hostFace": "east",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false,
+      "optional": false
+    },
+    {
+      "instanceId": "a8d53663-643c-44ac-8560-9afd836d2d00",
+      "prefabType": "WindowPair",
+      "localPos": [
+        8.14856,
+        9.21767,
+        6.0
+      ],
+      "rotationX": 0.0,
+      "rotationY": 0.0,
+      "rotationZ": 0.0,
+      "scale": 1.543186,
+      "hostGridX": 1,
+      "hostGridZ": 1,
+      "hostFloor": 2,
+      "hostFace": "east",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false,
+      "optional": false
+    },
+    {
+      "instanceId": "a2eccca8-913d-4c5a-afbe-71f394a59587",
+      "prefabType": "WindowPair",
+      "localPos": [
+        8.14856,
+        9.21767,
+        2.0
+      ],
+      "rotationX": 0.0,
+      "rotationY": 0.0,
+      "rotationZ": 0.0,
+      "scale": 1.543186,
+      "hostGridX": 1,
+      "hostGridZ": 0,
+      "hostFloor": 2,
+      "hostFace": "east",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false,
+      "optional": false
+    },
+    {
+      "instanceId": "24dab7c9-3864-405b-862a-4ab32ddee436",
+      "prefabType": "WindowPair",
+      "localPos": [
+        8.14856,
+        9.21767,
+        -2.0
+      ],
+      "rotationX": 0.0,
+      "rotationY": 0.0,
+      "rotationZ": 0.0,
+      "scale": 1.543186,
+      "hostGridX": 1,
+      "hostGridZ": -1,
+      "hostFloor": 2,
+      "hostFace": "east",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false,
+      "optional": false
+    },
+    {
+      "instanceId": "8c6dcf96-bc27-4f37-bc90-c603b19b0188",
+      "prefabType": "WindowPair",
+      "localPos": [
+        6.0,
+        5.21767044,
+        -4.14855957
+      ],
+      "rotationX": 0.0,
+      "rotationY": 90.0,
+      "rotationZ": 0.0,
+      "scale": 1.543186,
+      "hostGridX": 1,
+      "hostGridZ": -1,
+      "hostFloor": 1,
+      "hostFace": "south",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false,
+      "optional": false
+    },
+    {
+      "instanceId": "ab9a23fd-f9fe-4d1c-a2ce-190a3fd617d2",
+      "prefabType": "WindowPair",
+      "localPos": [
+        2.0,
+        5.21767044,
+        -4.14855957
+      ],
+      "rotationX": 0.0,
+      "rotationY": 90.0,
+      "rotationZ": 0.0,
+      "scale": 1.543186,
+      "hostGridX": 0,
+      "hostGridZ": -1,
+      "hostFloor": 1,
+      "hostFace": "south",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false,
+      "optional": false
+    },
+    {
+      "instanceId": "281d42d0-4c3e-4b31-ba18-fac245c8e178",
+      "prefabType": "WindowPair",
+      "localPos": [
+        -2.0,
+        5.21767044,
+        -4.14855957
+      ],
+      "rotationX": 0.0,
+      "rotationY": 90.0,
+      "rotationZ": 0.0,
+      "scale": 1.543186,
+      "hostGridX": -1,
+      "hostGridZ": -1,
+      "hostFloor": 1,
+      "hostFace": "south",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false,
+      "optional": false
+    },
+    {
+      "instanceId": "7a34104d-41cf-41b8-9bc8-5c71f607063f",
+      "prefabType": "WindowPair",
+      "localPos": [
+        -6.0,
+        5.21767044,
+        -4.14855957
+      ],
+      "rotationX": 0.0,
+      "rotationY": 90.0,
+      "rotationZ": 0.0,
+      "scale": 1.543186,
+      "hostGridX": -2,
+      "hostGridZ": -1,
+      "hostFloor": 1,
+      "hostFace": "south",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false,
+      "optional": false
+    },
+    {
+      "instanceId": "ce2f4edc-7a49-4bab-8395-99c5f01312ae",
+      "prefabType": "WindowPair",
+      "localPos": [
+        -10.0,
+        5.21767044,
+        -4.14855957
+      ],
+      "rotationX": 0.0,
+      "rotationY": 90.0,
+      "rotationZ": 0.0,
+      "scale": 1.543186,
+      "hostGridX": -3,
+      "hostGridZ": -1,
+      "hostFloor": 1,
+      "hostFace": "south",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false,
+      "optional": false
+    },
+    {
+      "instanceId": "cc36cca3-f2ca-49e2-98c7-85821790dec6",
+      "prefabType": "WindowPair",
+      "localPos": [
+        2.0,
+        9.21767,
+        -4.14855957
+      ],
+      "rotationX": 0.0,
+      "rotationY": 90.0,
+      "rotationZ": 0.0,
+      "scale": 1.543186,
+      "hostGridX": 0,
+      "hostGridZ": -1,
+      "hostFloor": 2,
+      "hostFace": "south",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false,
+      "optional": false
+    },
+    {
+      "instanceId": "5c5c7076-ad6d-42f2-bbda-8edc0162b49a",
+      "prefabType": "WindowPair",
+      "localPos": [
+        -2.0,
+        9.21767,
+        -4.14855957
+      ],
+      "rotationX": 0.0,
+      "rotationY": 90.0,
+      "rotationZ": 0.0,
+      "scale": 1.543186,
+      "hostGridX": -1,
+      "hostGridZ": -1,
+      "hostFloor": 2,
+      "hostFace": "south",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false,
+      "optional": false
+    },
+    {
+      "instanceId": "e4508bf7-f515-4e63-8358-97a5c859e3d8",
+      "prefabType": "WindowPair",
+      "localPos": [
+        -10.0,
+        9.21767,
+        -4.14855957
+      ],
+      "rotationX": 0.0,
+      "rotationY": 90.0,
+      "rotationZ": 0.0,
+      "scale": 1.543186,
+      "hostGridX": -3,
+      "hostGridZ": -1,
+      "hostFloor": 2,
+      "hostFace": "south",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false,
+      "optional": false
+    },
+    {
+      "instanceId": "ba307940-b57e-427a-83ce-f50836d93563",
+      "prefabType": "WindowPair",
+      "localPos": [
+        -6.0,
+        9.21767,
+        -4.14855957
+      ],
+      "rotationX": 0.0,
+      "rotationY": 90.0,
+      "rotationZ": 0.0,
+      "scale": 1.543186,
+      "hostGridX": -2,
+      "hostGridZ": -1,
+      "hostFloor": 2,
+      "hostFace": "south",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false,
+      "optional": false
+    }
+  ],
+  "style": null,
+  "signText": null,
+  "signFace": null,
+  "favorite": false
+}

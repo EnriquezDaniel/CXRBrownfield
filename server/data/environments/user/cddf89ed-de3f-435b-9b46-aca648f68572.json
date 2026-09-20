@@ -1,0 +1,55 @@
+{
+  "id": "cddf89ed-de3f-435b-9b46-aca648f68572",
+  "name": "1B",
+  "version": 2,
+  "tags": [
+    "user"
+  ],
+  "locked": false,
+  "site": {
+    "terrainSize": [
+      140.0,
+      25.0
+    ],
+    "terrainOrigin": [
+      82.0,
+      160.0
+    ],
+    "terrainZones": [],
+    "paths": [],
+    "fences": null,
+    "surfaceStrokes": [],
+    "heightStrokes": [],
+    "waterBodies": null,
+    "scaleNote": "",
+    "lotBoundary": null,
+    "outsideTerrainType": "water"
+  },
+  "buildingInstances": [
+    {
+      "instanceId": "92037cf8-af9a-4d09-b25c-b54234e455f4",
+      "buildingId": "af11c6b4-efcd-4f79-9aed-9611fbbed4d9",
+      "position": [
+        140.0,
+        0.0,
+        164.0
+      ],
+      "rotationX": 0.0,
+      "rotationY": 0.0,
+      "rotationZ": 0.0,
+      "scale": 1.0,
+      "included": true,
+      "optional": false,
+      "signText": "WHITE CASTLE",
+      "signCompass": "east",
+      "signPinned": false,
+      "signHostX": 0,
+      "signHostZ": 0,
+      "signHostFloor": 0
+    }
+  ],
+  "objectInstances": [],
+  "sites": null,
+  "generation": null,
+  "favorite": false
+}

@@ -1,0 +1,3657 @@
+{
+  "id": "af5fc2c7-70c5-4e1d-8e26-281ad4b7d7e1",
+  "name": "1C",
+  "version": 2,
+  "tags": [
+    "static"
+  ],
+  "gridCellSize": 4.0,
+  "floors": 3,
+  "floorHeight": 3.5,
+  "tiles": [
+    {
+      "gridX": -1,
+      "gridZ": -1,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -1,
+      "gridZ": 0,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": -1,
+      "gridZ": 1,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": 0,
+      "gridZ": -1,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": 0,
+      "gridZ": 0,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": 0,
+      "gridZ": 1,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": 1,
+      "gridZ": -1,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "RedBricks",
+        "east": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": 1,
+      "gridZ": 0,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "east": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": 1,
+      "gridZ": 1,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "RedBricks",
+        "east": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -2,
+      "gridZ": -1,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -2,
+      "gridZ": 0,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": -2,
+      "gridZ": 1,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -3,
+      "gridZ": 0,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": -4,
+      "gridZ": 0,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": -4,
+      "gridZ": 1,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -5,
+      "gridZ": 0,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": -3,
+      "gridZ": 1,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -4,
+      "gridZ": -1,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -5,
+      "gridZ": -1,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -3,
+      "gridZ": -1,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -6,
+      "gridZ": -1,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -7,
+      "gridZ": -1,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -6,
+      "gridZ": 0,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": -5,
+      "gridZ": 1,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -6,
+      "gridZ": 1,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -7,
+      "gridZ": 1,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -7,
+      "gridZ": 0,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": -8,
+      "gridZ": 0,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": -9,
+      "gridZ": 0,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": -9,
+      "gridZ": -1,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -8,
+      "gridZ": -1,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -8,
+      "gridZ": 1,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -9,
+      "gridZ": 1,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -10,
+      "gridZ": 1,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -10,
+      "gridZ": 0,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": -11,
+      "gridZ": 0,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": -12,
+      "gridZ": 0,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": -11,
+      "gridZ": -1,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -12,
+      "gridZ": -1,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -10,
+      "gridZ": -1,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -13,
+      "gridZ": -1,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -14,
+      "gridZ": -1,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -15,
+      "gridZ": -1,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -16,
+      "gridZ": 0,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": -17,
+      "gridZ": -1,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -11,
+      "gridZ": 1,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -12,
+      "gridZ": 1,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -13,
+      "gridZ": 1,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -14,
+      "gridZ": 1,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -15,
+      "gridZ": 1,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -16,
+      "gridZ": 1,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -17,
+      "gridZ": 1,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -17,
+      "gridZ": 0,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": -15,
+      "gridZ": 0,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": -14,
+      "gridZ": 0,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": -13,
+      "gridZ": 0,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": -16,
+      "gridZ": -1,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -18,
+      "gridZ": -1,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -19,
+      "gridZ": -1,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -18,
+      "gridZ": 0,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": -19,
+      "gridZ": 0,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": -19,
+      "gridZ": 1,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -20,
+      "gridZ": 1,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -20,
+      "gridZ": 0,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": -18,
+      "gridZ": 1,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -20,
+      "gridZ": -1,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -21,
+      "gridZ": 0,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": -21,
+      "gridZ": 1,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -22,
+      "gridZ": 1,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -23,
+      "gridZ": 1,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -23,
+      "gridZ": 0,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": -23,
+      "gridZ": -1,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -22,
+      "gridZ": -1,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -21,
+      "gridZ": -1,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -22,
+      "gridZ": 0,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": -24,
+      "gridZ": 1,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "RedBricks",
+        "west": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -24,
+      "gridZ": 0,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -24,
+      "gridZ": -1,
+      "floor": 0,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "RedBricks",
+        "west": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -1,
+      "gridZ": -1,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -1,
+      "gridZ": 0,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": -1,
+      "gridZ": 1,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": 0,
+      "gridZ": -1,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": 0,
+      "gridZ": 0,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": 0,
+      "gridZ": 1,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": 1,
+      "gridZ": -1,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "RedBricks",
+        "east": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": 1,
+      "gridZ": 0,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "east": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": 1,
+      "gridZ": 1,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "RedBricks",
+        "east": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -2,
+      "gridZ": -1,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -2,
+      "gridZ": 0,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": -2,
+      "gridZ": 1,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -3,
+      "gridZ": 0,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": -4,
+      "gridZ": 0,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": -4,
+      "gridZ": 1,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -5,
+      "gridZ": 0,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": -3,
+      "gridZ": 1,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -4,
+      "gridZ": -1,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -5,
+      "gridZ": -1,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -3,
+      "gridZ": -1,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -6,
+      "gridZ": -1,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -7,
+      "gridZ": -1,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -6,
+      "gridZ": 0,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": -5,
+      "gridZ": 1,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -6,
+      "gridZ": 1,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -7,
+      "gridZ": 1,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -7,
+      "gridZ": 0,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": -8,
+      "gridZ": 0,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": -9,
+      "gridZ": 0,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": -9,
+      "gridZ": -1,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -8,
+      "gridZ": -1,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -8,
+      "gridZ": 1,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -9,
+      "gridZ": 1,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -10,
+      "gridZ": 1,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -10,
+      "gridZ": 0,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": -11,
+      "gridZ": 0,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": -12,
+      "gridZ": 0,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": -11,
+      "gridZ": -1,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -12,
+      "gridZ": -1,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -10,
+      "gridZ": -1,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -13,
+      "gridZ": -1,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -14,
+      "gridZ": -1,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -15,
+      "gridZ": -1,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -16,
+      "gridZ": 0,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": -17,
+      "gridZ": -1,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -11,
+      "gridZ": 1,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -12,
+      "gridZ": 1,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -13,
+      "gridZ": 1,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -14,
+      "gridZ": 1,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -15,
+      "gridZ": 1,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -16,
+      "gridZ": 1,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -17,
+      "gridZ": 1,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -17,
+      "gridZ": 0,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": -15,
+      "gridZ": 0,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": -14,
+      "gridZ": 0,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": -13,
+      "gridZ": 0,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": -16,
+      "gridZ": -1,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -18,
+      "gridZ": -1,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -19,
+      "gridZ": -1,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -18,
+      "gridZ": 0,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": -19,
+      "gridZ": 0,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": -19,
+      "gridZ": 1,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -20,
+      "gridZ": 1,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -20,
+      "gridZ": 0,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": -18,
+      "gridZ": 1,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -20,
+      "gridZ": -1,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -21,
+      "gridZ": 0,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": -21,
+      "gridZ": 1,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -22,
+      "gridZ": 1,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -23,
+      "gridZ": 1,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -23,
+      "gridZ": 0,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": -23,
+      "gridZ": -1,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -22,
+      "gridZ": -1,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -21,
+      "gridZ": -1,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -22,
+      "gridZ": 0,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": -24,
+      "gridZ": 1,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "RedBricks",
+        "west": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -24,
+      "gridZ": 0,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -24,
+      "gridZ": -1,
+      "floor": 1,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "RedBricks",
+        "west": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -1,
+      "gridZ": -1,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -1,
+      "gridZ": 0,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": -1,
+      "gridZ": 1,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": 0,
+      "gridZ": -1,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": 0,
+      "gridZ": 0,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": 0,
+      "gridZ": 1,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": 1,
+      "gridZ": -1,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "RedBricks",
+        "east": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": 1,
+      "gridZ": 0,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "east": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": 1,
+      "gridZ": 1,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "RedBricks",
+        "east": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -2,
+      "gridZ": -1,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -2,
+      "gridZ": 0,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": -2,
+      "gridZ": 1,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -3,
+      "gridZ": 0,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": -4,
+      "gridZ": 0,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": -4,
+      "gridZ": 1,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -5,
+      "gridZ": 0,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": -3,
+      "gridZ": 1,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -4,
+      "gridZ": -1,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -5,
+      "gridZ": -1,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -3,
+      "gridZ": -1,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -6,
+      "gridZ": -1,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -7,
+      "gridZ": -1,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -6,
+      "gridZ": 0,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": -5,
+      "gridZ": 1,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -6,
+      "gridZ": 1,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -7,
+      "gridZ": 1,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -7,
+      "gridZ": 0,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": -8,
+      "gridZ": 0,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": -9,
+      "gridZ": 0,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": -9,
+      "gridZ": -1,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -8,
+      "gridZ": -1,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -8,
+      "gridZ": 1,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -9,
+      "gridZ": 1,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -10,
+      "gridZ": 1,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -10,
+      "gridZ": 0,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": -11,
+      "gridZ": 0,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": -12,
+      "gridZ": 0,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": -11,
+      "gridZ": -1,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -12,
+      "gridZ": -1,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -10,
+      "gridZ": -1,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -13,
+      "gridZ": -1,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -14,
+      "gridZ": -1,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -15,
+      "gridZ": -1,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -16,
+      "gridZ": 0,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": -17,
+      "gridZ": -1,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -11,
+      "gridZ": 1,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -12,
+      "gridZ": 1,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -13,
+      "gridZ": 1,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -14,
+      "gridZ": 1,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -15,
+      "gridZ": 1,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -16,
+      "gridZ": 1,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -17,
+      "gridZ": 1,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -17,
+      "gridZ": 0,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": -15,
+      "gridZ": 0,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": -14,
+      "gridZ": 0,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": -13,
+      "gridZ": 0,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": -16,
+      "gridZ": -1,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -18,
+      "gridZ": -1,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -19,
+      "gridZ": -1,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -18,
+      "gridZ": 0,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": -19,
+      "gridZ": 0,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": -19,
+      "gridZ": 1,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -20,
+      "gridZ": 1,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -20,
+      "gridZ": 0,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": -18,
+      "gridZ": 1,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -20,
+      "gridZ": -1,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -21,
+      "gridZ": 0,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": -21,
+      "gridZ": 1,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -22,
+      "gridZ": 1,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -23,
+      "gridZ": 1,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -23,
+      "gridZ": 0,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": -23,
+      "gridZ": -1,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -22,
+      "gridZ": -1,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -21,
+      "gridZ": -1,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -22,
+      "gridZ": 0,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": null,
+      "deform": null
+    },
+    {
+      "gridX": -24,
+      "gridZ": 1,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "north": "RedBricks",
+        "west": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -24,
+      "gridZ": 0,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "west": "RedBricks"
+      },
+      "deform": null
+    },
+    {
+      "gridX": -24,
+      "gridZ": -1,
+      "floor": 2,
+      "shapeId": "square",
+      "rotation": 0,
+      "rotationX": 0.0,
+      "rotationZ": 0.0,
+      "faceMaterials": {
+        "south": "RedBricks",
+        "west": "RedBricks"
+      },
+      "deform": null
+    }
+  ],
+  "embeddedObjects": [
+    {
+      "instanceId": "242e70b2-e912-4220-84f2-5da5aa3efebe",
+      "prefabType": "WindowPair",
+      "localPos": [
+        -74.0,
+        5.21767044,
+        8.14856
+      ],
+      "rotationX": 0.0,
+      "rotationY": 270.0,
+      "rotationZ": 0.0,
+      "scale": 1.543186,
+      "hostGridX": -19,
+      "hostGridZ": 1,
+      "hostFloor": 1,
+      "hostFace": "north",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false,
+      "optional": false
+    },
+    {
+      "instanceId": "d64e7345-5646-4d38-9d0f-492fdaddd9bf",
+      "prefabType": "WindowPair",
+      "localPos": [
+        -82.0,
+        5.21767044,
+        8.14856
+      ],
+      "rotationX": 0.0,
+      "rotationY": 270.0,
+      "rotationZ": 0.0,
+      "scale": 1.543186,
+      "hostGridX": -21,
+      "hostGridZ": 1,
+      "hostFloor": 1,
+      "hostFace": "north",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false,
+      "optional": false
+    },
+    {
+      "instanceId": "7c467237-ecdb-4fbc-9199-861c50da9d45",
+      "prefabType": "WindowPair",
+      "localPos": [
+        -86.0,
+        5.21767044,
+        8.14856
+      ],
+      "rotationX": 0.0,
+      "rotationY": 270.0,
+      "rotationZ": 0.0,
+      "scale": 1.543186,
+      "hostGridX": -22,
+      "hostGridZ": 1,
+      "hostFloor": 1,
+      "hostFace": "north",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false,
+      "optional": false
+    },
+    {
+      "instanceId": "10e88718-2f26-4015-bbfa-873b29914c15",
+      "prefabType": "WindowPair",
+      "localPos": [
+        -78.0,
+        5.21767044,
+        8.14856
+      ],
+      "rotationX": 0.0,
+      "rotationY": 270.0,
+      "rotationZ": 0.0,
+      "scale": 1.543186,
+      "hostGridX": -20,
+      "hostGridZ": 1,
+      "hostFloor": 1,
+      "hostFace": "north",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false,
+      "optional": false
+    },
+    {
+      "instanceId": "e7c7f746-2e92-4da4-8b0e-e2fdd39a18d3",
+      "prefabType": "WindowPair",
+      "localPos": [
+        -78.0,
+        1.2176702,
+        8.14856
+      ],
+      "rotationX": 0.0,
+      "rotationY": 270.0,
+      "rotationZ": 0.0,
+      "scale": 1.543186,
+      "hostGridX": -20,
+      "hostGridZ": 1,
+      "hostFloor": 0,
+      "hostFace": "north",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false,
+      "optional": false
+    },
+    {
+      "instanceId": "d9d8ab41-2adf-4f56-9d57-9abd709e8d58",
+      "prefabType": "WindowPair",
+      "localPos": [
+        -82.0,
+        1.2176702,
+        8.14856
+      ],
+      "rotationX": 0.0,
+      "rotationY": 270.0,
+      "rotationZ": 0.0,
+      "scale": 1.543186,
+      "hostGridX": -21,
+      "hostGridZ": 1,
+      "hostFloor": 0,
+      "hostFace": "north",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false,
+      "optional": false
+    },
+    {
+      "instanceId": "0349a3d6-9a37-4f1d-9e8c-c1fa3475d446",
+      "prefabType": "WindowPair",
+      "localPos": [
+        -86.0,
+        1.2176702,
+        8.14856
+      ],
+      "rotationX": 0.0,
+      "rotationY": 270.0,
+      "rotationZ": 0.0,
+      "scale": 1.543186,
+      "hostGridX": -22,
+      "hostGridZ": 1,
+      "hostFloor": 0,
+      "hostFace": "north",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false,
+      "optional": false
+    },
+    {
+      "instanceId": "666e4c16-3f85-4476-99ea-f46292e7da4d",
+      "prefabType": "WindowPair",
+      "localPos": [
+        -90.0,
+        1.2176702,
+        8.14856
+      ],
+      "rotationX": 0.0,
+      "rotationY": 270.0,
+      "rotationZ": 0.0,
+      "scale": 1.543186,
+      "hostGridX": -23,
+      "hostGridZ": 1,
+      "hostFloor": 0,
+      "hostFace": "north",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false,
+      "optional": false
+    },
+    {
+      "instanceId": "aa33090d-6cc9-4e1c-94d1-9aace226fd26",
+      "prefabType": "WindowPair",
+      "localPos": [
+        -94.0,
+        1.2176702,
+        8.14856
+      ],
+      "rotationX": 0.0,
+      "rotationY": 270.0,
+      "rotationZ": 0.0,
+      "scale": 1.543186,
+      "hostGridX": -24,
+      "hostGridZ": 1,
+      "hostFloor": 0,
+      "hostFace": "north",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false,
+      "optional": false
+    },
+    {
+      "instanceId": "36013949-4583-44dc-8dd2-f69f77a7e4f4",
+      "prefabType": "WindowPair",
+      "localPos": [
+        -94.0,
+        5.21767044,
+        8.14856
+      ],
+      "rotationX": 0.0,
+      "rotationY": 270.0,
+      "rotationZ": 0.0,
+      "scale": 1.543186,
+      "hostGridX": -24,
+      "hostGridZ": 1,
+      "hostFloor": 1,
+      "hostFace": "north",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false,
+      "optional": false
+    },
+    {
+      "instanceId": "dd406d2e-8193-4511-9319-126b26bcb406",
+      "prefabType": "WindowPair",
+      "localPos": [
+        -90.0,
+        5.21767044,
+        8.14856
+      ],
+      "rotationX": 0.0,
+      "rotationY": 270.0,
+      "rotationZ": 0.0,
+      "scale": 1.543186,
+      "hostGridX": -23,
+      "hostGridZ": 1,
+      "hostFloor": 1,
+      "hostFace": "north",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false,
+      "optional": false
+    },
+    {
+      "instanceId": "25f5f5ca-47a2-47ba-a6c0-c05ba17049d2",
+      "prefabType": "WindowPair",
+      "localPos": [
+        -86.0,
+        9.21767,
+        8.14856
+      ],
+      "rotationX": 0.0,
+      "rotationY": 270.0,
+      "rotationZ": 0.0,
+      "scale": 1.543186,
+      "hostGridX": -22,
+      "hostGridZ": 1,
+      "hostFloor": 2,
+      "hostFace": "north",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false,
+      "optional": false
+    },
+    {
+      "instanceId": "25c74b51-92d2-49d3-9414-94c79c46406b",
+      "prefabType": "WindowPair",
+      "localPos": [
+        -82.0,
+        9.21767,
+        8.14856
+      ],
+      "rotationX": 0.0,
+      "rotationY": 270.0,
+      "rotationZ": 0.0,
+      "scale": 1.543186,
+      "hostGridX": -21,
+      "hostGridZ": 1,
+      "hostFloor": 2,
+      "hostFace": "north",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false,
+      "optional": false
+    },
+    {
+      "instanceId": "121cdd89-bf67-46cf-87cd-bc50a3f1def3",
+      "prefabType": "WindowPair",
+      "localPos": [
+        -78.0,
+        9.21767,
+        8.14856
+      ],
+      "rotationX": 0.0,
+      "rotationY": 270.0,
+      "rotationZ": 0.0,
+      "scale": 1.543186,
+      "hostGridX": -20,
+      "hostGridZ": 1,
+      "hostFloor": 2,
+      "hostFace": "north",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false,
+      "optional": false
+    },
+    {
+      "instanceId": "c6c7c175-de12-4553-b939-badfb5333ae3",
+      "prefabType": "WindowPair",
+      "localPos": [
+        -74.0,
+        9.21767,
+        8.14856
+      ],
+      "rotationX": 0.0,
+      "rotationY": 270.0,
+      "rotationZ": 0.0,
+      "scale": 1.543186,
+      "hostGridX": -19,
+      "hostGridZ": 1,
+      "hostFloor": 2,
+      "hostFace": "north",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false,
+      "optional": false
+    },
+    {
+      "instanceId": "9ad971a3-0aad-4c3e-9ce3-a29e20702860",
+      "prefabType": "WindowPair",
+      "localPos": [
+        -82.0,
+        5.21767044,
+        -4.14855957
+      ],
+      "rotationX": 0.0,
+      "rotationY": 90.0,
+      "rotationZ": 0.0,
+      "scale": 1.543186,
+      "hostGridX": -21,
+      "hostGridZ": -1,
+      "hostFloor": 1,
+      "hostFace": "south",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false,
+      "optional": false
+    },
+    {
+      "instanceId": "db14d88d-1b0d-4e22-b2c1-c4996174eb53",
+      "prefabType": "WindowPair",
+      "localPos": [
+        -90.0,
+        5.21767044,
+        -4.14855957
+      ],
+      "rotationX": 0.0,
+      "rotationY": 90.0,
+      "rotationZ": 0.0,
+      "scale": 1.543186,
+      "hostGridX": -23,
+      "hostGridZ": -1,
+      "hostFloor": 1,
+      "hostFace": "south",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false,
+      "optional": false
+    },
+    {
+      "instanceId": "74dc6206-0a42-48a1-b050-cb96db1ce300",
+      "prefabType": "WindowPair",
+      "localPos": [
+        -94.0,
+        5.21767044,
+        -4.14855957
+      ],
+      "rotationX": 0.0,
+      "rotationY": 90.0,
+      "rotationZ": 0.0,
+      "scale": 1.543186,
+      "hostGridX": -24,
+      "hostGridZ": -1,
+      "hostFloor": 1,
+      "hostFace": "south",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false,
+      "optional": false
+    },
+    {
+      "instanceId": "504da032-d083-4cfe-8491-47b9b4190edd",
+      "prefabType": "WindowPair",
+      "localPos": [
+        -94.0,
+        1.2176702,
+        -4.14855957
+      ],
+      "rotationX": 0.0,
+      "rotationY": 90.0,
+      "rotationZ": 0.0,
+      "scale": 1.543186,
+      "hostGridX": -24,
+      "hostGridZ": -1,
+      "hostFloor": 0,
+      "hostFace": "south",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false,
+      "optional": false
+    },
+    {
+      "instanceId": "28f12c09-b7fa-453c-a432-d14ed0e867c6",
+      "prefabType": "WindowPair",
+      "localPos": [
+        -90.0,
+        1.2176702,
+        -4.14855957
+      ],
+      "rotationX": 0.0,
+      "rotationY": 90.0,
+      "rotationZ": 0.0,
+      "scale": 1.543186,
+      "hostGridX": -23,
+      "hostGridZ": -1,
+      "hostFloor": 0,
+      "hostFace": "south",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false,
+      "optional": false
+    },
+    {
+      "instanceId": "c4ac4b96-9ce8-4473-9b83-d36a68d06e96",
+      "prefabType": "WindowPair",
+      "localPos": [
+        -86.0,
+        1.2176702,
+        -4.14855957
+      ],
+      "rotationX": 0.0,
+      "rotationY": 90.0,
+      "rotationZ": 0.0,
+      "scale": 1.543186,
+      "hostGridX": -22,
+      "hostGridZ": -1,
+      "hostFloor": 0,
+      "hostFace": "south",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false,
+      "optional": false
+    },
+    {
+      "instanceId": "19b5c9ad-a858-4338-9474-1c6a160ec139",
+      "prefabType": "WindowPair",
+      "localPos": [
+        -82.0,
+        1.2176702,
+        -4.14855957
+      ],
+      "rotationX": 0.0,
+      "rotationY": 90.0,
+      "rotationZ": 0.0,
+      "scale": 1.543186,
+      "hostGridX": -21,
+      "hostGridZ": -1,
+      "hostFloor": 0,
+      "hostFace": "south",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false,
+      "optional": false
+    },
+    {
+      "instanceId": "fd349ceb-80f2-4bc3-8399-b2deccb3d20b",
+      "prefabType": "WindowPair",
+      "localPos": [
+        -78.0,
+        1.2176702,
+        -4.14855957
+      ],
+      "rotationX": 0.0,
+      "rotationY": 90.0,
+      "rotationZ": 0.0,
+      "scale": 1.543186,
+      "hostGridX": -20,
+      "hostGridZ": -1,
+      "hostFloor": 0,
+      "hostFace": "south",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false,
+      "optional": false
+    },
+    {
+      "instanceId": "6e048562-6b04-471a-a2b8-3762bd0e8383",
+      "prefabType": "WindowPair",
+      "localPos": [
+        -78.0,
+        5.21767044,
+        -4.14855957
+      ],
+      "rotationX": 0.0,
+      "rotationY": 90.0,
+      "rotationZ": 0.0,
+      "scale": 1.543186,
+      "hostGridX": -20,
+      "hostGridZ": -1,
+      "hostFloor": 1,
+      "hostFace": "south",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false,
+      "optional": false
+    },
+    {
+      "instanceId": "066f826a-88b9-4e2c-9eeb-0fc1839bcf58",
+      "prefabType": "WindowPair",
+      "localPos": [
+        -78.0,
+        9.21767,
+        -4.14855957
+      ],
+      "rotationX": 0.0,
+      "rotationY": 90.0,
+      "rotationZ": 0.0,
+      "scale": 1.543186,
+      "hostGridX": -20,
+      "hostGridZ": -1,
+      "hostFloor": 2,
+      "hostFace": "south",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false,
+      "optional": false
+    },
+    {
+      "instanceId": "cb15b73c-0f75-4cfc-9945-13efd0526a0a",
+      "prefabType": "WindowPair",
+      "localPos": [
+        -82.0,
+        9.21767,
+        -4.14855957
+      ],
+      "rotationX": 0.0,
+      "rotationY": 90.0,
+      "rotationZ": 0.0,
+      "scale": 1.543186,
+      "hostGridX": -21,
+      "hostGridZ": -1,
+      "hostFloor": 2,
+      "hostFace": "south",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false,
+      "optional": false
+    },
+    {
+      "instanceId": "4b16351c-b23f-4751-a799-a8d358b63e2e",
+      "prefabType": "WindowPair",
+      "localPos": [
+        -86.0,
+        9.21767,
+        -4.14855957
+      ],
+      "rotationX": 0.0,
+      "rotationY": 90.0,
+      "rotationZ": 0.0,
+      "scale": 1.543186,
+      "hostGridX": -22,
+      "hostGridZ": -1,
+      "hostFloor": 2,
+      "hostFace": "south",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false,
+      "optional": false
+    },
+    {
+      "instanceId": "45e95491-3f05-4acc-ba9e-d3e1b224e2e0",
+      "prefabType": "WindowPair",
+      "localPos": [
+        -86.0,
+        5.21767044,
+        -4.14855957
+      ],
+      "rotationX": 0.0,
+      "rotationY": 90.0,
+      "rotationZ": 0.0,
+      "scale": 1.543186,
+      "hostGridX": -22,
+      "hostGridZ": -1,
+      "hostFloor": 1,
+      "hostFace": "south",
+      "exclusive": false,
+      "fillsFace": true,
+      "decorWidthFrac": 0.8,
+      "decorHeightFrac": 0.8,
+      "decorAnchor": 1,
+      "decorSurfaceOffset": 0.0,
+      "decorMountAxis": 0,
+      "decorFlipMount": false,
+      "optional": false
+    }
+  ],
+  "style": null,
+  "signText": null,
+  "signFace": null,
+  "favorite": false
+}

@@ -1,0 +1,668 @@
+{
+  "id": "f0dd8a14-3847-4aa4-95d6-e6aefa6486c5",
+  "name": "1C",
+  "version": 2,
+  "tags": [
+    "user"
+  ],
+  "locked": false,
+  "site": {
+    "terrainSize": [
+      140.0,
+      25.0
+    ],
+    "terrainOrigin": [
+      82.0,
+      160.0
+    ],
+    "terrainZones": [],
+    "paths": [],
+    "fences": null,
+    "surfaceStrokes": [],
+    "heightStrokes": [],
+    "waterBodies": null,
+    "scaleNote": "",
+    "lotBoundary": null,
+    "outsideTerrainType": "water"
+  },
+  "buildingInstances": [
+    {
+      "instanceId": "87e5196a-eabc-4a29-9fa3-3bf162a14d0f",
+      "buildingId": "af5fc2c7-70c5-4e1d-8e26-281ad4b7d7e1",
+      "position": [
+        180.0,
+        0.0,
+        164.0
+      ],
+      "rotationX": 0.0,
+      "rotationY": 0.0,
+      "rotationZ": 0.0,
+      "scale": 1.0,
+      "included": true,
+      "optional": false,
+      "signText": "RESTAURANT",
+      "signCompass": "east",
+      "signPinned": false,
+      "signHostX": 0,
+      "signHostZ": 0,
+      "signHostFloor": 0
+    }
+  ],
+  "objectInstances": [
+    {
+      "instanceId": "3abea878-2a85-4393-a782-670fd755cccb",
+      "prefabType": "tree",
+      "position": [
+        201.449326,
+        0.0,
+        165.208817
+      ],
+      "rotationX": 0.0,
+      "rotationY": 222.761261,
+      "rotationZ": 0.0,
+      "scale": 1.11299217,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": true,
+      "optional": false
+    },
+    {
+      "instanceId": "7986aef5-3988-458e-b90c-85e43e061afe",
+      "prefabType": "tree",
+      "position": [
+        204.952057,
+        0.0,
+        166.0408
+      ],
+      "rotationX": 0.0,
+      "rotationY": 54.51704,
+      "rotationZ": 0.0,
+      "scale": 1.16702473,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": true,
+      "optional": false
+    },
+    {
+      "instanceId": "94d0cf4e-f524-4d53-87a2-781169c1bbdf",
+      "prefabType": "tree",
+      "position": [
+        208.199524,
+        0.0,
+        167.068878
+      ],
+      "rotationX": 0.0,
+      "rotationY": 4.35706663,
+      "rotationZ": 0.0,
+      "scale": 1.17792869,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": true,
+      "optional": false
+    },
+    {
+      "instanceId": "ad33e9e4-365d-4d79-aac0-dc6cfae364ea",
+      "prefabType": "tree",
+      "position": [
+        211.03363,
+        0.0,
+        168.49115
+      ],
+      "rotationX": 0.0,
+      "rotationY": 185.542923,
+      "rotationZ": 0.0,
+      "scale": 0.967640042,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": true,
+      "optional": false
+    },
+    {
+      "instanceId": "9b4e41ba-b8af-4c94-84e8-3ec44213d433",
+      "prefabType": "tree",
+      "position": [
+        196.997177,
+        0.0,
+        167.756882
+      ],
+      "rotationX": 0.0,
+      "rotationY": 319.244019,
+      "rotationZ": 0.0,
+      "scale": 1.14718544,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": true,
+      "optional": false
+    },
+    {
+      "instanceId": "1afb669b-cb86-4844-8e84-ef0a8baeca69",
+      "prefabType": "tree",
+      "position": [
+        217.434784,
+        0.0,
+        163.103989
+      ],
+      "rotationX": 0.0,
+      "rotationY": 121.809982,
+      "rotationZ": 0.0,
+      "scale": 1.11817455,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": true,
+      "optional": false
+    },
+    {
+      "instanceId": "f602cc6c-ce90-447d-a3f8-260761031a5b",
+      "prefabType": "bench",
+      "position": [
+        181.7132,
+        0.0,
+        179.793915
+      ],
+      "rotationX": 0.0,
+      "rotationY": 136.002228,
+      "rotationZ": 0.0,
+      "scale": 0.9854355,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": true,
+      "optional": false
+    },
+    {
+      "instanceId": "6854e171-bbf3-4874-ac73-4466678522f7",
+      "prefabType": "bench",
+      "position": [
+        163.818527,
+        0.0,
+        180.925186
+      ],
+      "rotationX": 0.0,
+      "rotationY": 66.8649445,
+      "rotationZ": 0.0,
+      "scale": 1.010635,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": true,
+      "optional": false
+    },
+    {
+      "instanceId": "22b031c8-1e5f-457d-b012-08268378abf5",
+      "prefabType": "bench",
+      "position": [
+        151.675674,
+        0.0,
+        176.661377
+      ],
+      "rotationX": 0.0,
+      "rotationY": 7.29324865,
+      "rotationZ": 0.0,
+      "scale": 1.18376327,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": true,
+      "optional": false
+    },
+    {
+      "instanceId": "1e55ea5c-9078-4a31-9a70-5c764a764e0b",
+      "prefabType": "bench",
+      "position": [
+        140.430328,
+        0.0,
+        182.01683
+      ],
+      "rotationX": 0.0,
+      "rotationY": 245.903748,
+      "rotationZ": 0.0,
+      "scale": 1.11453056,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": true,
+      "optional": false
+    },
+    {
+      "instanceId": "5bcb2b7c-097e-4a7d-b996-7896026f6de6",
+      "prefabType": "bench",
+      "position": [
+        128.595688,
+        0.0,
+        180.559387
+      ],
+      "rotationX": 0.0,
+      "rotationY": 30.1654129,
+      "rotationZ": 0.0,
+      "scale": 0.912929535,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": true,
+      "optional": false
+    },
+    {
+      "instanceId": "89acb69a-7783-4e21-9c2d-69b70e384fc4",
+      "prefabType": "bench",
+      "position": [
+        110.635612,
+        0.0,
+        182.2467
+      ],
+      "rotationX": 0.0,
+      "rotationY": 352.174072,
+      "rotationZ": 0.0,
+      "scale": 1.1483233,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": true,
+      "optional": false
+    },
+    {
+      "instanceId": "131ab7df-d389-4ea0-94d0-cd7e989958cc",
+      "prefabType": "bench",
+      "position": [
+        99.7056656,
+        0.0,
+        179.084213
+      ],
+      "rotationX": 0.0,
+      "rotationY": 96.55263,
+      "rotationZ": 0.0,
+      "scale": 0.937819,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": true,
+      "optional": false
+    },
+    {
+      "instanceId": "9999ca5d-bb99-4948-b6d5-a3be66031ec5",
+      "prefabType": "bench",
+      "position": [
+        189.471741,
+        0.0,
+        178.256058
+      ],
+      "rotationX": 0.0,
+      "rotationY": 241.633621,
+      "rotationZ": 0.0,
+      "scale": 1.1881777,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": true,
+      "optional": false
+    },
+    {
+      "instanceId": "5ef42528-6627-4e46-ad75-e711eb85769f",
+      "prefabType": "bush",
+      "position": [
+        202.0232,
+        0.0,
+        168.941879
+      ],
+      "rotationX": 0.0,
+      "rotationY": 355.440857,
+      "rotationZ": 0.0,
+      "scale": 1.10056174,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": true,
+      "optional": false
+    },
+    {
+      "instanceId": "22fdb8a0-41d7-4bf9-a399-2e1b3a2293cb",
+      "prefabType": "bush",
+      "position": [
+        206.749084,
+        0.0,
+        170.12796
+      ],
+      "rotationX": 0.0,
+      "rotationY": 191.76973,
+      "rotationZ": 0.0,
+      "scale": 1.1051048,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": true,
+      "optional": false
+    },
+    {
+      "instanceId": "dcd8d32c-68a6-4a0d-8226-8808d0dc54b7",
+      "prefabType": "bush",
+      "position": [
+        204.084412,
+        0.0,
+        171.537689
+      ],
+      "rotationX": 0.0,
+      "rotationY": 202.58551,
+      "rotationZ": 0.0,
+      "scale": 1.15759861,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": true,
+      "optional": false
+    },
+    {
+      "instanceId": "e18ad9fc-53e8-4a67-9221-3be2db98c0ef",
+      "prefabType": "bush",
+      "position": [
+        196.10141,
+        0.0,
+        174.874542
+      ],
+      "rotationX": 0.0,
+      "rotationY": 162.781189,
+      "rotationZ": 0.0,
+      "scale": 1.15640318,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": true,
+      "optional": false
+    },
+    {
+      "instanceId": "509c817d-8bdc-478b-9e57-c578f6663adb",
+      "prefabType": "bush",
+      "position": [
+        199.066879,
+        0.0,
+        177.451645
+      ],
+      "rotationX": 0.0,
+      "rotationY": 234.007645,
+      "rotationZ": 0.0,
+      "scale": 1.13951325,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": true,
+      "optional": false
+    },
+    {
+      "instanceId": "8ee40628-5834-4332-bd8a-550d694aaea8",
+      "prefabType": "bush",
+      "position": [
+        202.567566,
+        0.0,
+        178.693649
+      ],
+      "rotationX": 0.0,
+      "rotationY": 351.1194,
+      "rotationZ": 0.0,
+      "scale": 0.878057837,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": true,
+      "optional": false
+    },
+    {
+      "instanceId": "5f701ec9-9136-4165-87b6-4ff60acc80b8",
+      "prefabType": "bush",
+      "position": [
+        205.557114,
+        0.0,
+        177.18959
+      ],
+      "rotationX": 0.0,
+      "rotationY": 158.364426,
+      "rotationZ": 0.0,
+      "scale": 1.04411209,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": true,
+      "optional": false
+    },
+    {
+      "instanceId": "24c920f5-0edd-4781-87b2-92897326ab8f",
+      "prefabType": "bush",
+      "position": [
+        209.6942,
+        0.0,
+        176.310745
+      ],
+      "rotationX": 0.0,
+      "rotationY": 37.0129433,
+      "rotationZ": 0.0,
+      "scale": 0.952949762,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": true,
+      "optional": false
+    },
+    {
+      "instanceId": "dfa12947-3b5f-4b8f-bfa0-1e2222927b7e",
+      "prefabType": "bush",
+      "position": [
+        214.575424,
+        0.0,
+        175.916061
+      ],
+      "rotationX": 0.0,
+      "rotationY": 305.2089,
+      "rotationZ": 0.0,
+      "scale": 0.9766753,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": true,
+      "optional": false
+    },
+    {
+      "instanceId": "d74c14ae-28d8-40fc-8565-364d27036a0a",
+      "prefabType": "bush",
+      "position": [
+        176.7572,
+        0.0,
+        175.210876
+      ],
+      "rotationX": 0.0,
+      "rotationY": 149.470215,
+      "rotationZ": 0.0,
+      "scale": 0.8630988,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": true,
+      "optional": false
+    },
+    {
+      "instanceId": "0c93d226-d2b6-46cf-ba65-f7ba4b13a297",
+      "prefabType": "bush",
+      "position": [
+        173.154541,
+        0.0,
+        174.9716
+      ],
+      "rotationX": 0.0,
+      "rotationY": 53.3686676,
+      "rotationZ": 0.0,
+      "scale": 0.962283,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": true,
+      "optional": false
+    },
+    {
+      "instanceId": "5a9feab6-c9e6-47d5-a1d3-8d00c2bd3246",
+      "prefabType": "bush",
+      "position": [
+        169.37326,
+        0.0,
+        175.875458
+      ],
+      "rotationX": 0.0,
+      "rotationY": 21.6731949,
+      "rotationZ": 0.0,
+      "scale": 0.9556872,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": true,
+      "optional": false
+    },
+    {
+      "instanceId": "1045a51b-954f-4a5d-aef0-8c00f31ef6ce",
+      "prefabType": "bush",
+      "position": [
+        166.138184,
+        0.0,
+        174.897934
+      ],
+      "rotationX": 0.0,
+      "rotationY": 27.1125011,
+      "rotationZ": 0.0,
+      "scale": 1.071867,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": true,
+      "optional": false
+    },
+    {
+      "instanceId": "db3c0a71-019e-4d9b-9a06-0eaba7d4313a",
+      "prefabType": "bush",
+      "position": [
+        140.123535,
+        0.0,
+        174.686279
+      ],
+      "rotationX": 0.0,
+      "rotationY": 173.990936,
+      "rotationZ": 0.0,
+      "scale": 1.11486793,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": true,
+      "optional": false
+    },
+    {
+      "instanceId": "43d3ea06-ab50-4564-952f-9c7656da970a",
+      "prefabType": "bush",
+      "position": [
+        136.470947,
+        0.0,
+        176.386887
+      ],
+      "rotationX": 0.0,
+      "rotationY": 29.6067829,
+      "rotationZ": 0.0,
+      "scale": 0.980656445,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": true,
+      "optional": false
+    },
+    {
+      "instanceId": "c9de648e-a0b7-4fc9-b9a5-a5da3a578fed",
+      "prefabType": "bush",
+      "position": [
+        133.9388,
+        0.0,
+        174.191223
+      ],
+      "rotationX": 0.0,
+      "rotationY": 138.082626,
+      "rotationZ": 0.0,
+      "scale": 1.09678531,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": true,
+      "optional": false
+    },
+    {
+      "instanceId": "387835a2-53b2-432c-a9f3-410a04cd0f9a",
+      "prefabType": "bush",
+      "position": [
+        131.559341,
+        0.0,
+        171.8601
+      ],
+      "rotationX": 0.0,
+      "rotationY": 350.100647,
+      "rotationZ": 0.0,
+      "scale": 1.062571,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": true,
+      "optional": false
+    },
+    {
+      "instanceId": "f1374229-e69c-46fd-98cf-0c8132302b83",
+      "prefabType": "bush",
+      "position": [
+        116.997162,
+        0.0,
+        177.534225
+      ],
+      "rotationX": 0.0,
+      "rotationY": 211.227325,
+      "rotationZ": 0.0,
+      "scale": 1.05786145,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": true,
+      "optional": false
+    },
+    {
+      "instanceId": "4a918c03-5399-409f-b2f0-d8bd9f1fcebc",
+      "prefabType": "bush",
+      "position": [
+        114.525375,
+        0.0,
+        175.504166
+      ],
+      "rotationX": 0.0,
+      "rotationY": 191.922684,
+      "rotationZ": 0.0,
+      "scale": 0.9216569,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": true,
+      "optional": false
+    },
+    {
+      "instanceId": "2d13a268-17c3-49a8-a631-407153b6d952",
+      "prefabType": "bush",
+      "position": [
+        93.5443954,
+        0.0,
+        178.313568
+      ],
+      "rotationX": 0.0,
+      "rotationY": 219.165039,
+      "rotationZ": 0.0,
+      "scale": 0.981849551,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": true,
+      "optional": false
+    },
+    {
+      "instanceId": "ed696b1f-b459-4d51-838b-739134d91333",
+      "prefabType": "bush",
+      "position": [
+        90.69141,
+        0.0,
+        176.6555
+      ],
+      "rotationX": 0.0,
+      "rotationY": 322.72052,
+      "rotationZ": 0.0,
+      "scale": 0.8832077,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": true,
+      "optional": false
+    },
+    {
+      "instanceId": "74e03ea8-78e7-4324-9695-42d369cf217c",
+      "prefabType": "bush",
+      "position": [
+        88.15265,
+        0.0,
+        178.919647
+      ],
+      "rotationX": 0.0,
+      "rotationY": 327.336975,
+      "rotationZ": 0.0,
+      "scale": 0.936643958,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": true,
+      "optional": false
+    }
+  ],
+  "sites": null,
+  "generation": null,
+  "favorite": false
+}

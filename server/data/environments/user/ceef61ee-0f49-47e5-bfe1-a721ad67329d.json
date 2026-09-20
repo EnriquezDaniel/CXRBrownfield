@@ -1,0 +1,545 @@
+{
+  "id": "ceef61ee-0f49-47e5-bfe1-a721ad67329d",
+  "name": "Current Site",
+  "version": 5,
+  "tags": [
+    "user"
+  ],
+  "locked": false,
+  "site": {
+    "terrainSize": [
+      138.14,
+      23.2474976
+    ],
+    "terrainOrigin": [
+      81.0,
+      160.0
+    ],
+    "terrainZones": [],
+    "paths": [],
+    "fences": null,
+    "surfaceStrokes": [
+      {
+        "id": "b4cbf972-ea07-4882-be87-b9255fd29d31",
+        "terrainType": "pavement",
+        "radius": 16.9026814,
+        "points": [
+          [
+            86.27,
+            168.62
+          ],
+          [
+            92.68,
+            162.57
+          ],
+          [
+            112.74,
+            163.81
+          ],
+          [
+            101.63,
+            174.36
+          ],
+          [
+            113.16,
+            166.65
+          ],
+          [
+            114.71,
+            180.5
+          ],
+          [
+            129.81,
+            176.86
+          ],
+          [
+            169.27,
+            176.37
+          ],
+          [
+            130.04,
+            175.48
+          ],
+          [
+            208.83,
+            176.07
+          ],
+          [
+            187.82,
+            175.05
+          ],
+          [
+            195.15,
+            167.35
+          ],
+          [
+            157.62,
+            174.03
+          ],
+          [
+            169.88,
+            170.23
+          ],
+          [
+            157.05,
+            173.85
+          ],
+          [
+            131.34,
+            175.49
+          ],
+          [
+            169.3,
+            167.04
+          ],
+          [
+            136.42,
+            172.15
+          ],
+          [
+            128.77,
+            167.59
+          ],
+          [
+            138.52,
+            166.37
+          ],
+          [
+            152.7,
+            165.83
+          ]
+        ],
+        "shape": "circle",
+        "angleDeg": -1.0
+      },
+      {
+        "id": "2bec1e62-bde4-424e-8e2d-432274f57b3b",
+        "terrainType": "asphalt",
+        "radius": 16.9026814,
+        "points": [
+          [
+            94.67,
+            165.8
+          ],
+          [
+            103.03,
+            169.32
+          ],
+          [
+            95.97,
+            174.82
+          ]
+        ],
+        "shape": "circle",
+        "angleDeg": -1.0
+      },
+      {
+        "id": "88294f51-bdcb-494c-840a-848ebd053edd",
+        "terrainType": "Mixed Stone 1",
+        "radius": 16.9026814,
+        "points": [
+          [
+            90.63,
+            170.1
+          ],
+          [
+            99.08,
+            169.89
+          ],
+          [
+            109.91,
+            171.4
+          ],
+          [
+            122.84,
+            172.21
+          ]
+        ],
+        "shape": "circle",
+        "angleDeg": -1.0
+      },
+      {
+        "id": "b515ad4f-b5e8-417f-b198-1b9786e9013d",
+        "terrainType": "Mixed Stone 2",
+        "radius": 16.9026814,
+        "points": [
+          [
+            99.34,
+            179.12
+          ],
+          [
+            109.37,
+            174.89
+          ],
+          [
+            99.72,
+            171.43
+          ]
+        ],
+        "shape": "circle",
+        "angleDeg": -1.0
+      },
+      {
+        "id": "4cc13e68-9d5c-4a3f-ae85-05fabc82bd7f",
+        "terrainType": "Mixed Stone 2",
+        "radius": 16.9026814,
+        "points": [
+          [
+            89.64,
+            173.34
+          ],
+          [
+            95.64,
+            166.09
+          ],
+          [
+            115.23,
+            168.77
+          ],
+          [
+            132.55,
+            169.63
+          ],
+          [
+            141.28,
+            170.93
+          ],
+          [
+            153.86,
+            173.03
+          ],
+          [
+            165.33,
+            172.95
+          ],
+          [
+            175.71,
+            172.34
+          ],
+          [
+            185.65,
+            171.87
+          ],
+          [
+            198.12,
+            170.74
+          ],
+          [
+            207.64,
+            171.12
+          ],
+          [
+            198.99,
+            173.29
+          ],
+          [
+            164.42,
+            172.14
+          ],
+          [
+            117.69,
+            174.84
+          ],
+          [
+            97.5,
+            174.76
+          ],
+          [
+            88.55,
+            174.29
+          ]
+        ],
+        "shape": "circle",
+        "angleDeg": -1.0
+      }
+    ],
+    "heightStrokes": [],
+    "waterBodies": null,
+    "scaleNote": "",
+    "lotBoundary": null,
+    "outsideTerrainType": "water"
+  },
+  "buildingInstances": [
+    {
+      "instanceId": "6da1e68c-90fe-4368-ac89-212e05499fab",
+      "buildingId": "f6086bec-6125-4513-8b35-a494153c1479",
+      "position": [
+        208.807968,
+        0.0,
+        173.281
+      ],
+      "rotationX": 0.0,
+      "rotationY": 0.0,
+      "rotationZ": 0.0,
+      "scale": 1.0,
+      "included": true,
+      "optional": false,
+      "signText": null,
+      "signCompass": null,
+      "signPinned": false,
+      "signHostX": 0,
+      "signHostZ": 0,
+      "signHostFloor": 0
+    }
+  ],
+  "objectInstances": [
+    {
+      "instanceId": "66440e6e-77e8-4944-83f7-4c2f89cc6ed2",
+      "prefabType": "Car1",
+      "position": [
+        168.921616,
+        -2.40846111e-06,
+        180.887985
+      ],
+      "rotationX": 0.0,
+      "rotationY": 90.0,
+      "rotationZ": 0.0,
+      "scale": 1.0,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": false,
+      "optional": false
+    },
+    {
+      "instanceId": "96bd0e04-ef4b-4bc8-8f06-1a31714e2ebc",
+      "prefabType": "Car6",
+      "position": [
+        162.020432,
+        -2.64615528e-06,
+        181.035309
+      ],
+      "rotationX": 0.0,
+      "rotationY": 90.0,
+      "rotationZ": 0.0,
+      "scale": 1.0,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": false,
+      "optional": false
+    },
+    {
+      "instanceId": "9d044634-0910-4b15-85ef-446fc82dcb65",
+      "prefabType": "Car8",
+      "position": [
+        158.024841,
+        -2.017703e-06,
+        180.676422
+      ],
+      "rotationX": 0.0,
+      "rotationY": 90.0,
+      "rotationZ": 0.0,
+      "scale": 1.0,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": false,
+      "optional": false
+    },
+    {
+      "instanceId": "c1da46d0-eee4-4559-a0cf-97fbe4d2db0a",
+      "prefabType": "Car9",
+      "position": [
+        152.708969,
+        -1.05122081e-06,
+        180.96875
+      ],
+      "rotationX": 0.0,
+      "rotationY": 90.0,
+      "rotationZ": 0.0,
+      "scale": 1.0,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": false,
+      "optional": false
+    },
+    {
+      "instanceId": "5abcf7cd-6178-4ecb-af98-f702b2a66564",
+      "prefabType": "Car9",
+      "position": [
+        147.491364,
+        -3.08154813e-06,
+        181.043686
+      ],
+      "rotationX": 0.0,
+      "rotationY": 90.0,
+      "rotationZ": 0.0,
+      "scale": 1.0,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": false,
+      "optional": false
+    },
+    {
+      "instanceId": "9726d7eb-5376-4596-a1fc-6d66bcf6fea7",
+      "prefabType": "Car9",
+      "position": [
+        141.391174,
+        2.50125959e-06,
+        181.109955
+      ],
+      "rotationX": 0.0,
+      "rotationY": 90.0,
+      "rotationZ": 0.0,
+      "scale": 1.0,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": false,
+      "optional": false
+    },
+    {
+      "instanceId": "1cd90126-189b-457a-bfa3-b50d01d94ccf",
+      "prefabType": "Van1",
+      "position": [
+        144.374054,
+        -1.07510914e-06,
+        180.959351
+      ],
+      "rotationX": 0.0,
+      "rotationY": 90.0,
+      "rotationZ": 0.0,
+      "scale": 1.0,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": false,
+      "optional": false
+    },
+    {
+      "instanceId": "a2d3da28-f511-47c6-8869-09fc656707d5",
+      "prefabType": "Truck5",
+      "position": [
+        155.281708,
+        -1.08337372e-06,
+        180.977356
+      ],
+      "rotationX": 0.0,
+      "rotationY": 90.0,
+      "rotationZ": 0.0,
+      "scale": 1.0,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": false,
+      "optional": false
+    },
+    {
+      "instanceId": "b5c6cceb-e077-4de4-98f5-304919eb5220",
+      "prefabType": "Car1",
+      "position": [
+        138.578659,
+        -2.40846111e-06,
+        180.53862
+      ],
+      "rotationX": 0.0,
+      "rotationY": 90.0,
+      "rotationZ": 0.0,
+      "scale": 1.0,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": false,
+      "optional": false
+    },
+    {
+      "instanceId": "365dda31-e6df-4d79-b690-b2abc1cf141b",
+      "prefabType": "Car6",
+      "position": [
+        131.677475,
+        -2.64615528e-06,
+        180.685944
+      ],
+      "rotationX": 0.0,
+      "rotationY": 90.0,
+      "rotationZ": 0.0,
+      "scale": 1.0,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": false,
+      "optional": false
+    },
+    {
+      "instanceId": "e3b69712-9803-4d4f-8e7d-972ceed15667",
+      "prefabType": "Car8",
+      "position": [
+        123.433914,
+        -2.017703e-06,
+        180.048721
+      ],
+      "rotationX": 0.0,
+      "rotationY": 90.0,
+      "rotationZ": 0.0,
+      "scale": 1.0,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": false,
+      "optional": false
+    },
+    {
+      "instanceId": "616be493-5ee5-4178-aa09-dd44a8abffd9",
+      "prefabType": "Car1",
+      "position": [
+        103.987732,
+        -2.40846111e-06,
+        179.910919
+      ],
+      "rotationX": 0.0,
+      "rotationY": 90.0,
+      "rotationZ": 0.0,
+      "scale": 1.0,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": false,
+      "optional": false
+    },
+    {
+      "instanceId": "abd81b81-469c-4bb9-b42a-3c2cee9b7219",
+      "prefabType": "Van1",
+      "position": [
+        109.783127,
+        -1.07510914e-06,
+        180.33165
+      ],
+      "rotationX": 0.0,
+      "rotationY": 90.0,
+      "rotationZ": 0.0,
+      "scale": 1.0,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": false,
+      "optional": false
+    },
+    {
+      "instanceId": "442994d3-d08f-404c-ae06-29435d91fb8a",
+      "prefabType": "Car9",
+      "position": [
+        118.118042,
+        -1.05122081e-06,
+        180.341049
+      ],
+      "rotationX": 0.0,
+      "rotationY": 90.0,
+      "rotationZ": 0.0,
+      "scale": 1.0,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": false,
+      "optional": false
+    },
+    {
+      "instanceId": "1fe52191-a655-47e2-a8d1-78210fbe90c6",
+      "prefabType": "Truck5",
+      "position": [
+        120.690781,
+        -1.08337372e-06,
+        180.349655
+      ],
+      "rotationX": 0.0,
+      "rotationY": 90.0,
+      "rotationZ": 0.0,
+      "scale": 1.0,
+      "boxSizeMeters": null,
+      "included": true,
+      "brushPainted": false,
+      "optional": false
+    }
+  ],
+  "sites": null,
+  "generation": null,
+  "favorite": true
+}
